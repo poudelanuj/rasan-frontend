@@ -6,6 +6,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Dashboard from './Dashboard';
 import Orders from './Orders';
 import Products from './Products';
+import {Provider as UserProvider} from "./context/UserContext"
 import Users from './Users';
 import UserGroups from './UserGroups';
 import LiveUserBasket from './LiveUserBasket';
@@ -20,7 +21,7 @@ root.render(
         <Route index element={<Dashboard />} />
         <Route path="orders" element={<Orders />} />
         <Route path="products" element={<Products />} />
-        <Route path="users" element={<Users />} />
+        <Route path="users" element={<UserProvider><Users /></UserProvider>} />
         <Route path="user-groups" element={<UserGroups />} />
         <Route path="live-user-basket" element={<LiveUserBasket />} />
         <Route path="crm" element={<CRM />} />

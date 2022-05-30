@@ -70,7 +70,7 @@ const AppLayout = () => {
             defaultSelectedKeys={["0"]}
             defaultOpenKeys={["sub1"]}
             style={{
-              height: "100vh",
+              height: "100%",
               borderRight: 0,
             }}
             items={sidebarItems}
@@ -87,8 +87,9 @@ const AppLayout = () => {
           <Content
             // className="site-layout-background"
             style={{
-              padding: 24,
-              margin: 0,
+              // padding: 24,
+              // backgroundColor: "white",
+              // margin: 0,
               minHeight: 280,
             }}
           >
