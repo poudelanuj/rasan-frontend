@@ -11,12 +11,14 @@ import Users from './Users';
 import UserGroups from './UserGroups';
 import LiveUserBasket from './LiveUserBasket';
 import CRM from './CRM';
+import LoginApp from './Login/LoginApp';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <BrowserRouter>
     <React.StrictMode>
     <Routes>
+      <Route path="/login" element={<LoginApp />} />
       <Route path="/" element={<App />}>
         <Route index element={<Dashboard />} />
         <Route path="orders" element={<Orders />} />
