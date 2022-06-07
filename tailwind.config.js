@@ -5,7 +5,9 @@ content: [
   theme: {
     extend: {
       colors:{
-        primary:"#00A0B0"
+        primary:"#00A0B0",
+        text:"#1C2A3A",
+        light_text:"#596579"
       }
     },
   },

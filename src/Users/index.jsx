@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { Context as UserContext } from "../context/UserContext";
 import UserList from "./UserList";
 const Users = () => {
@@ -7,8 +7,9 @@ const Users = () => {
     getUsers,
   } = useContext(UserContext);
   // const [toReload, setToReload] = useState(true);
-  // const getUsersCall = useCallback(getUsers, [getUsers]);
+
   useEffect(() => {
+    // getUsersCall();
     (async () => {
       await getUsers();
     })(); //IIFE

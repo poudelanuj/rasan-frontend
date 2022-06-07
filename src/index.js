@@ -11,6 +11,7 @@ import Users from './Users';
 import UserGroups from './UserGroups';
 import LiveUserBasket from './LiveUserBasket';
 import CRM from './CRM';
+import User from './Users/User';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -22,6 +23,7 @@ root.render(
         <Route path="orders" element={<Orders />} />
         <Route path="products" element={<Products />} />
         <Route path="users" element={<UserProvider><Users /></UserProvider>} />
+          <Route path="user/:user_id" element={<UserProvider><User /></UserProvider>} />
         <Route path="user-groups" element={<UserGroups />} />
         <Route path="live-user-basket" element={<LiveUserBasket />} />
         <Route path="crm" element={<CRM />} />
