@@ -1,5 +1,6 @@
 import { Table } from "antd";
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const columns = [
   {
@@ -42,6 +43,7 @@ const columns = [
 ];
 
 const UserList = ({ users }) => {
+  let navigate = useNavigate();
   const [userColumns, setUserColumns] = useState([]);
   useEffect(() => {
     let users2 = users.map((user) => {
@@ -60,7 +62,18 @@ const UserList = ({ users }) => {
   return (
     <>
       {userColumns.length !== 0 && (
-        <Table columns={columns} dataSource={userColumns} />
+        <Table
+          onRow={(record) => {
+            console.log(record);
+            return {
+              onDoubleClick: (_) => {
+                navigate("/user/" + record.key);
+              }, // double click row
+            };
+          }}
+          columns={columns}
+          dataSource={userColumns}
+        />
       )}
     </>
   );
