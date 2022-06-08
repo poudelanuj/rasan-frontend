@@ -14,6 +14,7 @@ const columns = [
               src={record.profile_picture}
               width={50}
               alt={"text"}
+              style={{ borderRadius: "50%" }}
               className="inline pr-4 rounded-[50%]"
             />
           )}{" "}
@@ -51,7 +52,7 @@ const UserList = ({ users }) => {
         key: user.id,
         full_name: user.full_name || "N/A",
         phone: user.phone,
-        profile_picture: user.profile_picture?.thumbnail,
+        profile_picture: user.profile_picture?.small_square_crop,
         shop: user.shop.name || "N/A",
         address: user.addresses[0]?.detail_address || "N/A",
         loyalty_points: 500,

@@ -30,10 +30,10 @@ const sidebarItems = [
     icon: <ShoppingOutlined />,
   },
   {
-    key: "users",
+    key: "users-section",
     label: "Users",
     icon: <UserOutlined />,
-    // children: [{ label: "Users List", key: "user-list" }],
+    children: [{ label: "Users List", key: "users" }],
   },
   {
     key: "user-groups",
