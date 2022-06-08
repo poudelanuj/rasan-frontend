@@ -6,13 +6,12 @@ const Users = () => {
     state: { users, isLoading },
     getUsers,
   } = useContext(UserContext);
-  // const [toReload, setToReload] = useState(true);
-
   useEffect(() => {
-    // getUsersCall();
-    (async () => {
-      await getUsers();
-    })(); //IIFE
+    if (!users && !isLoading) {
+      (async () => {
+        await getUsers();
+      })(); //IIFE
+    }
   }, []);
 
   return (

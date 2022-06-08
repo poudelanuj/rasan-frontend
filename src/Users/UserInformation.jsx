@@ -6,6 +6,8 @@ const UserInformation = ({ user }) => {
   const {
     state: { status },
     updateUser,
+    deactivateUser,
+    logoutUser,
   } = useContext(UserContext);
   useEffect(() => {
     let data = {
@@ -27,7 +29,8 @@ const UserInformation = ({ user }) => {
     for (var key in values) {
       form_data.append(key, values[key]);
     }
-    updateUser(form_data)
+    console.log(user);
+    updateUser(form_data, user.id)
       .then(() => {
         if (status.success) message.success(status.message);
       })
@@ -35,7 +38,24 @@ const UserInformation = ({ user }) => {
         message.error(e.message);
       });
   };
-
+  const logOut = () => {
+    logoutUser(user.phone)
+      .then(() => {
+        if (status.success) message.success(status.message);
+      })
+      .catch((e) => {
+        message.error(e.message);
+      });
+  };
+  const deactivate = () => {
+    deactivateUser(user.phone)
+      .then(() => {
+        if (status.success) message.success(status.message);
+      })
+      .catch((e) => {
+        message.error(e.message);
+      });
+  };
   const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);
   };
@@ -44,8 +64,10 @@ const UserInformation = ({ user }) => {
       <div className="user-title-logout flex justify-between m-4">
         <div className="text-gray-700 text-xl">User Information</div>
         <div>
-          <Button type="link">Log user out</Button>
-          <Button type="primary" danger>
+          <Button type="link" onClick={logOut}>
+            Log user out
+          </Button>
+          <Button type="primary" onClick={deactivate} danger>
             Deactivate User
           </Button>
         </div>
@@ -84,7 +106,7 @@ const UserInformation = ({ user }) => {
                 <Form.Item label="Full Name" name="full_name">
                   <Input />
                 </Form.Item>
-                <Form.Item label="Shop Name" name="shop_name">
+                {/* <Form.Item label="Shop Name" name="shop_name">
                   <Input />
                 </Form.Item>
                 {user.addresses.map((address, index) => (
@@ -95,7 +117,7 @@ const UserInformation = ({ user }) => {
                   >
                     <Input />
                   </Form.Item>
-                ))}
+                ))} */}
                 <Form.Item label="Number" name="number">
                   <Input />
                 </Form.Item>

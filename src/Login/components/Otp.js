@@ -21,7 +21,7 @@ function Otp({loginObject}) {
                     loginDispatch({ type: 'SET_LOGINW_STATE', payload: 'loading' })
                     // post otp await request to server
                     console.log(loginState.otp, `+977-${loginState.phoneNumber}`);
-                    await axios.post('/auth/login/', {
+                    await axios.post('/api/auth/login/', {
                         phone: `+977-${loginState.phoneNumber}`,
                         pin: loginState.otp
                         })

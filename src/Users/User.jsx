@@ -1,16 +1,18 @@
-import { useContext, useEffect } from "react";
-import { Context as UserContext } from "../context/UserContext";
-import Icon from "@ant-design/icons";
-
-import {
+import Icon, {
+  EnvironmentOutlined,
   HomeOutlined,
   PhoneOutlined,
-  EnvironmentOutlined,
 } from "@ant-design/icons";
+import { useContext, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { Context as UserContext } from "../context/UserContext";
 import Loyalty from "../svgs/Loyalty";
 import Time from "../svgs/Time";
 import UserTab from "./UserTab";
+
 const User = () => {
+  let { user_id } = useParams();
+
   const {
     state: { user, isLoading },
     getUser,
@@ -18,7 +20,7 @@ const User = () => {
 
   useEffect(() => {
     (async () => {
-      await getUser(1);
+      await getUser(user_id);
     })(); //IIFE
   }, []);
 
