@@ -1,9 +1,10 @@
-import React from "react";
-import axios from "axios";
+import React, {useContext} from "react";
 import { MdAdminPanelSettings } from "react-icons/md";
 
-function Login({ loginObject }) {
-  const { loginState, loginDispatch } = loginObject;
+import { LoginContext } from "../context/LoginContext";
+
+function Login() {
+  const { loginState, loginDispatch, getOtp } = useContext(LoginContext);
   return (
     <>
       <h1 className='text-center py-1 text-xl font-semibold font-["Tahoma"] text-[#00A0B0]'>
@@ -31,56 +32,7 @@ function Login({ loginObject }) {
         onClick={async () => {
           if (loginState.phoneNumber.length === 10) {
             loginDispatch({ type: "SET_LOGINW_STATE", payload: "loading" });
-            await axios
-              .post("/api/auth/request/", {
-                phone: `+977-${loginState.phoneNumber}`,
-              })
-              .then((res) => {
-                console.log(res);
-                if (res.data.success) {
-                  loginDispatch({
-                    type: "SET_TOAST",
-                    payload: {
-                      showToast: true,
-                      toastType: "success",
-                      toastMessage: res.data.message,
-                      toastHeading: "Success",
-                    },
-                  });
-                  loginDispatch({ type: "SET_LOGINW_STATE", payload: "otp" });
-                } else {
-                  loginDispatch({
-                    type: "SET_TOAST",
-                    payload: {
-                      showToast: true,
-                      toastType: "error",
-                      toastHeading: res.data.message,
-                      toastMessage: res.data.errors.map((error) => {
-                        return error[0];
-                      }),
-                    },
-                  });
-                  loginDispatch({ type: "SET_LOGINW_STATE", payload: "login" });
-                }
-              })
-              .catch((err) => {
-                console.log(err);
-                loginDispatch({
-                  type: "SET_TOAST",
-                  payload: {
-                    showToast: true,
-                    toastMessage:
-                      (err.response.data &&
-                        err.response.data.message &&
-                        err.response.data.message) ||
-                      (err.message && err.message) ||
-                      "Something went wrong. OTP wasn't sent!",
-                    toastType: "error",
-                    toastHeading: "Error",
-                  },
-                });
-                loginDispatch({ type: "SET_LOGINW_STATE", payload: "login" });
-              });
+            await getOtp(loginState.phoneNumber);
           } else {
             loginDispatch({
               type: "SET_TOAST",

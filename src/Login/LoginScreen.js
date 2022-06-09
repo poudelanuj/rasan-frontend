@@ -1,5 +1,5 @@
 import React, { useContext } from 'react'
-import { LoginContext } from './LoginContextProvider'
+import { LoginContext } from './context/LoginContext'
 
 import Login from './components/Login';
 import Otp from './components/Otp';
@@ -10,10 +10,6 @@ import { useNavigate } from 'react-router-dom';
 
 function LoginScreen() {
     const {loginState, loginDispatch} = useContext(LoginContext);
-    const loginObject = {
-        loginState,
-        loginDispatch,
-    }
     const navigate = useNavigate();
     return (
         <>
@@ -26,10 +22,10 @@ function LoginScreen() {
                     )}
                     <form className='flex flex-col items-center h-full justify-around'>
                         {loginState.loginWidgetState === 'login' && (
-                            <Login loginObject={loginObject} />
+                            <Login />
                         )}
                         {loginState.loginWidgetState === 'otp' && (
-                            <Otp loginObject={loginObject} />
+                            <Otp />
                         )}
                         {loginState.loginWidgetState === 'loading' && (
                             <Loading />
@@ -41,7 +37,7 @@ function LoginScreen() {
                 </div>
             </div>
             {loginState.showToast && (
-            <Toast message={loginState.toastMessage} heading={loginState.toastHeading} type={loginState.toastType} loginObject={loginObject} />
+            <Toast />
             )}
         </>
     )

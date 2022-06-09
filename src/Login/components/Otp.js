@@ -1,9 +1,10 @@
-import axios from 'axios';
-import React from 'react'
+import React, {useContext} from 'react'
 import {MdOutlineTextsms} from 'react-icons/md';
 
+import { LoginContext } from '../context/LoginContext';
+
 function Otp({loginObject}) {
-    const {loginState, loginDispatch} = loginObject;
+    const {verifyOtp, loginState, loginDispatch} = useContext(LoginContext);
     return (
         <>
             <h1 className='text-center py-1 text-xl font-semibold font-["Tahoma"] text-[#00A0B0]'>Type your  OTP</h1>
@@ -21,26 +22,7 @@ function Otp({loginObject}) {
                     loginDispatch({ type: 'SET_LOGINW_STATE', payload: 'loading' })
                     // post otp await request to server
                     console.log(loginState.otp, `+977-${loginState.phoneNumber}`);
-                    await axios.post('/api/auth/login/', {
-                        phone: `+977-${loginState.phoneNumber}`,
-                        pin: loginState.otp
-                        })
-                        .then(res => {
-                            console.log(res);
-                            if (res.data.success) {
-                                localStorage.setItem('auth_token', res.data.data.token);
-                                loginDispatch({ type: 'SET_LOGINW_STATE', payload: 'success' })
-                            } else {
-                                console.log("Inside else");
-                                loginDispatch({ type: 'SET_LOGINW_STATE', payload: 'otp' })
-                                loginDispatch({ type: 'SET_TOAST', payload: {showToast: true, toastMessage: res.data.message, toastType: 'error', toastHeading: 'Error'} });
-                            }
-                        })
-                        .catch(err => {
-                            console.log(err);
-                            loginDispatch({ type: 'SET_TOAST', payload: {showToast: true, toastMessage: (err.response.data && err.response.data.message && err.response.data.message) || (err.message && err.message) || ('Something went wrong. OTP wasn\'t verified!'), toastType: 'error', toastHeading: 'Error'} });
-                            loginDispatch({ type: 'SET_LOGINW_STATE', payload: 'otp' })
-                        })
+                    await verifyOtp(loginState.phoneNumber, loginState.otp);
 
                 } else {
                     loginDispatch({ type: 'SET_TOAST', payload: {showToast: true, toastMessage: 'OTP must be atleast 6 digits long!', toastType: 'error', toastHeading: 'Error'} });
