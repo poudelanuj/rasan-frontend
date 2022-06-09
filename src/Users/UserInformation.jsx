@@ -1,14 +1,32 @@
 import { Button, Form, Input, message } from "antd";
-import React, { useContext, useEffect } from "react";
-import { Context as UserContext } from "../context/UserContext";
+import React, { useEffect } from "react";
+import { useMutation, useQueryClient } from "react-query";
+import { deactivateUser, logoutUser, updateUser } from "../context/UserContext";
+import AddressForm from "./AddressForm";
 const UserInformation = ({ user }) => {
+  console.log(user);
   const [form] = Form.useForm();
-  const {
-    state: { status },
-    updateUser,
-    deactivateUser,
-    logoutUser,
-  } = useContext(UserContext);
+  const queryClient = useQueryClient();
+  const { mutate: updateUserMutation } = useMutation(updateUser, {
+    onSuccess: (data) => {
+      message.success(data.message);
+      queryClient.invalidateQueries(["get-user", `${user.id}`]);
+    },
+    onError: (data) => {
+      message.error(data.message);
+    },
+  });
+  const { mutate: logOutUserMutation } = useMutation(logoutUser, {
+    onSuccess: (data) => {
+      console.log(data);
+      message.success(data);
+    },
+  });
+  const { mutate: deactivateUserMutation } = useMutation(deactivateUser, {
+    onSuccess: (data) => {
+      message.success(data.message);
+    },
+  });
   useEffect(() => {
     let data = {
       full_name: user.full_name,
@@ -22,39 +40,18 @@ const UserInformation = ({ user }) => {
     });
     form.setFieldsValue(data);
   }, [user, form]);
-
-  const onFinish = (values) => {
-    const form_data = new FormData();
-
-    for (var key in values) {
-      form_data.append(key, values[key]);
-    }
-    console.log(user);
-    updateUser(form_data, user.id)
-      .then(() => {
-        if (status.success) message.success(status.message);
-      })
-      .catch((e) => {
-        message.error(e.message);
-      });
-  };
   const logOut = () => {
-    logoutUser(user.phone)
-      .then(() => {
-        if (status.success) message.success(status.message);
-      })
-      .catch((e) => {
-        message.error(e.message);
-      });
+    logOutUserMutation(user.phone);
   };
   const deactivate = () => {
-    deactivateUser(user.phone)
-      .then(() => {
-        if (status.success) message.success(status.message);
-      })
-      .catch((e) => {
-        message.error(e.message);
-      });
+    deactivateUserMutation(user.phone);
+  };
+  const onFinish = (values) => {
+    const form_data = new FormData();
+    for (let key in values) {
+      form_data.append(key, values[key]);
+    }
+    updateUserMutation({ data: form_data, key: user.id });
   };
   const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);
@@ -83,30 +80,31 @@ const UserInformation = ({ user }) => {
                 alt={user.full_name}
               />
             </div>
-            <div className="detail-form flex-1 flex-col flex ">
-              <Button className="ml-auto" type="link">
-                Edit Profile Picture
-              </Button>
-              <Form
-                form={form}
-                name="basic"
-                labelCol={{
-                  span: 8,
-                }}
-                wrapperCol={{
-                  span: 16,
-                }}
-                initialValues={{
-                  remember: true,
-                }}
-                onFinish={onFinish}
-                onFinishFailed={onFinishFailed}
-                autoComplete="off"
-              >
-                <Form.Item label="Full Name" name="full_name">
-                  <Input />
-                </Form.Item>
-                {/* <Form.Item label="Shop Name" name="shop_name">
+          </div>
+          <div className="detail-form flex-1 flex-col flex ">
+            <Button className="ml-auto" type="link">
+              Edit Profile Picture
+            </Button>
+            <Form
+              form={form}
+              name="basic"
+              labelCol={{
+                span: 8,
+              }}
+              wrapperCol={{
+                span: 16,
+              }}
+              initialValues={{
+                remember: true,
+              }}
+              onFinish={onFinish}
+              onFinishFailed={onFinishFailed}
+              autoComplete="off"
+            >
+              <Form.Item label="Full Name" name="full_name">
+                <Input />
+              </Form.Item>
+              {/* <Form.Item label="Shop Name" name="shop_name">
                   <Input />
                 </Form.Item>
                 {user.addresses.map((address, index) => (
@@ -118,46 +116,25 @@ const UserInformation = ({ user }) => {
                     <Input />
                   </Form.Item>
                 ))} */}
-                <Form.Item label="Number" name="number">
-                  <Input />
-                </Form.Item>
-                <Form.Item label="Alternative Number" name="alternate_number">
-                  <Input />
-                </Form.Item>
-                <Form.Item label="Date of Birth" name="date_of_birth">
-                  <Input />
-                </Form.Item>
-                {/* <Form.Item
-        name="remember"
-        valuePropName="checked"
-        wrapperCol={{
-          offset: 8,
-          span: 16,
-        }}
-      >
-        <Checkbox>Remember me</Checkbox>
-      </Form.Item>
+              <Form.Item label="Number" name="number">
+                <Input />
+              </Form.Item>
+              <Form.Item label="Alternative Number" name="alternate_number">
+                <Input />
+              </Form.Item>
+              <Form.Item label="Date of Birth" name="date_of_birth">
+                <Input />
+              </Form.Item>
 
-      <Form.Item
-        wrapperCol={{
-          offset: 8,
-          span: 16,
-        }}
-      >
-   */}{" "}
-                <Form.Item>
-                  <Button
-                    className="bg-primary"
-                    type="primary"
-                    htmlType="submit"
-                  >
-                    Submit
-                  </Button>
-                </Form.Item>
-              </Form>
-            </div>
+              <Form.Item>
+                <Button className="bg-primary" type="primary" htmlType="submit">
+                  Submit
+                </Button>
+              </Form.Item>
+            </Form>
           </div>
         </div>
+
         <div className="cash-section w-4/12 mx-auto">
           <div className="flex ">
             <div className="w-1/2 border p-4 bg-[#F8FAFF] text-sm text-light_text">
@@ -180,6 +157,13 @@ const UserInformation = ({ user }) => {
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="detail-form w-7/12 border mt-3 p-3 border-primary flex-col flex ">
+        <div className="text-gray-700 text-xl">Addresses</div>
+        {user?.addresses.map((address) => {
+          return <AddressForm />;
+        })}
       </div>
       <div className="image-section w-7/12 border p-5 mt-3 border-primary">
         <div className="text-gray-700 text-xl mb-4">Images</div>
