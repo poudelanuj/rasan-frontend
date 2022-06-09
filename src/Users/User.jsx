@@ -3,32 +3,34 @@ import Icon, {
   HomeOutlined,
   PhoneOutlined,
 } from "@ant-design/icons";
-import { useContext, useEffect } from "react";
+import { useQuery } from "react-query";
 import { useParams } from "react-router-dom";
-import { Context as UserContext } from "../context/UserContext";
+import { getLastLogin, getUser } from "../context/UserContext";
 import Loyalty from "../svgs/Loyalty";
 import Time from "../svgs/Time";
 import UserTab from "./UserTab";
 
 const User = () => {
   let { user_id } = useParams();
-
   const {
-    state: { user, isLoading },
-    getUser,
-  } = useContext(UserContext);
-
-  useEffect(() => {
-    (async () => {
-      await getUser(user_id);
-    })(); //IIFE
-  }, []);
+    data: user,
+    isLoading,
+    isSuccess,
+  } = useQuery(["get-user", user_id], async () => getUser(user_id));
+  const phone = user?.phone;
+  const { data: last_logged_in } = useQuery(
+    ["last_logged_in", phone],
+    async () => getLastLogin(phone),
+    {
+      enabled: !!phone,
+    }
+  );
 
   return (
     <div>
       <div className="text-3xl bg-white mb-3 p-5">User Details</div>
       {isLoading && <div>Loading....</div>}
-      {user && (
+      {isSuccess && (
         <div>
           <div className="flex text-text bg-white p-4 justify-between">
             <div className="details flex w-6/12">
@@ -67,7 +69,9 @@ const User = () => {
               <Icon component={Time} />
               <div className="text-light_text text-sm ml-2">
                 Last Logged In
-                <div className="text-text text-lg">10:00 AM</div>
+                <div className="text-text text-lg">
+                  {isLoading ? "Loading.." : last_logged_in}
+                </div>
               </div>
             </div>
           </div>
