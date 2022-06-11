@@ -5,7 +5,7 @@ import Icon, {
 } from "@ant-design/icons";
 import { useQuery } from "react-query";
 import { useParams } from "react-router-dom";
-import { getLastLogin, getUser } from "../context/UserContext";
+import { getUser } from "../context/UserContext";
 import Loyalty from "../svgs/Loyalty";
 import Time from "../svgs/Time";
 import UserTab from "./UserTab";
@@ -17,14 +17,6 @@ const User = () => {
     isLoading,
     isSuccess,
   } = useQuery(["get-user", user_id], async () => getUser(user_id));
-  const phone = user?.phone;
-  const { data: last_logged_in } = useQuery(
-    ["last_logged_in", phone],
-    async () => getLastLogin(phone),
-    {
-      enabled: !!phone,
-    }
-  );
 
   return (
     <div>
@@ -70,7 +62,7 @@ const User = () => {
               <div className="text-light_text text-sm ml-2">
                 Last Logged In
                 <div className="text-text text-lg">
-                  {isLoading ? "Loading.." : last_logged_in}
+                  {/* {isLoading ? "Loading.." : last_logged_in} */}
                 </div>
               </div>
             </div>

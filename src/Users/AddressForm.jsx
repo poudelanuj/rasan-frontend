@@ -1,14 +1,69 @@
-import { Button, Form, Input } from "antd";
-import React from "react";
+import { Button, Form, Input, message, Select } from "antd";
+import React, { useEffect, useState } from "react";
+import { useMutation, useQuery } from "react-query";
+import { getAllProvinces, updateAddress } from "../context/UserContext";
 
 const AddressForm = ({ address }) => {
   const [form] = Form.useForm();
+  const { data: provincesList } = useQuery("get-provinces", getAllProvinces);
+  const [provinces, setProvinces] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [areas, setAreas] = useState([]);
+  const { mutate: addressMutation } = useMutation(updateAddress, {
+    onSuccess: (data) => {
+      message.success(data);
+    },
+  });
+  useEffect(() => {
+    setProvinces(
+      provincesList?.map((province) => {
+        return {
+          label: province.name,
+          value: province.id,
+          disabled: !province.is_active,
+        };
+      })
+    );
+  }, [provincesList]);
+
+  useEffect(() => {
+    setCities(
+      provincesList?.find((province) => province.id === address.province).cities
+    );
+  }, [provincesList, address.province]);
+  useEffect(() => {
+    setAreas(cities?.find((city) => city.id === address.city)?.areas);
+  }, [cities, address.city]);
+
+  useEffect(() => {
+    let data = {
+      province: address.province,
+      city: address.city,
+      area: address.area,
+      detail_address: address.detail_address,
+      map_longitude: address.map_longitude,
+      map_latitude: address.map_latitude,
+    };
+    form.setFieldsValue(data);
+  }, [address, form]);
+
+  const onChangeProvince = (e) => {
+    form.setFieldsValue({ city: null, area: null });
+    setCities(provincesList.find((province) => province.id === e).cities);
+  };
+
+  const onChangeCity = (e) => {
+    form.setFieldsValue({ area: null });
+    setAreas(cities.find((city) => city.id === e).areas);
+  };
+
   const onFinish = (values) => {
     const form_data = new FormData();
     for (let key in values) {
       form_data.append(key, values[key]);
     }
     console.log(values);
+    addressMutation({ data: form_data, key: address.id });
   };
   const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);
@@ -20,6 +75,7 @@ const AddressForm = ({ address }) => {
       labelCol={{
         span: 8,
       }}
+      // onValuesChange={onValuesChanged}
       wrapperCol={{
         span: 16,
       }}
@@ -30,28 +86,75 @@ const AddressForm = ({ address }) => {
       onFinishFailed={onFinishFailed}
       autoComplete="off"
     >
-      <Form.Item label="Full Name" name="full_name">
+      <Form.Item
+        name="province"
+        label="Province"
+        rules={[
+          {
+            required: true,
+            message: "Please select your province!",
+          },
+        ]}
+      >
+        <Select
+          onChange={onChangeProvince}
+          placeholder="Please select a province"
+          options={provinces}
+        ></Select>
+      </Form.Item>
+      <Form.Item
+        name="city"
+        label="City"
+        rules={[
+          {
+            required: true,
+            message: "Please select your city!",
+          },
+        ]}
+      >
+        <Select onChange={onChangeCity} placeholder="Please select a city">
+          {!!cities?.length &&
+            cities.map((city) => (
+              <Select.Option
+                disabled={!city.is_active}
+                value={city.id}
+                key={city.id}
+              >
+                {city.name}
+              </Select.Option>
+            ))}
+        </Select>
+      </Form.Item>
+      <Form.Item
+        name="area"
+        label="Area"
+        rules={[
+          {
+            required: true,
+            message: "Please select your area!",
+          },
+        ]}
+      >
+        <Select onChange={onchange} placeholder="Please select an area">
+          {!!areas?.length &&
+            areas.map((area) => (
+              <Select.Option
+                disabled={!area.is_active}
+                value={area.id}
+                key={area.id}
+              >
+                {area.name}
+              </Select.Option>
+            ))}
+        </Select>
+      </Form.Item>
+      <Form.Item label="Detail Address" name="detail_address">
         <Input />
       </Form.Item>
-      {/* <Form.Item label="Shop Name" name="shop_name">
-                  <Input />
-                </Form.Item>
-                {user.addresses.map((address, index) => (
-                  <Form.Item
-                    label={`Address-${index + 1}`}
-                    name={`address-${index + 1}`}
-                    key={index}
-                  >
-                    <Input />
-                  </Form.Item>
-                ))} */}
-      <Form.Item label="Number" name="number">
+      <Form.Item label="Longitude" name="map_longitude">
         <Input />
       </Form.Item>
-      <Form.Item label="Alternative Number" name="alternate_number">
-        <Input />
-      </Form.Item>
-      <Form.Item label="Date of Birth" name="date_of_birth">
+      <Form.Item label="Latitude" name="map_latitude">
         <Input />
       </Form.Item>
 

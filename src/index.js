@@ -13,6 +13,7 @@ import Products from "./Products";
 import UserGroups from "./UserGroups";
 import Users from "./Users";
 import User from "./Users/User";
+import { ReactQueryDevtools } from "react-query/devtools";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ root.render(
         </Routes>
       </React.StrictMode>
     </BrowserRouter>
+    <ReactQueryDevtools initialIsOpen={false} />
   </QueryClientProvider>
 );
 

@@ -45,3 +45,38 @@ export const getLastLogin = async (phone) => {
   let date = new Date(response.data.data.last_login_at);
   return date.toDateString();
 };
+
+export const getShopInfo = async (user_id) => {
+  const response = await myaxios.get(
+    "/api/profile/admin/shop-detail/" + user_id + "/"
+  );
+  return response.data.data;
+};
+
+export const updateShop = async ({ data, key }) => {
+  const response = await myaxios.put(
+    `/api/profile/admin/shop-detail/` + key + "/",
+    data
+  );
+  return response.data;
+};
+export const getAllProvinces = async () => {
+  const response = await myaxios.get("/api/profile/address-meta/");
+  return response.data.data;
+};
+
+export const updateAddress = async ({ data, key }) => {
+  const response = await myaxios.put(
+    `/api/profile/admin/address/detail/` + key + "/",
+    data
+  );
+  return response.data;
+};
+
+export const createAddress = async ({ data, key }) => {
+  const response = await myaxios.post(
+    `/api/profile/admin/address/` + key + "/",
+    data
+  );
+  return response.data;
+};
