@@ -1,0 +1,90 @@
+---
+# skipping some of the important settings since it has been inside react-app
+
+# env:
+#   browser: true
+#   es6: true
+#   node: true
+# parser: '@typescript-eslint/parser'
+# parserOptions:
+#   ecmaVersion: 2018
+#   sourceType: module
+# plugins:
+#   - react
+#   - @typescript-eslint
+
+root: true
+extends:
+  - react-app
+  - eslint:recommended
+  - plugin:react/recommended
+  - plugin:prettier/recommended
+  - prettier/react
+
+rules:
+  no-var: 1
+  no-unused-vars: 1
+  no-debugger: 1
+  no-multi-spaces: 1
+  spaced-comment: 1
+  no-unused-expressions:
+    - 1
+    - allowShortCircuit: true
+      allowTernary: true
+  no-console:
+    - 1
+    - allow:
+        - warn
+        - error
+        - table
+        - info
+  no-underscore-dangle:
+    - error
+    - allow:
+        - __REDUX_DEVTOOLS_EXTENSION__
+  no-restricted-properties:
+    - 2
+    - object: "require"
+      message: "Please use import() instead. More info: https://facebook.github.io/create-react-app/docs/code-splitting"
+
+  react/jsx-filename-extension:
+    - 2
+    - extensions:
+        - ".jsx"
+        - ".tsx"
+  react/jsx-props-no-spreading: 0
+  react/prop-types: 0
+  # turning this off as it will be soon deprecated
+  # https://github.com/reactjs/rfcs/pull/107
+  # https://twitter.com/dan_abramov/status/1133878326358171650
+  react/require-default-props: 0
+  react/no-array-index-key: 1
+  react/react-in-jsx-scope: "off"
+  react/jsx-sort-props:
+    - 1
+    - callbacksLast: true
+      shorthandLast: true
+      reservedFirst: true
+  # turn this if we want to have roles on each interaction for a11y to be included
+  jsx-a11y/no-static-element-interactions: 0
+  # turn this if we want to be align with a11y interactive element
+  jsx-a11y/no-noninteractive-element-interactions: 1
+  jsx-a11y/click-events-have-key-events: 0
+  jsx-a11y/label-has-associated-control:
+    - 1
+    - required:
+        some:
+          - nesting
+          - id
+  import/prefer-default-export: 0
+  import/no-cycle:
+    - 2
+    - maxDepth: 3
+  import/no-extraneous-dependencies:
+    - error
+    - devDependencies:
+        - "**/*.test.js"
+        - "**/*.test.jsx"
+        - "./src/setupTests.js"
+        - "./src/test/**/*.jsx"
+        - "./src/test/**/*.js"

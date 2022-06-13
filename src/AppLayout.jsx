@@ -39,7 +39,10 @@ const sidebarItems = [
     key: "users-section",
     label: "Users",
     icon: <UserOutlined />,
-    children: [{ label: "Users List", key: "users" }],
+    children: [
+      { label: "Users List", key: "users" },
+      { label: "OTP Requests", key: "otp-requests" },
+    ],
   },
   {
     key: "user-groups",
@@ -72,14 +75,14 @@ const AppLayout = () => {
       <Layout>
         <Sider width={200}>
           <Menu
-            mode="inline"
-            defaultSelectedKeys={["0"]}
             defaultOpenKeys={["sub1"]}
+            defaultSelectedKeys={["0"]}
+            items={sidebarItems}
+            mode="inline"
             style={{
               height: "100%",
               borderRight: 0,
             }}
-            items={sidebarItems}
             onClick={({ key }) => {
               navigate(key);
             }}

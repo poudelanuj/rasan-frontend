@@ -5,25 +5,16 @@ import Icon, {
 } from "@ant-design/icons";
 import { useQuery } from "react-query";
 import { useParams } from "react-router-dom";
-import { getLastLogin, getUser } from "../context/UserContext";
+import { getUser } from "../context/UserContext";
 import Loyalty from "../svgs/Loyalty";
 import Time from "../svgs/Time";
 import UserTab from "./UserTab";
 
 const User = () => {
   let { user_id } = useParams();
-  const {
-    data: user,
-    isLoading,
-    isSuccess,
-  } = useQuery(["get-user", user_id], async () => getUser(user_id));
-  const phone = user?.phone;
-  const { data: last_logged_in } = useQuery(
-    ["last_logged_in", phone],
-    async () => getLastLogin(phone),
-    {
-      enabled: !!phone,
-    }
+  const { data: user, isLoading, isSuccess } = useQuery(
+    ["get-user", user_id],
+    async () => getUser(user_id)
   );
 
   return (
@@ -35,9 +26,9 @@ const User = () => {
           <div className="flex text-text bg-white p-4 justify-between">
             <div className="details flex w-6/12">
               <img
+                alt={user.full_name}
                 className="image mr-3"
                 src={user.profile_picture.small_square_crop}
-                alt={user.full_name}
               />
               <div>
                 <div className="font-medium text-lg">{user.full_name}</div>
@@ -70,7 +61,7 @@ const User = () => {
               <div className="text-light_text text-sm ml-2">
                 Last Logged In
                 <div className="text-text text-lg">
-                  {isLoading ? "Loading.." : last_logged_in}
+                  {/* {isLoading ? "Loading.." : last_logged_in} */}
                 </div>
               </div>
             </div>

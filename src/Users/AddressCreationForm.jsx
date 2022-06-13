@@ -1,13 +1,9 @@
-import { Button, Divider, Form, Input, message, Select } from "antd";
+import { Form, Input, message, Modal, Select } from "antd";
 import React, { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import {
-  deleteAddress,
-  getAllProvinces,
-  updateAddress,
-} from "../context/UserContext";
+import { createAddress, getAllProvinces } from "../context/UserContext";
 
-const AddressForm = ({ address, id }) => {
+const AddressCreationForm = ({ visible, onCancel, id }) => {
   const [form] = Form.useForm();
   const { data: provincesList } = useQuery("get-provinces", getAllProvinces);
   const [provinces, setProvinces] = useState([]);
@@ -15,13 +11,7 @@ const AddressForm = ({ address, id }) => {
   const [areas, setAreas] = useState([]);
   const queryClient = useQueryClient();
 
-  const { mutate: addressMutation } = useMutation(updateAddress, {
-    onSuccess: (data) => {
-      console.log(data.message);
-      message.success(data.message);
-    },
-  });
-  const { mutate: addressDeletion } = useMutation(deleteAddress, {
+  const { mutate: addressMutation } = useMutation(createAddress, {
     onSuccess: (data) => {
       message.success(data);
       queryClient.invalidateQueries(["get-user", `${id}`]);
@@ -39,27 +29,6 @@ const AddressForm = ({ address, id }) => {
     );
   }, [provincesList]);
 
-  useEffect(() => {
-    setCities(
-      provincesList?.find((province) => province.id === address.province).cities
-    );
-  }, [provincesList, address.province]);
-  useEffect(() => {
-    setAreas(cities?.find((city) => city.id === address.city)?.areas);
-  }, [cities, address.city]);
-
-  useEffect(() => {
-    let data = {
-      province: address.province,
-      city: address.city,
-      area: address.area,
-      detail_address: address.detail_address,
-      map_longitude: address.map_longitude,
-      map_latitude: address.map_latitude,
-    };
-    form.setFieldsValue(data);
-  }, [address, form]);
-
   const onChangeProvince = (e) => {
     form.setFieldsValue({ city: null, area: null });
     setCities(provincesList.find((province) => province.id === e).cities);
@@ -75,31 +44,47 @@ const AddressForm = ({ address, id }) => {
     for (let key in values) {
       form_data.append(key, values[key]);
     }
-    addressMutation({ data: form_data, key: address.id });
+    addressMutation({ data: form_data, key: id });
   };
   const onFinishFailed = (errorInfo) => {};
   return (
-    <>
+    <Modal
+      cancelText="Cancel"
+      okButtonProps={{ className: "bg-primary" }}
+      okText="Create"
+      title="Create a new address"
+      visible={visible}
+      onCancel={onCancel}
+      onOk={() => {
+        form
+          .validateFields()
+          .then(() => {
+            form.submit();
+            onCancel();
+          })
+          .catch((info) => {});
+      }}
+    >
       <Form
+        autoComplete="off"
         form={form}
-        name="basic"
+        initialValues={{
+          remember: true,
+        }}
         labelCol={{
           span: 8,
         }}
+        name="basic"
         // onValuesChange={onValuesChanged}
         wrapperCol={{
           span: 16,
         }}
-        initialValues={{
-          remember: true,
-        }}
         onFinish={onFinish}
         onFinishFailed={onFinishFailed}
-        autoComplete="off"
       >
         <Form.Item
-          name="province"
           label="Province"
+          name="province"
           rules={[
             {
               required: true,
@@ -108,14 +93,14 @@ const AddressForm = ({ address, id }) => {
           ]}
         >
           <Select
-            onChange={onChangeProvince}
-            placeholder="Please select a province"
             options={provinces}
+            placeholder="Please select a province"
+            onChange={onChangeProvince}
           ></Select>
         </Form.Item>
         <Form.Item
-          name="city"
           label="City"
+          name="city"
           rules={[
             {
               required: true,
@@ -123,13 +108,13 @@ const AddressForm = ({ address, id }) => {
             },
           ]}
         >
-          <Select onChange={onChangeCity} placeholder="Please select a city">
+          <Select placeholder="Please select a city" onChange={onChangeCity}>
             {!!cities?.length &&
               cities.map((city) => (
                 <Select.Option
+                  key={city.id}
                   disabled={!city.is_active}
                   value={city.id}
-                  key={city.id}
                 >
                   {city.name}
                 </Select.Option>
@@ -137,8 +122,8 @@ const AddressForm = ({ address, id }) => {
           </Select>
         </Form.Item>
         <Form.Item
-          name="area"
           label="Area"
+          name="area"
           rules={[
             {
               required: true,
@@ -146,13 +131,13 @@ const AddressForm = ({ address, id }) => {
             },
           ]}
         >
-          <Select onChange={onchange} placeholder="Please select an area">
+          <Select placeholder="Please select an area" onChange={onchange}>
             {!!areas?.length &&
               areas.map((area) => (
                 <Select.Option
+                  key={area.id}
                   disabled={!area.is_active}
                   value={area.id}
-                  key={area.id}
                 >
                   {area.name}
                 </Select.Option>
@@ -168,27 +153,9 @@ const AddressForm = ({ address, id }) => {
         <Form.Item label="Latitude" name="map_latitude">
           <Input />
         </Form.Item>
-        <div className="flex justify-between">
-          <Form.Item>
-            <Button className="bg-primary" type="primary" htmlType="submit">
-              Submit
-            </Button>
-          </Form.Item>
-          <Form.Item>
-            <Button
-              danger
-              onClick={() => {
-                addressDeletion({ key: address.id });
-              }}
-            >
-              Delete
-            </Button>
-          </Form.Item>
-        </div>
       </Form>
-      <Divider />
-    </>
+    </Modal>
   );
 };
 
-export default AddressForm;
+export default AddressCreationForm;

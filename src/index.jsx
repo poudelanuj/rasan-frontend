@@ -13,10 +13,15 @@ import CategoryList from "./Products";
 import UserGroups from "./UserGroups";
 import Users from "./Users";
 import User from "./Users/User";
+<<<<<<< HEAD:src/index.js
 import AddCategory from "./Products/AddCategory"; 
 import Category from "./Products/Category";
 import BrandsScreen from "./Products/BrandsScreen";
 import ProductGroupsScreen from "./Products/ProductGroupsScreen";
+=======
+import { ReactQueryDevtools } from "react-query/devtools";
+import OTPRequests from "./Users/OTPRequests";
+>>>>>>> main:src/index.jsx
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const queryClient = new QueryClient();
@@ -42,6 +47,7 @@ root.render(
             {/* ends */}
             <Route path="users" element={<Users />} />
             <Route path="user/:user_id" element={<User />} />
+            <Route path="otp-requests" element={<OTPRequests />} />
             <Route path="user-groups" element={<UserGroups />} />
             <Route path="live-user-basket" element={<LiveUserBasket />} />
             <Route path="crm" element={<CRM />} />
@@ -49,6 +55,7 @@ root.render(
         </Routes>
       </React.StrictMode>
     </BrowserRouter>
+    <ReactQueryDevtools initialIsOpen={false} />
   </QueryClientProvider>
 );
 

@@ -8,7 +8,9 @@ export const createDataContext = (reducer, actions, initialState) => {
     // using useReducer hook to manage state using reducer function and initialState.
     const [state, dispatch] = useReducer(reducer, initialState);
     const boundActions = [];
-    //converting actions from dispatch-actions option
+
+    // converting actions from dispatch-actions option
+
     for (let key in actions) {
       boundActions[key] = actions[key](dispatch);
     }

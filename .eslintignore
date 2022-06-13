@@ -1,0 +1,4 @@
+node_modules/
+src/svgs/**
+scripts/**
+postcss.config.js
