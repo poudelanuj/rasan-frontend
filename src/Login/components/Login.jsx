@@ -1,6 +1,6 @@
-import React, {useContext} from "react";
+import axios from "axios";
+import React, { useContext } from "react";
 import { MdAdminPanelSettings } from "react-icons/md";
-
 import { LoginContext } from "../context/LoginContext";
 
 function Login() {
@@ -32,9 +32,6 @@ function Login() {
         onClick={async () => {
           if (loginState.phoneNumber.length === 10) {
             loginDispatch({ type: "SET_LOGINW_STATE", payload: "loading" });
-<<<<<<< HEAD:src/Login/components/Login.js
-            await getOtp(loginState.phoneNumber);
-=======
             await axios
               .post("/api/auth/request/", {
                 phone: `+977-${loginState.phoneNumber}`,
@@ -83,7 +80,6 @@ function Login() {
                 });
                 loginDispatch({ type: "SET_LOGINW_STATE", payload: "login" });
               });
->>>>>>> main:src/Login/components/Login.jsx
           } else {
             loginDispatch({
               type: "SET_TOAST",
