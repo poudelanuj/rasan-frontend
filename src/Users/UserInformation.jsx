@@ -7,7 +7,7 @@ import ProfilePicture from "./ProfilePicture";
 import Shop from "./Shop";
 import moment from "moment";
 import AddressCreationForm from "./AddressCreationForm";
-
+import { AiFillCheckCircle } from "react-icons/ai";
 const UserInformation = ({ user }) => {
   const [form] = Form.useForm();
   const [visible, setVisible] = useState(false);
@@ -159,7 +159,9 @@ const UserInformation = ({ user }) => {
       <div className="detail-form w-7/12 border mt-3 p-3 border-primary flex-col flex ">
         <div className="text-gray-700 text-xl">Addresses</div>
         {user?.addresses.map((address) => {
-          return <AddressForm address={address} key={address.id} />;
+          return (
+            <AddressForm id={user.id} address={address} key={address.id} />
+          );
         })}
         <div>
           <Button
@@ -227,6 +229,13 @@ const UserInformation = ({ user }) => {
       <div className="w-7/12 mt-3 flex">
         <Button className="ml-auto w-2/12" type="primary" danger>
           Delete User
+        </Button>
+        <Button
+          icon={<AiFillCheckCircle className={"inline mr-1"} />}
+          className="ml-3 w-2/12 bg-primary"
+          type="primary"
+        >
+          Verify User
         </Button>
       </div>
     </div>

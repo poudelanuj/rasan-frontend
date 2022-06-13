@@ -14,6 +14,7 @@ import UserGroups from "./UserGroups";
 import Users from "./Users";
 import User from "./Users/User";
 import { ReactQueryDevtools } from "react-query/devtools";
+import OTPRequests from "./Users/OTPRequests";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ root.render(
             <Route path="products" element={<Products />} />
             <Route path="users" element={<Users />} />
             <Route path="user/:user_id" element={<User />} />
+            <Route path="otp-requests" element={<OTPRequests />} />
             <Route path="user-groups" element={<UserGroups />} />
             <Route path="live-user-basket" element={<LiveUserBasket />} />
             <Route path="crm" element={<CRM />} />
