@@ -1,5 +1,4 @@
 import { Table } from "antd";
-import { getOrders } from "../mock/orders";
 
 const columns = [
   {
@@ -34,9 +33,7 @@ const columns = [
   },
 ];
 
-const OrdersList = () => {
-  const dataSource = getOrders(20);
-
+const OrdersList = ({ dataSource }) => {
   return <Table columns={columns} dataSource={dataSource} />;
 };
 

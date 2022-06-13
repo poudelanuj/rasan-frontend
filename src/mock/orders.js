@@ -5,7 +5,7 @@ const generateOrder = () => ({
   orderId: "#" + faker.datatype.number(),
   customer: faker.name.findName(),
   price: "Rs. " + faker.datatype.number(),
-  status: faker.helpers.arrayElement(["in progress", "delivered", "canceled"]),
+  status: faker.helpers.arrayElement(["in progress", "delivered", "cancelled"]),
   paymentMethod: faker.helpers.arrayElement(["esewa", "khalti"]),
   deliveryDate: moment(faker.datatype.datetime().getTime()).format("ll"),
 });
