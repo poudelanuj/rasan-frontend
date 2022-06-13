@@ -33,7 +33,10 @@ const sidebarItems = [
     key: "users-section",
     label: "Users",
     icon: <UserOutlined />,
-    children: [{ label: "Users List", key: "users" }],
+    children: [
+      { label: "Users List", key: "users" },
+      { label: "OTP Requests", key: "otp-requests" },
+    ],
   },
   {
     key: "user-groups",

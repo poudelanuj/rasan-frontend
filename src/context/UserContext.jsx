@@ -76,3 +76,14 @@ export const createAddress = async ({ data, key }) => {
   );
   return response.data;
 };
+export const deleteAddress = async ({ key }) => {
+  const response = await myaxios.delete(
+    `/api/profile/admin/address/detail/` + key + "/"
+  );
+  return response.data;
+};
+
+export const getOtpRequests = async () => {
+  const response = await myaxios.get("/api/auth/otp-requests/");
+  return response.data.data;
+};
