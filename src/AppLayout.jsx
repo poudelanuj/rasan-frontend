@@ -66,14 +66,14 @@ const AppLayout = () => {
       <Layout>
         <Sider width={200}>
           <Menu
-            mode="inline"
-            defaultSelectedKeys={["0"]}
             defaultOpenKeys={["sub1"]}
+            defaultSelectedKeys={["0"]}
+            items={sidebarItems}
+            mode="inline"
             style={{
               height: "100%",
               borderRight: 0,
             }}
-            items={sidebarItems}
             onClick={({ key }) => {
               navigate(key);
             }}

@@ -23,7 +23,6 @@ const UserInformation = ({ user }) => {
   });
   const { mutate: logOutUserMutation } = useMutation(logoutUser, {
     onSuccess: (data) => {
-      console.log(data);
       message.success(data);
     },
   });
@@ -52,7 +51,6 @@ const UserInformation = ({ user }) => {
     deactivateUserMutation(user.phone);
   };
   const onFinish = (values) => {
-    console.log(values);
     const form_data = new FormData();
     for (let key in values) {
       if (key !== "date_of_birth") form_data.append(key, values[key]);
@@ -63,9 +61,7 @@ const UserInformation = ({ user }) => {
     );
     updateUserMutation({ data: form_data, key: user.id });
   };
-  const onFinishFailed = (errorInfo) => {
-    console.log("Failed:", errorInfo);
-  };
+  const onFinishFailed = (errorInfo) => {};
   return (
     <div className="user-information bg-white p-4 ">
       <div className="user-title-logout flex justify-between m-4">
@@ -74,7 +70,7 @@ const UserInformation = ({ user }) => {
           <Button type="link" onClick={logOut}>
             Log user out
           </Button>
-          <Button type="primary" onClick={deactivate} danger>
+          <Button type="primary" danger onClick={deactivate}>
             Deactivate User
           </Button>
         </div>
@@ -90,20 +86,20 @@ const UserInformation = ({ user }) => {
                 Edit Profile Picture
               </Button> */}
               <Form
+                autoComplete="off"
                 form={form}
-                name="basic"
-                labelCol={{
-                  span: 8,
-                }}
-                wrapperCol={{
-                  span: 16,
-                }}
                 initialValues={{
                   remember: true,
                 }}
+                labelCol={{
+                  span: 8,
+                }}
+                name="basic"
+                wrapperCol={{
+                  span: 16,
+                }}
                 onFinish={onFinish}
                 onFinishFailed={onFinishFailed}
-                autoComplete="off"
               >
                 <Form.Item label="Full Name" name="full_name">
                   <Input />
@@ -121,8 +117,8 @@ const UserInformation = ({ user }) => {
                 <Form.Item className="justify-end">
                   <Button
                     className="bg-primary"
-                    type="primary"
                     htmlType="submit"
+                    type="primary"
                   >
                     Submit
                   </Button>
@@ -159,12 +155,12 @@ const UserInformation = ({ user }) => {
       <div className="detail-form w-7/12 border mt-3 p-3 border-primary flex-col flex ">
         <div className="text-gray-700 text-xl">Addresses</div>
         {user?.addresses.map((address) => {
-          return <AddressForm address={address} key={address.id} />;
+          return <AddressForm key={address.id} address={address} />;
         })}
         <div>
           <Button
-            type="primary"
             className="bg-primary w-full text-lg"
+            type="primary"
             onClick={() => {
               setVisible(true);
             }}
@@ -172,8 +168,8 @@ const UserInformation = ({ user }) => {
             New Address
           </Button>
           <AddressCreationForm
-            visible={visible}
             id={user.id}
+            visible={visible}
             onCancel={() => {
               setVisible(false);
             }}

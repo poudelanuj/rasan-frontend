@@ -9,16 +9,16 @@ function Login({ loginObject }) {
       <h1 className='text-center py-1 text-xl font-semibold font-["Tahoma"] text-[#00A0B0]'>
         Log in to Dashboard
       </h1>
-      <MdAdminPanelSettings fontSize={100} color={"#00A0B0"} />
+      <MdAdminPanelSettings color={"#00A0B0"} fontSize={100} />
       <div className="bg-white border-b-2 my-5 border-[#00A0B0] p-2 rounded-lg flex items-center justify-between">
         <div className="mr-2 cursor-pointer">
-          <img src="/flag_nepal.svg" className="w-5" alt="" />
+          <img alt="" className="w-5" src="/flag_nepal.svg" />
         </div>
         <span className="pr-1 text-gray-400">+977</span>
         <input
           className="w-full py-1 px-2 outline-[#00A0B0]"
-          type="text"
           placeholder="Phone (98xxxxxxxx)"
+          type="text"
           value={loginState.phoneNumber}
           onChange={(e) =>
             loginDispatch({ type: "SET_PHONE_NUMBER", payload: e.target.value })
@@ -36,7 +36,6 @@ function Login({ loginObject }) {
                 phone: `+977-${loginState.phoneNumber}`,
               })
               .then((res) => {
-                console.log(res);
                 if (res.data.success) {
                   loginDispatch({
                     type: "SET_TOAST",
@@ -64,7 +63,6 @@ function Login({ loginObject }) {
                 }
               })
               .catch((err) => {
-                console.log(err);
                 loginDispatch({
                   type: "SET_TOAST",
                   payload: {

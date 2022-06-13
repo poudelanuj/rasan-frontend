@@ -4,13 +4,13 @@ const { TabPane } = Tabs;
 
 const UserTab = ({ user }) => (
   <Tabs defaultActiveKey="1">
-    <TabPane tab="User Information" key="1">
+    <TabPane key="1" tab="User Information">
       <UserInformation user={user} />
     </TabPane>
-    <TabPane tab="Order Details" key="2">
+    <TabPane key="2" tab="Order Details">
       Content of Tab Pane 2
     </TabPane>
-    <TabPane tab="User Basket" key="3">
+    <TabPane key="3" tab="User Basket">
       Content of Tab Pane 3
     </TabPane>
   </Tabs>

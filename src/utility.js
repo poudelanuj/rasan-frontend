@@ -1,22 +1,15 @@
 function loggedInOrNot() {
-
   // NOTE: This means The refresh token has not expired yet
   const accessToken = localStorage.getItem("auth_token");
-  console.log("AccessToken", accessToken)
   if (accessToken) {
     const parsedJwt = parseJwt(accessToken);
     if (parsedJwt.invalid) {
-    console.log("AccessToken", parsedJwt.invalid)
-      console.log("Invalid access token.");
       localStorage.removeItem("auth_Token");
-      return false
+      return false;
     } else if ("sub" in parsedJwt) {
-  console.log("AccessToken Check", parsedJwt)
-
       return parsedJwt.sub;
     }
   }
-  
 }
 
 /**

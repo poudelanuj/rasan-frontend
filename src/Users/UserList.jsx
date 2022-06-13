@@ -11,11 +11,11 @@ const columns = [
         <div>
           {record.profile_picture && (
             <img
-              src={record.profile_picture}
-              width={50}
               alt={"text"}
-              style={{ borderRadius: "50%" }}
               className="inline pr-4 rounded-[50%]"
+              src={record.profile_picture}
+              style={{ borderRadius: "50%" }}
+              width={50}
             />
           )}{" "}
           <span>{text}</span>
@@ -64,16 +64,15 @@ const UserList = ({ users }) => {
     <>
       {userColumns.length !== 0 && (
         <Table
+          columns={columns}
+          dataSource={userColumns}
           onRow={(record) => {
-            console.log(record);
             return {
               onDoubleClick: (_) => {
                 navigate("/user/" + record.key);
               }, // double click row
             };
           }}
-          columns={columns}
-          dataSource={userColumns}
         />
       )}
     </>

@@ -24,28 +24,25 @@ const Shop = ({ user }) => {
       form_data.append(key, values[key]);
     }
     shopMutation({ data: form_data, key: user.id });
-    console.log(values);
   };
-  const onFinishFailed = (errorInfo) => {
-    console.log("Failed:", errorInfo);
-  };
+  const onFinishFailed = (errorInfo) => {};
   return (
     <>
       <Form
+        autoComplete="off"
         form={form}
-        name="basic"
-        labelCol={{
-          span: 8,
-        }}
-        wrapperCol={{
-          span: 16,
-        }}
         initialValues={{
           remember: true,
         }}
+        labelCol={{
+          span: 8,
+        }}
+        name="basic"
+        wrapperCol={{
+          span: 16,
+        }}
         onFinish={onFinish}
         onFinishFailed={onFinishFailed}
-        autoComplete="off"
       >
         <Form.Item label="Name" name="name">
           <Input />
@@ -55,40 +52,40 @@ const Shop = ({ user }) => {
         </Form.Item>
 
         <Form.Item>
-          <Button className="bg-primary" type="primary" htmlType="submit">
+          <Button className="bg-primary" htmlType="submit" type="primary">
             Submit
           </Button>
         </Form.Item>
       </Form>
       <ShopPhotos
-        name={"citizenship_front"}
+        id={user.id}
         label={"Citizenship Front"}
+        name={"citizenship_front"}
         url={user.shop.citizenship_front.full_size}
-        id={user.id}
       />
       <ShopPhotos
-        name={"citizenship_back"}
+        id={user.id}
         label={"Citizenship Back"}
+        name={"citizenship_back"}
         url={user.shop.citizenship_back.full_size}
-        id={user.id}
       />
       <ShopPhotos
-        name={"pan_vat_certificate"}
+        id={user.id}
         label={"Pan Vat Certificate"}
+        name={"pan_vat_certificate"}
         url={user.shop.pan_vat_certificate.full_size}
-        id={user.id}
       />
       <ShopPhotos
-        name={"house_rent_agreement"}
+        id={user.id}
         label={"House Rent Agreement"}
+        name={"house_rent_agreement"}
         url={user.shop.house_rent_agreement.full_size}
-        id={user.id}
       />
       <ShopPhotos
-        name={"retailer_agreement"}
-        label={"Retailer Agreement"}
-        url={user.shop.retailer_agreement}
         id={user.id}
+        label={"Retailer Agreement"}
+        name={"retailer_agreement"}
+        url={user.shop.retailer_agreement}
       />
     </>
   );

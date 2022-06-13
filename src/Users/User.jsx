@@ -12,11 +12,10 @@ import UserTab from "./UserTab";
 
 const User = () => {
   let { user_id } = useParams();
-  const {
-    data: user,
-    isLoading,
-    isSuccess,
-  } = useQuery(["get-user", user_id], async () => getUser(user_id));
+  const { data: user, isLoading, isSuccess } = useQuery(
+    ["get-user", user_id],
+    async () => getUser(user_id)
+  );
 
   return (
     <div>
@@ -27,9 +26,9 @@ const User = () => {
           <div className="flex text-text bg-white p-4 justify-between">
             <div className="details flex w-6/12">
               <img
+                alt={user.full_name}
                 className="image mr-3"
                 src={user.profile_picture.small_square_crop}
-                alt={user.full_name}
               />
               <div>
                 <div className="font-medium text-lg">{user.full_name}</div>

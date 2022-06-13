@@ -77,27 +77,27 @@ const ProfilePicture = ({ user }) => {
   return (
     <>
       <Upload
-        listType="picture-card"
-        fileList={fileList}
-        onPreview={handlePreview}
         beforeUpload={() => false}
-        onChange={handleChange}
+        fileList={fileList}
+        listType="picture-card"
         maxCount={1}
+        onChange={handleChange}
+        onPreview={handlePreview}
       >
         {fileList.length >= 1 ? null : uploadButton}
       </Upload>
       <Modal
-        visible={previewVisible}
-        title={previewTitle}
         footer={null}
+        title={previewTitle}
+        visible={previewVisible}
         onCancel={handleCancel}
       >
         <img
           alt="example"
+          src={previewImage}
           style={{
             width: "100%",
           }}
-          src={previewImage}
         />
       </Modal>
     </>
