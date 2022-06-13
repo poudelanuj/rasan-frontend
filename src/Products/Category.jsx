@@ -9,18 +9,14 @@ import { Tabs } from "antd";
 import { useParams } from "react-router-dom";
 const { TabPane } = Tabs;
 
-const onChange = (key) => {
-  console.log(key);
-};
+const onChange = (key) => {};
 
 function Category() {
   const { slug } = useParams();
   const { data, isLoading, isError, error } = useQuery("get-category", () =>
     getCategory({ slug })
   );
-  if (data) {
-    console.log(data);
-  }
+
   return (
     <>
       {isLoading && <div>Loading....</div>}
@@ -29,13 +25,13 @@ function Category() {
         <div>
           <div className="text-3xl bg-white p-5">{data.data.data.name}</div>
           <Tabs defaultActiveKey="1" onChange={onChange}>
-            <TabPane tab="All" key="1">
+            <TabPane key="1" tab="All">
               <TabAll slug={slug} />
             </TabPane>
-            <TabPane tab="SKU" key="2">
+            <TabPane key="2" tab="SKU">
               <TabSKU slug={slug} />
             </TabPane>
-            <TabPane tab="Product Drafts" key="3">
+            <TabPane key="3" tab="Product Drafts">
               <TabDrafts slug={slug} />
             </TabPane>
           </Tabs>

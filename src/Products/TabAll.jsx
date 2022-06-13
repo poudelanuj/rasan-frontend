@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { SearchOutlined, PlusOutlined } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
 
 import { Table, Select } from "antd";
 import AddCategoryButton from "./subComponents/AddCategoryButton";
@@ -16,9 +15,9 @@ const columns = [
         <div className="h-[80px]">
           {record.profile_picture && (
             <img
-              src={record.profile_picture}
               alt={"text"}
               className="inline pr-4 h-[100%]"
+              src={record.profile_picture}
             />
           )}
         </div>
@@ -72,7 +71,6 @@ function TabAll({ slug }) {
   const navigate = useNavigate();
 
   const onSelectChange = (newSelectedRowKeys) => {
-    console.log("selectedRowKeys changed: ", selectedRowKeys);
     setSelectedRowKeys(newSelectedRowKeys);
   };
 
@@ -123,24 +121,14 @@ function TabAll({ slug }) {
 <input type="text" placeholder="Search category..." className="w-full ml-1 placeholder:text-[#D9D9D9]" />
 </div> */}
         <div>
-          <AddCategoryButton linkTo={`add`} linkText="Add Products" />
+          <AddCategoryButton linkText="Add Products" linkTo={`add`} />
         </div>
       </div>
 
       <div className="flex-1">
         <Table
-          rowSelection={rowSelection}
           columns={columns}
           dataSource={data}
-          pagination={{ pageSize: 4 }}
-          onRow={(record) => {
-            // console.log(record);
-            return {
-              onDoubleClick: (_) => {
-                navigate("/category-list/" + slug + "/" + record.key);
-              }, // double click row
-            };
-          }}
           footer={() => (
             <div className="absolute bottom-0 left-0 flex justify-start bg-white w-[100%]">
               <div className="">
@@ -163,6 +151,15 @@ function TabAll({ slug }) {
               </div>
             </div>
           )}
+          pagination={{ pageSize: 4 }}
+          rowSelection={rowSelection}
+          onRow={(record) => {
+            return {
+              onDoubleClick: (_) => {
+                navigate("/category-list/" + slug + "/" + record.key);
+              }, // double click row
+            };
+          }}
         />
       </div>
 

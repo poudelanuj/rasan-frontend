@@ -1,8 +1,6 @@
 import React from "react";
 import { useQuery } from "react-query";
-import { useLocation } from "react-router-dom";
 import { getProductGroups } from "../context/CategoryContext";
-import AddCategory from "./AddCategory";
 import CategoryWidget from "./CategoryWidget";
 import AddCategoryButton from "./subComponents/AddCategoryButton";
 import Header from "./subComponents/Header";
@@ -13,13 +11,7 @@ function ProductGroupsScreen() {
     "get-product-groups",
     getProductGroups
   );
-  const location = useLocation();
-  //   var brandSlug;
-  //   try {
-  //     brandSlug = location.pathname.split("/")[2];
-  //   } catch (error) {
-  //     brandSlug = null;
-  //   }
+
   const groups = data?.data?.data?.results;
   return (
     <>
@@ -30,7 +22,7 @@ function ProductGroupsScreen() {
           <div className="flex justify-between mb-3">
             <SearchBox placeholder="Search Brands..." />
             <div>
-              <AddCategoryButton linkTo="add" linkText="Add Product Groups" />
+              <AddCategoryButton linkText="Add Product Groups" linkTo="add" />
             </div>
           </div>
           {isLoading && <div>Loading....</div>}
@@ -39,13 +31,13 @@ function ProductGroupsScreen() {
             {groups &&
               groups.map((group, index) => (
                 <CategoryWidget
-                  image={group.product_group_image.medium_square_crop}
-                  title={group.name}
-                  slug={group.slug}
-                  id={group.sn}
-                  completeLink={`/brands/${group.slug}`}
                   key={group.sn}
+                  completeLink={`/brands/${group.slug}`}
+                  id={group.sn}
+                  image={group.product_group_image.medium_square_crop}
                   imgClassName=""
+                  slug={group.slug}
+                  title={group.name}
                 />
               ))}
           </div>

@@ -17,7 +17,6 @@ const AddressForm = ({ address, id }) => {
 
   const { mutate: addressMutation } = useMutation(updateAddress, {
     onSuccess: (data) => {
-      console.log(data.message);
       message.success(data.message);
     },
   });
@@ -81,25 +80,25 @@ const AddressForm = ({ address, id }) => {
   return (
     <>
       <Form
+        autoComplete="off"
         form={form}
-        name="basic"
+        initialValues={{
+          remember: true,
+        }}
         labelCol={{
           span: 8,
         }}
+        name="basic"
         // onValuesChange={onValuesChanged}
         wrapperCol={{
           span: 16,
         }}
-        initialValues={{
-          remember: true,
-        }}
         onFinish={onFinish}
         onFinishFailed={onFinishFailed}
-        autoComplete="off"
       >
         <Form.Item
-          name="province"
           label="Province"
+          name="province"
           rules={[
             {
               required: true,
@@ -108,14 +107,14 @@ const AddressForm = ({ address, id }) => {
           ]}
         >
           <Select
-            onChange={onChangeProvince}
-            placeholder="Please select a province"
             options={provinces}
+            placeholder="Please select a province"
+            onChange={onChangeProvince}
           ></Select>
         </Form.Item>
         <Form.Item
-          name="city"
           label="City"
+          name="city"
           rules={[
             {
               required: true,
@@ -123,13 +122,13 @@ const AddressForm = ({ address, id }) => {
             },
           ]}
         >
-          <Select onChange={onChangeCity} placeholder="Please select a city">
+          <Select placeholder="Please select a city" onChange={onChangeCity}>
             {!!cities?.length &&
               cities.map((city) => (
                 <Select.Option
+                  key={city.id}
                   disabled={!city.is_active}
                   value={city.id}
-                  key={city.id}
                 >
                   {city.name}
                 </Select.Option>
@@ -137,8 +136,8 @@ const AddressForm = ({ address, id }) => {
           </Select>
         </Form.Item>
         <Form.Item
-          name="area"
           label="Area"
+          name="area"
           rules={[
             {
               required: true,
@@ -146,13 +145,13 @@ const AddressForm = ({ address, id }) => {
             },
           ]}
         >
-          <Select onChange={onchange} placeholder="Please select an area">
+          <Select placeholder="Please select an area" onChange={onchange}>
             {!!areas?.length &&
               areas.map((area) => (
                 <Select.Option
+                  key={area.id}
                   disabled={!area.is_active}
                   value={area.id}
-                  key={area.id}
                 >
                   {area.name}
                 </Select.Option>
@@ -170,7 +169,7 @@ const AddressForm = ({ address, id }) => {
         </Form.Item>
         <div className="flex justify-between">
           <Form.Item>
-            <Button className="bg-primary" type="primary" htmlType="submit">
+            <Button className="bg-primary" htmlType="submit" type="primary">
               Submit
             </Button>
           </Form.Item>

@@ -18,15 +18,15 @@ function CategoryWidget({
       onMouseLeave={() => setIsHovering(false)}
     >
       <Link
-        to={completeLink}
-        className="min-w-[222px] min-h-[210px] bg-[#ffffff] flex flex-col items-center justify-between p-2 "
         key={id}
+        className="min-w-[222px] min-h-[210px] bg-[#ffffff] flex flex-col items-center justify-between p-2 "
+        to={completeLink}
       >
         <div className="flex-1 w-[100%] flex items-center justify-center">
           <img
-            src={image}
             alt={title}
             className={`h-[90%] ${imgClassName && imgClassName}`}
+            src={image}
           />
         </div>
         <div className="text-[#596579] text-center font-[600] text-[15px]">
@@ -36,8 +36,8 @@ function CategoryWidget({
       {isHovering && (
         <div className="absolute top-[0px] right-[0px] animate-categoryEditButton">
           <Link
-            to={`${completeLink}/edit`}
             className="flex justify-between absolute top-0 right-0 w-fit p-2 rounded-full"
+            to={`${completeLink}/edit`}
           >
             <EditOutlined />
           </Link>

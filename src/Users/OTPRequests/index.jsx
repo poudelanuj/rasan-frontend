@@ -40,7 +40,6 @@ const OTPRequests = () => {
       {otpList && (
         <Table
           // onRow={(record) => {
-          //   console.log(record);
           //   return {
           //     onDoubleClick: (_) => {
           //       navigate("/user/" + record.key);

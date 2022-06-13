@@ -11,7 +11,7 @@ import { useMutation, useQueryClient } from "react-query";
 
 function AddCategory() {
   const navigate = useNavigate();
-  const [dropState, setDropState] = useState("none");
+  const dropState = "none";
   const [formState, setFormState] = useState({
     name: "",
     name_np: "",
@@ -23,27 +23,19 @@ function AddCategory() {
   const {
     mutate: addCategoryMutate,
     isLoading: addCategoryIsLoading,
-    isError: addCategoryIsError,
-    error: addCategoryError,
     data: addCategoryResponseData,
   } = useMutation(addCategory, {
     onSuccess: (data) => {
-      console.log(data);
       queryClient.invalidateQueries("get-categories");
     },
-    onError: (data) => {
-      console.log(data);
-    },
+    onError: (data) => {},
   });
 
   const {
     mutate: publishCategoryMutate,
     isLoading: publishCategoryIsLoading,
-    isError: publishCategoryIsError,
-    error: publishCategoryError,
   } = useMutation(publishCategory, {
     onSuccess: (data) => {
-      console.log(data);
       queryClient.invalidateQueries("get-categories");
       navigate("/category-list");
     },
@@ -55,18 +47,9 @@ function AddCategory() {
   const closeAddCategories = () => {
     navigate("/category-list");
   };
-  const handleDragEnter = () => {
-    setDropState("enter");
-  };
-  const handleDragLeave = () => {
-    setDropState("leave");
-  };
-  const handleDrop = (e) => {
-    setDropState("drop");
-  };
+
   const handleImageChange = (e) => {
     // get the file object as url
-    console.log("Handling...");
     const file = e.target.files[0];
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -97,10 +80,7 @@ function AddCategory() {
   };
   const handlePublish = async () => {
     await handleSave();
-    console.log(addCategoryResponseData);
     const slug = addCategoryResponseData?.data?.data?.slug;
-    console.log(addCategoryResponseData?.data);
-    console.log(slug);
     publishCategoryMutate({ slug });
     // publishCategoryMutate(formState);
   };
@@ -134,7 +114,11 @@ function AddCategory() {
             >
               {formState.image.length > 0 ? (
                 <>
-                  <img src={formState.image} className="max-h-[6rem] mx-auto" />
+                  <img
+                    alt=""
+                    className="max-h-[6rem] mx-auto"
+                    src={formState.image}
+                  />
                   <span className="text-center text-2xl text-[#374253] text-[13px] font-normal">
                     <MinusOutlined style={{ verticalAlign: "text-bottom" }} />{" "}
                     Click to
@@ -150,9 +134,9 @@ function AddCategory() {
               ) : (
                 <>
                   <img
-                    src="/gallery-icon.svg"
                     alt="gallery"
                     className="w-fit mx-auto"
+                    src="/gallery-icon.svg"
                   />
                   <span className="text-center text-2xl text-[#374253] text-[13px] font-normal">
                     <UploadOutlined style={{ verticalAlign: "text-bottom" }} />{" "}
@@ -169,20 +153,20 @@ function AddCategory() {
               )}
             </div>
             <input
-              type="file"
-              id="category-upload-file"
               className="hidden"
+              id="category-upload-file"
+              type="file"
               onChange={handleImageChange}
             />
             <div className="flex flex-col">
-              <label htmlFor="name" className="mb-1">
+              <label className="mb-1" htmlFor="name">
                 Category Name
               </label>
               <input
-                type="text"
-                id="name"
                 className=" bg-[#FFFFFF] border-[1px] border-[#D9D9D9] rounded-[2px] p-[8px_12px]"
+                id="name"
                 placeholder="Eg. Rice"
+                type="text"
                 value={formState.name}
                 onChange={(e) =>
                   setFormState({ ...formState, name: e.target.value })
@@ -191,20 +175,20 @@ function AddCategory() {
             </div>
             <div className="flex flex-col">
               <div className="flex">
-                <label htmlFor="name" className="mb-1">
+                <label className="mb-1" htmlFor="name">
                   Category Name (In Nepali)
                 </label>
                 <img
-                  src="/flag_nepal.svg"
                   alt="nepali"
                   className="w-[0.8rem] ml-2"
+                  src="/flag_nepal.svg"
                 />
               </div>
               <input
-                type="text"
-                id="name"
                 className=" bg-[#FFFFFF] border-[1px] border-[#D9D9D9] rounded-[2px] p-[8px_12px]"
+                id="name"
                 placeholder="Eg. चामल"
+                type="text"
                 value={formState.name_np}
                 onChange={(e) =>
                   setFormState({ ...formState, name_np: e.target.value })
@@ -214,19 +198,19 @@ function AddCategory() {
           </div>
           <div className="flex justify-end">
             <button
+              className="text-[#00B0C2] p-[8px_12px] min-w-[5rem] rounded-[4px] border-[1px] border-[#00B0C2] hover:bg-[#effdff] transition-colors"
               type="button"
               onClick={async (e) => {
                 await handleSave(e);
                 return navigate("/category-list");
               }}
-              className="text-[#00B0C2] p-[8px_12px] min-w-[5rem] rounded-[4px] border-[1px] border-[#00B0C2] hover:bg-[#effdff] transition-colors"
             >
               Save
             </button>
             <button
+              className="bg-[#00B0C2] text-white p-[8px_12px] ml-5 min-w-[5rem] rounded-[4px] border-[1px] border-[#00B0C2] hover:bg-[#12919f] transition-colors"
               type="button"
               onClick={handlePublish}
-              className="bg-[#00B0C2] text-white p-[8px_12px] ml-5 min-w-[5rem] rounded-[4px] border-[1px] border-[#00B0C2] hover:bg-[#12919f] transition-colors"
             >
               Publish Category
             </button>

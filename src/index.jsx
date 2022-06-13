@@ -27,26 +27,26 @@ root.render(
     <BrowserRouter>
       <React.StrictMode>
         <Routes>
-          <Route path="/login" element={<LoginApp />} />
-          <Route path="/" element={<App />}>
-            <Route index element={<Dashboard />} />
-            <Route path="orders" element={<Orders />} />
+          <Route element={<LoginApp />} path="/login" />
+          <Route element={<App />} path="/">
+            <Route element={<Dashboard />} index />
+            <Route element={<Orders />} path="orders" />
             {/* product part */}
 
-            <Route path="category-list" element={<CategoryList />} />
-            <Route path="category-list/add" element={<CategoryList />} />
-            <Route path="category-list/:slug" element={<Category />} />
-            <Route path="brands" element={<BrandsScreen />} />
-            <Route path="brands/add" element={<BrandsScreen />} />
-            <Route path="product-groups" element={<ProductGroupsScreen />} />
+            <Route element={<CategoryList />} path="category-list" />
+            <Route element={<CategoryList />} path="category-list/add" />
+            <Route element={<Category />} path="category-list/:slug" />
+            <Route element={<BrandsScreen />} path="brands" />
+            <Route element={<BrandsScreen />} path="brands/add" />
+            <Route element={<ProductGroupsScreen />} path="product-groups" />
 
             {/* ends */}
-            <Route path="users" element={<Users />} />
-            <Route path="user/:user_id" element={<User />} />
-            <Route path="otp-requests" element={<OTPRequests />} />
-            <Route path="user-groups" element={<UserGroups />} />
-            <Route path="live-user-basket" element={<LiveUserBasket />} />
-            <Route path="crm" element={<CRM />} />
+            <Route element={<Users />} path="users" />
+            <Route element={<User />} path="user/:user_id" />
+            <Route element={<OTPRequests />} path="otp-requests" />
+            <Route element={<UserGroups />} path="user-groups" />
+            <Route element={<LiveUserBasket />} path="live-user-basket" />
+            <Route element={<CRM />} path="crm" />
           </Route>
         </Routes>
       </React.StrictMode>

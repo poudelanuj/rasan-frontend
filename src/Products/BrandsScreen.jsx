@@ -9,9 +9,9 @@ import Header from "./subComponents/Header";
 import SearchBox from "./subComponents/SearchBox";
 
 function BrandsScreen() {
-  const { data, isLoading, isError, error } = useQuery("get-brands", getBrands);
+  const { data } = useQuery("get-brands", getBrands);
   const location = useLocation();
-  var brandSlug;
+  let brandSlug;
   try {
     brandSlug = location.pathname.split("/")[2];
   } catch (error) {
@@ -27,20 +27,20 @@ function BrandsScreen() {
           <div className="flex justify-between mb-3">
             <SearchBox placeholder="Search Brands..." />
             <div>
-              <AddCategoryButton linkTo="add" linkText="Add Brand" />
+              <AddCategoryButton linkText="Add Brand" linkTo="add" />
             </div>
           </div>
           <div className="grid gap-8 grid-cols-[repeat(auto-fill,_minmax(200px,_1fr))]">
             {brands &&
               brands.map((brand, index) => (
                 <CategoryWidget
-                  image={brand.brand_image.medium_square_crop}
-                  title={brand.name}
-                  slug={brand.slug}
-                  id={brand.sn}
-                  completeLink={`/brands/${brand.slug}`}
                   key={brand.sn}
+                  completeLink={`/brands/${brand.slug}`}
+                  id={brand.sn}
+                  image={brand.brand_image.medium_square_crop}
                   imgClassName=""
+                  slug={brand.slug}
+                  title={brand.name}
                 />
               ))}
           </div>

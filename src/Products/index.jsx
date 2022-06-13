@@ -16,7 +16,7 @@ const CategoryList = () => {
     getCategories
   );
   const location = useLocation();
-  var categorySlug;
+  let categorySlug;
   try {
     categorySlug = location.pathname.split("/")[2];
   } catch (error) {
@@ -31,7 +31,7 @@ const CategoryList = () => {
           <div className="flex justify-between mb-3">
             <SearchBox placeholder="Search Category..." />
             <div>
-              <AddCategoryButton linkTo="add" linkText="Add Category" />
+              <AddCategoryButton linkText="Add Category" linkTo="add" />
             </div>
           </div>
           {isLoading && <div>Loading....</div>}

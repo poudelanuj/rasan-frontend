@@ -156,7 +156,7 @@ const UserInformation = ({ user }) => {
         <div className="text-gray-700 text-xl">Addresses</div>
         {user?.addresses.map((address) => {
           return (
-            <AddressForm id={user.id} address={address} key={address.id} />
+            <AddressForm key={address.id} address={address} id={user.id} />
           );
         })}
         <div>
@@ -227,8 +227,8 @@ const UserInformation = ({ user }) => {
           Delete User
         </Button>
         <Button
-          icon={<AiFillCheckCircle className={"inline mr-1"} />}
           className="ml-3 w-2/12 bg-primary"
+          icon={<AiFillCheckCircle className={"inline mr-1"} />}
           type="primary"
         >
           Verify User

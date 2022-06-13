@@ -6,12 +6,12 @@ function ProductCategory({ categories }) {
     <>
       {categories.map((category) => (
         <CategoryWidget
-          image={category.category_image.thumbnail}
-          title={category.name}
-          slug={category.slug}
-          id={category.sn}
-          completeLink={`/category-list/${category.slug}`}
           key={category.sn}
+          completeLink={`/category-list/${category.slug}`}
+          id={category.sn}
+          image={category.category_image.thumbnail}
+          slug={category.slug}
+          title={category.name}
         />
       ))}
     </>

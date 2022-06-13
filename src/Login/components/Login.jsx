@@ -4,7 +4,7 @@ import { MdAdminPanelSettings } from "react-icons/md";
 import { LoginContext } from "../context/LoginContext";
 
 function Login() {
-  const { loginState, loginDispatch, getOtp } = useContext(LoginContext);
+  const { loginState, loginDispatch } = useContext(LoginContext);
   return (
     <>
       <h1 className='text-center py-1 text-xl font-semibold font-["Tahoma"] text-[#00A0B0]'>

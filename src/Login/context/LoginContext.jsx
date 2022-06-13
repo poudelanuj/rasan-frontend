@@ -125,7 +125,6 @@ const getOtp = (loginDispatch) => async (phone) => {
       }
     })
     .catch((err) => {
-      console.log(err);
       loginDispatch({
         type: "SET_TOAST",
         payload: {
