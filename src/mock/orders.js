@@ -1,13 +1,12 @@
 import { faker } from "@faker-js/faker";
-import moment from "moment";
 
 const generateOrder = () => ({
-  orderId: "#" + faker.datatype.number(),
+  orderId: faker.datatype.number(),
   customer: faker.name.findName(),
-  price: "Rs. " + faker.datatype.number(),
+  price: faker.datatype.number(),
   status: faker.helpers.arrayElement(["in progress", "delivered", "cancelled"]),
   paymentMethod: faker.helpers.arrayElement(["esewa", "khalti"]),
-  deliveryDate: moment(faker.datatype.datetime().getTime()).format("ll"),
+  deliveryDate: faker.datatype.datetime().getTime(),
 });
 
 export const getOrders = (count = 10) => {
