@@ -16,6 +16,18 @@ module.exports = {
           "0%": { transform: "translateY(100%)" },
           "100%": { transform: "translateY(0%)" },
         },
+        popupopen: {
+          "0%": { opacity: 0 },
+          "100%": { opacity: 1 },
+        },
+        'categoryEditButton': {
+          '0%': { opacity: 0 },
+          '100%': { opacity: 1 },
+        },
+      },
+      animation: {
+        'popupopen': 'popupopen 0.4s ease-out',
+        'categoryEditButton': 'categoryEditButton 0.15s ease-out',
       },
     },
   },

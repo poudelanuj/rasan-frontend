@@ -28,6 +28,12 @@ const sidebarItems = [
     key: "products",
     label: "Products",
     icon: <ShoppingOutlined />,
+    children: [
+      { label: "Category List", key: "category-list" },
+      { label: "Brands", key: "brands" },
+      { label: "Product Groups", key: "product-groups" },
+      { label: "Product List", key: "product-list" },
+  ],
   },
   {
     key: "users-section",

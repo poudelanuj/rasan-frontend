@@ -9,10 +9,14 @@ import "./index.css";
 import LiveUserBasket from "./LiveUserBasket";
 import LoginApp from "./Login/LoginApp";
 import Orders from "./Orders";
-import Products from "./Products";
+import CategoryList from "./Products";
 import UserGroups from "./UserGroups";
 import Users from "./Users";
 import User from "./Users/User";
+import AddCategory from "./Products/AddCategory"; 
+import Category from "./Products/Category";
+import BrandsScreen from "./Products/BrandsScreen";
+import ProductGroupsScreen from "./Products/ProductGroupsScreen";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const queryClient = new QueryClient();
@@ -26,7 +30,16 @@ root.render(
           <Route path="/" element={<App />}>
             <Route index element={<Dashboard />} />
             <Route path="orders" element={<Orders />} />
-            <Route path="products" element={<Products />} />
+            {/* product part */}
+
+            <Route path="category-list" element={<CategoryList />} />
+            <Route path="category-list/add" element={<CategoryList />} />
+            <Route path="category-list/:slug" element={<Category />} />
+            <Route path="brands" element={<BrandsScreen />} />
+            <Route path="brands/add" element={<BrandsScreen />} />
+            <Route path="product-groups" element={<ProductGroupsScreen />} />
+
+            {/* ends */}
             <Route path="users" element={<Users />} />
             <Route path="user/:user_id" element={<User />} />
             <Route path="user-groups" element={<UserGroups />} />
