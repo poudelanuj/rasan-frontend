@@ -1,14 +1,13 @@
-import React, {useContext} from "react";
+import React, { useContext } from "react";
 import { MdOutlineClose } from "react-icons/md";
 
-import { LoginContext } from '../context/LoginContext';
+import { LoginContext } from "../context/LoginContext";
 
 function Toast() {
-  const { loginState : {
-    toastMessage,
-    toastType,
-    toastHeading,
-  }, loginDispatch } = useContext(LoginContext);
+  const {
+    loginState: { toastMessage, toastType, toastHeading },
+    loginDispatch,
+  } = useContext(LoginContext);
   return (
     <div
       className={

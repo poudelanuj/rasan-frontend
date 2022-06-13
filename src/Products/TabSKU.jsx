@@ -1,9 +1,7 @@
-import React from 'react'
+import React from "react";
 
 function TabSKU() {
-  return (
-    <div>TabSKU</div>
-  )
+  return <div>TabSKU</div>;
 }
 
-export default TabSKU
+export default TabSKU;

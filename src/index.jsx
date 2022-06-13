@@ -15,6 +15,9 @@ import Users from "./Users";
 import User from "./Users/User";
 import { ReactQueryDevtools } from "react-query/devtools";
 import OTPRequests from "./Users/OTPRequests";
+import Category from "./Products/Category";
+import BrandsScreen from "./Products/BrandsScreen";
+import ProductGroupsScreen from "./Products/ProductGroupsScreen";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const queryClient = new QueryClient();

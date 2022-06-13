@@ -1,12 +1,12 @@
-import React from 'react'
-import { useQuery } from 'react-query'
-import { useLocation } from 'react-router-dom'
-import { getBrands } from '../context/CategoryContext'
-import AddCategory from './AddCategory'
-import CategoryWidget from './CategoryWidget'
-import AddCategoryButton from './subComponents/AddCategoryButton'
-import Header from './subComponents/Header'
-import SearchBox from './subComponents/SearchBox'
+import React from "react";
+import { useQuery } from "react-query";
+import { useLocation } from "react-router-dom";
+import { getBrands } from "../context/CategoryContext";
+import AddCategory from "./AddCategory";
+import CategoryWidget from "./CategoryWidget";
+import AddCategoryButton from "./subComponents/AddCategoryButton";
+import Header from "./subComponents/Header";
+import SearchBox from "./subComponents/SearchBox";
 
 function BrandsScreen() {
   const { data, isLoading, isError, error } = useQuery("get-brands", getBrands);
@@ -27,23 +27,28 @@ function BrandsScreen() {
           <div className="flex justify-between mb-3">
             <SearchBox placeholder="Search Brands..." />
             <div>
-              <AddCategoryButton linkTo='add' linkText='Add Brand' />
+              <AddCategoryButton linkTo="add" linkText="Add Brand" />
             </div>
           </div>
           <div className="grid gap-8 grid-cols-[repeat(auto-fill,_minmax(200px,_1fr))]">
-            {brands && brands.map((brand, index) =>
-              <CategoryWidget image={brand.brand_image.medium_square_crop} title={brand.name} slug={brand.slug} id={brand.sn} completeLink={`/brands/${brand.slug}`} key={brand.sn} imgClassName='' />
-            )}
+            {brands &&
+              brands.map((brand, index) => (
+                <CategoryWidget
+                  image={brand.brand_image.medium_square_crop}
+                  title={brand.name}
+                  slug={brand.slug}
+                  id={brand.sn}
+                  completeLink={`/brands/${brand.slug}`}
+                  key={brand.sn}
+                  imgClassName=""
+                />
+              ))}
           </div>
         </div>
       </div>
-      {
-      brandSlug && (
-        <AddCategory />
-      )
-    }
+      {brandSlug && <AddCategory />}
     </>
-  )
+  );
 }
 
-export default BrandsScreen
+export default BrandsScreen;

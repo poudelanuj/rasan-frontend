@@ -11,7 +11,10 @@ import SearchBox from "./subComponents/SearchBox";
 import Header from "./subComponents/Header";
 
 const CategoryList = () => {
-  const { data, isLoading, isError, error } = useQuery("get-categories", getCategories);
+  const { data, isLoading, isError, error } = useQuery(
+    "get-categories",
+    getCategories
+  );
   const location = useLocation();
   var categorySlug;
   try {
@@ -20,32 +23,27 @@ const CategoryList = () => {
     categorySlug = null;
   }
   const categories = data?.data?.data?.results;
-return (
+  return (
     <>
-    <div>
-      <Header title="Category List" />
-      <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[75vh]">
-        <div className="flex justify-between mb-3">
-          <SearchBox placeholder="Search Category..." />
-          <div>
-            <AddCategoryButton linkTo='add' linkText='Add Category' />
+      <div>
+        <Header title="Category List" />
+        <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[75vh]">
+          <div className="flex justify-between mb-3">
+            <SearchBox placeholder="Search Category..." />
+            <div>
+              <AddCategoryButton linkTo="add" linkText="Add Category" />
+            </div>
           </div>
-
+          {isLoading && <div>Loading....</div>}
+          {isError && <div>Error: {error.message}</div>}
+          {categories && (
+            <div className="grid gap-8 grid-cols-[repeat(auto-fill,_minmax(200px,_1fr))]">
+              <ProductCategory categories={categories} />
+            </div>
+          )}
         </div>
-        {isLoading && <div>Loading....</div>}
-        {isError && <div>Error: {error.message}</div>}
-        {categories && (
-          <div className="grid gap-8 grid-cols-[repeat(auto-fill,_minmax(200px,_1fr))]">
-            <ProductCategory categories={categories} />
-          </div>
-        )}
       </div>
-    </div>
-    {
-      categorySlug && (
-        <AddCategory />
-      )
-    }
+      {categorySlug && <AddCategory />}
     </>
   );
 };
