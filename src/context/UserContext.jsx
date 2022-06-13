@@ -83,7 +83,9 @@ export const deleteAddress = async ({ key }) => {
   return response.data;
 };
 
-export const getOtpRequests = async () => {
-  const response = await myaxios.get("/api/auth/otp-requests/");
-  return response.data.data;
+export const getOtpRequests = async ({ key }) => {
+  const response = await myaxios.post(
+    `/api/profile/admin/verify-user/` + key + "/"
+  );
+  return response.data;
 };

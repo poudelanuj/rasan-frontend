@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { LoginContext } from "./LoginContextProvider";
+import { LoginContext } from "./context/LoginContext";
 
 import Login from "./components/Login";
 import Otp from "./components/Otp";
