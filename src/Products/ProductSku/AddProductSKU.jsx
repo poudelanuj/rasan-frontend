@@ -29,12 +29,14 @@ function AddProductSKU({ alert, setAlert }) {
     onError: (data) => {},
   });
 
-  const { mutate: publishCategoryMutate, isLoading: publishCategoryIsLoading } =
-    useMutation(publishCategory, {
-      onSuccess: (data) => {
-        queryClient.invalidateQueries("get-categories");
-      },
-    });
+  const {
+    mutate: publishCategoryMutate,
+    isLoading: publishCategoryIsLoading,
+  } = useMutation(publishCategory, {
+    onSuccess: (data) => {
+      queryClient.invalidateQueries("get-categories");
+    },
+  });
 
   const closeAddCategories = () => {
     navigate("/product-sku");
@@ -52,8 +54,6 @@ function AddProductSKU({ alert, setAlert }) {
       form_data.append("category_image", formState.imageFile);
       addCategoryMutate({ form_data });
       message.success("Category created successfully");
-      console.log(addCategoryIsLoading);
-      console.log(addCategoryResponseData, "addCategoryResponseData");
       return addCategoryResponseData.data.data.slug;
     } else {
       message.error("Please fill all the fields");
@@ -63,7 +63,6 @@ function AddProductSKU({ alert, setAlert }) {
   const handlePublish = async () => {
     const isSaved = await handleSave();
     if (isSaved) {
-      console.log(formState, "after save");
       publishCategoryMutate({ isSaved });
       message.success("Category published successfully");
     }
@@ -199,7 +198,8 @@ function AddProductSKU({ alert, setAlert }) {
               onClick={async () =>
                 showAlert({
                   title: "Are you sure to Publish?",
-                  text: "Publishing this category would save it and make it visible to the public!",
+                  text:
+                    "Publishing this category would save it and make it visible to the public!",
                   primaryButton: "Publish",
                   secondaryButton: "Cancel",
                   type: "info",

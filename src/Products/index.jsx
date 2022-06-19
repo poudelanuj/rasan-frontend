@@ -41,32 +41,17 @@ const CategoryList = () => {
     ["get-categories", currentPage],
     () => getCategories({ currentPage })
   );
-  const {
-    mutate: publishCategoryMutate,
-    isLoading: publishCategoryIsLoading,
-    isError: publishCategoryIsError,
-    error: publishCategoryError,
-  } = useMutation(publishCategory, {
+  const { mutate: publishCategoryMutate } = useMutation(publishCategory, {
     onSuccess: (data) => {
       queryClient.invalidateQueries("get-categories");
     },
   });
-  const {
-    mutate: unpublishCategoryMutate,
-    isLoading: unpublishCategoryIsLoading,
-    isError: unpublishCategoryIsError,
-    error: unpublishCategoryError,
-  } = useMutation(unpublishCategory, {
+  const { mutate: unpublishCategoryMutate } = useMutation(unpublishCategory, {
     onSuccess: (data) => {
       queryClient.invalidateQueries("get-categories");
     },
   });
-  const {
-    mutate: deleteMutate,
-    isLoading: deleteCategoryIsLoading,
-    isError: deleteCategoryIsError,
-    error: deleteCategoryError,
-  } = useMutation(deleteCategory, {
+  const { mutate: deleteMutate } = useMutation(deleteCategory, {
     onSuccess: (data) => {
       queryClient.invalidateQueries("get-categories");
     },
@@ -79,38 +64,26 @@ const CategoryList = () => {
     categorySlug = null;
   }
   const categories = data?.data?.data?.results;
-  if (!isLoading && !isError && data) {
-    console.log(data);
-  }
+
   const paginate = async (page) => {
-    console.log(page);
     setCurrentPage(page);
   };
   const handleBulkPublish = () => {
-    console.log("bluk publishing");
-    console.log(selectedCategories);
     selectedCategories.forEach(async (category) => {
-      console.log("Publishing", category.slug);
       publishCategoryMutate({ slug: category.slug });
       message.success(`${category.name} published`);
     });
     setSelectedCategories([]);
   };
   const handleBulkUnpublish = () => {
-    console.log("bluk unpublishing");
-    console.log(selectedCategories);
     selectedCategories.forEach(async (category) => {
-      console.log("unublishing", category.slug);
       unpublishCategoryMutate({ slug: category.slug });
       message.success(`${category.name} unpublished`);
     });
     setSelectedCategories([]);
   };
   const handleBulkDelete = () => {
-    console.log("bluk deleting");
-    console.log(selectedCategories);
     selectedCategories.forEach((category) => {
-      console.log("deleting", category.slug);
       deleteMutate({ slug: category.slug });
       message.success(`${category.name} deleted`);
     });
@@ -118,7 +91,6 @@ const CategoryList = () => {
   };
 
   const handleBulkAction = (event) => {
-    console.log(event);
     const action = event;
     switch (action) {
       case "publish":
@@ -165,16 +137,16 @@ const CategoryList = () => {
     <>
       {alert.show && (
         <SimpleAlert
-          title={alert.title}
-          text={alert.text}
-          type={alert.type}
-          primaryButton={alert.primaryButton}
-          secondaryButton={alert.secondaryButton}
-          image={alert.image}
           action={alert.action}
           alert={alert}
-          setAlert={setAlert}
           icon={alert.icon}
+          image={alert.image}
+          primaryButton={alert.primaryButton}
+          secondaryButton={alert.secondaryButton}
+          setAlert={setAlert}
+          text={alert.text}
+          title={alert.title}
+          type={alert.type}
         />
       )}
       <div>
@@ -184,11 +156,11 @@ const CategoryList = () => {
             <SearchBox placeholder="Search Category..." />
             <div className="flex">
               <Select
-                value={"Bulk Actions"}
                 style={{
                   width: 120,
                   marginRight: "1rem",
                 }}
+                value={"Bulk Actions"}
                 onChange={handleBulkAction}
               >
                 <Option value="publish">Publish</Option>
@@ -210,26 +182,26 @@ const CategoryList = () => {
                 />
               </div>
               <Pagination
-                hideOnSinglePage
-                onChange={async (page) => paginate(page)}
                 pageSize={20}
-                total={data.data.data.count}
-                showQuickJumper
                 showTotal={(total) => `Total ${total} items`}
                 style={{
                   marginTop: "1rem",
                   alignSelf: "end",
                 }}
+                total={data.data.data.count}
+                hideOnSinglePage
+                showQuickJumper
+                onChange={async (page) => paginate(page)}
               />
             </>
           )}
         </div>
       </div>
-      {categorySlug == "add" && (
+      {categorySlug === "add" && (
         <AddCategory alert={alert} setAlert={setAlert} />
       )}
-      {categorySlug == "edit" && (
-        <EditCategory slug={slug} alert={alert} setAlert={setAlert} />
+      {categorySlug === "edit" && (
+        <EditCategory alert={alert} setAlert={setAlert} slug={slug} />
       )}
     </>
   );

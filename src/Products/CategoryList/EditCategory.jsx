@@ -12,14 +12,7 @@ import { parseSlug } from "../../utility";
 
 import "antd/dist/antd.css";
 import { message, Upload } from "antd";
-import {
-  UploadOutlined,
-  MinusOutlined,
-  LoadingOutlined,
-  InboxOutlined,
-  DeleteOutlined,
-} from "@ant-design/icons";
-import { useEffect } from "react";
+import { UploadOutlined, LoadingOutlined } from "@ant-design/icons";
 
 const { Dragger } = Upload;
 
@@ -49,8 +42,6 @@ function EditCategory({ slug, alert, setAlert }) {
   const {
     mutate: deleteMutate,
     isLoading: deleteCategoryIsLoading,
-    isError: deleteCategoryIsError,
-    error: deleteCategoryError,
   } = useMutation(() => deleteCategory({ slug }), {
     onSuccess: (data) => {
       message.success("Category deleted successfully");
@@ -60,8 +51,6 @@ function EditCategory({ slug, alert, setAlert }) {
   const {
     mutate: updateMutate,
     isLoading: updateCategoryIsLoading,
-    isError: updateCategoryIsError,
-    error: updateCategoryError,
   } = useMutation(
     ({ slug, form_data }) => updateCategory({ slug, form_data }),
     {
@@ -74,19 +63,12 @@ function EditCategory({ slug, alert, setAlert }) {
   const {
     mutate: publishCategoryMutate,
     isLoading: publishCategoryIsLoading,
-    isError: publishCategoryIsError,
-    error: publishCategoryError,
   } = useMutation(publishCategory, {
     onSuccess: (data) => {
       queryClient.invalidateQueries("get-categories");
     },
   });
-  const {
-    mutate: unpublishCategoryMutate,
-    isLoading: unpublishCategoryIsLoading,
-    isError: unpublishCategoryIsError,
-    error: unpublishCategoryError,
-  } = useMutation(unpublishCategory, {
+  const { mutate: unpublishCategoryMutate } = useMutation(unpublishCategory, {
     onSuccess: (data) => {
       queryClient.invalidateQueries("get-categories");
     },
@@ -286,7 +268,8 @@ function EditCategory({ slug, alert, setAlert }) {
                   onClick={() =>
                     showAlert({
                       title: "Are you sure to Unpublish?",
-                      text: "Unpublishing this category would make it invisible to the public!",
+                      text:
+                        "Unpublishing this category would make it invisible to the public!",
                       primaryButton: "Unpublish",
                       secondaryButton: "Cancel",
                       type: "warning",
@@ -304,7 +287,8 @@ function EditCategory({ slug, alert, setAlert }) {
                   onClick={() =>
                     showAlert({
                       title: "Are you sure to Publish?",
-                      text: "Publishing this category would make it visible to the public!",
+                      text:
+                        "Publishing this category would make it visible to the public!",
                       primaryButton: "Publish",
                       secondaryButton: "Cancel",
                       type: "info",

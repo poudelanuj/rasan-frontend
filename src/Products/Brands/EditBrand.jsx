@@ -12,14 +12,7 @@ import { parseSlug } from "../../utility";
 
 import "antd/dist/antd.css";
 import { message, Upload } from "antd";
-import {
-  UploadOutlined,
-  MinusOutlined,
-  LoadingOutlined,
-  InboxOutlined,
-  DeleteOutlined,
-} from "@ant-design/icons";
-import { useEffect } from "react";
+import { UploadOutlined, LoadingOutlined } from "@ant-design/icons";
 
 const { Dragger } = Upload;
 
@@ -46,47 +39,36 @@ function EditBrand({ slug, alert, setAlert }) {
       });
     },
   });
-  const {
-    mutate: deleteMutate,
-    isLoading: deleteBrandIsLoading,
-    isError: deleteBrandIsError,
-    error: deleteBrandError,
-  } = useMutation(() => deleteBrand({ slug }), {
-    onSuccess: (data) => {
-      message.success("Brand deleted successfully");
-      queryClient.invalidateQueries("get-brands");
-      navigate("/brands");
-    },
-  });
-  const {
-    mutate: updateMutate,
-    isLoading: updateBrandIsLoading,
-    isError: updateBrandIsError,
-    error: updateBrandError,
-  } = useMutation(({ slug, form_data }) => updateBrand({ slug, form_data }), {
-    onSuccess: (data) => {
-      message.success("Brand updated successfully");
-      queryClient.invalidateQueries("get-brands");
-      navigate("/brands");
-    },
-  });
+  const { mutate: deleteMutate, isLoading: deleteBrandIsLoading } = useMutation(
+    () => deleteBrand({ slug }),
+    {
+      onSuccess: (data) => {
+        message.success("Brand deleted successfully");
+        queryClient.invalidateQueries("get-brands");
+        navigate("/brands");
+      },
+    }
+  );
+  const { mutate: updateMutate, isLoading: updateBrandIsLoading } = useMutation(
+    ({ slug, form_data }) => updateBrand({ slug, form_data }),
+    {
+      onSuccess: (data) => {
+        message.success("Brand updated successfully");
+        queryClient.invalidateQueries("get-brands");
+        navigate("/brands");
+      },
+    }
+  );
   const {
     mutate: publishBrandMutate,
     isLoading: publishBrandIsLoading,
-    isError: publishBrandIsError,
-    error: publishBrandError,
   } = useMutation(publishBrand, {
     onSuccess: (data) => {
       queryClient.invalidateQueries("get-brands");
       navigate("/brands");
     },
   });
-  const {
-    mutate: unpublishBrandMutate,
-    isLoading: unpublishBrandIsLoading,
-    isError: unpublishBrandIsError,
-    error: unpublishBrandError,
-  } = useMutation(unpublishBrand, {
+  const { mutate: unpublishBrandMutate } = useMutation(unpublishBrand, {
     onSuccess: (data) => {
       queryClient.invalidateQueries("get-brands");
       navigate("/brands");
@@ -287,7 +269,8 @@ function EditBrand({ slug, alert, setAlert }) {
                   onClick={() =>
                     showAlert({
                       title: "Are you sure to Unpublish?",
-                      text: "Unpublishing this brand would make it invisible to the public!",
+                      text:
+                        "Unpublishing this brand would make it invisible to the public!",
                       primaryButton: "Unpublish",
                       secondaryButton: "Cancel",
                       type: "warning",
@@ -305,7 +288,8 @@ function EditBrand({ slug, alert, setAlert }) {
                   onClick={() =>
                     showAlert({
                       title: "Are you sure to Publish?",
-                      text: "Publishing this brand would make it visible to the public!",
+                      text:
+                        "Publishing this brand would make it visible to the public!",
                       primaryButton: "Publish",
                       secondaryButton: "Cancel",
                       type: "info",

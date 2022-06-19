@@ -29,12 +29,14 @@ function AddBrand({ alert, setAlert }) {
     onError: (data) => {},
   });
 
-  const { mutate: publishBrandMutate, isLoading: publishBrandIsLoading } =
-    useMutation(publishBrand, {
-      onSuccess: (data) => {
-        queryClient.invalidateQueries("get-brands");
-      },
-    });
+  const {
+    mutate: publishBrandMutate,
+    isLoading: publishBrandIsLoading,
+  } = useMutation(publishBrand, {
+    onSuccess: (data) => {
+      queryClient.invalidateQueries("get-brands");
+    },
+  });
 
   const closeAddBrands = () => {
     navigate("/brands");
@@ -52,8 +54,6 @@ function AddBrand({ alert, setAlert }) {
       form_data.append("brand_image", formState.imageFile);
       addBrandMutate({ form_data });
       message.success("Brand created successfully");
-      console.log(addBrandIsLoading);
-      console.log(addBrandResponseData, "addBrandResponseData");
       return addBrandResponseData.data.data.slug;
     } else {
       message.error("Please fill all the fields");
@@ -63,7 +63,6 @@ function AddBrand({ alert, setAlert }) {
   const handlePublish = async () => {
     const isSaved = await handleSave();
     if (isSaved) {
-      console.log(formState, "after save");
       publishBrandMutate({ isSaved });
       message.success("Brand published successfully");
     }
@@ -199,7 +198,8 @@ function AddBrand({ alert, setAlert }) {
               onClick={async () =>
                 showAlert({
                   title: "Are you sure to Publish?",
-                  text: "Publishing this brand would save it and make it visible to the public!",
+                  text:
+                    "Publishing this brand would save it and make it visible to the public!",
                   primaryButton: "Publish",
                   secondaryButton: "Cancel",
                   type: "info",
