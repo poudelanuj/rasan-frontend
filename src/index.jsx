@@ -18,6 +18,10 @@ import OTPRequests from "./Users/OTPRequests";
 import Category from "./Products/Category";
 import BrandsScreen from "./Products/BrandsScreen";
 import ProductGroupsScreen from "./Products/ProductGroupsScreen";
+import ProductListScreen from "./Products/ProductListScreen";
+import ProductSkuScreen from "./Products/ProductSkuScreen";
+import Brands from "./Products/Brands";
+import ProductSKU from "./Products/ProductSKU";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const queryClient = new QueryClient();
@@ -35,10 +39,18 @@ root.render(
 
             <Route element={<CategoryList />} path="category-list" />
             <Route element={<CategoryList />} path="category-list/add" />
+            <Route element={<CategoryList />} path="category-list/edit/:slug" />
             <Route element={<Category />} path="category-list/:slug" />
+            {/* <Route element={<Category />} path="category-list/:slug/add-sku" /> */}
             <Route element={<BrandsScreen />} path="brands" />
             <Route element={<BrandsScreen />} path="brands/add" />
+            <Route element={<BrandsScreen />} path="brands/edit/:slug" />
+            <Route element={<Brands />} path="brands/:slug" />
             <Route element={<ProductGroupsScreen />} path="product-groups" />
+            <Route element={<ProductListScreen />} path="product-list" />
+            <Route element={<ProductSkuScreen />} path="product-sku" />
+            <Route element={<ProductSkuScreen />} path="product-sku/add" />
+            <Route element={<ProductSKU />} path="product-sku/:slug" />
 
             {/* ends */}
             <Route element={<Users />} path="users" />

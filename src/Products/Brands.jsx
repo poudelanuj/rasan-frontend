@@ -1,8 +1,8 @@
 import React from "react";
-import TabAll from "./CategoryList/TabAll";
-import TabSKU from "./CategoryList/TabSKU";
+import TabAll from "./Brands/TabAll";
+import TabSKU from "./Brands/TabSKU";
 import { useQuery } from "react-query";
-import { getCategory } from "../context/CategoryContext";
+import { getBrand } from "../context/CategoryContext";
 
 import { Tabs } from "antd";
 import { useParams } from "react-router-dom";
@@ -10,10 +10,10 @@ const { TabPane } = Tabs;
 
 const onChange = (key) => {};
 
-function Category() {
+function Brands() {
   const { slug } = useParams();
-  const { data, isLoading, isError, error } = useQuery("get-category", () =>
-    getCategory({ slug })
+  const { data, isLoading, isError, error } = useQuery("get-brand", () =>
+    getBrand({ slug })
   );
 
   return (
@@ -37,4 +37,4 @@ function Category() {
   );
 }
 
-export default Category;
+export default Brands;

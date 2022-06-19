@@ -2,7 +2,11 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { Table, Select } from "antd";
-import AddCategoryButton from "./subComponents/AddCategoryButton";
+import AddCategoryButton from "../subComponents/AddCategoryButton";
+import { getCategoryEndUser } from "../../context/CategoryContext";
+import { useQuery } from "react-query";
+
+import { parseSlug } from "../../utility";
 
 const { Option } = Select;
 
@@ -13,11 +17,11 @@ const columns = [
     render: (text, record) => {
       return (
         <div className="h-[80px]">
-          {record.profile_picture && (
+          {record.product_sku_image.full_size && (
             <img
               alt={"text"}
               className="inline pr-4 h-[100%]"
-              src={record.profile_picture}
+              src={record.product_sku_image.full_size}
             />
           )}
         </div>
@@ -31,42 +35,69 @@ const columns = [
     // sorter: (a, b) => a.name.length - b.name.length,
   },
   {
-    title: "Product ID",
-    dataIndex: "productId",
-    defaultSortOrder: "descend",
-    // sorter: (a, b) => a.address.length - b.address.length,
+    title: "Name in Nepali",
+    dataIndex: "name_np",
   },
   {
-    title: "Product Price",
-    dataIndex: "productPrice",
-    defaultSortOrder: "descend",
-    // sorter: (a, b) => a.address.length - b.address.length,
+    title: "Quantity",
+    dataIndex: "quantity",
   },
   {
-    title: "Product Brand",
-    dataIndex: "productBrand",
+    title: "MRP per piece",
+    dataIndex: "mrp_per_piece",
+  },
+  {
+    title: "Price per piece",
+    dataIndex: "price_per_piece",
   },
   {
     title: "Product Group",
-    dataIndex: "productGroup",
+    dataIndex: "product_group",
+  },
+  {
+    title: "Category",
+    render: (text, record) => {
+      return (
+        <div className="capitalize">
+          {record.category.map((category, index) => {
+            return parseSlug(category);
+          })}
+        </div>
+      );
+    },
+  },
+  {
+    title: "Brand",
+    render: (text, record) => {
+      return <div className="capitalize">{parseSlug(record.brand)}</div>;
+    },
   },
 ];
-const data = [];
+// const data = [];
 
-for (let i = 0; i < 46; i++) {
-  data.push({
-    key: i,
-    name: `Rice ${i}`,
-    productid: "12345",
-    productPrice: "$10.00",
-    productBrand: "Preety",
-    productGroup: "Food",
-    profile_picture:
-      "https://images.unsplash.com/photo-1518791841217-8f162f1e1131?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60",
-  });
-}
+// for (let i = 0; i < 46; i++) {
+//   data.push({
+//     key: i,
+//     name: `Rice ${i}`,
+//     productid: "12345",
+//     productPrice: "$10.00",
+//     productBrand: "Preety",
+//     productGroup: "Food",
+//     profile_picture:
+//       "https://images.unsplash.com/photo-1518791841217-8f162f1e1131?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60",
+//   });
+// }
 
-function TabAll({ slug }) {
+function TabSKU({ slug }) {
+  // const { slug } = useParams();
+  const [entriesPerPage, setEntriesPerPage] = useState(4);
+  const { data, isLoading, isError, error } = useQuery(
+    "get-category-enduser",
+    () => getCategoryEndUser({ slug })
+  );
+  if (!isLoading) {
+    console.log(data);
+  }
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const navigate = useNavigate();
 
@@ -121,14 +152,16 @@ function TabAll({ slug }) {
 <input type="text" placeholder="Search category..." className="w-full ml-1 placeholder:text-[#D9D9D9]" />
 </div> */}
         <div>
-          <AddCategoryButton linkText="Add Products" linkTo={`add`} />
+          <AddCategoryButton linkText="Add Product SKU" linkTo={`add`} />
         </div>
       </div>
 
       <div className="flex-1">
+        {isLoading ? "Loading..." : null}
+        {isError ? error.message : null}
         <Table
           columns={columns}
-          dataSource={data}
+          dataSource={data?.data?.data?.product_skus.results}
           footer={() => (
             <div className="absolute bottom-0 left-0 flex justify-start bg-white w-[100%]">
               <div className="">
@@ -136,22 +169,24 @@ function TabAll({ slug }) {
                   Entries per page:{" "}
                 </span>
                 <Select
-                  defaultValue="lucy"
+                  defaultValue={4}
                   style={{
                     width: 120,
                   }}
-                  loading
+                  // loading
+                  onChange={(value) => setEntriesPerPage(value)}
                 >
-                  <Option value={5}>5</Option>
+                  <Option value={4}>4</Option>
                   <Option value={10}>10</Option>
+                  <Option value={15}>15</Option>
                   <Option value={20}>20</Option>
+                  <Option value={25}>25</Option>
                   <Option value={50}>50</Option>
-                  <Option value={100}>100</Option>
                 </Select>
               </div>
             </div>
           )}
-          pagination={{ pageSize: 4 }}
+          pagination={{ pageSize: entriesPerPage }}
           rowSelection={rowSelection}
           onRow={(record) => {
             return {
@@ -168,4 +203,4 @@ function TabAll({ slug }) {
   );
 }
 
-export default TabAll;
+export default TabSKU;
