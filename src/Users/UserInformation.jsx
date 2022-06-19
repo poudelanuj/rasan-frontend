@@ -154,7 +154,6 @@ const UserInformation = ({ user }) => {
             </div>
           </div>
         </div>
-
         <div className="cash-section w-4/12 mx-auto">
           <div className="flex ">
             <div className="w-1/2 border p-4 bg-[#F8FAFF] text-sm text-light_text">
