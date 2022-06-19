@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useQuery } from "react-query";
 import { getProductGroups } from "../context/CategoryContext";
 import CategoryWidget from "./CategoryWidget";
@@ -7,6 +7,7 @@ import Header from "./subComponents/Header";
 import SearchBox from "./subComponents/SearchBox";
 
 function ProductGroupsScreen() {
+  const [selectedProducts, setSelectedProducts] = useState([]);
   const { data, isLoading, isError, error } = useQuery(
     "get-product-groups",
     getProductGroups
@@ -38,6 +39,8 @@ function ProductGroupsScreen() {
                   imgClassName=""
                   slug={group.slug}
                   title={group.name}
+                  selectedCategories={selectedProducts}
+                  setSelectedCategories={setSelectedProducts}
                 />
               ))}
           </div>

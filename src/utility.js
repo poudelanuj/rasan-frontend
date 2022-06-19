@@ -40,4 +40,15 @@ function parseJwt(token) {
   }
 }
 
-export { loggedInOrNot, parseJwt };
+function getDate(date) {
+  const d = new Date(date);
+  return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
+}
+
+function parseSlug(slug) {
+  // add space for - in slug
+  return slug.split("-").join(" ");
+  // for capitalizing first letter of each word, use css capitalization
+}
+
+export { loggedInOrNot, parseJwt, getDate, parseSlug };

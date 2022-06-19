@@ -1,24 +1,22 @@
 import React, { useState } from "react";
-import {
-  UploadOutlined,
-  MinusOutlined,
-  LoadingOutlined,
-} from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import { UploadOutlined, LoadingOutlined } from "@ant-design/icons";
 
-import { addCategory, publishCategory } from "../context/CategoryContext";
+import { addCategory, publishCategory } from "../../context/CategoryContext";
 import { useMutation, useQueryClient } from "react-query";
 
-function AddCategory() {
+import { message, Upload } from "antd";
+const { Dragger } = Upload;
+
+function AddProductSKU({ alert, setAlert }) {
   const navigate = useNavigate();
-  const dropState = "none";
   const [formState, setFormState] = useState({
     name: "",
     name_np: "",
     image: "",
+    imageFile: null,
   });
   const queryClient = useQueryClient();
-  const form = document.getElementById("category-upload-file");
 
   const {
     mutate: addCategoryMutate,
@@ -37,61 +35,87 @@ function AddCategory() {
   } = useMutation(publishCategory, {
     onSuccess: (data) => {
       queryClient.invalidateQueries("get-categories");
-      navigate("/category-list");
     },
   });
 
-  const handleBrowseClick = () => {
-    form.click();
-  };
   const closeAddCategories = () => {
-    navigate("/category-list");
+    navigate("/product-sku");
   };
 
-  const handleImageChange = (e) => {
-    // get the file object as url
-    const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      if (file) {
-        setFormState({
-          ...formState,
-          image: e.target.result,
-        });
-      } else {
-        setFormState({
-          ...formState,
-          image: "",
-        });
-      }
-    };
-    reader.readAsDataURL(file);
-  };
   const handleSubmit = (e) => {
     e.preventDefault();
     handleSave();
   };
   const handleSave = async () => {
-    let form_data = new FormData();
-    form_data.append("name", formState.name);
-    form_data.append("name_np", formState.name_np);
-    form_data.append("image", form.files[0]);
-    addCategoryMutate({ form_data });
+    if (formState.name && formState.image && formState.name_np) {
+      let form_data = new FormData();
+      form_data.append("name", formState.name);
+      form_data.append("name_np", formState.name_np);
+      form_data.append("category_image", formState.imageFile);
+      addCategoryMutate({ form_data });
+      message.success("Category created successfully");
+      return addCategoryResponseData.data.data.slug;
+    } else {
+      message.error("Please fill all the fields");
+      return false;
+    }
   };
   const handlePublish = async () => {
-    await handleSave();
-    const slug = addCategoryResponseData?.data?.data?.slug;
-    publishCategoryMutate({ slug });
-    // publishCategoryMutate(formState);
+    const isSaved = await handleSave();
+    if (isSaved) {
+      publishCategoryMutate({ isSaved });
+      message.success("Category published successfully");
+    }
+  };
+  const props = {
+    maxCount: 1,
+    multiple: false,
+    beforeUpload: () => false,
+    showUploadList: false,
+
+    onChange: (filename) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (filename.file) {
+          setFormState({
+            ...formState,
+            image: e.target.result,
+            imageFile: filename.file,
+          });
+        }
+      };
+      reader.readAsDataURL(filename.file);
+    },
+  };
+
+  const showAlert = ({
+    title,
+    text,
+    primaryButton,
+    secondaryButton,
+    type,
+    image,
+    action,
+  }) => {
+    setAlert({
+      show: true,
+      title,
+      text,
+      primaryButton,
+      secondaryButton,
+      type,
+      image,
+      action,
+    });
   };
 
   return (
     <>
       <div
-        className="fixed top-0 left-0 h-screen w-full bg-[#03022920] animate-popupopen"
+        className="fixed top-0 left-0 h-screen w-full bg-[#03022920] animate-popupopen z-[99990]"
         onClick={() => closeAddCategories()}
       ></div>
-      <div className="min-w-[36.25rem] min-h-[33.5rem] fixed z-[1] top-[50%] right-[50%] translate-x-[50%] translate-y-[-50%] bg-white rounded-[10px] flex flex-col p-8 shadow-[-14px_30px_20px_rgba(0,0,0,0.05)] overflow-hidden">
+      <div className="min-w-[36.25rem] min-h-[33.5rem] fixed z-[99999] top-[50%] right-[50%] translate-x-[50%] translate-y-[-50%] bg-white rounded-[10px] flex flex-col p-8 shadow-[-14px_30px_20px_rgba(0,0,0,0.05)] overflow-hidden">
         <h2 className="text-3xl mb-3 text-[#192638] text-[2rem] font-medium">
           Add Category
         </h2>
@@ -106,58 +130,19 @@ function AddCategory() {
           onSubmit={handleSubmit}
         >
           <div className="grid gap-[1rem] grid-cols-[100%]">
-            <div
-              className={`flex flex-col items-center justify-center min-h-[10rem] bg-[#FBFCFF] border-[1px] border-dashed border-[#D0D7E2] rounded-[15px] ${
-                dropState === "drop" && "shadow-[0px_0px_20px_rgba(0,0,0,0.5)]"
-              }`}
-              id="drop-file-here"
-            >
-              {formState.image.length > 0 ? (
-                <>
-                  <img
-                    alt=""
-                    className="max-h-[6rem] mx-auto"
-                    src={formState.image}
-                  />
-                  <span className="text-center text-2xl text-[#374253] text-[13px] font-normal">
-                    <MinusOutlined style={{ verticalAlign: "text-bottom" }} />{" "}
-                    Click to
-                    <span
-                      className="text-blue-500 cursor-pointer"
-                      onClick={() => handleBrowseClick()}
-                    >
-                      {" "}
-                      change
-                    </span>
-                  </span>
-                </>
-              ) : (
-                <>
-                  <img
-                    alt="gallery"
-                    className="w-fit mx-auto"
-                    src="/gallery-icon.svg"
-                  />
-                  <span className="text-center text-2xl text-[#374253] text-[13px] font-normal">
-                    <UploadOutlined style={{ verticalAlign: "text-bottom" }} />{" "}
-                    Drop your images here, or
-                    <span
-                      className="text-blue-500 cursor-pointer"
-                      onClick={() => handleBrowseClick()}
-                    >
-                      {" "}
-                      browse
-                    </span>
-                  </span>
-                </>
-              )}
-            </div>
-            <input
-              className="hidden"
-              id="category-upload-file"
-              type="file"
-              onChange={handleImageChange}
-            />
+            <Dragger {...props}>
+              <p className="ant-upload-drag-icon">
+                <img
+                  alt="gallery"
+                  className="h-[6rem] mx-auto"
+                  src={formState.image ? formState.image : "/gallery-icon.svg"}
+                />
+              </p>
+              <p className="ant-upload-text text-[13px]">
+                <UploadOutlined style={{ verticalAlign: "middle" }} />
+                <span> Click or drag file to this area to upload</span>
+              </p>
+            </Dragger>
             <div className="flex flex-col">
               <label className="mb-1" htmlFor="name">
                 Category Name
@@ -200,17 +185,31 @@ function AddCategory() {
             <button
               className="text-[#00B0C2] p-[8px_12px] min-w-[5rem] rounded-[4px] border-[1px] border-[#00B0C2] hover:bg-[#effdff] transition-colors"
               type="button"
-              onClick={async (e) => {
-                await handleSave(e);
-                return navigate("/category-list");
+              onClick={async () => {
+                await handleSave();
+                return closeAddCategories();
               }}
             >
-              Save
+              Create
             </button>
             <button
               className="bg-[#00B0C2] text-white p-[8px_12px] ml-5 min-w-[5rem] rounded-[4px] border-[1px] border-[#00B0C2] hover:bg-[#12919f] transition-colors"
               type="button"
-              onClick={handlePublish}
+              onClick={async () =>
+                showAlert({
+                  title: "Are you sure to Publish?",
+                  text:
+                    "Publishing this category would save it and make it visible to the public!",
+                  primaryButton: "Publish",
+                  secondaryButton: "Cancel",
+                  type: "info",
+                  image: "/publish-icon.svg",
+                  action: async () => {
+                    await handlePublish();
+                    return closeAddCategories();
+                  },
+                })
+              }
             >
               Publish Category
             </button>
@@ -221,4 +220,4 @@ function AddCategory() {
   );
 }
 
-export default AddCategory;
+export default AddProductSKU;

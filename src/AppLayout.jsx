@@ -31,8 +31,9 @@ const sidebarItems = [
     children: [
       { label: "Category List", key: "category-list" },
       { label: "Brands", key: "brands" },
-      { label: "Product Groups", key: "product-groups" },
       { label: "Product List", key: "product-list" },
+      { label: "Product Groups", key: "product-groups" },
+      { label: "Product SKU", key: "product-sku" },
     ],
   },
   {
