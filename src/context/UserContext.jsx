@@ -1,3 +1,4 @@
+import moment from "moment";
 import myaxios from "../myaxios";
 
 export const getUsers = async () => {
@@ -35,11 +36,9 @@ export const deactivateUser = async (number) => {
 };
 
 export const getLastLogin = async (phone) => {
-  const response = await myaxios.get(`/api/auth/auth-meta/`, {
-    params: { phone: phone },
-  });
+  const response = await myaxios.post(`/api/auth/auth-meta/`, { phone: phone });
   let date = new Date(response.data.data.last_login_at);
-  return date.toDateString();
+  return moment(date).format("YYYY/MM/DD");
 };
 
 export const getShopInfo = async (user_id) => {
@@ -83,9 +82,24 @@ export const deleteAddress = async ({ key }) => {
   return response.data;
 };
 
-export const getOtpRequests = async ({ key }) => {
+export const getOtpRequests = async () => {
+  const response = await myaxios.get(`/api/auth/otp-requests/`);
+  return response.data.data;
+};
+
+export const verifyUser = async ({ key }) => {
   const response = await myaxios.post(
-    `/api/profile/admin/verify-user/` + key + "/"
+    `/api/profile/admin/verify-user/` + key + "/",
+    null
   );
+  return response.data;
+};
+
+export const deleteUser = async ({ phone }) => {
+  const response = await myaxios.delete(`/api/auth/delete-user/`, {
+    data: {
+      phone: phone,
+    },
+  });
   return response.data;
 };

@@ -22,6 +22,9 @@ import ProductListScreen from "./Products/ProductListScreen";
 import ProductSkuScreen from "./Products/ProductSkuScreen";
 import Brands from "./Products/Brands";
 import ProductSKU from "./Products/ProductSKU";
+import RequireAuth from "./RequireAuth";
+import LoginRasan from "./LoginRasan";
+import AuthProvider from "./AuthProvider";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const queryClient = new QueryClient();
@@ -29,39 +32,51 @@ const queryClient = new QueryClient();
 root.render(
   <QueryClientProvider client={queryClient}>
     <BrowserRouter>
-      <React.StrictMode>
-        <Routes>
-          <Route element={<LoginApp />} path="/login" />
-          <Route element={<App />} path="/">
-            <Route element={<Dashboard />} index />
-            <Route element={<Orders />} path="orders" />
-            {/* product part */}
+      <AuthProvider>
+        <React.StrictMode>
+          <Routes>
+            <Route element={<LoginRasan />} path="/login" />
+            <Route
+              element={
+                <RequireAuth>
+                  <App />
+                </RequireAuth>
+              }
+              path="/"
+            >
+              <Route element={<Dashboard />} index />
+              <Route element={<Orders />} path="orders" />
+              {/* product part */}
 
-            <Route element={<CategoryList />} path="category-list" />
-            <Route element={<CategoryList />} path="category-list/add" />
-            <Route element={<CategoryList />} path="category-list/edit/:slug" />
-            <Route element={<Category />} path="category-list/:slug" />
-            {/* <Route element={<Category />} path="category-list/:slug/add-sku" /> */}
-            <Route element={<BrandsScreen />} path="brands" />
-            <Route element={<BrandsScreen />} path="brands/add" />
-            <Route element={<BrandsScreen />} path="brands/edit/:slug" />
-            <Route element={<Brands />} path="brands/:slug" />
-            <Route element={<ProductGroupsScreen />} path="product-groups" />
-            <Route element={<ProductListScreen />} path="product-list" />
-            <Route element={<ProductSkuScreen />} path="product-sku" />
-            <Route element={<ProductSkuScreen />} path="product-sku/add" />
-            <Route element={<ProductSKU />} path="product-sku/:slug" />
+              <Route element={<CategoryList />} path="category-list" />
+              <Route element={<CategoryList />} path="category-list/add" />
+              <Route
+                element={<CategoryList />}
+                path="category-list/edit/:slug"
+              />
+              <Route element={<Category />} path="category-list/:slug" />
+              {/* <Route element={<Category />} path="category-list/:slug/add-sku" /> */}
+              <Route element={<BrandsScreen />} path="brands" />
+              <Route element={<BrandsScreen />} path="brands/add" />
+              <Route element={<BrandsScreen />} path="brands/edit/:slug" />
+              <Route element={<Brands />} path="brands/:slug" />
+              <Route element={<ProductGroupsScreen />} path="product-groups" />
+              <Route element={<ProductListScreen />} path="product-list" />
+              <Route element={<ProductSkuScreen />} path="product-sku" />
+              <Route element={<ProductSkuScreen />} path="product-sku/add" />
+              <Route element={<ProductSKU />} path="product-sku/:slug" />
 
-            {/* ends */}
-            <Route element={<Users />} path="users" />
-            <Route element={<User />} path="user/:user_id" />
-            <Route element={<OTPRequests />} path="otp-requests" />
-            <Route element={<UserGroups />} path="user-groups" />
-            <Route element={<LiveUserBasket />} path="live-user-basket" />
-            <Route element={<CRM />} path="crm" />
-          </Route>
-        </Routes>
-      </React.StrictMode>
+              {/* ends */}
+              <Route element={<Users />} path="users" />
+              <Route element={<User />} path="user/:user_id" />
+              <Route element={<OTPRequests />} path="otp-requests" />
+              <Route element={<UserGroups />} path="user-groups" />
+              <Route element={<LiveUserBasket />} path="live-user-basket" />
+              <Route element={<CRM />} path="crm" />
+            </Route>
+          </Routes>
+        </React.StrictMode>
+      </AuthProvider>
     </BrowserRouter>
     <ReactQueryDevtools initialIsOpen={false} />
   </QueryClientProvider>

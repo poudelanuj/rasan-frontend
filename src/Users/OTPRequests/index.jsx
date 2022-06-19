@@ -23,7 +23,6 @@ const columns = [
 
 const OTPRequests = () => {
   const { data: otpList } = useQuery("get-otp-requests", getOtpRequests);
-
   // useEffect(() => {
   //   if (otpList) {
   //     let users2 = otpList.map((user, index) => {

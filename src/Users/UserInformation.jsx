@@ -1,18 +1,36 @@
 import { Button, DatePicker, Form, Input, message } from "antd";
 import React, { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "react-query";
-import { deactivateUser, logoutUser, updateUser } from "../context/UserContext";
+import {
+  deactivateUser,
+  deleteUser,
+  logoutUser,
+  updateUser,
+  verifyUser,
+} from "../context/UserContext";
 import AddressForm from "./AddressForm";
 import ProfilePicture from "./ProfilePicture";
 import Shop from "./Shop";
 import moment from "moment";
 import AddressCreationForm from "./AddressCreationForm";
 import { AiFillCheckCircle } from "react-icons/ai";
+import { useNavigate } from "react-router-dom";
 const UserInformation = ({ user }) => {
   const [form] = Form.useForm();
+  let navigate = useNavigate();
+
   const [visible, setVisible] = useState(false);
   const queryClient = useQueryClient();
   const { mutate: updateUserMutation } = useMutation(updateUser, {
+    onSuccess: (data) => {
+      message.success(data.message);
+      queryClient.invalidateQueries(["get-user", `${user.id}`]);
+    },
+    onError: (data) => {
+      message.error(data.message);
+    },
+  });
+  const { mutate: verifyUserMutate } = useMutation(verifyUser, {
     onSuccess: (data) => {
       message.success(data.message);
       queryClient.invalidateQueries(["get-user", `${user.id}`]);
@@ -29,6 +47,15 @@ const UserInformation = ({ user }) => {
   const { mutate: deactivateUserMutation } = useMutation(deactivateUser, {
     onSuccess: (data) => {
       message.success(data.message);
+    },
+  });
+  const { mutate: deleteUserMutation } = useMutation(deleteUser, {
+    onSuccess: (data) => {
+      // message.success(data.errors.detail);
+      navigate("/users");
+    },
+    onError: (error) => {
+      message.error(error.message);
     },
   });
   useEffect(() => {
@@ -127,7 +154,6 @@ const UserInformation = ({ user }) => {
             </div>
           </div>
         </div>
-
         <div className="cash-section w-4/12 mx-auto">
           <div className="flex ">
             <div className="w-1/2 border p-4 bg-[#F8FAFF] text-sm text-light_text">
@@ -223,15 +249,26 @@ const UserInformation = ({ user }) => {
         </div>
       </div> */}
       <div className="w-7/12 mt-3 flex">
-        <Button className="ml-auto w-2/12" type="primary" danger>
+        <Button
+          className="ml-auto w-2/12"
+          type="primary"
+          danger
+          onClick={() => {
+            deleteUserMutation({ phone: user.phone });
+          }}
+        >
           Delete User
         </Button>
         <Button
           className="ml-3 w-2/12 bg-primary"
+          disabled={user.is_verified}
           icon={<AiFillCheckCircle className={"inline mr-1"} />}
           type="primary"
+          onClick={() => {
+            verifyUserMutate({ key: user.id });
+          }}
         >
-          Verify User
+          {user.is_verified ? "Verified" : "Verify User"}
         </Button>
       </div>
     </div>

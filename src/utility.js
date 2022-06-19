@@ -2,14 +2,16 @@ function loggedInOrNot() {
   // NOTE: This means The refresh token has not expired yet
   const accessToken = localStorage.getItem("auth_token");
   if (accessToken) {
-    const parsedJwt = parseJwt(accessToken);
-    if (parsedJwt.invalid) {
-      localStorage.removeItem("auth_Token");
-      return false;
-    } else if ("sub" in parsedJwt) {
-      return parsedJwt.sub;
-    }
-  }
+    return true;
+    //   const parsedJwt = parseJwt(accessToken);
+    //   if (parsedJwt.invalid) {
+    //     localStorage.removeItem("auth_Token");
+    //     return false;
+    //   } else if ("sub" in parsedJwt) {
+    //     return parsedJwt.sub;
+    //   }
+    // }
+  } else return false;
 }
 
 /**
