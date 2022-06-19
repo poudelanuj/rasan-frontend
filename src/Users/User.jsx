@@ -5,7 +5,7 @@ import Icon, {
 } from "@ant-design/icons";
 import { useQuery } from "react-query";
 import { useParams } from "react-router-dom";
-import { getUser } from "../context/UserContext";
+import { getLastLogin, getUser } from "../context/UserContext";
 import Loyalty from "../svgs/Loyalty";
 import Time from "../svgs/Time";
 import UserTab from "./UserTab";
@@ -16,7 +16,14 @@ const User = () => {
     ["get-user", user_id],
     async () => getUser(user_id)
   );
-
+  const phone = user?.phone;
+  const { data: lastLoggedInFetch } = useQuery(
+    ["get-meta", user_id],
+    async () => getLastLogin(phone),
+    {
+      enabled: !!phone,
+    }
+  );
   return (
     <div>
       <div className="text-3xl bg-white mb-3 p-5">User Details</div>
@@ -53,7 +60,9 @@ const User = () => {
               <Icon component={Loyalty} />
               <div className="text-light_text text-sm ml-2">
                 Loyalty Points
-                <div className="text-text text-lg">500</div>
+                <div className="text-text text-lg">
+                  {user?.extra_info?.loyalty_points}
+                </div>
               </div>
             </div>
             <div className="Last-logged-in flex">
@@ -61,7 +70,7 @@ const User = () => {
               <div className="text-light_text text-sm ml-2">
                 Last Logged In
                 <div className="text-text text-lg">
-                  {/* {isLoading ? "Loading.." : last_logged_in} */}
+                  {isLoading ? "Loading.." : lastLoggedInFetch}
                 </div>
               </div>
             </div>
