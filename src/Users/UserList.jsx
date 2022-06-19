@@ -55,7 +55,7 @@ const UserList = ({ users }) => {
         profile_picture: user.profile_picture?.small_square_crop,
         shop: user.shop.name || "N/A",
         address: user.addresses[0]?.detail_address || "N/A",
-        loyalty_points: 500,
+        loyalty_points: user?.extra_info?.loyalty_points || 0,
       };
     });
     setUserColumns(users2);

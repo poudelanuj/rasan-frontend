@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import { Table, Select } from "antd";
-import AddCategoryButton from "../subComponents/AddCategoryButton";
-import { getProductSKUs } from "../../context/CategoryContext";
+import { Select, Table } from "antd";
 import { useQuery } from "react-query";
+import { getProductSKUs } from "../../context/CategoryContext";
+import AddCategoryButton from "../subComponents/AddCategoryButton";
 
-import { getDate, parseSlug } from "../../utility";
+import { parseSlug } from "../../utility";
 import AddProductSKU from "./AddProductSKU";
 
 const { Option } = Select;
@@ -132,9 +132,9 @@ function TabAll() {
   const { data, isLoading, isError, error } = useQuery("get-product-skus", () =>
     getProductSKUs()
   );
-  if (!isLoading) {
-    console.log(data);
-  }
+  // if (!isLoading) {
+  //   console.log(data);
+  // }
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const navigate = useNavigate();
 

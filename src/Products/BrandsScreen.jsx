@@ -165,16 +165,16 @@ function BrandsScreen() {
     <>
       {alert.show && (
         <SimpleAlert
-          title={alert.title}
-          text={alert.text}
-          type={alert.type}
-          primaryButton={alert.primaryButton}
-          secondaryButton={alert.secondaryButton}
-          image={alert.image}
           action={alert.action}
           alert={alert}
-          setAlert={setAlert}
           icon={alert.icon}
+          image={alert.image}
+          primaryButton={alert.primaryButton}
+          secondaryButton={alert.secondaryButton}
+          setAlert={setAlert}
+          text={alert.text}
+          title={alert.title}
+          type={alert.type}
         />
       )}
       <div>
@@ -185,11 +185,11 @@ function BrandsScreen() {
             <SearchBox placeholder="Search Brands..." />
             <div className="flex">
               <Select
-                value={"Bulk Actions"}
                 style={{
                   width: 120,
                   marginRight: "1rem",
                 }}
+                value={"Bulk Actions"}
                 onChange={handleBulkAction}
               >
                 <Option value="publish">Publish</Option>
@@ -209,30 +209,30 @@ function BrandsScreen() {
                   id={brand.sn}
                   image={brand.brand_image.medium_square_crop}
                   imgClassName=""
-                  slug={brand.slug}
-                  title={brand.name}
                   selectedCategories={selectedBrands}
                   setSelectedCategories={setSelectedBrands}
+                  slug={brand.slug}
+                  title={brand.name}
                 />
               ))}
           </div>
           <Pagination
-            hideOnSinglePage
-            onChange={async (page) => paginate(page)}
             pageSize={10}
-            total={data?.data?.data?.count}
-            showQuickJumper
             showTotal={(total) => `Total ${total} items`}
             style={{
               marginTop: "1rem",
               alignSelf: "end",
             }}
+            total={data?.data?.data?.count}
+            hideOnSinglePage
+            showQuickJumper
+            onChange={async (page) => paginate(page)}
           />
         </div>
       </div>
       {brandSlug === "add" && <AddBrand alert={alert} setAlert={setAlert} />}
       {brandSlug === "edit" && (
-        <EditBrand slug={slug} alert={alert} setAlert={setAlert} />
+        <EditBrand alert={alert} setAlert={setAlert} slug={slug} />
       )}
     </>
   );
