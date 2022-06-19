@@ -19,6 +19,8 @@ import Category from "./Products/Category";
 import BrandsScreen from "./Products/BrandsScreen";
 import ProductGroupsScreen from "./Products/ProductGroupsScreen";
 import RequireAuth from "./RequireAuth";
+import LoginRasan from "./LoginRasan";
+import AuthProvider from "./AuthProvider";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const queryClient = new QueryClient();
@@ -26,11 +28,18 @@ const queryClient = new QueryClient();
 root.render(
   <QueryClientProvider client={queryClient}>
     <BrowserRouter>
-      <RequireAuth>
+      <AuthProvider>
         <React.StrictMode>
           <Routes>
-            <Route element={<LoginApp />} path="/login" />
-            <Route element={<App />} path="/">
+            <Route element={<LoginRasan />} path="/login" />
+            <Route
+              element={
+                <RequireAuth>
+                  <App />
+                </RequireAuth>
+              }
+              path="/"
+            >
               <Route element={<Dashboard />} index />
               <Route element={<Orders />} path="orders" />
               {/* product part */}
@@ -52,7 +61,7 @@ root.render(
             </Route>
           </Routes>
         </React.StrictMode>
-      </RequireAuth>
+      </AuthProvider>
     </BrowserRouter>
     <ReactQueryDevtools initialIsOpen={false} />
   </QueryClientProvider>

@@ -5,9 +5,13 @@ import { loggedInOrNot } from "./utility";
 let AuthContext = createContext(null);
 
 export default function AuthProvider({ children }) {
-  let [user, _] = useState(loggedInOrNot());
-
-  let value = { user };
+  let [user, setUser] = useState(loggedInOrNot());
+  const loginFinalise = (token, callback) => {
+    localStorage.setItem("auth_token", token);
+    setUser(loggedInOrNot());
+    callback();
+  };
+  let value = { user, loginFinalise };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
