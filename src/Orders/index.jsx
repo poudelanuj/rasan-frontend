@@ -1,36 +1,40 @@
 import { Tabs } from "antd";
 import React from "react";
-import { getOrders } from "../mock/orders";
+import { useQuery } from "react-query";
+import { getOrders } from "../context/OrdersContext";
 import OrdersList from "./OrdersList";
 
 const Orders = () => {
   const { TabPane } = Tabs;
+
+  const { data, status } = useQuery({
+    queryFn: getOrders,
+    queryKey: "getOrdersList",
+  });
+
   return (
     <div>
       <div className="text-2xl my-4">Orders</div>
       <Tabs defaultActiveKey="all">
         <TabPane key="all" tab="All">
-          <OrdersList dataSource={getOrders(20)} />
+          <OrdersList dataSource={data} status={status} />
         </TabPane>
-        <TabPane key="inProgress" tab="In Progress">
+        <TabPane key="inProcess" tab="In Progress">
           <OrdersList
-            dataSource={getOrders(20).filter(
-              (order) => order.status === "in progress"
-            )}
+            dataSource={data?.filter((order) => order.status === "in_process")}
+            status={status}
           />
         </TabPane>
         <TabPane key="delivered" tab="Delivered">
           <OrdersList
-            dataSource={getOrders(20).filter(
-              (order) => order.status === "delivered"
-            )}
+            dataSource={data?.filter((order) => order.status === "delivered")}
+            status={status}
           />
         </TabPane>
         <TabPane key="cancelled" tab="Cancelled">
           <OrdersList
-            dataSource={getOrders(20).filter(
-              (order) => order.status === "cancelled"
-            )}
+            dataSource={data?.filter((order) => order.status === "cancelled")}
+            status={status}
           />
         </TabPane>
       </Tabs>
