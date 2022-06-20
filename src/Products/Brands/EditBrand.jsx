@@ -10,7 +10,6 @@ import {
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { parseSlug } from "../../utility";
 
-import "antd/dist/antd.css";
 import { message, Upload } from "antd";
 import { UploadOutlined, LoadingOutlined } from "@ant-design/icons";
 
