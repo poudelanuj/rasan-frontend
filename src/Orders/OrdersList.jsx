@@ -4,6 +4,7 @@ import moment from "moment";
 import { useRef } from "react";
 import { useState } from "react";
 import OrderModal from "./components/OrderModal";
+import CreateOrder from "./components/CreateOrder";
 
 const menu = (
   <Menu
@@ -23,6 +24,8 @@ const menu = (
 const OrdersList = ({ dataSource, status }) => {
   const searchInput = useRef(null);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+  const [isCreateOrderOpen, setIsCreateOrderOpen] = useState(false);
+
   const [activeOrder, setActiveOrder] = useState({
     orderId: null,
     deliveryStatus: null,
@@ -221,6 +224,12 @@ const OrdersList = ({ dataSource, status }) => {
           </>
         }
         width={1000}
+      />
+
+      <CreateOrder
+        closeModal={() => setIsCreateOrderOpen(false)}
+        isOpen={isCreateOrderOpen}
+        title="Create Order"
       />
     </div>
   );
