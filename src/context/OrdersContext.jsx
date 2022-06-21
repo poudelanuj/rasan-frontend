@@ -16,3 +16,14 @@ export const updateOrderStatus = async ({ orderId, status }) => {
   });
   return res.data.data;
 };
+
+export const deleteBulkOrders = async (orderIds = []) => {
+  const res = await Promise.all(
+    orderIds.map(async (id) => {
+      const res = await axios.delete(`/api/order/admin/order/${id}/`);
+      return res;
+    })
+  );
+
+  return res.data;
+};
