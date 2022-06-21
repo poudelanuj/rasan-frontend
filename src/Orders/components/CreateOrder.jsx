@@ -2,11 +2,15 @@ import { Button, Form, Modal, Select, Spin } from "antd";
 import { useState } from "react";
 import { useQuery, useMutation } from "react-query";
 import { createOrder, getUserList } from "../../context/OrdersContext";
+import {
+  openErrorNotification,
+  openSuccessNotification,
+} from "../../utils/openNotification";
 
 const CreateOrder = ({ isOpen, closeModal, title }) => {
   const { Option } = Select;
   const [form] = Form.useForm();
-  const [selectedUserId, setSelectedUserId] = useState(0);
+  const [selectedUserPhone, setSelectedUserPhone] = useState(0);
 
   const { data: userList, status: userListStatus } = useQuery({
     queryFn: () => getUserList(),
@@ -25,7 +29,12 @@ const CreateOrder = ({ isOpen, closeModal, title }) => {
         shipping_address: formValues.shipping_address,
       }),
     {
-      onSuccess: (data) => {},
+      onSuccess: (data) => {
+        openSuccessNotification(data.message || "Order Created");
+      },
+      onError: (error) => {
+        openErrorNotification(error);
+      },
     }
   );
 
@@ -55,7 +64,7 @@ const CreateOrder = ({ isOpen, closeModal, title }) => {
             placeholder="Select Order Status"
             showSearch
           >
-            <Option value="in_Process">In Process</Option>
+            <Option value="in_process">In Process</Option>
             <Option value="cancelled">Cancelled</Option>
             <Option value="delivered">Delivered</Option>
           </Select>
@@ -80,7 +89,7 @@ const CreateOrder = ({ isOpen, closeModal, title }) => {
             placeholder="Select Payment Method"
             showSearch
           >
-            <Option value="cash_on_delivert">Cash On Delivery</Option>
+            <Option value="cash_on_delivery">Cash On Delivery</Option>
             <Option value="esewa">Esewa</Option>
             <Option value="Khalti">Khalti</Option>
             <Option value="bank_transfer">Bank Transfer</Option>
@@ -137,10 +146,10 @@ const CreateOrder = ({ isOpen, closeModal, title }) => {
             optionFilterProp="children"
             placeholder="Select User"
             showSearch
-            onSelect={(value) => setSelectedUserId(value)}
+            onSelect={(value) => setSelectedUserPhone(value)}
           >
             {userList?.map((user) => (
-              <Option key={user.id} value={user.id}>
+              <Option key={user.id} value={user.phone}>
                 {user.full_name}
               </Option>
             ))}
@@ -167,7 +176,7 @@ const CreateOrder = ({ isOpen, closeModal, title }) => {
             showSearch
           >
             {userList
-              ?.find((user) => user.id === selectedUserId)
+              ?.find((user) => user.phone === selectedUserPhone)
               ?.addresses?.map((address) => (
                 <Option
                   key={address.id}
