@@ -17,21 +17,20 @@ import { useRef } from "react";
 import { useState } from "react";
 import OrderModal from "./components/OrderModal";
 import CreateOrder from "./components/CreateOrder";
-import {
-  deleteBulkOrders,
-  deleteOrder,
-  updateOrderStatus,
-} from "../context/OrdersContext";
+import { deleteBulkOrders, updateOrderStatus } from "../context/OrdersContext";
 import {
   openErrorNotification,
   openSuccessNotification,
 } from "../utils/openNotification";
 import { IN_PROCESS } from "../constants";
+import DeleteOrder from "./components/DeleteOrder";
 
 const OrdersList = ({ dataSource, status, refetchOrders }) => {
   const searchInput = useRef(null);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [isCreateOrderOpen, setIsCreateOrderOpen] = useState(false);
+  const [isDeleteOrderOpen, setIsDeleteOrderOpen] = useState(false);
+  const [deleteOrderId, setDeleteOrderId] = useState(0);
 
   const [checkedRows, setCheckedRows] = useState([]);
 
@@ -175,25 +174,16 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
 
             <DeleteOutlined
               className="ml-5"
-              onClick={() => handleDeleteOrder.mutate(id)}
+              onClick={() => {
+                setIsDeleteOrderOpen((prev) => !prev);
+                setDeleteOrderId(id);
+              }}
             />
           </>
         );
       },
     },
   ];
-
-  const handleDeleteOrder = useMutation((orderId) => deleteOrder(orderId), {
-    onSuccess: (data) => {
-      openSuccessNotification("Order Deleted");
-    },
-    onSettled: () => {
-      refetchOrders();
-    },
-    onError: (error) => {
-      openErrorNotification(error);
-    },
-  });
 
   const handleUpdateStatus = useMutation(
     (value) =>
@@ -247,7 +237,7 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
 
   const handleDeleteBulk = useMutation(() => deleteBulkOrders(checkedRows), {
     onSuccess: (data) => {
-      openSuccessNotification("Orders Deleted");
+      if (checkedRows.length) openSuccessNotification("Orders Deleted");
       refetchOrders();
     },
     onError: (error) => {
@@ -336,6 +326,14 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
         closeModal={() => setIsCreateOrderOpen(false)}
         isOpen={isCreateOrderOpen}
         title="Create Order"
+      />
+
+      <DeleteOrder
+        closeModal={() => setIsDeleteOrderOpen(false)}
+        isOpen={isDeleteOrderOpen}
+        orderId={deleteOrderId}
+        refetchOrders={refetchOrders}
+        title={"Order #" + deleteOrderId}
       />
     </div>
   );
