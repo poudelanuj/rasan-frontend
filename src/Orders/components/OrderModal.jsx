@@ -2,10 +2,11 @@ import { Button, Modal, Spin, Table } from "antd";
 import { useQuery } from "react-query";
 import { getOrder } from "../../context/OrdersContext";
 
-const OrderModal = ({ isOpen, closeModal, width, title }) => {
+const OrderModal = ({ isOpen, closeModal, width, title, orderId }) => {
   const { data, status } = useQuery({
-    queryFn: () => getOrder(1),
-    queryKey: ["getOrder", 1],
+    queryFn: () => getOrder(orderId),
+    queryKey: ["getOrder", orderId],
+    enabled: !!orderId,
   });
 
   const dataSource = data?.items?.map(({ number_of_packs, product_pack }) => {
