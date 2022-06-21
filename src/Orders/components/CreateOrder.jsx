@@ -1,11 +1,41 @@
-import { Button, Form, Modal, Select } from "antd";
+import { Button, Form, Modal, Select, Spin } from "antd";
+import { useState } from "react";
+import { useQuery, useMutation } from "react-query";
+import { createOrder, getUserList } from "../../context/OrdersContext";
 
 const CreateOrder = ({ isOpen, closeModal, title }) => {
   const { Option } = Select;
+  const [form] = Form.useForm();
+  const [selectedUserId, setSelectedUserId] = useState(0);
+
+  const { data: userList, status: userListStatus } = useQuery({
+    queryFn: () => getUserList(),
+    queryKey: ["getUserList"],
+  });
+
+  const onFinish = useMutation(
+    (formValues) =>
+      createOrder({
+        status: formValues.status,
+        payment: {
+          payment_method: formValues.payment_method,
+          status: formValues.payment_status,
+        },
+        user: formValues.user,
+        shipping_address: formValues.shipping_address,
+      }),
+    {
+      onSuccess: (data) => {},
+    }
+  );
 
   return (
     <Modal footer={false} title={title} visible={isOpen} onCancel={closeModal}>
-      <Form layout="vertical">
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={(values) => onFinish.mutate(values)}
+      >
         <Form.Item
           label="Order Status"
           name="status"
@@ -33,7 +63,7 @@ const CreateOrder = ({ isOpen, closeModal, title }) => {
 
         <Form.Item
           label="Payment Method"
-          name="paymentMethod"
+          name="payment_method"
           rules={[
             {
               required: true,
@@ -59,7 +89,7 @@ const CreateOrder = ({ isOpen, closeModal, title }) => {
 
         <Form.Item
           label="Payment Status"
-          name="paymentStatus"
+          name="payment_status"
           rules={[
             {
               required: true,
@@ -82,7 +112,14 @@ const CreateOrder = ({ isOpen, closeModal, title }) => {
         </Form.Item>
 
         <Form.Item
-          label="User"
+          label={
+            <>
+              <span>User</span>
+              {userListStatus === "loading" && (
+                <Spin className="mx-3" size="small" />
+              )}
+            </>
+          }
           name="user"
           rules={[
             {
@@ -93,21 +130,26 @@ const CreateOrder = ({ isOpen, closeModal, title }) => {
         >
           <Select
             className="w-full"
+            disabled={userListStatus === "loading"}
             filterOption={(input, option) =>
               option.children.toLowerCase().includes(input.toLowerCase())
             }
             optionFilterProp="children"
             placeholder="Select User"
             showSearch
+            onSelect={(value) => setSelectedUserId(value)}
           >
-            <Option value="2">Darpan</Option>
-            <Option value="1">Samip</Option>
+            {userList?.map((user) => (
+              <Option key={user.id} value={user.id}>
+                {user.full_name}
+              </Option>
+            ))}
           </Select>
         </Form.Item>
 
         <Form.Item
           label="Shipping Address"
-          name="shippingAddress"
+          name="shipping_address"
           rules={[
             {
               required: true,
@@ -124,8 +166,14 @@ const CreateOrder = ({ isOpen, closeModal, title }) => {
             placeholder="Select Shipping Address"
             showSearch
           >
-            <Option value="1">Darpan</Option>
-            <Option value="13">Samip</Option>
+            {userList
+              ?.find((user) => user.id === selectedUserId)
+              ?.addresses?.map((address) => (
+                <Option
+                  key={address.id}
+                  value={address.id}
+                >{`${address.detail_address}, ${address.area.name} - ${address.city.name}, ${address.province.name}`}</Option>
+              ))}
           </Select>
         </Form.Item>
 

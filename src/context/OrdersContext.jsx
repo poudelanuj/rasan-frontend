@@ -27,3 +27,18 @@ export const deleteBulkOrders = async (orderIds = []) => {
 
   return res.data;
 };
+
+export const getUserList = async () => {
+  const res = await axios.get("/api/profile/admin/user-list");
+  return res.data.data.results;
+};
+
+export const createOrder = async (data) => {
+  const res = await axios.post("/api/order/admin/orders", data);
+  return res.data;
+};
+
+export const deleteOrder = async (orderId) => {
+  const res = await axios.delete(`/api/order/admin/order/${orderId}/`);
+  return res.data;
+};

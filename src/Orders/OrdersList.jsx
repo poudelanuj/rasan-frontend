@@ -11,13 +11,17 @@ import {
   notification,
 } from "antd";
 import { useMutation } from "react-query";
-import { SearchOutlined, EyeOutlined } from "@ant-design/icons";
+import { SearchOutlined, EyeOutlined, DeleteOutlined } from "@ant-design/icons";
 import moment from "moment";
 import { useRef } from "react";
 import { useState } from "react";
 import OrderModal from "./components/OrderModal";
 import CreateOrder from "./components/CreateOrder";
-import { deleteBulkOrders, updateOrderStatus } from "../context/OrdersContext";
+import {
+  deleteBulkOrders,
+  deleteOrder,
+  updateOrderStatus,
+} from "../context/OrdersContext";
 import {
   openErrorNotification,
   openSuccessNotification,
@@ -28,6 +32,7 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
   const searchInput = useRef(null);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [isCreateOrderOpen, setIsCreateOrderOpen] = useState(false);
+
   const [checkedRows, setCheckedRows] = useState([]);
 
   const [activeOrder, setActiveOrder] = useState({
@@ -167,11 +172,28 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
                 setActiveOrder({ orderId: id, orderStatus: status });
               }}
             />
+
+            <DeleteOutlined
+              className="ml-5"
+              onClick={() => handleDeleteOrder.mutate(id)}
+            />
           </>
         );
       },
     },
   ];
+
+  const handleDeleteOrder = useMutation((orderId) => deleteOrder(orderId), {
+    onSuccess: (data) => {
+      openSuccessNotification("Order Deleted");
+    },
+    onSettled: () => {
+      refetchOrders();
+    },
+    onError: (error) => {
+      openErrorNotification(error);
+    },
+  });
 
   const handleUpdateStatus = useMutation(
     (value) =>
