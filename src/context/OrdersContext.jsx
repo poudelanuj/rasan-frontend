@@ -34,7 +34,7 @@ export const getUserList = async () => {
 };
 
 export const createOrder = async (data) => {
-  const res = await axios.post("/api/order/admin/orders", data);
+  const res = await axios.post("/api/order/admin/orders/", data);
   return res.data;
 };
 
