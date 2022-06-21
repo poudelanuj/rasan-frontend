@@ -17,27 +17,18 @@ import { useRef } from "react";
 import { useState } from "react";
 import OrderModal from "./components/OrderModal";
 import CreateOrder from "./components/CreateOrder";
-import { updateOrderStatus } from "../context/OrdersContext";
+import { deleteBulkOrders, updateOrderStatus } from "../context/OrdersContext";
+import {
+  openErrorNotification,
+  openSuccessNotification,
+} from "../utils/openNotification";
+import { IN_PROCESS } from "../constants";
 
-const menu = (
-  <Menu
-    items={[
-      {
-        key: "1",
-        label: <>Delete</>,
-      },
-      {
-        key: "2",
-        label: <>Example</>,
-      },
-    ]}
-  />
-);
-
-const OrdersList = ({ dataSource, status }) => {
+const OrdersList = ({ dataSource, status, refetchOrders }) => {
   const searchInput = useRef(null);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [isCreateOrderOpen, setIsCreateOrderOpen] = useState(false);
+  const [checkedRows, setCheckedRows] = useState([]);
 
   const [activeOrder, setActiveOrder] = useState({
     orderId: null,
@@ -55,12 +46,6 @@ const OrdersList = ({ dataSource, status }) => {
       default:
         return "green";
     }
-  };
-
-  const rowSelection = {
-    onChange: (selectedRowKeys, selectedRows) => {},
-    onSelect: (record, selected, selectedRows) => {},
-    onSelectAll: (selected, selectedRows, changeRows) => {},
   };
 
   const getColumnSearchProps = (dataIndex) => ({
@@ -160,13 +145,13 @@ const OrdersList = ({ dataSource, status }) => {
       ...getColumnSearchProps("payment method"),
     },
     {
-      title: "Delivery Date",
-      dataIndex: "deliveryDate",
-      key: "deliveryDate",
-      render: (_, { deliveryDate }) => {
-        return <>{moment(deliveryDate).format("ll")}</>;
+      title: "Ordered At",
+      dataIndex: "created_at",
+      key: "created_at",
+      render: (_, { created_at }) => {
+        return <>{moment(created_at).format("ll")}</>;
       },
-      sorter: (a, b) => a.deliveryDate - b.deliveryDate,
+      sorter: (a, b) => a.created_at - b.created_at,
       ...getColumnSearchProps("delivery date"),
     },
     {
@@ -194,6 +179,7 @@ const OrdersList = ({ dataSource, status }) => {
     {
       onSuccess: (data) => {
         setActiveOrder((prev) => ({ ...prev, orderStatus: data.status }));
+        refetchOrders();
       },
       onError: (error) => {
         notification.open({
@@ -207,6 +193,55 @@ const OrdersList = ({ dataSource, status }) => {
         });
       },
     }
+  );
+
+  const rowSelection = {
+    selectedRowKeys: checkedRows,
+    selections: [
+      Table.SELECTION_ALL,
+      Table.SELECTION_NONE,
+      {
+        key: "without_progress",
+        text: " Select without progress",
+
+        onSelect: (rowKeys) => {
+          setCheckedRows(
+            rowKeys.filter(
+              (key) =>
+                dataSource?.find((item) => item.id === key)?.status !==
+                IN_PROCESS
+            )
+          );
+        },
+      },
+    ],
+
+    onChange: (selectedRowKeys, selectedRows) => {
+      setCheckedRows(selectedRows.map((item) => item.id));
+    },
+    onSelect: (record, selected, selectedRows) => {},
+    onSelectAll: (selected, selectedRows, changeRows) => {},
+  };
+
+  const handleDeleteBulk = useMutation(() => deleteBulkOrders(checkedRows), {
+    onSuccess: (data) => {
+      openSuccessNotification("Orders Deleted");
+      refetchOrders();
+    },
+    onError: (error) => {
+      openErrorNotification(error);
+    },
+  });
+
+  const bulkMenu = (
+    <Menu
+      items={[
+        {
+          key: "1",
+          label: <div onClick={() => handleDeleteBulk.mutate()}>Delete</div>,
+        },
+      ]}
+    />
   );
 
   return (
@@ -224,7 +259,7 @@ const OrdersList = ({ dataSource, status }) => {
         </Button>
 
         <div>
-          <Dropdown overlay={menu}>
+          <Dropdown overlay={bulkMenu}>
             <Button className="bg-white" type="default">
               <Space>Bulk Actions</Space>
             </Button>
@@ -245,7 +280,7 @@ const OrdersList = ({ dataSource, status }) => {
       {status === "success" && (
         <Table
           columns={columns}
-          dataSource={dataSource}
+          dataSource={dataSource?.map((item) => ({ ...item, key: item.id }))}
           rowSelection={{ ...rowSelection }}
         />
       )}
