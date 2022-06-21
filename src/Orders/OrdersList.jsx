@@ -1,9 +1,23 @@
-import { Table, Tag, Button, Menu, Dropdown, Space, Input, Spin } from "antd";
+import {
+  Table,
+  Tag,
+  Button,
+  Menu,
+  Dropdown,
+  Space,
+  Input,
+  Spin,
+  Select,
+  notification,
+} from "antd";
+import { useMutation } from "react-query";
 import { SearchOutlined, EyeOutlined } from "@ant-design/icons";
 import moment from "moment";
 import { useRef } from "react";
 import { useState } from "react";
 import OrderModal from "./components/OrderModal";
+import CreateOrder from "./components/CreateOrder";
+import { updateOrderStatus } from "../context/OrdersContext";
 
 const menu = (
   <Menu
@@ -23,9 +37,11 @@ const menu = (
 const OrdersList = ({ dataSource, status }) => {
   const searchInput = useRef(null);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+  const [isCreateOrderOpen, setIsCreateOrderOpen] = useState(false);
+
   const [activeOrder, setActiveOrder] = useState({
     orderId: null,
-    deliveryStatus: null,
+    orderStatus: null,
   });
 
   const getTagColor = (status) => {
@@ -163,7 +179,7 @@ const OrdersList = ({ dataSource, status }) => {
             <EyeOutlined
               onClick={() => {
                 setIsOrderModalOpen((prev) => !prev);
-                setActiveOrder({ orderId: id, deliveryStatus: status });
+                setActiveOrder({ orderId: id, orderStatus: status });
               }}
             />
           </>
@@ -172,10 +188,38 @@ const OrdersList = ({ dataSource, status }) => {
     },
   ];
 
+  const handleUpdateStatus = useMutation(
+    (value) =>
+      updateOrderStatus({ orderId: activeOrder.orderId, status: value }),
+    {
+      onSuccess: (data) => {
+        setActiveOrder((prev) => ({ ...prev, orderStatus: data.status }));
+      },
+      onError: (error) => {
+        notification.open({
+          className: "bg-red-500 text-white",
+          message: (
+            <div className="text-white">{error?.response?.data?.message}</div>
+          ),
+          description: error?.response?.data?.errors?.status
+            ?.join(". ")
+            ?.toString(),
+        });
+      },
+    }
+  );
+
   return (
     <div className="">
       <div className="mb-4 flex justify-between">
-        <Button className="flex items-center" type="primary" ghost>
+        <Button
+          className="flex items-center"
+          type="primary"
+          ghost
+          onClick={() => {
+            setIsCreateOrderOpen((prev) => !prev);
+          }}
+        >
           Create New Order
         </Button>
 
@@ -209,18 +253,32 @@ const OrdersList = ({ dataSource, status }) => {
       <OrderModal
         closeModal={() => setIsOrderModalOpen(false)}
         isOpen={isOrderModalOpen}
+        orderId={activeOrder.orderId}
         title={
           <>
             Order #{activeOrder.orderId}
-            <Tag
-              className="mx-4"
-              color={getTagColor(activeOrder.deliveryStatus)}
+            <Select
+              className="mx-5"
+              disabled={handleUpdateStatus.status === "loading"}
+              placeholder="Select Order Status"
+              value={activeOrder.orderStatus}
+              showSearch
+              onChange={(value) => handleUpdateStatus.mutate(value)}
             >
-              {activeOrder.deliveryStatus?.toUpperCase()}
-            </Tag>
+              <Select.Option value="in_process">In Process</Select.Option>
+              <Select.Option value="cancelled">Cancelled</Select.Option>
+              <Select.Option value="delivered">Delivered</Select.Option>
+            </Select>
+            {handleUpdateStatus.status === "loading" && <Spin size="small" />}
           </>
         }
         width={1000}
+      />
+
+      <CreateOrder
+        closeModal={() => setIsCreateOrderOpen(false)}
+        isOpen={isCreateOrderOpen}
+        title="Create Order"
       />
     </div>
   );

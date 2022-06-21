@@ -137,9 +137,7 @@ function TabAll() {
   const { data, isLoading, isError, error } = useQuery("get-products", () =>
     getProducts()
   );
-  if (!isLoading) {
-    console.log(data);
-  }
+
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const navigate = useNavigate();
 

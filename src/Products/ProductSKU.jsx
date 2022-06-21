@@ -11,11 +11,7 @@ function ProductSKU() {
     isLoading: getProductSkuIsLoading,
     isError: getProductSkuIsError,
     error: getProductSkuError,
-  } = useQuery(["get-product-sku", slug], () => getProductSKU({ slug }), {
-    onSuccess: (data) => {
-      console.log(data);
-    },
-  });
+  } = useQuery(["get-product-sku", slug], () => getProductSKU({ slug }), {});
   return (
     <>
       {getProductSkuIsLoading && <div>Loading....</div>}
@@ -30,11 +26,11 @@ function ProductSKU() {
               <div className="flex justify-start">
                 <div className="w-40">
                   <img
+                    alt="product"
+                    className="w-full"
                     src={
                       getProductSkuData.data.data.product_sku_image.full_size
                     }
-                    alt="product"
-                    className="w-full"
                   />
                 </div>
                 <div className="grid grid-cols-2">
