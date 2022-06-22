@@ -49,3 +49,16 @@ export const deleteOrderItem = async (orderId, itemId) => {
   );
   return res.data;
 };
+
+export const getProductSkus = async () => {
+  const res = await axios.get("/api/product/product-skus/");
+  return res.data.data.results;
+};
+
+export const addOrderItem = async (orderId, data) => {
+  const res = await axios.post(
+    `/api/order/admin/add-item-order/${orderId}/`,
+    data
+  );
+  return res.data;
+};
