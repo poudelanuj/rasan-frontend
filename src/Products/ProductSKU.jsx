@@ -1,8 +1,8 @@
 import { EditOutlined } from "@ant-design/icons";
-import React, { useState } from "react";
+import { useState } from "react";
 import { useQuery } from "react-query";
 import { Link, useLocation, useParams } from "react-router-dom";
-import { getProductPack, getProductSKU } from "../context/CategoryContext";
+import { getProductSKU } from "../context/CategoryContext";
 import { getDate, parseSlug } from "../utility";
 import SimpleAlert from "./alerts/SimpleAlert";
 import AddProductPack from "./ProductSku/AddProductPack";
