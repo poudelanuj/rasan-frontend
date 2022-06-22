@@ -191,7 +191,7 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
     {
       onSuccess: (data) => {
         setActiveOrder((prev) => ({ ...prev, orderStatus: data.status }));
-        // refetchOrders();
+        refetchOrders();
       },
       onError: (error) => {
         notification.open({
@@ -238,7 +238,7 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
   const handleDeleteBulk = useMutation(() => deleteBulkOrders(checkedRows), {
     onSuccess: (data) => {
       if (checkedRows.length) openSuccessNotification("Orders Deleted");
-      // refetchOrders();
+      refetchOrders();
     },
     onError: (error) => {
       openErrorNotification(error);
