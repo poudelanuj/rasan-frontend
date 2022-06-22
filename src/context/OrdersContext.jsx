@@ -42,3 +42,10 @@ export const deleteOrder = async (orderId) => {
   const res = await axios.delete(`/api/order/admin/order/${orderId}/`);
   return res.data;
 };
+
+export const deleteOrderItem = async (orderId, itemId) => {
+  const res = await axios.delete(
+    `/api/order/admin/remove-item-order/${orderId}/${itemId}/`
+  );
+  return res.data;
+};

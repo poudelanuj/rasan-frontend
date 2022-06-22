@@ -14,7 +14,7 @@ const DeleteOrder = ({ title, orderId, isOpen, closeModal, refetchOrders }) => {
       closeModal();
     },
     onSettled: () => {
-      refetchOrders();
+      // refetchOrders();
     },
     onError: (error) => {
       openErrorNotification(error);

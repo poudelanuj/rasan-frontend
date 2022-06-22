@@ -191,7 +191,7 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
     {
       onSuccess: (data) => {
         setActiveOrder((prev) => ({ ...prev, orderStatus: data.status }));
-        refetchOrders();
+        // refetchOrders();
       },
       onError: (error) => {
         notification.open({
@@ -238,7 +238,7 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
   const handleDeleteBulk = useMutation(() => deleteBulkOrders(checkedRows), {
     onSuccess: (data) => {
       if (checkedRows.length) openSuccessNotification("Orders Deleted");
-      refetchOrders();
+      // refetchOrders();
     },
     onError: (error) => {
       openErrorNotification(error);
@@ -301,6 +301,10 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
         closeModal={() => setIsOrderModalOpen(false)}
         isOpen={isOrderModalOpen}
         orderId={activeOrder.orderId}
+        orderedAt={
+          dataSource?.find((order) => order.id === activeOrder.orderId)
+            ?.created_at
+        }
         title={
           <>
             Order #{activeOrder.orderId}
