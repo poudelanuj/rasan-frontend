@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import { getGroupDetail } from "../context/UserGroupContext";
+import SetPermission from "./SetPermission";
 const columns = [
   {
     title: "User Name",
@@ -12,7 +13,7 @@ const columns = [
         <div>
           {record.profile_picture && (
             <img
-              alt={"text"}
+              alt={text}
               className="inline pr-4 rounded-[50%]"
               src={record.profile_picture}
               style={{ borderRadius: "50%" }}
@@ -44,10 +45,11 @@ const UserGroupPage = () => {
   let navigate = useNavigate();
   useEffect(() => {
     if (isSuccess) {
-      let groups2 = userColumn?.users?.map((col) => {
+      let groups2 = userColumn?.users?.map((col, index) => {
         return {
           full_name: "N/A",
           phone: col.username,
+          key: index,
         };
       });
       setGroupColumn(groups2);
@@ -70,6 +72,15 @@ const UserGroupPage = () => {
           >
             Set Permissions
           </Button>
+          <SetPermission
+            id={userColumn?.id}
+            name={userColumn?.name}
+            permissions={userColumn?.permissions}
+            visible={visible}
+            onCancel={() => {
+              setVisible(false);
+            }}
+          />
           <Button className="text-white bg-primary" type="primary">
             Send Push Notifications
           </Button>

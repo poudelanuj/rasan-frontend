@@ -1,21 +1,20 @@
-import { Form, Input, message, Modal } from "antd";
+import { Form, Input, message, Modal, Select } from "antd";
 import { useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { getPermission, updateGroupDetail } from "../context/UserGroupContext";
 
-const SetPermission = ({ visible, onCancel, id, name }) => {
+const SetPermission = ({ visible, onCancel, id, name, permissions }) => {
   const [form] = Form.useForm();
   const { data: permissionList } = useQuery("get-permissions", getPermission);
-  //   const [provinces, setProvinces] = useState([]);
-  //   const [cities, setCities] = useState([]);
-  //   const [areas, setAreas] = useState([]);
   const queryClient = useQueryClient();
+  const permissionOfUG = permissions?.map((permission) => permission.id);
   useEffect(() => {
     let data = {
       name: name,
+      permission: permissionOfUG,
     };
     form.setFieldsValue(data);
-  }, [name, form]);
+  }, [name, form, permissionOfUG]);
 
   const { mutate: updatePermission } = useMutation(updateGroupDetail, {
     onSuccess: (data) => {
@@ -23,12 +22,15 @@ const SetPermission = ({ visible, onCancel, id, name }) => {
       queryClient.invalidateQueries(["get-group-details", { id }]);
     },
   });
-
+  const onChangeProvince = (e) => {};
   const onFinish = (values) => {
     const form_data = new FormData();
     for (let key in values) {
-      form_data.append(key, values[key]);
+      if (key === "name") form_data.append(key, values[key]);
     }
+    values["permissions"].forEach((permission) => {
+      form_data.append("permission[]", permission);
+    });
     updatePermission({ data: form_data, key: id });
   };
   const onFinishFailed = (errorInfo) => {};
@@ -44,6 +46,7 @@ const SetPermission = ({ visible, onCancel, id, name }) => {
         form
           .validateFields()
           .then(() => {
+            console.log("Gone here");
             form.submit();
             onCancel();
           })
@@ -53,9 +56,7 @@ const SetPermission = ({ visible, onCancel, id, name }) => {
       <Form
         autoComplete="off"
         form={form}
-        initialValues={{
-          remember: true,
-        }}
+        initialValues={{ name: name }}
         labelCol={{
           span: 8,
         }}
@@ -71,20 +72,26 @@ const SetPermission = ({ visible, onCancel, id, name }) => {
           <Input />
         </Form.Item>
         <Form.Item
-          label="Province"
-          name="province"
+          label="Permission"
+          name="permission"
           rules={[
             {
               required: true,
-              message: "Please select your province!",
+              message: "Please select your permission!",
             },
           ]}
         >
-          {/* <Select
-            options={provinces}
-            placeholder="Please select a province"
+          <Select
+            mode="multiple"
+            placeholder="Please select a permission"
             onChange={onChangeProvince}
-          ></Select> */}
+          >
+            {permissionList?.map((permission) => (
+              <Select.Option key={permission.id} value={permission.id}>
+                {permission.name}
+              </Select.Option>
+            ))}
+          </Select>
         </Form.Item>
       </Form>
     </Modal>

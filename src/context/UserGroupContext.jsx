@@ -16,5 +16,5 @@ export const updateGroupDetail = async ({ data, key }) => {
 
 export const getPermission = async () => {
   const response = await myaxios.get("/api/auth/permission/");
-  return response.data.data;
+  return response.data.data.results;
 };
