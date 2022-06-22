@@ -305,6 +305,7 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
           dataSource?.find((order) => order.id === activeOrder.orderId)
             ?.created_at
         }
+        refetchOrders={refetchOrders}
         title={
           <>
             Order #{activeOrder.orderId}
