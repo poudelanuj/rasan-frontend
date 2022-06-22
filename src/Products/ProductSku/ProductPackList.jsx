@@ -43,12 +43,12 @@ function ProductPackList({ id }) {
       </div>
       <div className="absolute top-0 right-0">
         <Link
+          className="text-[#00A0B0] hover:bg-[#d4e4e6] py-2 px-6"
           to={
             id != null
               ? `edit-product-pack/${productPack.id}`
               : "add-product-pack"
           }
-          className="text-[#00A0B0] hover:bg-[#d4e4e6] py-2 px-6"
         >
           <EditOutlined style={{ verticalAlign: "middle" }} /> Edit Details
         </Link>

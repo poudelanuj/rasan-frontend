@@ -1,16 +1,15 @@
-import React, { useState } from "react";
+import { LoadingOutlined, UploadOutlined } from "@ant-design/icons";
+import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { UploadOutlined, LoadingOutlined } from "@ant-design/icons";
 
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import {
-  createProductGroup,
   deleteProductGroup,
   getProductGroup,
   publishProductGroup,
   unpublishProductGroup,
   updateProductGroup,
 } from "../../context/CategoryContext";
-import { useQuery, useMutation, useQueryClient } from "react-query";
 
 import { message, Upload } from "antd";
 const { Dragger } = Upload;
