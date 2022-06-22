@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { Table, Select } from "antd";
 import AddCategoryButton from "../subComponents/AddCategoryButton";
@@ -7,6 +7,7 @@ import { getProducts } from "../../context/CategoryContext";
 import { useQuery } from "react-query";
 
 import { getDate, parseSlug } from "../../utility";
+import AddProductList from "./AddProductList";
 
 const { Option } = Select;
 
@@ -137,6 +138,13 @@ function TabAll() {
   const { data, isLoading, isError, error } = useQuery("get-products", () =>
     getProducts()
   );
+  const location = useLocation();
+  let lastSlug;
+  try {
+    lastSlug = location.pathname.split("/")[2];
+  } catch (error) {
+    lastSlug = null;
+  }
   if (!isLoading) {
     console.log(data);
   }
@@ -187,59 +195,62 @@ function TabAll() {
     ],
   };
   return (
-    <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[70vh]">
-      <div className="flex justify-end mb-3">
-        {/* <div className="py-[3px] px-3 min-w-[18rem] border-[1px] border-[#D9D9D9] rounded-lg flex items-center justify-between">
+    <>
+      {lastSlug === "add" && <AddProductList />}
+      <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[70vh]">
+        <div className="flex justify-end mb-3">
+          {/* <div className="py-[3px] px-3 min-w-[18rem] border-[1px] border-[#D9D9D9] rounded-lg flex items-center justify-between">
 <SearchOutlined style={{color: "#D9D9D9"}} />
 <input type="text" placeholder="Search category..." className="w-full ml-1 placeholder:text-[#D9D9D9]" />
 </div> */}
-        <div>
-          <AddCategoryButton linkText="Add Products" linkTo={`add`} />
+          <div>
+            <AddCategoryButton linkText="Add Products" linkTo={`add`} />
+          </div>
         </div>
-      </div>
 
-      <div className="flex-1">
-        {isLoading ? "Loading..." : null}
-        {isError ? error.message : null}
-        <Table
-          columns={columns}
-          dataSource={data?.data?.data?.results}
-          footer={() => (
-            <div className="absolute bottom-0 left-0 flex justify-start bg-white w-[100%]">
-              <div className="">
-                <span className="text-sm text-gray-600">
-                  Entries per page:{" "}
-                </span>
-                <Select
-                  defaultValue="lucy"
-                  style={{
-                    width: 120,
-                  }}
-                  loading
-                >
-                  <Option value={5}>5</Option>
-                  <Option value={10}>10</Option>
-                  <Option value={20}>20</Option>
-                  <Option value={50}>50</Option>
-                  <Option value={100}>100</Option>
-                </Select>
+        <div className="flex-1">
+          {isLoading ? "Loading..." : null}
+          {isError ? error.message : null}
+          <Table
+            columns={columns}
+            dataSource={data?.data?.data?.results}
+            footer={() => (
+              <div className="absolute bottom-0 left-0 flex justify-start bg-white w-[100%]">
+                <div className="">
+                  <span className="text-sm text-gray-600">
+                    Entries per page:{" "}
+                  </span>
+                  <Select
+                    defaultValue="lucy"
+                    style={{
+                      width: 120,
+                    }}
+                    loading
+                  >
+                    <Option value={5}>5</Option>
+                    <Option value={10}>10</Option>
+                    <Option value={20}>20</Option>
+                    <Option value={50}>50</Option>
+                    <Option value={100}>100</Option>
+                  </Select>
+                </div>
               </div>
-            </div>
-          )}
-          pagination={{ pageSize: 4 }}
-          rowSelection={rowSelection}
-          onRow={(record) => {
-            return {
-              onDoubleClick: (_) => {
-                navigate("/category-list/" + record.key);
-              }, // double click row
-            };
-          }}
-        />
-      </div>
+            )}
+            pagination={{ pageSize: 4 }}
+            rowSelection={rowSelection}
+            onRow={(record) => {
+              return {
+                onDoubleClick: (_) => {
+                  navigate("/category-list/" + record.key);
+                }, // double click row
+              };
+            }}
+          />
+        </div>
 
-      <div></div>
-    </div>
+        <div></div>
+      </div>
+    </>
   );
 }
 

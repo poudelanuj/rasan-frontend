@@ -25,6 +25,7 @@ import ProductSKU from "./Products/ProductSKU";
 import RequireAuth from "./RequireAuth";
 import LoginRasan from "./LoginRasan";
 import AuthProvider from "./AuthProvider";
+import ViewProductGroup from "./Products/Product Groups/ViewProductGroup";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const queryClient = new QueryClient();
@@ -61,10 +62,32 @@ root.render(
               <Route element={<BrandsScreen />} path="brands/edit/:slug" />
               <Route element={<Brands />} path="brands/:slug" />
               <Route element={<ProductGroupsScreen />} path="product-groups" />
+              <Route
+                element={<ProductGroupsScreen />}
+                path="product-groups/add"
+              />
+              <Route
+                element={<ViewProductGroup />}
+                path="product-groups/:slug"
+              />
+              <Route
+                element={<ProductGroupsScreen />}
+                path="product-groups/:slug/edit"
+              />
               <Route element={<ProductListScreen />} path="product-list" />
+              <Route element={<ProductListScreen />} path="product-list/add" />
               <Route element={<ProductSkuScreen />} path="product-sku" />
               <Route element={<ProductSkuScreen />} path="product-sku/add" />
               <Route element={<ProductSKU />} path="product-sku/:slug" />
+              <Route element={<ProductSKU />} path="product-sku/:slug/edit" />
+              <Route
+                element={<ProductSKU />}
+                path="product-sku/:slug/add-product-pack"
+              />
+              <Route
+                element={<ProductSKU />}
+                path="product-sku/:slug/edit-product-pack/:id"
+              />
 
               {/* ends */}
               <Route element={<Users />} path="users" />

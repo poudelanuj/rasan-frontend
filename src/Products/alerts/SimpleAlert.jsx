@@ -27,7 +27,7 @@ function SimpleAlert({
     },
   };
   return (
-    <div className="fixed top-0 right-0 w-[100%] h-screen bg-[rgba(0,0,0,0.3)] z-[9999] flex items-center justify-center animate-popupopen">
+    <div className="fixed top-0 right-0 w-[100%] h-screen bg-[rgba(0,0,0,0.3)] z-[99999999] flex items-center justify-center animate-popupopen">
       <div className="w-[400px] h-[370px] bg-[#ffffff] flex flex-col items-center justify-between p-[33px] rounded-[10px]">
         <div className="w-[25%]">
           <img src={image} alt="alert" className="w-[100%]" />

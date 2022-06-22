@@ -8,6 +8,7 @@ import AddCategoryButton from "../subComponents/AddCategoryButton";
 
 import { parseSlug } from "../../utility";
 import AddProductSKU from "./AddProductSKU";
+import SimpleAlert from "../alerts/SimpleAlert";
 
 const { Option } = Select;
 
@@ -122,6 +123,18 @@ const columns = [
 ];
 
 function TabAll() {
+  const [alert, setAlert] = useState({
+    show: false,
+    title: "",
+    text: "",
+    type: "",
+    primaryButton: "",
+    secondaryButton: "",
+    image: "",
+    action: "",
+    actionOn: "",
+    icon: "",
+  });
   const location = useLocation();
   let categorySlug;
   try {
@@ -132,9 +145,7 @@ function TabAll() {
   const { data, isLoading, isError, error } = useQuery("get-product-skus", () =>
     getProductSKUs()
   );
-  // if (!isLoading) {
-  //   console.log(data);
-  // }
+  const [entriesPerPage, setEntriesPerPage] = useState(4);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const navigate = useNavigate();
 
@@ -183,7 +194,23 @@ function TabAll() {
   };
   return (
     <>
-      {categorySlug === "add" && <AddProductSKU />}
+      {alert.show && (
+        <SimpleAlert
+          action={alert.action}
+          alert={alert}
+          icon={alert.icon}
+          image={alert.image}
+          primaryButton={alert.primaryButton}
+          secondaryButton={alert.secondaryButton}
+          setAlert={setAlert}
+          text={alert.text}
+          title={alert.title}
+          type={alert.type}
+        />
+      )}
+      {categorySlug === "add" && (
+        <AddProductSKU alert={alert} setAlert={setAlert} />
+      )}
       <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[70vh]">
         <div className="flex justify-end mb-3">
           {/* <div className="py-[3px] px-3 min-w-[18rem] border-[1px] border-[#D9D9D9] rounded-lg flex items-center justify-between">
@@ -208,13 +235,13 @@ function TabAll() {
                     Entries per page:{" "}
                   </span>
                   <Select
-                    defaultValue="lucy"
+                    defaultValue="4"
                     style={{
                       width: 120,
                     }}
-                    loading
+                    onChange={(value) => setEntriesPerPage(value)}
                   >
-                    <Option value={5}>5</Option>
+                    <Option value={4}>4</Option>
                     <Option value={10}>10</Option>
                     <Option value={20}>20</Option>
                     <Option value={50}>50</Option>
@@ -223,7 +250,7 @@ function TabAll() {
                 </div>
               </div>
             )}
-            pagination={{ pageSize: 4 }}
+            pagination={{ pageSize: entriesPerPage }}
             rowSelection={rowSelection}
             onRow={(record) => {
               return {

@@ -5,57 +5,35 @@ import { UploadOutlined, LoadingOutlined } from "@ant-design/icons";
 import {
   getCategories,
   getBrands,
-  getProductGroups,
   getLoyaltyPolicies,
-  createProductSKU,
   getProducts,
+  createProduct,
 } from "../../context/CategoryContext";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 
 import { message, Upload } from "antd";
 const { Dragger } = Upload;
 
-function AddProductSKU({ alert, setAlert }) {
+function AddProductList({ alert, setAlert }) {
   const navigate = useNavigate();
   const [formState, setFormState] = useState({
     name: "",
-    name_np: "",
-    product_sku_image: "",
-    quantity: "",
-    price_per_piece: "",
-    mrp_per_piece: "",
-    cost_price_per_piece: "",
-    description: "",
-    product: "",
-    product_group: "",
+    product_image: "",
     brand: "",
-    category: "",
-    loyalty_policy: "",
+    category: [],
+    loyalty_policy: [],
+    supplementary_products: [],
+    alternate_Products: [],
     includes_vat: false,
     imageFile: null,
   });
   const [optionsData, setOptionsData] = useState({
     categories: [],
     brands: [],
-    productGroups: [],
     loyaltyPolicies: [],
     products: [],
   });
   const queryClient = useQueryClient();
-
-  const {
-    data: productsData,
-    isLoading: isLoadingProducts,
-    error: productsError,
-    isError: isProductsError,
-  } = useQuery("get-products", getProducts, {
-    onSuccess: (data) => {
-      setOptionsData({
-        ...optionsData,
-        products: data.data.data.results,
-      });
-    },
-  });
 
   const {
     data: categoriesData,
@@ -86,16 +64,16 @@ function AddProductSKU({ alert, setAlert }) {
     },
   });
   const {
-    data: productGroupsData,
-    isLoading: isLoadingProductGroups,
-    isError: isErrorProductGroups,
-    error: errorProductGroups,
-  } = useQuery("get-product-groups", getProductGroups, {
+    data: productsData,
+    isLoading: isLoadingProducts,
+    isError: isErrorProducts,
+    error: errorProducts,
+  } = useQuery("get-products", getProducts, {
     onSuccess: (data) => {
-      console.log("productGroupsData", data);
+      console.log("productsData", data);
       setOptionsData({
         ...optionsData,
-        productGroups: data.data.data.results,
+        products: data.data.data.results,
       });
     },
   });
@@ -115,20 +93,22 @@ function AddProductSKU({ alert, setAlert }) {
   });
 
   const {
-    mutate: createProductSKUMutate,
-    isLoading: isLoadingCreateProductSKU,
-    isError: isErrorCreateProductSKU,
-    error: errorCreateProductSKU,
-  } = useMutation(({ form_data }) => createProductSKU({ form_data }), {
+    mutate: createProductMutate,
+    isLoading: isLoadingProductMutate,
+    isError: isErrorProductMutate,
+    error: errorProductMutate,
+    data: createProductData,
+  } = useMutation(({ form_data }) => createProduct({ form_data }), {
     onSuccess: (data) => {
       console.log("data", data);
+      queryClient.invalidateQueries("get-products");
       message.success("Product SKU created successfully");
-      navigate("/product-sku/");
+      navigate("/product-list/");
     },
   });
 
-  const closeAddCategories = () => {
-    navigate("/product-sku");
+  const closeProductAddWidget = () => {
+    navigate("/product-list");
   };
 
   const handleSubmit = (e) => {
@@ -138,27 +118,23 @@ function AddProductSKU({ alert, setAlert }) {
   const handleSave = async () => {
     if (
       formState.name &&
-      formState.name_np &&
-      formState.product_sku_image &&
-      formState.quantity &&
-      formState.price_per_piece &&
-      formState.mrp_per_piece &&
-      formState.cost_price_per_piece &&
-      formState.description &&
-      formState.product &&
-      formState.product_group &&
+      //   formState.name_np &&
+      formState.product_image &&
       formState.brand &&
       formState.category &&
-      formState.loyalty_policy
+      formState.loyalty_policy &&
+      formState.supplementary_products &&
+      formState.alternate_Products &&
+      formState.includes_vat
     ) {
       let form_data = new FormData();
       for (let key in formState) {
         form_data.append(key, formState[key]);
       }
-      form_data.append("product_sku_image", formState.imageFile);
-      createProductSKUMutate({ form_data });
+      form_data.append("product_image", formState.imageFile);
+      createProductMutate({ form_data });
       message.success("Category created successfully");
-      // return addCategoryResponseData.data.data.slug;
+      return createProductData?.data.data.slug;
     } else {
       console.log("Please fill all the fields");
       message.error("Please fill all the fields");
@@ -184,7 +160,7 @@ function AddProductSKU({ alert, setAlert }) {
         if (filename.file) {
           setFormState({
             ...formState,
-            product_sku_image: e.target.result,
+            product_image: e.target.result,
             imageFile: filename.file,
           });
         }
@@ -221,18 +197,16 @@ function AddProductSKU({ alert, setAlert }) {
     <>
       <div
         className="fixed top-0 left-0 h-screen w-full bg-[#03022920] animate-popupopen z-[99990]"
-        onClick={() => closeAddCategories()}
+        onClick={() => closeProductAddWidget()}
       ></div>
       <div className="w-[36.25rem] overflow-y-auto h-[90%] fixed z-[99999] top-[50%] right-[50%] translate-x-[50%] translate-y-[-50%] bg-white rounded-[10px] flex flex-col px-8 py-4 shadow-[-14px_30px_20px_rgba(0,0,0,0.05)] overflow-hidden">
         <h2 className="text-3xl mb-3 text-[#192638] text-[2rem] font-medium">
-          Add Product SKU
+          Add Product
         </h2>
         {(isLoadingCategories ||
           isLoadingBrands ||
-          isLoadingBrands ||
           isLoadingLoyaltyPolicies ||
-          isLoadingProducts ||
-          isLoadingCreateProductSKU) && (
+          isLoadingProductMutate) && (
           <div className="absolute top-0 right-0 bg-black/25 w-full h-full flex flex-col items-center justify-center z-50 animate-popupopen">
             <LoadingOutlined style={{ color: "white", fontSize: "3rem" }} />
             <span className="p-2 text-white">Loading...</span>
@@ -252,8 +226,8 @@ function AddProductSKU({ alert, setAlert }) {
                   alt="gallery"
                   className="h-[4rem] mx-auto"
                   src={
-                    formState.product_sku_image
-                      ? formState.product_sku_image
+                    formState.product_image
+                      ? formState.product_image
                       : "/gallery-icon.svg"
                   }
                 />
@@ -263,7 +237,7 @@ function AddProductSKU({ alert, setAlert }) {
                 <span> Click or drag file to this area to upload</span>
               </p>
             </Dragger>
-            <div className="grid grid-cols-2 gap-x-4">
+            <div className="">
               <div className="flex flex-col">
                 <label className="mb-1 text-[#596579]" htmlFor="name">
                   Product Name
@@ -276,121 +250,6 @@ function AddProductSKU({ alert, setAlert }) {
                   value={formState.name}
                   onChange={(e) =>
                     setFormState({ ...formState, name: e.target.value })
-                  }
-                />
-              </div>
-              <div className="flex flex-col">
-                <div className="flex">
-                  <label className="mb-1 text-[#596579]" htmlFor="nname">
-                    Product Name (In Nepali)
-                  </label>
-                  <img
-                    alt="nepali"
-                    className="w-[0.8rem] ml-2"
-                    src="/flag_nepal.svg"
-                  />
-                </div>
-                <input
-                  className=" bg-[#FFFFFF] border-[1px] border-[#D9D9D9] rounded-[2px] p-[8px_12px]"
-                  id="nname"
-                  placeholder="Eg. चामल"
-                  type="text"
-                  value={formState.name_np}
-                  onChange={(e) =>
-                    setFormState({ ...formState, name_np: e.target.value })
-                  }
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-4 gap-x-4">
-              <div className="flex flex-col">
-                <label className="mb-1 text-[#596579]" htmlFor="quantity">
-                  Quantity
-                </label>
-                <input
-                  className=" bg-[#FFFFFF] border-[1px] border-[#D9D9D9] rounded-[2px] p-[8px_12px]"
-                  id="quantity"
-                  placeholder="Eg. 5"
-                  type="number"
-                  value={formState.quantity}
-                  onChange={(e) =>
-                    setFormState({ ...formState, quantity: e.target.value })
-                  }
-                />
-              </div>
-              <div className="flex flex-col">
-                <label
-                  className="mb-1 text-[#596579]"
-                  htmlFor="cost_price_per_piece"
-                >
-                  Cost Price/Piece
-                </label>
-                <input
-                  className=" bg-[#FFFFFF] border-[1px] border-[#D9D9D9] rounded-[2px] p-[8px_12px]"
-                  id="quantity"
-                  placeholder="Eg. 5000"
-                  type="number"
-                  value={formState.cost_price_per_piece}
-                  onChange={(e) =>
-                    setFormState({
-                      ...formState,
-                      cost_price_per_piece: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className="flex flex-col">
-                <label
-                  className="mb-1 text-[#596579]"
-                  htmlFor="price_per_piece"
-                >
-                  Price/Piece
-                </label>
-                <input
-                  className=" bg-[#FFFFFF] border-[1px] border-[#D9D9D9] rounded-[2px] p-[8px_12px]"
-                  id="price_per_piece"
-                  placeholder="Eg. 5000"
-                  type="number"
-                  value={formState.price_per_piece}
-                  onChange={(e) =>
-                    setFormState({
-                      ...formState,
-                      price_per_piece: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className="flex flex-col">
-                <label className="mb-1 text-[#596579]" htmlFor="mrp_per_piece">
-                  MRP/Piece
-                </label>
-                <input
-                  className=" bg-[#FFFFFF] border-[1px] border-[#D9D9D9] rounded-[2px] p-[8px_12px]"
-                  id="mrp_per_piece"
-                  placeholder="Eg. 5000"
-                  type="number"
-                  value={formState.mrp_per_piece}
-                  onChange={(e) =>
-                    setFormState({
-                      ...formState,
-                      mrp_per_piece: e.target.value,
-                    })
-                  }
-                />
-              </div>
-            </div>
-            <div className="">
-              <div className="flex flex-col">
-                <label className="mb-1 text-[#596579]" htmlFor="description">
-                  Product SKU Description
-                </label>
-                <textarea
-                  className=" bg-[#FFFFFF] border-[1px] border-[#D9D9D9] rounded-[2px] p-[8px_12px] resize-none"
-                  id="description"
-                  placeholder="Eg. 5kg of rice"
-                  value={formState.description}
-                  onChange={(e) =>
-                    setFormState({ ...formState, description: e.target.value })
                   }
                 />
               </div>
@@ -427,13 +286,13 @@ function AddProductSKU({ alert, setAlert }) {
                 </select>
               </div>
               <div className="flex flex-col">
-                <label className="mb-1 text-[#596579]" htmlFor="product_group">
-                  Product Group
+                <label className="mb-1 text-[#596579]" htmlFor="category">
+                  Alternate Products
                 </label>
                 <select
                   className=" bg-[#FFFFFF] border-[1px] border-[#D9D9D9] rounded-[2px] p-[8px_12px]"
-                  value={formState.product_group}
-                  id="product_group"
+                  value={formState.alternate_products}
+                  id="category"
                   onChange={(e) => {
                     let options = e.target.options;
                     let value = [];
@@ -442,16 +301,53 @@ function AddProductSKU({ alert, setAlert }) {
                         value.push(options[i].value);
                       }
                     }
-                    return setFormState({ ...formState, product_group: value });
+                    console.log(formState);
+                    return setFormState({
+                      ...formState,
+                      alternate_products: value,
+                    });
                   }}
                   multiple={true}
                 >
-                  <option value="">Select Product Group</option>
-                  {optionsData.productGroups.map((productGroup) => (
+                  <option value="">Select Category</option>
+                  {optionsData.products.map((product) => (
                     <option
-                      key={productGroup.slug}
-                      value={productGroup.slug}
-                    >{`${productGroup.name}`}</option>
+                      key={product.slug}
+                      value={product.slug}
+                    >{`${product.name}`}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex flex-col">
+                <label className="mb-1 text-[#596579]" htmlFor="category">
+                  Supplementary Product
+                </label>
+                <select
+                  className=" bg-[#FFFFFF] border-[1px] border-[#D9D9D9] rounded-[2px] p-[8px_12px]"
+                  value={formState.supplementary_products}
+                  id="category"
+                  onChange={(e) => {
+                    let options = e.target.options;
+                    let value = [];
+                    for (let i = 0, l = options.length; i < l; i++) {
+                      if (options[i].selected) {
+                        value.push(options[i].value);
+                      }
+                    }
+                    console.log(formState);
+                    return setFormState({
+                      ...formState,
+                      supplementary_products: value,
+                    });
+                  }}
+                  multiple={true}
+                >
+                  <option value="">Select Category</option>
+                  {optionsData.products.map((product) => (
+                    <option
+                      key={product.slug}
+                      value={product.slug}
+                    >{`${product.name}`}</option>
                   ))}
                 </select>
               </div>
@@ -474,54 +370,33 @@ function AddProductSKU({ alert, setAlert }) {
                     </option>
                   ))}
                 </select>
-              </div>
-              <div className="flex flex-col">
-                <label className="mb-1 text-[#596579]" htmlFor="product">
-                  Product
-                </label>
-                <select
-                  className=" bg-[#FFFFFF] border-[1px] border-[#D9D9D9] rounded-[2px] p-[8px_12px]"
-                  value={formState.product}
-                  id="product"
-                  onChange={(e) =>
-                    setFormState({
-                      ...formState,
-                      product: e.target.value,
-                    })
-                  }
-                >
-                  <option value="">Select Product</option>
-                  {optionsData.products.map((product) => (
-                    <option
-                      key={product.slug}
-                      value={product.slug}
-                    >{`${product.name}`}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="flex flex-col">
-                <label className="mb-1 text-[#596579]" htmlFor="loyalty_policy">
-                  Loyalty Policy
-                </label>
-                <select
-                  className=" bg-[#FFFFFF] border-[1px] border-[#D9D9D9] rounded-[2px] p-[8px_12px]"
-                  value={formState.loyalty_policy}
-                  id="loyalty_policy"
-                  onChange={(e) =>
-                    setFormState({
-                      ...formState,
-                      loyalty_policy: e.target.value,
-                    })
-                  }
-                >
-                  <option value="">Select Loyalty Policy</option>
-                  {optionsData.loyaltyPolicies.map((loyaltyPolicy) => (
-                    <option
-                      key={loyaltyPolicy.id}
-                      value={loyaltyPolicy.id}
-                    >{`${loyaltyPolicy.remarks}`}</option>
-                  ))}
-                </select>
+                <div className="flex flex-col">
+                  <label
+                    className="mb-1 text-[#596579]"
+                    htmlFor="loyalty_policy"
+                  >
+                    Loyalty Policy
+                  </label>
+                  <select
+                    className=" bg-[#FFFFFF] border-[1px] border-[#D9D9D9] rounded-[2px] p-[8px_12px]"
+                    value={formState.loyalty_policy}
+                    id="loyalty_policy"
+                    onChange={(e) =>
+                      setFormState({
+                        ...formState,
+                        loyalty_policy: e.target.value,
+                      })
+                    }
+                  >
+                    <option value="">Select Loyalty Policy</option>
+                    {optionsData.loyaltyPolicies.map((loyaltyPolicy) => (
+                      <option
+                        key={loyaltyPolicy.id}
+                        value={loyaltyPolicy.id}
+                      >{`${loyaltyPolicy.remarks}`}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
               <div className="flex items-center">
                 <input
@@ -548,7 +423,7 @@ function AddProductSKU({ alert, setAlert }) {
               onClick={async () => {
                 let isSaved = await handleSave();
                 if (isSaved) {
-                  return closeAddCategories();
+                  return closeProductAddWidget();
                 }
               }}
             >
@@ -567,7 +442,7 @@ function AddProductSKU({ alert, setAlert }) {
                   image: "/publish-icon.svg",
                   action: async () => {
                     await handlePublish();
-                    return closeAddCategories();
+                    return closeProductAddWidget();
                   },
                 })
               }
@@ -581,4 +456,4 @@ function AddProductSKU({ alert, setAlert }) {
   );
 }
 
-export default AddProductSKU;
+export default AddProductList;

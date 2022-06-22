@@ -9,13 +9,6 @@ import Header from "./subComponents/Header";
 // import SearchBox from "./subComponents/SearchBox";
 
 import TabAll from "./ProductList/TabAll";
-import TabSKU from "./CategoryList/TabSKU";
-import TabProductPackSize from "./ProductList/TabProductPackSize";
-
-import { Tabs } from "antd";
-const { TabPane } = Tabs;
-
-const onChange = (key) => {};
 
 function ProductListScreen() {
   const { data, isLoading, isError, error } = useQuery(
@@ -38,17 +31,6 @@ function ProductListScreen() {
         {data && (
           <div>
             <Header title="Products List" />
-            {/* <Tabs defaultActiveKey="1" onChange={onChange}>
-              <TabPane key="1" tab="All">
-                <TabAll />
-              </TabPane>
-              <TabPane key="2" tab="SKU">
-                <TabSKU />
-              </TabPane>
-              <TabPane key="3" tab="Product Drafts">
-                <TabProductPackSize />
-              </TabPane>
-            </Tabs> */}
             <TabAll />
           </div>
         )}

@@ -2,13 +2,16 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { UploadOutlined, LoadingOutlined } from "@ant-design/icons";
 
-import { addCategory, publishCategory } from "../../context/CategoryContext";
+import {
+  createProductGroup,
+  publishProductGroup,
+} from "../../context/CategoryContext";
 import { useMutation, useQueryClient } from "react-query";
 
 import { message, Upload } from "antd";
 const { Dragger } = Upload;
 
-function AddCategory({ alert, setAlert }) {
+function AddProductGroup({ alert, setAlert }) {
   const navigate = useNavigate();
   const [formState, setFormState] = useState({
     name: "",
@@ -19,25 +22,27 @@ function AddCategory({ alert, setAlert }) {
   const queryClient = useQueryClient();
 
   const {
-    mutate: addCategoryMutate,
-    isLoading: addCategoryIsLoading,
-    data: addCategoryResponseData,
-  } = useMutation(addCategory, {
+    mutate: addProductGroupMutate,
+    isLoading: addProductGroupIsLoading,
+    data: addProductGroupResponseData,
+  } = useMutation(createProductGroup, {
     onSuccess: (data) => {
-      queryClient.invalidateQueries("get-categories");
+      queryClient.invalidateQueries("get-product-groups");
     },
     onError: (data) => {},
   });
 
-  const { mutate: publishCategoryMutate, isLoading: publishCategoryIsLoading } =
-    useMutation(publishCategory, {
-      onSuccess: (data) => {
-        queryClient.invalidateQueries("get-categories");
-      },
-    });
+  const {
+    mutate: publishProductGroupMutate,
+    isLoading: publishProductGroupIsLoading,
+  } = useMutation(publishProductGroup, {
+    onSuccess: (data) => {
+      queryClient.invalidateQueries("get-product-groups");
+    },
+  });
 
-  const closeAddCategories = () => {
-    navigate("/category-list");
+  const closeProductGroupWidget = () => {
+    navigate("/product-groups");
   };
 
   const handleSubmit = (e) => {
@@ -49,10 +54,10 @@ function AddCategory({ alert, setAlert }) {
       let form_data = new FormData();
       form_data.append("name", formState.name);
       form_data.append("name_np", formState.name_np);
-      form_data.append("category_image", formState.imageFile);
-      addCategoryMutate({ form_data });
-      message.success("Category created successfully");
-      return addCategoryResponseData.data.data.slug;
+      form_data.append("product_group_image", formState.imageFile);
+      addProductGroupMutate({ form_data });
+      message.success("Product Group created successfully");
+      return addProductGroupResponseData?.data.data.slug;
     } else {
       message.error("Please fill all the fields");
       return false;
@@ -61,7 +66,7 @@ function AddCategory({ alert, setAlert }) {
   const handlePublish = async () => {
     const isSaved = await handleSave();
     if (isSaved) {
-      publishCategoryMutate({ isSaved });
+      //   publishProductGroup({ isSaved });
       message.success("Category published successfully");
     }
   };
@@ -111,13 +116,13 @@ function AddCategory({ alert, setAlert }) {
     <>
       <div
         className="fixed top-0 left-0 h-screen w-full bg-[#03022920] animate-popupopen z-[99990]"
-        onClick={() => closeAddCategories()}
+        onClick={() => closeProductGroupWidget()}
       ></div>
       <div className="min-w-[36.25rem] min-h-[33.5rem] fixed z-[99999] top-[50%] right-[50%] translate-x-[50%] translate-y-[-50%] bg-white rounded-[10px] flex flex-col p-8 shadow-[-14px_30px_20px_rgba(0,0,0,0.05)] overflow-hidden">
         <h2 className="text-3xl mb-3 text-[#192638] text-[2rem] font-medium">
-          Add Category
+          Add Product Group
         </h2>
-        {(addCategoryIsLoading || publishCategoryIsLoading) && (
+        {(addProductGroupIsLoading || publishProductGroupIsLoading) && (
           <div className="absolute top-0 right-0 bg-black/25 w-full h-full flex flex-col items-center justify-center z-50 animate-popupopen">
             <LoadingOutlined style={{ color: "white", fontSize: "3rem" }} />
             <span className="p-2 text-white">Loading...</span>
@@ -143,12 +148,12 @@ function AddCategory({ alert, setAlert }) {
             </Dragger>
             <div className="flex flex-col">
               <label className="mb-1" htmlFor="name">
-                Category Name
+                Product Group Name
               </label>
               <input
                 className=" bg-[#FFFFFF] border-[1px] border-[#D9D9D9] rounded-[2px] p-[8px_12px]"
                 id="name"
-                placeholder="Eg. Rice"
+                placeholder="Eg. Mother's Day Special"
                 type="text"
                 value={formState.name}
                 onChange={(e) =>
@@ -159,7 +164,7 @@ function AddCategory({ alert, setAlert }) {
             <div className="flex flex-col">
               <div className="flex">
                 <label className="mb-1" htmlFor="name">
-                  Category Name (In Nepali)
+                  Product Group Name (In Nepali)
                 </label>
                 <img
                   alt="nepali"
@@ -170,7 +175,7 @@ function AddCategory({ alert, setAlert }) {
               <input
                 className=" bg-[#FFFFFF] border-[1px] border-[#D9D9D9] rounded-[2px] p-[8px_12px]"
                 id="name"
-                placeholder="Eg. चामल"
+                placeholder="Eg. आमाको मुख हेर्ने दिन विशेष"
                 type="text"
                 value={formState.name_np}
                 onChange={(e) =>
@@ -185,7 +190,7 @@ function AddCategory({ alert, setAlert }) {
               type="button"
               onClick={async () => {
                 await handleSave();
-                return closeAddCategories();
+                return closeProductGroupWidget();
               }}
             >
               Create
@@ -203,7 +208,7 @@ function AddCategory({ alert, setAlert }) {
                   image: "/publish-icon.svg",
                   action: async () => {
                     await handlePublish();
-                    return closeAddCategories();
+                    return closeProductGroupWidget();
                   },
                 })
               }
@@ -217,4 +222,4 @@ function AddCategory({ alert, setAlert }) {
   );
 }
 
-export default AddCategory;
+export default AddProductGroup;
