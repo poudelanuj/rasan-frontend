@@ -58,33 +58,42 @@ function EditCategory({ alert, setAlert }) {
   const { mutate: deleteMutate, isLoading: deleteProductSKUIsLoading } =
     useMutation(() => deleteProductSKU({ slug }), {
       onSuccess: (data) => {
-        message.success("Category deleted successfully");
+        message.success("Product SKU deleted successfully!");
         queryClient.invalidateQueries("get-product-sku");
+        queryClient.invalidateQueries("get-product-skus");
       },
     });
-  const { mutate: updateMutate, isLoading: updateProductSKUIsLoading } =
-    useMutation(
-      ({ slug, form_data }) => updateProductSKU({ slug, form_data }),
-      {
-        onSuccess: (data) => {
-          message.success("Category updated successfully");
-          queryClient.invalidateQueries("get-product-sku");
-        },
-      }
-    );
+  const {
+    mutate: updateMutate,
+    isLoading: updateProductSKUIsLoading,
+    data: updateProductMutateData,
+  } = useMutation(
+    ({ slug, form_data }) => updateProductSKU({ slug, form_data }),
+    {
+      onSuccess: (data) => {
+        message.success("Product SKU updated successfully");
+        queryClient.invalidateQueries("get-product-sku");
+        queryClient.invalidateQueries("get-product-skus");
+      },
+    }
+  );
   const {
     mutate: publishProductSKUMutate,
     isLoading: publishProductSKUIsLoading,
   } = useMutation(publishProductSKU, {
     onSuccess: (data) => {
+      message.success("Product SKU published successfully");
       queryClient.invalidateQueries("get-product-sku");
+      queryClient.invalidateQueries("get-product-skus");
     },
   });
   const { mutate: unpublishProductSKUMutate } = useMutation(
     unpublishProductSKU,
     {
       onSuccess: (data) => {
+        message.success("Product SKU unpublished successfully");
         queryClient.invalidateQueries("get-product-sku");
+        queryClient.invalidateQueries("get-product-skus");
       },
     }
   );
@@ -182,7 +191,7 @@ function EditCategory({ alert, setAlert }) {
   };
 
   const closeProductSKUEditWidget = () => {
-    navigate(`/product-sku/${slug}`);
+    navigate(`/product-groups/${slug}`);
   };
 
   const handleSubmit = (e) => {
@@ -190,38 +199,60 @@ function EditCategory({ alert, setAlert }) {
     handleSave();
   };
   const handleSave = async () => {
-    if (formState.name && formState.image && formState.name_np) {
+    if (
+      formState.name &&
+      formState.name_np &&
+      formState.product_sku_image &&
+      formState.quantity &&
+      formState.price_per_piece &&
+      formState.mrp_per_piece &&
+      formState.cost_price_per_piece &&
+      formState.description &&
+      formState.product &&
+      formState.product_group &&
+      formState.brand &&
+      formState.category &&
+      formState.loyalty_policy
+    ) {
       let form_data = new FormData();
-      form_data.append("name", formState.name);
-      form_data.append("name_np", formState.name_np);
-      if (formState.imageFile) {
-        form_data.append("category_image", formState.imageFile);
+      for (let key in formState) {
+        if (key === "category") {
+          for (let i = 0; i < formState[key].length; i++) {
+            form_data.append("category[]", formState[key][i]);
+          }
+        } else if (key === "product_group") {
+          for (let i = 0; i < formState[key].length; i++) {
+            form_data.append("product_group[]", formState[key][i]);
+          }
+        } else if (key === "product_sku_image") {
+          if (formState.imageFile) {
+            form_data.append("product_sku_image", formState.imageFile);
+          }
+        } else {
+          form_data.append(key, formState[key]);
+        }
       }
       updateMutate({ slug, form_data });
-      message.success("Category saved successfully!");
-      return true;
+      return updateProductMutateData?.data?.data?.slug || true;
     } else {
-      message.error("Please fill all the fields!");
+      message.error("Please fill all the fields");
       return false;
     }
   };
-  const handlePublish = async ({ slug }) => {
+  const handlePublish = async () => {
     const isSaved = await handleSave();
     if (isSaved) {
-      publishProductSKU({ slug });
+      publishProductSKUMutate({ slug });
       closeProductSKUEditWidget();
-      message.success("Product SKU published successfully!");
     }
   };
-  const handleUnpublish = async ({ slug }) => {
-    unpublishProductSKU({ slug });
+  const handleUnpublish = async () => {
+    unpublishProductSKUMutate({ slug });
     closeProductSKUEditWidget();
-    message.success("Product SKU unpublished successfully!");
   };
-  const handleDelete = async ({ slug }) => {
+  const handleDelete = async () => {
     deleteMutate({ slug });
-    closeProductSKUEditWidget();
-    message.success("Product SKU deleted successfully!");
+    navigate(`/product-sku`);
   };
   const showAlert = ({
     title,
@@ -246,7 +277,6 @@ function EditCategory({ alert, setAlert }) {
 
   return (
     <>
-      {getProductSKUIsLoading && <LoadingOutlined />}
       {getProductSKUIsError && getProductSKUError}
       <div
         className="fixed top-0 left-0 h-screen w-full bg-[#03022920] animate-popupopen"
@@ -259,7 +289,12 @@ function EditCategory({ alert, setAlert }) {
           </h2>
           {(updateProductSKUIsLoading ||
             publishProductSKUIsLoading ||
-            publishProductSKUIsLoading) && (
+            deleteProductSKUIsLoading ||
+            getProductSKUIsLoading ||
+            isLoadingCategories ||
+            isLoadingLoyaltyPolicies ||
+            isLoadingProductGroups ||
+            isLoadingBrands) && (
             <div className="absolute top-0 right-0 bg-black/25 w-full h-full flex flex-col items-center justify-center z-50 animate-popupopen">
               <LoadingOutlined style={{ color: "white", fontSize: "3rem" }} />
               <span className="p-2 text-white">
@@ -607,7 +642,6 @@ function EditCategory({ alert, setAlert }) {
                     image: "/delete-icon.svg",
                     action: async () => {
                       await handleDelete();
-                      return closeProductSKUEditWidget();
                     },
                   })
                 }

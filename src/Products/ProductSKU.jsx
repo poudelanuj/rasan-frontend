@@ -86,17 +86,23 @@ function ProductSKU() {
                 <div className="grid grid-cols-2 ml-5 gap-y-0 gap-x-5 items-center">
                   <p className="text-[#596579] text-[0.8rem]">Created at: </p>
                   <p className="text-[#596579] font-bold">
-                    {getDate(productSKU.published_at)}
+                    {productSKU.published_at
+                      ? getDate(productSKU.published_at)
+                      : "-"}
                   </p>
                   <p className="text-[#596579] text-[0.8rem]">
                     Last edited at:{" "}
                   </p>
                   <p className="text-[#596579] font-bold">
-                    {getDate(productSKU.published_at)}
+                    {productSKU.published_at
+                      ? getDate(productSKU.published_at)
+                      : "-"}
                   </p>
                   <p className="text-[#596579] text-[0.8rem]">Published at: </p>
                   <p className="text-[#596579] font-bold">
-                    {getDate(productSKU.published_at)}
+                    {productSKU.published_at
+                      ? getDate(productSKU.published_at)
+                      : "-"}
                   </p>
                 </div>
                 <div className="absolute top-0 right-0">

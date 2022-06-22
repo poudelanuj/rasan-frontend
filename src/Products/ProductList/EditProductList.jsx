@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { UploadOutlined, LoadingOutlined } from "@ant-design/icons";
 
 import {
@@ -8,13 +8,25 @@ import {
   getLoyaltyPolicies,
   getProducts,
   createProduct,
+  getProduct,
+  updateProduct,
+  publishProduct,
+  unpublishProduct,
+  deleteProduct,
 } from "../../context/CategoryContext";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 
 import { message, Upload } from "antd";
 const { Dragger } = Upload;
 
-function AddProductList({ alert, setAlert }) {
+function EditProductList({ alert, setAlert }) {
+  const location = useLocation();
+  let slug;
+  try {
+    slug = location.pathname.split("/")[2];
+  } catch (error) {
+    slug = null;
+  }
   const navigate = useNavigate();
   const [formState, setFormState] = useState({
     name: "",
@@ -23,7 +35,7 @@ function AddProductList({ alert, setAlert }) {
     category: [],
     loyalty_policy: [],
     supplementary_products: [],
-    alternate_Products: [],
+    alternate_products: [],
     includes_vat: false,
     imageFile: null,
   });
@@ -34,6 +46,28 @@ function AddProductList({ alert, setAlert }) {
     products: [],
   });
   const queryClient = useQueryClient();
+
+  const {
+    data: productListData,
+    isLoading: getProductListIsLoading,
+    isError: getProductListIsError,
+    error: getProductListError,
+  } = useQuery(["get-product", slug], () => getProduct({ slug }), {
+    onSuccess: (data) => {
+      console.log(data.data.data);
+      setFormState({
+        name: data.data.data.name,
+        product_image: data.data.data.product_image.full_size,
+        brand: data.data.data.brand,
+        category: data.data.data.category,
+        loyalty_policy: data.data.data.loyalty_policy,
+        supplementary_products: data.data.data.supplementary_products,
+        alternate_Products: data.data.data.alternate_Products,
+        includes_vat: data.data.data.includes_vat,
+        imageFile: null,
+      });
+    },
+  });
 
   const {
     data: categoriesData,
@@ -93,22 +127,66 @@ function AddProductList({ alert, setAlert }) {
   });
 
   const {
-    mutate: createProductMutate,
-    isLoading: isLoadingProductMutate,
-    isError: isErrorProductMutate,
-    error: errorProductMutate,
-    data: createProductData,
-  } = useMutation(({ form_data }) => createProduct({ form_data }), {
+    mutate: updateProductList,
+    isLoading: isLoadingUpdateProductList,
+    isError: isErrorUploadProductList,
+    error: errorProductListMutate,
+    data: updateProductListData,
+  } = useMutation(({ slug, form_data }) => updateProduct({ slug, form_data }), {
     onSuccess: (data) => {
       console.log("data", data);
       queryClient.invalidateQueries("get-products");
-      message.success("Product List created successfully");
-      navigate("/product-list/");
+      queryClient.invalidateQueries(["get-product", slug]);
+      message.success("Product List updated successfully");
     },
   });
 
+  const {
+    mutate: publishProductList,
+    isLoading: isLoadingPublishProductList,
+    isError: isErrorPublishProductList,
+    error: errorPublishProductListMutate,
+    data: publishProductListData,
+  } = useMutation(({ slug }) => publishProduct({ slug }), {
+    onSuccess: (data) => {
+      console.log("data", data);
+      queryClient.invalidateQueries("get-products");
+      queryClient.invalidateQueries(["get-product", slug]);
+      message.success("Product List published successfully");
+    },
+  });
+
+  const {
+    mutate: unpublishProductList,
+    isLoading: isLoadingUnpublishProductList,
+    isError: isErrorUnpublishProductList,
+    error: errorUnpublishProductListMutate,
+    data: unpublishProductListData,
+  } = useMutation(({ slug }) => unpublishProduct({ slug }), {
+    onSuccess: (data) => {
+      console.log("data", data);
+      queryClient.invalidateQueries("get-products");
+      queryClient.invalidateQueries(["get-product", slug]);
+      message.success("Product List unpublished successfully");
+    },
+  });
+
+  const {
+    mutate: deleteProductListMutate,
+    isLoading: isLoadingDeleteProductList,
+    isError: isErrorDeleteProductList,
+    error: errorDeleteProductListMutate,
+    data: deleteProductListData,
+  } = useMutation(({ slug }) => deleteProduct({ slug }), {
+    onSuccess: (data) => {
+      console.log("data", data);
+      queryClient.invalidateQueries("get-products");
+      message.success("Product List deleted successfully");
+      navigate("/product-list");
+    },
+  });
   const closeProductAddWidget = () => {
-    navigate("/product-list");
+    navigate(`/product-list/${slug}`);
   };
 
   const handleSubmit = (e) => {
@@ -116,14 +194,14 @@ function AddProductList({ alert, setAlert }) {
     handleSave();
   };
   const handleSave = async () => {
+    console.log("formState", formState);
     if (
       formState.name &&
-      formState.product_image &&
       formState.brand &&
       formState.category &&
       formState.loyalty_policy &&
       formState.supplementary_products &&
-      formState.alternate_Products
+      formState.alternate_products
     ) {
       let form_data = new FormData();
       for (let key in formState) {
@@ -147,8 +225,8 @@ function AddProductList({ alert, setAlert }) {
           form_data.append(key, formState[key]);
         }
       }
-      createProductMutate({ form_data });
-      return createProductData?.data?.data?.slug || true;
+      updateProductList({ slug, form_data });
+      return updateProductListData?.data?.data?.slug || true;
     } else {
       console.log("Please fill all the fields");
       message.error("Please fill all the fields");
@@ -158,9 +236,16 @@ function AddProductList({ alert, setAlert }) {
   const handlePublish = async () => {
     const isSaved = await handleSave();
     if (isSaved) {
-      // publishCategoryMutate({ isSaved });
-      message.success("Category published successfully");
+      publishProductList({ slug });
+      return true;
     }
+    return false;
+  };
+  const handleUnpublish = async () => {
+    unpublishProductList({ slug });
+  };
+  const handleDelete = async () => {
+    deleteProductListMutate({ slug });
   };
   const props = {
     maxCount: 1,
@@ -215,12 +300,14 @@ function AddProductList({ alert, setAlert }) {
       ></div>
       <div className="w-[36.25rem] overflow-y-auto h-[90%] fixed z-[99999] top-[50%] right-[50%] translate-x-[50%] translate-y-[-50%] bg-white rounded-[10px] flex flex-col px-8 py-4 shadow-[-14px_30px_20px_rgba(0,0,0,0.05)] overflow-hidden">
         <h2 className="text-3xl mb-3 text-[#192638] text-[2rem] font-medium">
-          Add Product
+          Edit Product
         </h2>
         {(isLoadingCategories ||
           isLoadingBrands ||
           isLoadingLoyaltyPolicies ||
-          isLoadingProductMutate) && (
+          isLoadingUpdateProductList ||
+          isLoadingPublishProductList ||
+          getProductListIsLoading) && (
           <div className="absolute top-0 right-0 bg-black/25 w-full h-full flex flex-col items-center justify-center z-50 animate-popupopen">
             <LoadingOutlined style={{ color: "white", fontSize: "3rem" }} />
             <span className="p-2 text-white">Loading...</span>
@@ -434,6 +521,70 @@ function AddProductList({ alert, setAlert }) {
             <button
               className="text-[#00B0C2] p-[8px_12px] min-w-[5rem] rounded-[4px] border-[1px] border-[#00B0C2] hover:bg-[#effdff] transition-colors"
               type="button"
+              onClick={async () =>
+                showAlert({
+                  title: "Are you sure to Delete?",
+                  text: "You won't be able to revert this!",
+                  primaryButton: "Delete",
+                  secondaryButton: "Cancel",
+                  type: "danger",
+                  image: "/delete-icon.svg",
+                  action: async () => {
+                    await handleDelete();
+                  },
+                })
+              }
+            >
+              Delete
+            </button>
+            {formState.is_published ? (
+              <button
+                className="text-[#00B0C2] p-[8px_12px] min-w-[5rem] rounded-[4px] border-[1px] border-[#00B0C2] hover:bg-[#effdff] transition-colors ml-[1rem]"
+                type="button"
+                onClick={async () =>
+                  showAlert({
+                    title: "Are you sure to Unpublish?",
+                    text: "Unpublishing will make the product unavailable for purchase.",
+                    primaryButton: "Unpublish",
+                    secondaryButton: "Cancel",
+                    type: "warning",
+                    image: "/unpublish-icon.svg",
+                    action: async () => {
+                      await handleUnpublish();
+                      return closeProductAddWidget();
+                    },
+                  })
+                }
+              >
+                Unpublish Product SKU
+              </button>
+            ) : (
+              <button
+                className="text-[#00B0C2] p-[8px_12px] min-w-[5rem] rounded-[4px] border-[1px] border-[#00B0C2] hover:bg-[#effdff] transition-colors ml-[1rem]"
+                type="button"
+                onClick={async () =>
+                  showAlert({
+                    title: "Are you sure to Publish?",
+                    text: "Publishing this category would save it and make it visible to the public!",
+                    primaryButton: "Publish",
+                    secondaryButton: "Cancel",
+                    type: "info",
+                    image: "/publish-icon.svg",
+                    action: async () => {
+                      let result = await handlePublish();
+                      if (result) {
+                        return closeProductAddWidget();
+                      }
+                    },
+                  })
+                }
+              >
+                Publish Product SKU
+              </button>
+            )}
+            <button
+              className="bg-[#00B0C2] text-white p-[8px_12px] ml-5 min-w-[5rem] rounded-[4px] border-[1px] border-[#00B0C2] hover:bg-[#12919f] transition-colors"
+              type="button"
               onClick={async () => {
                 let isSaved = await handleSave();
                 if (isSaved) {
@@ -441,27 +592,7 @@ function AddProductList({ alert, setAlert }) {
                 }
               }}
             >
-              Create
-            </button>
-            <button
-              className="bg-[#00B0C2] text-white p-[8px_12px] ml-5 min-w-[5rem] rounded-[4px] border-[1px] border-[#00B0C2] hover:bg-[#12919f] transition-colors"
-              type="button"
-              onClick={async () =>
-                showAlert({
-                  title: "Are you sure to Publish?",
-                  text: "Publishing this category would save it and make it visible to the public!",
-                  primaryButton: "Publish",
-                  secondaryButton: "Cancel",
-                  type: "info",
-                  image: "/publish-icon.svg",
-                  action: async () => {
-                    await handlePublish();
-                    return closeProductAddWidget();
-                  },
-                })
-              }
-            >
-              Publish Product SKU
+              Save
             </button>
           </div>
         </form>
@@ -470,4 +601,4 @@ function AddProductList({ alert, setAlert }) {
   );
 }
 
-export default AddProductList;
+export default EditProductList;

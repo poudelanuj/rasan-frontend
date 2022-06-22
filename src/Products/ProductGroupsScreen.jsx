@@ -5,6 +5,7 @@ import { getProductGroups } from "../context/CategoryContext";
 import SimpleAlert from "./alerts/SimpleAlert";
 import CategoryWidget from "./CategoryWidget";
 import AddProductGroup from "./Product Groups/AddProductGroup";
+import EditProductGroup from "./Product Groups/EditProductGroup";
 import AddCategoryButton from "./subComponents/AddCategoryButton";
 import Header from "./subComponents/Header";
 import SearchBox from "./subComponents/SearchBox";

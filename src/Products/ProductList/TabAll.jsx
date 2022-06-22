@@ -241,7 +241,7 @@ function TabAll() {
             onRow={(record) => {
               return {
                 onDoubleClick: (_) => {
-                  navigate("/category-list/" + record.key);
+                  navigate("/product-list/" + record.slug);
                 }, // double click row
               };
             }}

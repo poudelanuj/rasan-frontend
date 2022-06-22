@@ -1,18 +1,28 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { UploadOutlined, LoadingOutlined } from "@ant-design/icons";
 
 import {
   createProductGroup,
+  deleteProductGroup,
   getProductGroup,
   publishProductGroup,
+  unpublishProductGroup,
+  updateProductGroup,
 } from "../../context/CategoryContext";
-import { useMutation, useQueryClient } from "react-query";
+import { useQuery, useMutation, useQueryClient } from "react-query";
 
 import { message, Upload } from "antd";
 const { Dragger } = Upload;
 
 function EditProductGroup({ alert, setAlert }) {
+  const location = useLocation();
+  let slug;
+  try {
+    slug = location.pathname.split("/")[2];
+  } catch (error) {
+    slug = null;
+  }
   const navigate = useNavigate();
   const [formState, setFormState] = useState({
     name: "",
@@ -27,21 +37,16 @@ function EditProductGroup({ alert, setAlert }) {
     isLoading: productGroupIsLoading,
     isError: productGroupIsError,
     error: productGroupError,
-  } = useQuery("get-product-group", () => getProductGroup(), {
+  } = useQuery(["get-product-group", slug], () => getProductGroup({ slug }), {
     onSuccess: (data) => {
-      setFormState(data.data.data);
+      console.log(data.data.data);
+      setFormState({
+        name: data.data.data.name,
+        name_np: data.data.data.name_np,
+        image: data.data.data.product_group_image.full_size,
+        is_published: data.data.data.is_published,
+      });
     },
-  });
-
-  const {
-    mutate: addProductGroupMutate,
-    isLoading: addProductGroupIsLoading,
-    data: addProductGroupResponseData,
-  } = useMutation(createProductGroup, {
-    onSuccess: (data) => {
-      queryClient.invalidateQueries("get-product-groups");
-    },
-    onError: (data) => {},
   });
 
   const {
@@ -49,12 +54,48 @@ function EditProductGroup({ alert, setAlert }) {
     isLoading: publishProductGroupIsLoading,
   } = useMutation(publishProductGroup, {
     onSuccess: (data) => {
+      message.success("Product Group Published");
+      queryClient.invalidateQueries(["get-product-group", slug]);
+    },
+  });
+
+  const {
+    mutate: unpublishProductGroupMutate,
+    isLoading: unpublishProductGroupIsLoading,
+  } = useMutation(unpublishProductGroup, {
+    onSuccess: (data) => {
+      message.success("Product Group Unpublished");
+      queryClient.invalidateQueries(["get-product-group", slug]);
+    },
+  });
+
+  const {
+    mutate: updateProductGroupMutate,
+    isLoading: updateProductGroupIsLoading,
+    data: updateProductGroupResponseData,
+    isError: updateProductGroupIsError,
+  } = useMutation(updateProductGroup, {
+    onSuccess: (data) => {
+      message.success("Product Group Updated Successfully");
+      queryClient.invalidateQueries(["get-product-group", slug]);
+    },
+  });
+
+  const {
+    mutate: deleteProductGroupMutate,
+    isLoading: deleteProductGroupIsLoading,
+    data: deleteProductGroupResponseData,
+    isError: deleteProductGroupIsError,
+  } = useMutation(deleteProductGroup, {
+    onSuccess: (data) => {
+      message.success("Product Group Deleted");
       queryClient.invalidateQueries("get-product-groups");
+      navigate("/product-groups");
     },
   });
 
   const closeProductGroupWidget = () => {
-    navigate("/product-groups");
+    navigate(`/product-groups/${slug}`);
   };
 
   const handleSubmit = (e) => {
@@ -66,10 +107,11 @@ function EditProductGroup({ alert, setAlert }) {
       let form_data = new FormData();
       form_data.append("name", formState.name);
       form_data.append("name_np", formState.name_np);
-      form_data.append("product_group_image", formState.imageFile);
-      addProductGroupMutate({ form_data });
-      message.success("Product Group created successfully");
-      return addProductGroupResponseData?.data.data.slug;
+      if (formState.imageFile) {
+        form_data.append("product_group_image", formState.imageFile);
+      }
+      updateProductGroupMutate({ slug, form_data });
+      return updateProductGroupResponseData?.data.data.slug || true;
     } else {
       message.error("Please fill all the fields");
       return false;
@@ -78,10 +120,16 @@ function EditProductGroup({ alert, setAlert }) {
   const handlePublish = async () => {
     const isSaved = await handleSave();
     if (isSaved) {
-      //   publishProductGroup({ isSaved });
-      message.success("Category published successfully");
+      publishProductGroupMutate({ slug });
     }
   };
+  const handleDelete = async () => {
+    deleteProductGroupMutate({ slug });
+  };
+  const handleUnpublish = async () => {
+    unpublishProductGroupMutate({ slug });
+  };
+
   const props = {
     maxCount: 1,
     multiple: false,
@@ -132,9 +180,11 @@ function EditProductGroup({ alert, setAlert }) {
       ></div>
       <div className="min-w-[36.25rem] min-h-[33.5rem] fixed z-[99999] top-[50%] right-[50%] translate-x-[50%] translate-y-[-50%] bg-white rounded-[10px] flex flex-col p-8 shadow-[-14px_30px_20px_rgba(0,0,0,0.05)] overflow-hidden">
         <h2 className="text-3xl mb-3 text-[#192638] text-[2rem] font-medium">
-          Add Product Group
+          Edit Product Group
         </h2>
-        {(addProductGroupIsLoading || publishProductGroupIsLoading) && (
+        {(updateProductGroupIsLoading ||
+          publishProductGroupIsLoading ||
+          productGroupIsLoading) && (
           <div className="absolute top-0 right-0 bg-black/25 w-full h-full flex flex-col items-center justify-center z-50 animate-popupopen">
             <LoadingOutlined style={{ color: "white", fontSize: "3rem" }} />
             <span className="p-2 text-white">Loading...</span>
@@ -200,32 +250,75 @@ function EditProductGroup({ alert, setAlert }) {
             <button
               className="text-[#00B0C2] p-[8px_12px] min-w-[5rem] rounded-[4px] border-[1px] border-[#00B0C2] hover:bg-[#effdff] transition-colors"
               type="button"
+              onClick={async () =>
+                showAlert({
+                  title: "Are you sure to Delete?",
+                  text: "This action cannot be undone",
+                  primaryButton: "Delete",
+                  secondaryButton: "Cancel",
+                  type: "danger",
+                  image: "/delete-icon.svg",
+                  action: async () => {
+                    await handleDelete();
+                  },
+                })
+              }
+            >
+              Delete
+            </button>
+            {formState.is_published ? (
+              <button
+                className="text-[#00B0C2] p-[8px_12px] min-w-[5rem] rounded-[4px] border-[1px] border-[#00B0C2] hover:bg-[#effdff] transition-colors ml-[1rem]"
+                type="button"
+                onClick={async () =>
+                  showAlert({
+                    title: "Are you sure to Unpublish?",
+                    text: "Unpublishing will make this product group unavailable to users",
+                    primaryButton: "Unpublish",
+                    secondaryButton: "Cancel",
+                    type: "warning",
+                    image: "/unpublish-icon.svg",
+                    action: async () => {
+                      await handleUnpublish();
+                      return closeProductGroupWidget();
+                    },
+                  })
+                }
+              >
+                Unpublish Product Group
+              </button>
+            ) : (
+              <button
+                className="text-[#00B0C2] p-[8px_12px] min-w-[5rem] rounded-[4px] border-[1px] border-[#00B0C2] hover:bg-[#effdff] transition-colors ml-[1rem]"
+                type="button"
+                onClick={async () =>
+                  showAlert({
+                    title: "Are you sure to Publish?",
+                    text: "Publishing this category would save it and make it visible to the public!",
+                    primaryButton: "Publish",
+                    secondaryButton: "Cancel",
+                    type: "info",
+                    image: "/publish-icon.svg",
+                    action: async () => {
+                      await handlePublish();
+                      return closeProductGroupWidget();
+                    },
+                  })
+                }
+              >
+                Publish Product Group
+              </button>
+            )}
+            ;
+            <button
+              className="bg-[#00B0C2] text-white p-[8px_12px] ml-5 min-w-[5rem] rounded-[4px] border-[1px] border-[#00B0C2] hover:bg-[#12919f] transition-colors"
+              type="button"
               onClick={async () => {
                 await handleSave();
                 return closeProductGroupWidget();
               }}
             >
-              Create
-            </button>
-            <button
-              className="bg-[#00B0C2] text-white p-[8px_12px] ml-5 min-w-[5rem] rounded-[4px] border-[1px] border-[#00B0C2] hover:bg-[#12919f] transition-colors"
-              type="button"
-              onClick={async () =>
-                showAlert({
-                  title: "Are you sure to Publish?",
-                  text: "Publishing this category would save it and make it visible to the public!",
-                  primaryButton: "Publish",
-                  secondaryButton: "Cancel",
-                  type: "info",
-                  image: "/publish-icon.svg",
-                  action: async () => {
-                    await handlePublish();
-                    return closeProductGroupWidget();
-                  },
-                })
-              }
-            >
-              Publish Category
+              Save
             </button>
           </div>
         </form>

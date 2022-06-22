@@ -2,12 +2,12 @@ import { EditOutlined } from "@ant-design/icons";
 import React, { useState } from "react";
 import { useQuery } from "react-query";
 import { Link, useLocation, useParams } from "react-router-dom";
-import { getProductGroup } from "../../context/CategoryContext";
+import { getProduct } from "../../context/CategoryContext";
 import { getDate, parseSlug } from "../../utility";
 import SimpleAlert from "../alerts/SimpleAlert";
-import EditProductGroup from "./EditProductGroup";
+import EditProductList from "./EditProductList";
 
-function ViewProductGroup() {
+function ViewProductList() {
   const [alert, setAlert] = useState({
     show: false,
     title: "",
@@ -28,24 +28,27 @@ function ViewProductGroup() {
   } catch (error) {
     categorySlug = null;
   }
-  const [productGroup, setProductGroup] = useState({
+  const [productList, setProductList] = useState({
     sn: "",
     name: "",
     slug: "",
-    name_np: "",
+    brand: "",
+    category: [],
+    alternate_products: [],
+    supplementary_products: [],
+    includes_vat: "",
     is_published: "",
-    is_featured: "",
-    product_group_image: "",
+    product_image: "",
   });
   const {
-    data: productGroupData,
-    isLoading: getProductGroupIsLoading,
-    isError: getProductGroupIsError,
-    error: getProductGroupError,
-  } = useQuery(["get-product-group", slug], () => getProductGroup({ slug }), {
+    data: productData,
+    isLoading: getProductIsLoading,
+    isError: getProductIsError,
+    error: getProductError,
+  } = useQuery(["get-product", slug], () => getProduct({ slug }), {
     onSuccess: (data) => {
       console.log(data.data.data);
-      setProductGroup(data.data.data);
+      setProductList(data.data.data);
     },
   });
   return (
@@ -65,21 +68,19 @@ function ViewProductGroup() {
         />
       )}
       {categorySlug === "edit" && (
-        <EditProductGroup alert={alert} setAlert={setAlert} />
+        <EditProductList alert={alert} setAlert={setAlert} />
       )}
-      {getProductGroupIsLoading && <div>Loading....</div>}
-      {getProductGroupIsError && (
-        <div>Error: {getProductGroupError.message}</div>
-      )}
-      {productGroupData && (
+      {getProductIsLoading && <div>Loading....</div>}
+      {getProductIsError && <div>Error: {getProductError.message}</div>}
+      {productData && (
         <>
-          <div className="text-3xl bg-white p-5 mb-7">{productGroup.name}</div>
+          <div className="text-3xl bg-white p-5 mb-7">{productList.name}</div>
           <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[70vh] max-w-[70%]">
             <div>
               <div className="flex justify-start relative">
                 <div className="w-[100px] h-[150px]">
                   <img
-                    src={productGroup?.product_group_image?.full_size}
+                    src={productList?.product_image?.full_size}
                     alt="product"
                     className="w-[100%] h-[100%] object-cover"
                   />
@@ -87,22 +88,22 @@ function ViewProductGroup() {
                 <div className="grid grid-cols-2 ml-5 gap-y-0 gap-x-5 items-center">
                   <p className="text-[#596579] text-[0.8rem]">Created at: </p>
                   <p className="text-[#596579] font-bold">
-                    {productGroup.published_at
-                      ? getDate(productGroup.published_at)
+                    {productList.published_at
+                      ? getDate(productList.published_at)
                       : "-"}
                   </p>
                   <p className="text-[#596579] text-[0.8rem]">
                     Last edited at:{" "}
                   </p>
                   <p className="text-[#596579] font-bold">
-                    {productGroup.published_at
-                      ? getDate(productGroup.published_at)
+                    {productList.published_at
+                      ? getDate(productList.published_at)
                       : "-"}
                   </p>
                   <p className="text-[#596579] text-[0.8rem]">Published at: </p>
                   <p className="text-[#596579] font-bold">
-                    {productGroup.published_at
-                      ? getDate(productGroup.published_at)
+                    {productList.published_at
+                      ? getDate(productList.published_at)
                       : "-"}
                   </p>
                 </div>
@@ -119,9 +120,9 @@ function ViewProductGroup() {
               <div className="mt-[1rem]">
                 <div className="flex justify-start items-center">
                   <h3 className="text-xl text-[#374253]">
-                    Product Group Details
+                    Product List Details
                   </h3>
-                  {productGroup.is_published ? (
+                  {productList.is_published ? (
                     <p className="ml-[6rem] rounded-full bg-[#E4FEEF] text-[#0E9E49] px-[1rem] py-[2px]">
                       Published
                     </p>
@@ -134,35 +135,74 @@ function ViewProductGroup() {
                 <div className="mt-[0.5rem] flex">
                   <div className="grid grid-cols-2 ml-5 gap-y-0 gap-x-5 items-center flex-1">
                     <p className="text-[#596579] text-[0.8rem]">Sno.</p>
-                    <p className="text-[#596579] font-bold">
-                      {productGroup.sn}
-                    </p>
+                    <p className="text-[#596579] font-bold">{productList.sn}</p>
 
                     <p className="text-[#596579] text-[0.8rem]">
-                      Product Group Name
+                      Product List Name
                     </p>
                     <p className="text-[#596579] font-bold">
-                      {productGroup.name}
+                      {productList.name}
                     </p>
 
-                    <p className="text-[#596579] text-[0.8rem]">
-                      Name In Nepali
-                    </p>
+                    <p className="text-[#596579] text-[0.8rem]">Brand</p>
                     <p className="text-[#596579] font-bold">
-                      {productGroup.name_np}
+                      {productList.brand}
                     </p>
 
                     <p className="text-[#596579] text-[0.8rem]">Slug</p>
                     <p className="text-[#596579] font-bold">
-                      {productGroup.slug}
+                      {productList.slug}
                     </p>
 
-                    <p className="text-[#596579] text-[0.8rem]">Featured</p>
+                    <p className="text-[#596579] text-[0.8rem]">Includes VAT</p>
                     <p className="text-[#596579] font-bold">
-                      {productGroup.is_featured ? "Featured" : "Not Featured"}
+                      {productList.includes_vat}
                     </p>
                   </div>
-                  <div className="grid grid-cols-2 ml-5 gap-y-0 gap-x-5 items-center flex-1"></div>
+                  <div className="grid grid-cols-2 ml-5 gap-y-0 gap-x-5 items-center flex-1">
+                    <p className="text-[#596579] text-[0.8rem]">Category</p>
+                    <p className="text-[#596579] font-bold capitalize">
+                      {productList.category.map((cat, index) => {
+                        if (productList.category.length === index + 1) {
+                          return `${parseSlug(cat)}`;
+                        } else {
+                          return `${parseSlug(cat)}, `;
+                        }
+                      })}
+                    </p>
+
+                    <p className="text-[#596579] text-[0.8rem]">
+                      Alternative Products
+                    </p>
+                    <p className="text-[#596579] font-bold capitalize">
+                      {productList.alternate_products.map((cat, index) => {
+                        if (
+                          productList.alternate_products.length ===
+                          index + 1
+                        ) {
+                          return `${parseSlug(cat)}`;
+                        } else {
+                          return `${parseSlug(cat)}, `;
+                        }
+                      })}
+                    </p>
+
+                    <p className="text-[#596579] text-[0.8rem]">
+                      Supplementary Products
+                    </p>
+                    <p className="text-[#596579] font-bold capitalize">
+                      {productList.supplementary_products.map((cat, index) => {
+                        if (
+                          productList.supplementary_products.length ===
+                          index + 1
+                        ) {
+                          return `${parseSlug(cat)}`;
+                        } else {
+                          return `${parseSlug(cat)}, `;
+                        }
+                      })}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -173,4 +213,4 @@ function ViewProductGroup() {
   );
 }
 
-export default ViewProductGroup;
+export default ViewProductList;

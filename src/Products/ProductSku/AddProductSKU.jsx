@@ -178,8 +178,7 @@ function AddProductSKU({ alert, setAlert }) {
   const handlePublish = async () => {
     const isSaved = await handleSave();
     if (isSaved) {
-      // publishCategoryMutate({ isSaved });
-      message.success("Category published successfully");
+      // publishProductSKUM({ isSaved });
     }
   };
   const props = {

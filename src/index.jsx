@@ -26,6 +26,7 @@ import RequireAuth from "./RequireAuth";
 import LoginRasan from "./LoginRasan";
 import AuthProvider from "./AuthProvider";
 import ViewProductGroup from "./Products/Product Groups/ViewProductGroup";
+import ViewProductList from "./Products/ProductList/ViewProductList";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const queryClient = new QueryClient();
@@ -47,8 +48,8 @@ root.render(
             >
               <Route element={<Dashboard />} index />
               <Route element={<Orders />} path="orders" />
-              {/* product part */}
 
+              {/* product part */}
               <Route element={<CategoryList />} path="category-list" />
               <Route element={<CategoryList />} path="category-list/add" />
               <Route
@@ -56,11 +57,12 @@ root.render(
                 path="category-list/edit/:slug"
               />
               <Route element={<Category />} path="category-list/:slug" />
-              {/* <Route element={<Category />} path="category-list/:slug/add-sku" /> */}
+
               <Route element={<BrandsScreen />} path="brands" />
               <Route element={<BrandsScreen />} path="brands/add" />
               <Route element={<BrandsScreen />} path="brands/edit/:slug" />
               <Route element={<Brands />} path="brands/:slug" />
+
               <Route element={<ProductGroupsScreen />} path="product-groups" />
               <Route
                 element={<ProductGroupsScreen />}
@@ -71,15 +73,23 @@ root.render(
                 path="product-groups/:slug"
               />
               <Route
-                element={<ProductGroupsScreen />}
+                element={<ViewProductGroup />}
                 path="product-groups/:slug/edit"
               />
+
               <Route element={<ProductListScreen />} path="product-list" />
               <Route element={<ProductListScreen />} path="product-list/add" />
+              <Route element={<ViewProductList />} path="product-list/:slug" />
+              <Route
+                element={<ViewProductList />}
+                path="product-list/:slug/edit"
+              />
+
               <Route element={<ProductSkuScreen />} path="product-sku" />
               <Route element={<ProductSkuScreen />} path="product-sku/add" />
               <Route element={<ProductSKU />} path="product-sku/:slug" />
               <Route element={<ProductSKU />} path="product-sku/:slug/edit" />
+
               <Route
                 element={<ProductSKU />}
                 path="product-sku/:slug/add-product-pack"

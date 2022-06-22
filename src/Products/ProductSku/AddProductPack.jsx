@@ -40,7 +40,12 @@ function AddProductPack({ alert, setAlert }) {
       queryClient.invalidateQueries("get-product-skus");
       queryClient.invalidateQueries(["get-product-sku", slug]);
     },
-    onError: (data) => {},
+    onError: (data) => {
+      console.log(data);
+      message.error(
+        data.message || "Some error occurred, check console for more!"
+      );
+    },
   });
   const {
     data: productSKUsData,
@@ -56,6 +61,12 @@ function AddProductPack({ alert, setAlert }) {
         ...formState,
         product_sku: slug,
       });
+    },
+    onError: (data) => {
+      console.log(data);
+      message.error(
+        data.message || "Some error occurred, check console for more!"
+      );
     },
   });
 
