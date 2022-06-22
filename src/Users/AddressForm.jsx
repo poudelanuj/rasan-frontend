@@ -18,6 +18,7 @@ const AddressForm = ({ address, id }) => {
   const { mutate: addressMutation } = useMutation(updateAddress, {
     onSuccess: (data) => {
       message.success(data.message);
+      queryClient.invalidateQueries(["get-user", `${id}`]);
     },
   });
   const { mutate: addressDeletion } = useMutation(deleteAddress, {
@@ -40,18 +41,19 @@ const AddressForm = ({ address, id }) => {
 
   useEffect(() => {
     setCities(
-      provincesList?.find((province) => province.id === address.province).cities
+      provincesList?.find((province) => province.id === address.province.id)
+        .cities
     );
   }, [provincesList, address.province]);
   useEffect(() => {
-    setAreas(cities?.find((city) => city.id === address.city)?.areas);
+    setAreas(cities?.find((city) => city.id === address.city.id)?.areas);
   }, [cities, address.city]);
 
   useEffect(() => {
     let data = {
-      province: address.province,
-      city: address.city,
-      area: address.area,
+      province: address.province.id,
+      city: address.city.id,
+      area: address.area.id,
       detail_address: address.detail_address,
       map_longitude: address.map_longitude,
       map_latitude: address.map_latitude,

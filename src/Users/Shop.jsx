@@ -8,7 +8,7 @@ const Shop = ({ user }) => {
   const [form] = Form.useForm();
   const { mutate: shopMutation } = useMutation(updateShop, {
     onSuccess: (data) => {
-      message.success(data);
+      message.success(data.message);
     },
   });
   useEffect(() => {

@@ -1,23 +1,22 @@
 import { Button, DatePicker, Form, Input, message } from "antd";
-import React, { useEffect, useState } from "react";
+import moment from "moment";
+import { useEffect, useState } from "react";
+import { AiFillCheckCircle } from "react-icons/ai";
 import { useMutation, useQueryClient } from "react-query";
 import {
   deactivateUser,
-  deleteUser,
   logoutUser,
+  unVerifyUser,
   updateUser,
   verifyUser,
 } from "../context/UserContext";
+import AddressCreationForm from "./AddressCreationForm";
 import AddressForm from "./AddressForm";
+import DeleteUser from "./DeleteUser";
 import ProfilePicture from "./ProfilePicture";
 import Shop from "./Shop";
-import moment from "moment";
-import AddressCreationForm from "./AddressCreationForm";
-import { AiFillCheckCircle } from "react-icons/ai";
-import { useNavigate } from "react-router-dom";
 const UserInformation = ({ user }) => {
   const [form] = Form.useForm();
-  let navigate = useNavigate();
 
   const [visible, setVisible] = useState(false);
   const queryClient = useQueryClient();
@@ -39,6 +38,15 @@ const UserInformation = ({ user }) => {
       message.error(data.message);
     },
   });
+  const { mutate: unverifyUserMutate } = useMutation(unVerifyUser, {
+    onSuccess: (data) => {
+      message.success(data.message);
+      queryClient.invalidateQueries(["get-user", `${user.id}`]);
+    },
+    onError: (data) => {
+      message.error(data.message);
+    },
+  });
   const { mutate: logOutUserMutation } = useMutation(logoutUser, {
     onSuccess: (data) => {
       message.success(data);
@@ -47,17 +55,10 @@ const UserInformation = ({ user }) => {
   const { mutate: deactivateUserMutation } = useMutation(deactivateUser, {
     onSuccess: (data) => {
       message.success(data.message);
+      queryClient.invalidateQueries(["get-user", `${user.id}`]);
     },
   });
-  const { mutate: deleteUserMutation } = useMutation(deleteUser, {
-    onSuccess: (data) => {
-      // message.success(data.errors.detail);
-      navigate("/users");
-    },
-    onError: (error) => {
-      message.error(error.message);
-    },
-  });
+
   useEffect(() => {
     let data = {
       full_name: user.full_name,
@@ -249,26 +250,19 @@ const UserInformation = ({ user }) => {
         </div>
       </div> */}
       <div className="w-7/12 mt-3 flex">
-        <Button
-          className="ml-auto w-2/12"
-          type="primary"
-          danger
-          onClick={() => {
-            deleteUserMutation({ phone: user.phone });
-          }}
-        >
-          Delete User
-        </Button>
+        <DeleteUser phone={user.phone} title={"Delete User"} />
         <Button
           className="ml-3 w-2/12 bg-primary"
-          disabled={user.is_verified}
+          // disabled={user.is_verified}
           icon={<AiFillCheckCircle className={"inline mr-1"} />}
           type="primary"
           onClick={() => {
-            verifyUserMutate({ key: user.id });
+            user.is_verified
+              ? unverifyUserMutate({ key: user.id })
+              : verifyUserMutate({ key: user.id });
           }}
         >
-          {user.is_verified ? "Verified" : "Verify User"}
+          {user.is_verified ? "Unverify" : "Verify User"}
         </Button>
       </div>
     </div>

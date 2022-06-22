@@ -1,5 +1,5 @@
-import { Form, Input, message, Modal, Select } from "antd";
-import React, { useEffect } from "react";
+import { Form, Input, message, Modal } from "antd";
+import { useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { getPermission, updateGroupDetail } from "../context/UserGroupContext";
 

@@ -7,12 +7,27 @@ import {
   UsergroupAddOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { Layout, Menu } from "antd";
+import { Button, Dropdown, Layout, Menu } from "antd";
 import React from "react";
+import { useQuery } from "react-query";
 import { Outlet, useNavigate } from "react-router-dom";
+import { useAuth } from "./AuthProvider";
+import { getEndUser } from "./context/UserContext";
 import Logo from "./svgs/Logo";
 const { Header, Content, Sider } = Layout;
-
+const headerItem = (logout) => (
+  <Menu
+    items={[
+      {
+        key: "1",
+        label: "Log Out",
+      },
+    ]}
+    onClick={({ key }) => {
+      if (key === "1") logout();
+    }}
+  />
+);
 const sidebarItems = [
   {
     key: "/",
@@ -63,13 +78,33 @@ const sidebarItems = [
 ];
 const AppLayout = () => {
   let navigate = useNavigate();
-
+  let { logout } = useAuth();
+  const { data: userInfo, isSuccess } = useQuery(
+    ["get-end-user"],
+    async () => getEndUser(),
+    {
+      retry: false,
+      onError: (err) => {
+        logout();
+      },
+    }
+  );
   return (
     <Layout>
       <Header className="header">
         <Logo />
-        <div className="w-12 h-12 rounded-full border-2 text-center text-3xl align-middle text-white">
-          S
+        <div className="w-12 h-12 rounded-full text-center text-3xl align-middle text-white">
+          <Dropdown overlay={() => headerItem(logout)} arrow>
+            <a href="null" onClick={(e) => e.preventDefault()}>
+              {isSuccess && userInfo.profile_picture && (
+                <img
+                  alt={userInfo.full_name[0]}
+                  className="rounded-full w-12 h-12"
+                  src={userInfo.profile_picture.thumbnail}
+                />
+              )}
+            </a>
+          </Dropdown>
         </div>
         {/* <div className="logo" /> */}
       </Header>
