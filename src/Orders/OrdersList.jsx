@@ -111,7 +111,7 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
       dataIndex: "user",
       key: "user",
       ...getColumnSearchProps("customer"),
-      sorter: (a, b) => a.customer.localeCompare(b.customer),
+      sorter: (a, b) => a.user.localeCompare(b.user),
       render: (_, { user }) => {
         return <>{user}</>;
       },
