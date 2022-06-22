@@ -25,6 +25,7 @@ import ProductSKU from "./Products/ProductSKU";
 import RequireAuth from "./RequireAuth";
 import LoginRasan from "./LoginRasan";
 import AuthProvider from "./AuthProvider";
+import UserGroupPage from "./UserGroups/UserGroupPage";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const queryClient = new QueryClient();
@@ -71,6 +72,8 @@ root.render(
               <Route element={<User />} path="user/:user_id" />
               <Route element={<OTPRequests />} path="otp-requests" />
               <Route element={<UserGroups />} path="user-groups" />
+              <Route element={<UserGroupPage />} path="user-group/:group_id" />
+
               <Route element={<LiveUserBasket />} path="live-user-basket" />
               <Route element={<CRM />} path="crm" />
             </Route>

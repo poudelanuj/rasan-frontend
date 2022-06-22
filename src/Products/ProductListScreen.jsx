@@ -1,16 +1,10 @@
-import React from "react";
 import { useQuery } from "react-query";
 import { useLocation } from "react-router-dom";
 import { getProducts } from "../context/CategoryContext";
-import AddCategory from "./CategoryList/AddCategory";
-import CategoryWidget from "./CategoryWidget";
-import AddCategoryButton from "./subComponents/AddCategoryButton";
 import Header from "./subComponents/Header";
 // import SearchBox from "./subComponents/SearchBox";
 
 import TabAll from "./ProductList/TabAll";
-import TabSKU from "./CategoryList/TabSKU";
-import TabProductPackSize from "./ProductList/TabProductPackSize";
 
 import { Tabs } from "antd";
 const { TabPane } = Tabs;

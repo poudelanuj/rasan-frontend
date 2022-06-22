@@ -38,35 +38,26 @@ function EditCategory({ slug, alert, setAlert }) {
       });
     },
   });
-  const {
-    mutate: deleteMutate,
-    isLoading: deleteCategoryIsLoading,
-  } = useMutation(() => deleteCategory({ slug }), {
-    onSuccess: (data) => {
-      message.success("Category deleted successfully");
-      queryClient.invalidateQueries("get-categories");
-    },
-  });
-  const {
-    mutate: updateMutate,
-    isLoading: updateCategoryIsLoading,
-  } = useMutation(
-    ({ slug, form_data }) => updateCategory({ slug, form_data }),
-    {
+  const { mutate: deleteMutate, isLoading: deleteCategoryIsLoading } =
+    useMutation(() => deleteCategory({ slug }), {
+      onSuccess: (data) => {
+        message.success("Category deleted successfully");
+        queryClient.invalidateQueries("get-categories");
+      },
+    });
+  const { mutate: updateMutate, isLoading: updateCategoryIsLoading } =
+    useMutation(({ slug, form_data }) => updateCategory({ slug, form_data }), {
       onSuccess: (data) => {
         message.success("Category updated successfully");
         queryClient.invalidateQueries("get-categories");
       },
-    }
-  );
-  const {
-    mutate: publishCategoryMutate,
-    isLoading: publishCategoryIsLoading,
-  } = useMutation(publishCategory, {
-    onSuccess: (data) => {
-      queryClient.invalidateQueries("get-categories");
-    },
-  });
+    });
+  const { mutate: publishCategoryMutate, isLoading: publishCategoryIsLoading } =
+    useMutation(publishCategory, {
+      onSuccess: (data) => {
+        queryClient.invalidateQueries("get-categories");
+      },
+    });
   const { mutate: unpublishCategoryMutate } = useMutation(unpublishCategory, {
     onSuccess: (data) => {
       queryClient.invalidateQueries("get-categories");
@@ -267,8 +258,7 @@ function EditCategory({ slug, alert, setAlert }) {
                   onClick={() =>
                     showAlert({
                       title: "Are you sure to Unpublish?",
-                      text:
-                        "Unpublishing this category would make it invisible to the public!",
+                      text: "Unpublishing this category would make it invisible to the public!",
                       primaryButton: "Unpublish",
                       secondaryButton: "Cancel",
                       type: "warning",
@@ -286,8 +276,7 @@ function EditCategory({ slug, alert, setAlert }) {
                   onClick={() =>
                     showAlert({
                       title: "Are you sure to Publish?",
-                      text:
-                        "Publishing this category would make it visible to the public!",
+                      text: "Publishing this category would make it visible to the public!",
                       primaryButton: "Publish",
                       secondaryButton: "Cancel",
                       type: "info",
