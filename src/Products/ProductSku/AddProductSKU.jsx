@@ -153,7 +153,17 @@ function AddProductSKU({ alert, setAlert }) {
     ) {
       let form_data = new FormData();
       for (let key in formState) {
-        form_data.append(key, formState[key]);
+        if (key === "category") {
+          for (let i = 0; i < formState[key].length; i++) {
+            form_data.append("category[]", formState[key][i]);
+          }
+        } else if (key === "product_group") {
+          for (let i = 0; i < formState[key].length; i++) {
+            form_data.append("product_group[]", formState[key][i]);
+          }
+        } else {
+          form_data.append(key, formState[key]);
+        }
       }
       form_data.append("product_sku_image", formState.imageFile);
       createProductSKUMutate({ form_data });

@@ -78,7 +78,7 @@ function ProductSKU() {
               <div className="flex justify-start relative">
                 <div className="w-[100px] h-[150px]">
                   <img
-                    src={productSKU.product_sku_image.full_size}
+                    src={productSKU?.product_sku_image?.full_size}
                     alt="product"
                     className="w-[100%] h-[100%] object-cover"
                   />
@@ -217,15 +217,7 @@ function ProductSKU() {
                 </div>
               </div>
             </div>
-            {productSKU?.product_packs.length > 0 ? (
-              <ProductPackList id={productSKU.product_packs[0].id} />
-            ) : (
-              <div className="mt-[1rem]">
-                <p className="flex justify-start items-center">
-                  No Product Packs Found
-                </p>
-              </div>
-            )}
+            <ProductPackList id={productSKU?.product_packs[0]?.id} />
           </div>
         </>
       )}
