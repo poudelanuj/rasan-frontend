@@ -177,13 +177,13 @@ function TabAll({ slug }) {
           )}
           pagination={{ pageSize: entriesPerPage }}
           rowSelection={rowSelection}
-          onRow={(record) => {
-            return {
-              onDoubleClick: (_) => {
-                navigate("/category-list/" + slug + "/" + record.key);
-              }, // double click row
-            };
-          }}
+          // onRow={(record) => {
+          //   // return {
+          //   //   onDoubleClick: (_) => {
+          //   //     navigate("/category-list/" + slug + "/" + record.key);
+          //   //   }, // double click row
+          //   // };
+          // }}
         />
       </div>
 
