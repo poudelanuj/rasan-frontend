@@ -49,7 +49,10 @@ function getDate(date) {
 
 function parseSlug(slug) {
   // add space for - in slug
-  return slug.split("-").join(" ");
+  if (slug) {
+    return slug.split("-").join(" ");
+  }
+  return "";
   // for capitalizing first letter of each word, use css capitalization
 }
 
