@@ -95,9 +95,7 @@ function TabSKU({ slug }) {
     "get-category-enduser",
     () => getCategoryEndUser({ slug })
   );
-  if (!isLoading) {
-    console.log(data);
-  }
+
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const navigate = useNavigate();
 

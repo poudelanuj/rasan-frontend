@@ -1,31 +1,42 @@
-import { Table, Tag, Button, Menu, Dropdown, Space, Input, Spin } from "antd";
-import { SearchOutlined, EyeOutlined } from "@ant-design/icons";
+import {
+  Table,
+  Tag,
+  Button,
+  Menu,
+  Dropdown,
+  Space,
+  Input,
+  Spin,
+  Select,
+  notification,
+} from "antd";
+import { useMutation } from "react-query";
+import { SearchOutlined, EyeOutlined, DeleteOutlined } from "@ant-design/icons";
 import moment from "moment";
 import { useRef } from "react";
 import { useState } from "react";
 import OrderModal from "./components/OrderModal";
+import CreateOrder from "./components/CreateOrder";
+import { deleteBulkOrders, updateOrderStatus } from "../context/OrdersContext";
+import {
+  openErrorNotification,
+  openSuccessNotification,
+} from "../utils/openNotification";
+import { IN_PROCESS } from "../constants";
+import DeleteOrder from "./components/DeleteOrder";
 
-const menu = (
-  <Menu
-    items={[
-      {
-        key: "1",
-        label: <>Delete</>,
-      },
-      {
-        key: "2",
-        label: <>Example</>,
-      },
-    ]}
-  />
-);
-
-const OrdersList = ({ dataSource, status }) => {
+const OrdersList = ({ dataSource, status, refetchOrders }) => {
   const searchInput = useRef(null);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+  const [isCreateOrderOpen, setIsCreateOrderOpen] = useState(false);
+  const [isDeleteOrderOpen, setIsDeleteOrderOpen] = useState(false);
+  const [deleteOrderId, setDeleteOrderId] = useState(0);
+
+  const [checkedRows, setCheckedRows] = useState([]);
+
   const [activeOrder, setActiveOrder] = useState({
     orderId: null,
-    deliveryStatus: null,
+    orderStatus: null,
   });
 
   const getTagColor = (status) => {
@@ -39,12 +50,6 @@ const OrdersList = ({ dataSource, status }) => {
       default:
         return "green";
     }
-  };
-
-  const rowSelection = {
-    onChange: (selectedRowKeys, selectedRows) => {},
-    onSelect: (record, selected, selectedRows) => {},
-    onSelectAll: (selected, selectedRows, changeRows) => {},
   };
 
   const getColumnSearchProps = (dataIndex) => ({
@@ -106,7 +111,7 @@ const OrdersList = ({ dataSource, status }) => {
       dataIndex: "user",
       key: "user",
       ...getColumnSearchProps("customer"),
-      sorter: (a, b) => a.customer.localeCompare(b.customer),
+      sorter: (a, b) => a.user.localeCompare(b.user),
       render: (_, { user }) => {
         return <>{user}</>;
       },
@@ -144,13 +149,13 @@ const OrdersList = ({ dataSource, status }) => {
       ...getColumnSearchProps("payment method"),
     },
     {
-      title: "Delivery Date",
-      dataIndex: "deliveryDate",
-      key: "deliveryDate",
-      render: (_, { deliveryDate }) => {
-        return <>{moment(deliveryDate).format("ll")}</>;
+      title: "Ordered At",
+      dataIndex: "created_at",
+      key: "created_at",
+      render: (_, { created_at }) => {
+        return <>{moment(created_at).format("ll")}</>;
       },
-      sorter: (a, b) => a.deliveryDate - b.deliveryDate,
+      sorter: (a, b) => a.created_at - b.created_at,
       ...getColumnSearchProps("delivery date"),
     },
     {
@@ -163,7 +168,15 @@ const OrdersList = ({ dataSource, status }) => {
             <EyeOutlined
               onClick={() => {
                 setIsOrderModalOpen((prev) => !prev);
-                setActiveOrder({ orderId: id, deliveryStatus: status });
+                setActiveOrder({ orderId: id, orderStatus: status });
+              }}
+            />
+
+            <DeleteOutlined
+              className="ml-5"
+              onClick={() => {
+                setIsDeleteOrderOpen((prev) => !prev);
+                setDeleteOrderId(id);
               }}
             />
           </>
@@ -172,15 +185,93 @@ const OrdersList = ({ dataSource, status }) => {
     },
   ];
 
+  const handleUpdateStatus = useMutation(
+    (value) =>
+      updateOrderStatus({ orderId: activeOrder.orderId, status: value }),
+    {
+      onSuccess: (data) => {
+        setActiveOrder((prev) => ({ ...prev, orderStatus: data.status }));
+        refetchOrders();
+      },
+      onError: (error) => {
+        notification.open({
+          className: "bg-red-500 text-white",
+          message: (
+            <div className="text-white">{error?.response?.data?.message}</div>
+          ),
+          description: error?.response?.data?.errors?.status
+            ?.join(". ")
+            ?.toString(),
+        });
+      },
+    }
+  );
+
+  const rowSelection = {
+    selectedRowKeys: checkedRows,
+    selections: [
+      Table.SELECTION_ALL,
+      Table.SELECTION_NONE,
+      {
+        key: "without_progress",
+        text: " Select without progress",
+
+        onSelect: (rowKeys) => {
+          setCheckedRows(
+            rowKeys.filter(
+              (key) =>
+                dataSource?.find((item) => item.id === key)?.status !==
+                IN_PROCESS
+            )
+          );
+        },
+      },
+    ],
+
+    onChange: (selectedRowKeys, selectedRows) => {
+      setCheckedRows(selectedRows.map((item) => item.id));
+    },
+    onSelect: (record, selected, selectedRows) => {},
+    onSelectAll: (selected, selectedRows, changeRows) => {},
+  };
+
+  const handleDeleteBulk = useMutation(() => deleteBulkOrders(checkedRows), {
+    onSuccess: (data) => {
+      if (checkedRows.length) openSuccessNotification("Orders Deleted");
+      refetchOrders();
+    },
+    onError: (error) => {
+      openErrorNotification(error);
+    },
+  });
+
+  const bulkMenu = (
+    <Menu
+      items={[
+        {
+          key: "1",
+          label: <div onClick={() => handleDeleteBulk.mutate()}>Delete</div>,
+        },
+      ]}
+    />
+  );
+
   return (
     <div className="">
       <div className="mb-4 flex justify-between">
-        <Button className="flex items-center" type="primary" ghost>
+        <Button
+          className="flex items-center"
+          type="primary"
+          ghost
+          onClick={() => {
+            setIsCreateOrderOpen((prev) => !prev);
+          }}
+        >
           Create New Order
         </Button>
 
         <div>
-          <Dropdown overlay={menu}>
+          <Dropdown overlay={bulkMenu}>
             <Button className="bg-white" type="default">
               <Space>Bulk Actions</Space>
             </Button>
@@ -201,7 +292,7 @@ const OrdersList = ({ dataSource, status }) => {
       {status === "success" && (
         <Table
           columns={columns}
-          dataSource={dataSource}
+          dataSource={dataSource?.map((item) => ({ ...item, key: item.id }))}
           rowSelection={{ ...rowSelection }}
         />
       )}
@@ -209,18 +300,45 @@ const OrdersList = ({ dataSource, status }) => {
       <OrderModal
         closeModal={() => setIsOrderModalOpen(false)}
         isOpen={isOrderModalOpen}
+        orderId={activeOrder.orderId}
+        orderedAt={
+          dataSource?.find((order) => order.id === activeOrder.orderId)
+            ?.created_at
+        }
+        refetchOrders={refetchOrders}
         title={
           <>
             Order #{activeOrder.orderId}
-            <Tag
-              className="mx-4"
-              color={getTagColor(activeOrder.deliveryStatus)}
+            <Select
+              className="mx-5"
+              disabled={handleUpdateStatus.status === "loading"}
+              placeholder="Select Order Status"
+              value={activeOrder.orderStatus}
+              showSearch
+              onChange={(value) => handleUpdateStatus.mutate(value)}
             >
-              {activeOrder.deliveryStatus?.toUpperCase()}
-            </Tag>
+              <Select.Option value="in_process">In Process</Select.Option>
+              <Select.Option value="cancelled">Cancelled</Select.Option>
+              <Select.Option value="delivered">Delivered</Select.Option>
+            </Select>
+            {handleUpdateStatus.status === "loading" && <Spin size="small" />}
           </>
         }
         width={1000}
+      />
+
+      <CreateOrder
+        closeModal={() => setIsCreateOrderOpen(false)}
+        isOpen={isCreateOrderOpen}
+        title="Create Order"
+      />
+
+      <DeleteOrder
+        closeModal={() => setIsDeleteOrderOpen(false)}
+        isOpen={isDeleteOrderOpen}
+        orderId={deleteOrderId}
+        refetchOrders={refetchOrders}
+        title={"Order #" + deleteOrderId}
       />
     </div>
   );

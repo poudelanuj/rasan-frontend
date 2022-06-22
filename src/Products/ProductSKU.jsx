@@ -78,9 +78,9 @@ function ProductSKU() {
               <div className="flex justify-start relative">
                 <div className="w-[100px] h-[150px]">
                   <img
-                    src={productSKU?.product_sku_image?.full_size}
                     alt="product"
                     className="w-[100%] h-[100%] object-cover"
+                    src={productSKU?.product_sku_image?.full_size}
                   />
                 </div>
                 <div className="grid grid-cols-2 ml-5 gap-y-0 gap-x-5 items-center">
@@ -107,8 +107,8 @@ function ProductSKU() {
                 </div>
                 <div className="absolute top-0 right-0">
                   <Link
-                    to={"edit"}
                     className="text-[#00A0B0] hover:bg-[#d4e4e6] py-2 px-6"
+                    to={"edit"}
                   >
                     <EditOutlined style={{ verticalAlign: "middle" }} /> Edit
                     Details

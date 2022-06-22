@@ -103,3 +103,14 @@ export const deleteUser = async ({ phone }) => {
   });
   return response.data;
 };
+
+export const getEndUser = async () => {
+  const response = await myaxios.get("/api/profile/");
+  return response.data.data;
+};
+export const unVerifyUser = async ({ key }) => {
+  const response = await myaxios.delete(
+    `/api/profile/admin/verify-user/` + key + "/"
+  );
+  return response.data;
+};

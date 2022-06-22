@@ -7,7 +7,7 @@ import OrdersList from "./OrdersList";
 const Orders = () => {
   const { TabPane } = Tabs;
 
-  const { data, status } = useQuery({
+  const { data, status, isRefetching, refetch } = useQuery({
     queryFn: getOrders,
     queryKey: "getOrdersList",
   });
@@ -17,24 +17,31 @@ const Orders = () => {
       <div className="text-2xl my-4">Orders</div>
       <Tabs defaultActiveKey="all">
         <TabPane key="all" tab="All">
-          <OrdersList dataSource={data} status={status} />
+          <OrdersList
+            dataSource={data}
+            refetchOrders={refetch}
+            status={isRefetching ? "loading" : status}
+          />
         </TabPane>
         <TabPane key="inProcess" tab="In Progress">
           <OrdersList
             dataSource={data?.filter((order) => order.status === "in_process")}
-            status={status}
+            refetchOrders={refetch}
+            status={isRefetching ? "loading" : status}
           />
         </TabPane>
         <TabPane key="delivered" tab="Delivered">
           <OrdersList
             dataSource={data?.filter((order) => order.status === "delivered")}
-            status={status}
+            refetchOrders={refetch}
+            status={isRefetching ? "loading" : status}
           />
         </TabPane>
         <TabPane key="cancelled" tab="Cancelled">
           <OrdersList
             dataSource={data?.filter((order) => order.status === "cancelled")}
-            status={status}
+            refetchOrders={refetch}
+            status={isRefetching ? "loading" : status}
           />
         </TabPane>
       </Tabs>

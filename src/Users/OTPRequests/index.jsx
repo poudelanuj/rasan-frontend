@@ -36,6 +36,8 @@ const OTPRequests = () => {
   // }, [otpList]);
   return (
     <>
+      {" "}
+      <div className="text-3xl bg-white mb-3 p-5">OTP List</div>
       {otpList && (
         <Table
           // onRow={(record) => {

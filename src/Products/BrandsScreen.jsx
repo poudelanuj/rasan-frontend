@@ -38,32 +38,17 @@ function BrandsScreen() {
   const queryClient = useQueryClient();
   const { slug } = useParams();
 
-  const {
-    mutate: publishCategoryMutate,
-    isLoading: publishCategoryIsLoading,
-    isError: publishCategoryIsError,
-    error: publishCategoryError,
-  } = useMutation(publishBrand, {
+  const { mutate: publishCategoryMutate } = useMutation(publishBrand, {
     onSuccess: (data) => {
       queryClient.invalidateQueries("get-brands");
     },
   });
-  const {
-    mutate: unpublishCategoryMutate,
-    isLoading: unpublishCategoryIsLoading,
-    isError: unpublishCategoryIsError,
-    error: unpublishCategoryError,
-  } = useMutation(unpublishBrand, {
+  const { mutate: unpublishCategoryMutate } = useMutation(unpublishBrand, {
     onSuccess: (data) => {
       queryClient.invalidateQueries("get-brands");
     },
   });
-  const {
-    mutate: deleteMutate,
-    isLoading: deleteCategoryIsLoading,
-    isError: deleteCategoryIsError,
-    error: deleteCategoryError,
-  } = useMutation(deleteBrand, {
+  const { mutate: deleteMutate } = useMutation(deleteBrand, {
     onSuccess: (data) => {
       queryClient.invalidateQueries("get-brands");
     },
@@ -78,38 +63,27 @@ function BrandsScreen() {
   }
 
   const paginate = async (page) => {
-    console.log(page);
     setCurrentPage(page);
   };
 
   const brands = data?.data?.data?.results;
-  console.log(data);
 
   const handleBulkPublish = () => {
-    console.log("bluk publishing");
-    console.log(selectedBrands);
     selectedBrands.forEach(async (category) => {
-      console.log("Publishing", category.slug);
       publishCategoryMutate({ slug: category.slug });
       message.success(`${category.name} published`);
     });
     setSelectedBrands([]);
   };
   const handleBulkUnpublish = () => {
-    console.log("bluk unpublishing");
-    console.log(selectedBrands);
     selectedBrands.forEach(async (category) => {
-      console.log("unublishing", category.slug);
       unpublishCategoryMutate({ slug: category.slug });
       message.success(`${category.name} unpublished`);
     });
     setSelectedBrands([]);
   };
   const handleBulkDelete = () => {
-    console.log("bluk deleting");
-    console.log(selectedBrands);
     selectedBrands.forEach((category) => {
-      console.log("deleting", category.slug);
       deleteMutate({ slug: category.slug });
       message.success(`${category.name} deleted`);
     });
@@ -117,7 +91,6 @@ function BrandsScreen() {
   };
 
   const handleBulkAction = (event) => {
-    console.log(event);
     const action = event;
     switch (action) {
       case "publish":

@@ -6,12 +6,11 @@ function ProductCategory({
   selectedCategories,
   setSelectedCategories,
 }) {
-  // console.log(categories);
   return (
     <>
       {categories.map((category, index) => (
         <CategoryWidget
-          key={index}
+          key={category.id}
           completeLink={`/category-list/${category.slug}`}
           editLink={`/category-list/edit/${category.slug}`}
           id={category.sn}
@@ -22,10 +21,10 @@ function ProductCategory({
             category.category_image.thumbnail ||
             "https://fisnikde.com/wp-content/uploads/2019/01/broken-image.png"
           }
-          slug={category.slug}
-          title={category.name}
           selectedCategories={selectedCategories}
           setSelectedCategories={setSelectedCategories}
+          slug={category.slug}
+          title={category.name}
         />
       ))}
     </>

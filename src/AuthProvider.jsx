@@ -11,7 +11,11 @@ export default function AuthProvider({ children }) {
     setUser(loggedInOrNot());
     callback();
   };
-  let value = { user, loginFinalise };
+  const logout = () => {
+    localStorage.removeItem("auth_token");
+    setUser(loggedInOrNot());
+  };
+  let value = { user, loginFinalise, logout };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

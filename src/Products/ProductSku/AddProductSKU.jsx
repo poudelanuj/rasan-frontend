@@ -411,8 +411,9 @@ function AddProductSKU({ alert, setAlert }) {
                 </label>
                 <select
                   className=" bg-[#FFFFFF] border-[1px] border-[#D9D9D9] rounded-[2px] p-[8px_12px]"
-                  value={formState.category}
                   id="category"
+                  multiple={true}
+                  value={formState.category}
                   onChange={(e) => {
                     let options = e.target.options;
                     let value = [];
@@ -424,7 +425,6 @@ function AddProductSKU({ alert, setAlert }) {
                     console.log(formState);
                     return setFormState({ ...formState, category: value });
                   }}
-                  multiple={true}
                 >
                   <option value="">Select Category</option>
                   {optionsData.categories.map((category) => (
@@ -441,8 +441,9 @@ function AddProductSKU({ alert, setAlert }) {
                 </label>
                 <select
                   className=" bg-[#FFFFFF] border-[1px] border-[#D9D9D9] rounded-[2px] p-[8px_12px]"
-                  value={formState.product_group}
                   id="product_group"
+                  multiple={true}
+                  value={formState.product_group}
                   onChange={(e) => {
                     let options = e.target.options;
                     let value = [];
@@ -453,7 +454,6 @@ function AddProductSKU({ alert, setAlert }) {
                     }
                     return setFormState({ ...formState, product_group: value });
                   }}
-                  multiple={true}
                 >
                   <option value="">Select Product Group</option>
                   {optionsData.productGroups.map((productGroup) => (
@@ -470,8 +470,8 @@ function AddProductSKU({ alert, setAlert }) {
                 </label>
                 <select
                   className=" bg-[#FFFFFF] border-[1px] border-[#D9D9D9] rounded-[2px] p-[8px_12px]"
-                  value={formState.brand}
                   id="brand"
+                  value={formState.brand}
                   onChange={(e) =>
                     setFormState({ ...formState, brand: e.target.value })
                   }
@@ -490,8 +490,8 @@ function AddProductSKU({ alert, setAlert }) {
                 </label>
                 <select
                   className=" bg-[#FFFFFF] border-[1px] border-[#D9D9D9] rounded-[2px] p-[8px_12px]"
-                  value={formState.product}
                   id="product"
+                  value={formState.product}
                   onChange={(e) =>
                     setFormState({
                       ...formState,
@@ -514,8 +514,8 @@ function AddProductSKU({ alert, setAlert }) {
                 </label>
                 <select
                   className=" bg-[#FFFFFF] border-[1px] border-[#D9D9D9] rounded-[2px] p-[8px_12px]"
-                  value={formState.loyalty_policy}
                   id="loyalty_policy"
+                  value={formState.loyalty_policy}
                   onChange={(e) =>
                     setFormState({
                       ...formState,
@@ -534,8 +534,8 @@ function AddProductSKU({ alert, setAlert }) {
               </div>
               <div className="flex items-center">
                 <input
-                  type="checkbox"
                   id="includes_vat"
+                  type="checkbox"
                   value={formState.includes_vat}
                   onChange={(e) =>
                     setFormState({ ...formState, includes_vat: e.target.value })

@@ -1,32 +1,32 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { ReactQueryDevtools } from "react-query/devtools";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import App from "./App";
+import AuthProvider from "./AuthProvider";
 import CRM from "./CRM";
 import Dashboard from "./Dashboard";
 import "./index.css";
 import LiveUserBasket from "./LiveUserBasket";
-import LoginApp from "./Login/LoginApp";
+import LoginRasan from "./LoginRasan";
 import Orders from "./Orders";
 import CategoryList from "./Products";
-import UserGroups from "./UserGroups";
-import Users from "./Users";
-import User from "./Users/User";
-import { ReactQueryDevtools } from "react-query/devtools";
-import OTPRequests from "./Users/OTPRequests";
-import Category from "./Products/Category";
-import BrandsScreen from "./Products/BrandsScreen";
-import ProductGroupsScreen from "./Products/ProductGroupsScreen";
-import ProductListScreen from "./Products/ProductListScreen";
-import ProductSkuScreen from "./Products/ProductSkuScreen";
 import Brands from "./Products/Brands";
-import ProductSKU from "./Products/ProductSKU";
-import RequireAuth from "./RequireAuth";
-import LoginRasan from "./LoginRasan";
-import AuthProvider from "./AuthProvider";
+import BrandsScreen from "./Products/BrandsScreen";
+import Category from "./Products/Category";
 import ViewProductGroup from "./Products/Product Groups/ViewProductGroup";
+import ProductGroupsScreen from "./Products/ProductGroupsScreen";
 import ViewProductList from "./Products/ProductList/ViewProductList";
+import ProductListScreen from "./Products/ProductListScreen";
+import ProductSKU from "./Products/ProductSKU";
+import ProductSkuScreen from "./Products/ProductSkuScreen";
+import RequireAuth from "./RequireAuth";
+import UserGroups from "./UserGroups";
+import UserGroupPage from "./UserGroups/UserGroupPage";
+import Users from "./Users";
+import OTPRequests from "./Users/OTPRequests";
+import User from "./Users/User";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const queryClient = new QueryClient();
@@ -104,6 +104,8 @@ root.render(
               <Route element={<User />} path="user/:user_id" />
               <Route element={<OTPRequests />} path="otp-requests" />
               <Route element={<UserGroups />} path="user-groups" />
+              <Route element={<UserGroupPage />} path="user-group/:group_id" />
+
               <Route element={<LiveUserBasket />} path="live-user-basket" />
               <Route element={<CRM />} path="crm" />
             </Route>
