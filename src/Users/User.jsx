@@ -12,11 +12,10 @@ import UserTab from "./UserTab";
 
 const User = () => {
   let { user_id } = useParams();
-  const {
-    data: user,
-    isLoading,
-    isSuccess,
-  } = useQuery(["get-user", user_id], async () => getUser(user_id));
+  const { data: user, isLoading, isSuccess } = useQuery(
+    ["get-user", user_id],
+    async () => getUser(user_id)
+  );
   const phone = user?.phone;
   const { data: lastLoggedInFetch } = useQuery(
     ["get-meta", user_id],
