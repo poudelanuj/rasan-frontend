@@ -62,3 +62,28 @@ export const addOrderItem = async (orderId, data) => {
   );
   return res.data;
 };
+
+export const getAllBaskets = async () => {
+  const res = await axios.get("/api/order/admin/baskets");
+  return res.data.data.results;
+};
+
+export const getBasketInfo = async (basketId) => {
+  const res = await axios.get(`/api/order/admin/basket/${basketId}`);
+  return res.data.data;
+};
+
+export const getUserInfo = async (userId) => {
+  const res = await axios.get(`/api/profile/admin/user-profile/${userId}/`);
+  return res.data.data;
+};
+
+export const addBasketItem = async (data) => {
+  const res = await axios.post("/api/order/admin/basket-items/", data);
+  return res.data;
+};
+
+export const deleteBasketItem = async (itemId) => {
+  const res = await axios.delete(`/api/order/admin/basket-item/${itemId}/`);
+  return res.data;
+};

@@ -58,13 +58,15 @@ function EditBrand({ slug, alert, setAlert }) {
       },
     }
   );
-  const { mutate: publishBrandMutate, isLoading: publishBrandIsLoading } =
-    useMutation(publishBrand, {
-      onSuccess: (data) => {
-        queryClient.invalidateQueries("get-brands");
-        navigate("/brands");
-      },
-    });
+  const {
+    mutate: publishBrandMutate,
+    isLoading: publishBrandIsLoading,
+  } = useMutation(publishBrand, {
+    onSuccess: (data) => {
+      queryClient.invalidateQueries("get-brands");
+      navigate("/brands");
+    },
+  });
   const { mutate: unpublishBrandMutate } = useMutation(unpublishBrand, {
     onSuccess: (data) => {
       queryClient.invalidateQueries("get-brands");
@@ -266,7 +268,8 @@ function EditBrand({ slug, alert, setAlert }) {
                   onClick={() =>
                     showAlert({
                       title: "Are you sure to Unpublish?",
-                      text: "Unpublishing this brand would make it invisible to the public!",
+                      text:
+                        "Unpublishing this brand would make it invisible to the public!",
                       primaryButton: "Unpublish",
                       secondaryButton: "Cancel",
                       type: "warning",
@@ -284,7 +287,8 @@ function EditBrand({ slug, alert, setAlert }) {
                   onClick={() =>
                     showAlert({
                       title: "Are you sure to Publish?",
-                      text: "Publishing this brand would make it visible to the public!",
+                      text:
+                        "Publishing this brand would make it visible to the public!",
                       primaryButton: "Publish",
                       secondaryButton: "Cancel",
                       type: "info",

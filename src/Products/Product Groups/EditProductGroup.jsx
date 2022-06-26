@@ -272,7 +272,8 @@ function EditProductGroup({ alert, setAlert }) {
                 onClick={async () =>
                   showAlert({
                     title: "Are you sure to Unpublish?",
-                    text: "Unpublishing will make this product group unavailable to users",
+                    text:
+                      "Unpublishing will make this product group unavailable to users",
                     primaryButton: "Unpublish",
                     secondaryButton: "Cancel",
                     type: "warning",
@@ -293,7 +294,8 @@ function EditProductGroup({ alert, setAlert }) {
                 onClick={async () =>
                   showAlert({
                     title: "Are you sure to Publish?",
-                    text: "Publishing this category would save it and make it visible to the public!",
+                    text:
+                      "Publishing this category would save it and make it visible to the public!",
                     primaryButton: "Publish",
                     secondaryButton: "Cancel",
                     type: "info",

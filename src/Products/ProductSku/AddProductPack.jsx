@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { UploadOutlined, LoadingOutlined } from "@ant-design/icons";
+import { LoadingOutlined } from "@ant-design/icons";
 
 import {
   getProductSKUs,
@@ -41,7 +41,6 @@ function AddProductPack({ alert, setAlert }) {
       queryClient.invalidateQueries(["get-product-sku", slug]);
     },
     onError: (data) => {
-      console.log(data);
       message.error(
         data.message || "Some error occurred, check console for more!"
       );
@@ -63,7 +62,6 @@ function AddProductPack({ alert, setAlert }) {
       });
     },
     onError: (data) => {
-      console.log(data);
       message.error(
         data.message || "Some error occurred, check console for more!"
       );

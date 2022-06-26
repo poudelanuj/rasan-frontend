@@ -1,79 +1,61 @@
-import { Button, Form, Input, Modal, Select, Space, Spin, Table } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
-import { useMutation } from "react-query";
-import { useQuery } from "react-query";
-import moment from "moment";
+import { Button, Form, Input, Modal, Select, Space, Spin, Table } from "antd";
+import { useState } from "react";
+import { useMutation, useQuery } from "react-query";
 import {
-  addOrderItem,
-  deleteOrderItem,
-  getOrder,
+  addBasketItem,
+  deleteBasketItem,
+  getBasketInfo,
   getProductSkus,
-} from "../../context/OrdersContext";
+  getUserInfo,
+} from "../context/OrdersContext";
 import {
   openErrorNotification,
   openSuccessNotification,
-} from "../../utils/openNotification";
-import { useState } from "react";
+} from "../utils/openNotification";
 
-const OrderModal = ({
-  isOpen,
-  closeModal,
-  width,
-  title,
-  orderId,
-  orderedAt,
-  refetchOrders,
-}) => {
+const BasketModal = ({ isModalOpen, onClose, basket }) => {
+  const { user, basket_id } = basket;
+
+  // *********** FORM ************ //
   const [selectedProductSku, setSelectedSku] = useState();
   const [selectedProductPack, setSelectedPack] = useState();
   const [quantity, setQuantity] = useState(1);
 
-  const { data, status, refetch: refetchOrderItems, isRefetching } = useQuery({
-    queryFn: () => getOrder(orderId),
-    queryKey: ["getOrder", orderId],
-    enabled: !!orderId,
+  const { data: userData, status: userStatus } = useQuery({
+    queryFn: () => getUserInfo(user),
+    queryKey: ["getUserInfo", user],
+    enabled: !!user,
   });
 
-  const { data: productSkus, status: productsStatus } = useQuery({
-    queryFn: () => getProductSkus(),
-    queryKey: ["getProductSkus"],
+  const {
+    data: basketData,
+    refetch: refetchBasketItems,
+    isRefetching: isBasketItemsRefetching,
+  } = useQuery({
+    queryFn: () => getBasketInfo(basket_id),
+    queryKey: ["getBasketInfo", basket_id],
+    enabled: !!basket_id,
   });
 
-  const handleAddItem = useMutation(
-    () =>
-      addOrderItem(orderId, {
-        product_pack: selectedProductPack.id,
-        number_of_packs: quantity,
-      }),
-    {
-      onSuccess: (data) => {
-        openSuccessNotification(data.message || "Item Added");
-      },
-      onError: (error) => {
-        openErrorNotification(error);
-      },
-      onSettled: () => {
-        refetchOrderItems();
-        refetchOrders();
-        setSelectedPack(null);
-      },
-    }
-  );
+  const dataSource = basketData?.items?.map(
+    ({ id, number_of_packs, product_pack, product_sku }) => {
+      const productPack = product_sku.product_packs.find(
+        (item) => item.id === product_pack
+      );
 
-  const dataSource = data?.items?.map(
-    ({ id, number_of_packs, product_pack }) => {
-      const pricePerPiece = product_pack?.price_per_piece;
+      const pricePerPiece = productPack?.price_per_piece;
 
       const numberOfPacks = number_of_packs;
-      const numberOfItemsPerPack = product_pack?.number_of_items;
+      const numberOfItemsPerPack = productPack?.number_of_items;
       const cashbackPerPack =
-        product_pack?.loyalty_cashback?.cashback_amount_per_pack;
+        productPack?.loyalty_cashback?.cashback_amount_per_pack;
       const loyaltyPointsPerPack =
-        product_pack?.loyalty_cashback?.loyalty_points_per_pack;
+        productPack?.loyalty_cashback?.loyalty_points_per_pack;
 
       return {
         id,
-        productName: product_pack?.product_sku?.name,
+        productName: product_sku?.name,
         quantity: numberOfPacks,
         packSize: numberOfItemsPerPack,
         price: pricePerPiece,
@@ -84,21 +66,18 @@ const OrderModal = ({
     }
   );
 
-  const handleItemDelete = useMutation(
-    (itemId) => deleteOrderItem(orderId, itemId),
-    {
-      onSuccess: (data) => {
-        openSuccessNotification(data.message || "Item Deleted");
-      },
-      onSettled: () => {
-        refetchOrderItems();
-        refetchOrders();
-      },
-      onError: (error) => {
-        openErrorNotification(error);
-      },
-    }
-  );
+  // *********** FORM ************ //
+  const handleItemDelete = useMutation((itemId) => deleteBasketItem(itemId), {
+    onSuccess: (data) => {
+      openSuccessNotification(data.message || "Item Deleted");
+    },
+    onSettled: () => {
+      refetchBasketItems();
+    },
+    onError: (error) => {
+      openErrorNotification(error);
+    },
+  });
 
   const columns = [
     {
@@ -154,6 +133,35 @@ const OrderModal = ({
     },
   ];
 
+  // *********** FORM ************ //
+  const { data: productSkus, status: productsStatus } = useQuery({
+    queryFn: () => getProductSkus(),
+    queryKey: ["getProductSkus"],
+  });
+
+  // *********** FORM ************ //
+  const handleAddItem = useMutation(
+    () =>
+      addBasketItem({
+        product_pack: selectedProductPack.id,
+        number_of_packs: quantity,
+        basket: basket_id,
+      }),
+    {
+      onSuccess: (data) => {
+        openSuccessNotification(data.message || "Item Added");
+      },
+      onError: (error) => {
+        openErrorNotification(error);
+      },
+      onSettled: () => {
+        refetchBasketItems();
+        setSelectedPack(null);
+      },
+    }
+  );
+
+  // *********** FORM ************ //
   const getTotalAmount = () => {
     return (
       selectedProductPack?.price_per_piece *
@@ -164,21 +172,26 @@ const OrderModal = ({
 
   return (
     <Modal
-      footer={false}
-      title={title}
-      visible={isOpen}
-      width={width}
-      onCancel={closeModal}
+      footer={[
+        <Button key="1" className="bg-blue-500" size="large" type="primary">
+          Create Order From Basket
+        </Button>,
+      ]}
+      title={
+        <>
+          {userStatus === "loading" && <Spin size="small" />}
+          {userStatus === "success" &&
+            `${userData?.full_name || ""} ${userData?.phone || ""}`}
+        </>
+      }
+      visible={isModalOpen}
+      width={1000}
+      centered
+      onCancel={onClose}
     >
-      <div className="text-gray-500 mb-4">{moment(orderedAt).format("ll")}</div>
+      {isBasketItemsRefetching && <Spin className="mb-8 flex justify-center" />}
 
-      {(isRefetching || status === "loading") && (
-        <div className="py-8 flex justify-center">
-          <Spin />
-        </div>
-      )}
-
-      {!isRefetching && status === "success" && (
+      {!isBasketItemsRefetching && (
         <Table columns={columns} dataSource={dataSource || []} />
       )}
 
@@ -313,4 +326,4 @@ const OrderModal = ({
   );
 };
 
-export default OrderModal;
+export default BasketModal;
