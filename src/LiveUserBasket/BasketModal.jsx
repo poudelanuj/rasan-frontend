@@ -9,6 +9,7 @@ import {
   getProductSkus,
   getUserInfo,
 } from "../context/OrdersContext";
+import CreateOrder from "../Orders/components/CreateOrder";
 import {
   openErrorNotification,
   openSuccessNotification,
@@ -16,6 +17,8 @@ import {
 
 const BasketModal = ({ isModalOpen, onClose, basket }) => {
   const { user, basket_id } = basket;
+
+  const [openCreateOrder, setOpenCreateOrder] = useState(false);
 
   // *********** FORM ************ //
   const [selectedProductSku, setSelectedSku] = useState();
@@ -173,7 +176,13 @@ const BasketModal = ({ isModalOpen, onClose, basket }) => {
   return (
     <Modal
       footer={[
-        <Button key="1" className="bg-blue-500" size="large" type="primary">
+        <Button
+          key="1"
+          className="bg-blue-500"
+          size="large"
+          type="primary"
+          onClick={() => setOpenCreateOrder((prev) => !prev)}
+        >
           Create Order From Basket
         </Button>,
       ]}
@@ -321,6 +330,16 @@ const BasketModal = ({ isModalOpen, onClose, basket }) => {
             </Form.Item>
           </Space>
         </Form>
+      )}
+
+      {openCreateOrder && (
+        <CreateOrder
+          closeModal={() => setOpenCreateOrder(false)}
+          isFromLiveUserBasket={true}
+          isOpen={openCreateOrder}
+          title="Create Order"
+          userId={user}
+        />
       )}
     </Modal>
   );
