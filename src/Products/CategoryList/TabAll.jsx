@@ -3,25 +3,29 @@ import { useNavigate } from "react-router-dom";
 
 import { Table, Select } from "antd";
 import AddCategoryButton from "../subComponents/AddCategoryButton";
-import { getCategoryEndUser } from "../../context/CategoryContext";
+import { getProductsFromCategory } from "../../context/CategoryContext";
 import { useQuery } from "react-query";
 
-import { parseSlug } from "../../utility";
+import { getDate, parseSlug, parseArray } from "../../utility";
 
 const { Option } = Select;
 
 const columns = [
+  {
+    title: "S.No.",
+    dataIndex: "sn",
+  },
   {
     title: "Product Image",
     // dataIndex: 'key',
     render: (text, record) => {
       return (
         <div className="h-[80px]">
-          {record.product_sku_image.full_size && (
+          {record.product_image.full_size && (
             <img
               alt={"text"}
               className="inline pr-4 h-[100%]"
-              src={record.product_sku_image.full_size}
+              src={record.product_image.full_size}
             />
           )}
         </div>
@@ -35,23 +39,19 @@ const columns = [
     // sorter: (a, b) => a.name.length - b.name.length,
   },
   {
-    title: "Name in Nepali",
-    dataIndex: "name_np",
+    title: "Slug",
+    dataIndex: "slug",
   },
-  // {
-  //   title: "Product Price",
-  //   dataIndex: "price_per_piece",
-  //   defaultSortOrder: "descend",
-  //   // sorter: (a, b) => a.address.length - b.address.length,
-  // },
   {
     title: "Category",
     render: (text, record) => {
       return (
         <div className="capitalize">
-          {record.category.map((category, index) => {
-            return parseSlug(category);
-          })}
+          {record.category.length > 0 ? (
+            parseArray(record.category)
+          ) : (
+            <div className="text-center">-</div>
+          )}
         </div>
       );
     },
@@ -59,31 +59,95 @@ const columns = [
   {
     title: "Brand",
     render: (text, record) => {
-      return <div className="capitalize">{parseSlug(record.brand)}</div>;
+      return record.brand.length > 0 ? (
+        <div className="capitalize">{parseSlug(record.brand)}</div>
+      ) : (
+        <div className="text-center">-</div>
+      );
+    },
+  },
+  {
+    title: "Alternate Products",
+    render: (text, record) => {
+      return (
+        <div className="capitalize">
+          {record.alternate_products.length > 0 ? (
+            parseArray(record.alternate_products)
+          ) : (
+            <div className="text-center">-</div>
+          )}
+        </div>
+      );
+    },
+  },
+  {
+    title: "Supplementary Products",
+    render: (text, record) => {
+      return (
+        <div className="capitalize">
+          {record.supplementary_products.length > 0 ? (
+            parseArray(record.supplementary_products)
+          ) : (
+            <div className="text-center">-</div>
+          )}
+        </div>
+      );
+    },
+  },
+  {
+    title: "Includes VAT",
+    render: (text, record) => {
+      return (
+        <div
+          className={`text-center rounded-[36px] text-[14px] p-[2px_14px] ${
+            record.includes_vat
+              ? "bg-[#E4FEEF] text-[#0E9E49]"
+              : "bg-[#FFF8E1] text-[#FF8F00]"
+          }`}
+        >
+          {record.includes_vat ? "Yes" : "No"}
+        </div>
+      );
+    },
+  },
+  {
+    title: "Status",
+    render: (text, record) => {
+      return (
+        <div
+          className={`text-center rounded-[36px] text-[14px] p-[2px_14px] ${
+            record.is_published
+              ? "bg-[#E4FEEF] text-[#0E9E49]"
+              : "bg-[#FFF8E1] text-[#FF8F00]"
+          }`}
+        >
+          {record.is_published ? "Published" : "Unpublished"}
+        </div>
+      );
+    },
+  },
+  {
+    title: "Published At",
+    render: (text, record) => {
+      return (
+        <div className="text-center">
+          {record.published_at.length > 0 ? (
+            getDate(record.published_at)
+          ) : (
+            <div className="text-center">-</div>
+          )}
+        </div>
+      );
     },
   },
 ];
-// const data = [];
-
-// for (let i = 0; i < 46; i++) {
-//   data.push({
-//     key: i,
-//     name: `Rice ${i}`,
-//     productid: "12345",
-//     productPrice: "$10.00",
-//     productBrand: "Preety",
-//     productGroup: "Food",
-//     profile_picture:
-//       "https://images.unsplash.com/photo-1518791841217-8f162f1e1131?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60",
-//   });
-// }
 
 function TabAll({ slug }) {
   // const { slug } = useParams();
   const [entriesPerPage, setEntriesPerPage] = useState(4);
   const { data, isLoading, isError, error } = useQuery(
-    "get-category-enduser",
-    () => getCategoryEndUser({ slug })
+    "get-products-from-category",
+    () => getProductsFromCategory({ slug })
   );
 
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
@@ -140,7 +204,10 @@ function TabAll({ slug }) {
 <input type="text" placeholder="Search category..." className="w-full ml-1 placeholder:text-[#D9D9D9]" />
 </div> */}
         <div>
-          <AddCategoryButton linkText="Add Products" linkTo={`add`} />
+          <AddCategoryButton
+            linkText="Add Products"
+            linkTo={`/product-list/add`}
+          />
         </div>
       </div>
 
@@ -149,7 +216,7 @@ function TabAll({ slug }) {
         {isError ? error.message : null}
         <Table
           columns={columns}
-          dataSource={data?.data?.data?.product_skus.results}
+          dataSource={data?.data?.data?.products.results}
           footer={() => (
             <div className="absolute bottom-0 left-0 flex justify-start bg-white w-[100%]">
               <div className="">
@@ -175,13 +242,19 @@ function TabAll({ slug }) {
           )}
           pagination={{ pageSize: entriesPerPage }}
           rowSelection={rowSelection}
-          // onRow={(record) => {
-          //   // return {
-          //   //   onDoubleClick: (_) => {
-          //   //     navigate("/category-list/" + slug + "/" + record.key);
-          //   //   }, // double click row
-          //   // };
-          // }}
+          onRow={(record) => {
+            return {
+              onClick: (_) => {
+                navigate("/product-list/" + record.slug);
+              },
+              onMouseEnter: () => {
+                document.body.style.cursor = "pointer";
+              },
+              onMouseLeave: () => {
+                document.body.style.cursor = "default";
+              },
+            };
+          }}
         />
       </div>
 

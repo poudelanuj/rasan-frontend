@@ -56,4 +56,17 @@ function parseSlug(slug) {
   // for capitalizing first letter of each word, use css capitalization
 }
 
-export { loggedInOrNot, parseJwt, getDate, parseSlug };
+function parseArray(list) {
+  if (list.length > 0) {
+    return list.map((listitem, index) => {
+      if (list.length === index + 1) {
+        return parseSlug(listitem);
+      } else {
+        return parseSlug(listitem) + ", ";
+      }
+    });
+  }
+  return "";
+}
+
+export { loggedInOrNot, parseJwt, getDate, parseSlug, parseArray };

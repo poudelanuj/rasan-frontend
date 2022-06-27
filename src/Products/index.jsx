@@ -18,9 +18,13 @@ import SearchBox from "./subComponents/SearchBox";
 import Header from "./subComponents/Header";
 
 import { message, Pagination, Select } from "antd";
+import ClearSelection from "./subComponents/ClearSelection";
+import Loader from "./subComponents/Loader";
+import Notification from "./subComponents/Notification";
 const { Option } = Select;
 
 const CategoryList = () => {
+  const [entriesPerPage, setEntriesPerPage] = useState(20);
   const [alert, setAlert] = useState({
     show: false,
     title: "",
@@ -39,7 +43,12 @@ const CategoryList = () => {
   const { slug } = useParams();
   const { data, isLoading, isError, error } = useQuery(
     ["get-categories", currentPage],
-    () => getCategories({ currentPage })
+    () => getCategories({ currentPage }),
+    {
+      onError: (err) => {
+        console.log(err);
+      },
+    }
   );
   const { mutate: publishCategoryMutate } = useMutation(publishCategory, {
     onSuccess: (data) => {
@@ -155,6 +164,10 @@ const CategoryList = () => {
           <div className="flex justify-between mb-3">
             <SearchBox placeholder="Search Category..." />
             <div className="flex">
+              <ClearSelection
+                selectedCategories={selectedCategories}
+                setSelectedCategories={setSelectedCategories}
+              />
               <Select
                 style={{
                   width: 120,
@@ -170,8 +183,8 @@ const CategoryList = () => {
               <AddCategoryButton linkText="Add Category" linkTo="add" />
             </div>
           </div>
-          {isLoading && <div>Loading....</div>}
-          {isError && <div>Error: {error.message}</div>}
+          {isLoading && <Loader loadingText={"Loading Categories..."} />}
+          {isError && <Notification text={error.message} title="Error" />}
           {categories && (
             <>
               <div className="grid gap-8 grid-cols-[repeat(auto-fill,_minmax(200px,_1fr))]">
@@ -181,8 +194,26 @@ const CategoryList = () => {
                   setSelectedCategories={setSelectedCategories}
                 />
               </div>
+              <div className="flex justify-start bg-white w-[100%]">
+                <div className="">
+                  <span className="text-sm text-gray-600">
+                    Entries per page:{" "}
+                  </span>
+                  <Select
+                    defaultValue="20"
+                    style={{
+                      width: 120,
+                    }}
+                    onChange={(value) => setEntriesPerPage(value)}
+                  >
+                    <Option value={20}>20</Option>
+                    <Option value={50}>50</Option>
+                    <Option value={100}>100</Option>
+                  </Select>
+                </div>
+              </div>
               <Pagination
-                pageSize={20}
+                pageSize={entriesPerPage}
                 showTotal={(total) => `Total ${total} items`}
                 style={{
                   marginTop: "1rem",
