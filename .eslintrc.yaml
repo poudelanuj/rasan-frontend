@@ -88,3 +88,4 @@ rules:
         - "./src/setupTests.js"
         - "./src/test/**/*.jsx"
         - "./src/test/**/*.js"
+        - "./netlify/_redirects.js"
