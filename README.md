@@ -2,6 +2,14 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## How To Deploy
+
+### Manual Deploy to Netlify
+
+- run command `npm run build` to generate a production build
+- copy `_redirects` file to `'./build` folder
+- upload `build` folder manually to netlify
+
 ## Available Scripts
 
 In the project directory, you can run:
