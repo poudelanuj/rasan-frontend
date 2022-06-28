@@ -12,6 +12,11 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## Available Scripts
 
+### ENV Order
+
+- `npm start`: `.env.development` `.env`
+- `npm run build`: `env.production` `.env`
+
 In the project directory, you can run:
 
 ### `npm start`
