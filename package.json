@@ -23,8 +23,11 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint --fix",
+    "netlify-redirect:dev": "node netlify/_redirects.js --development",
+    "netlify-redirect:prod": "node netlify/_redirects.js --production",
     "start": "env-cmd -f .env.development react-scripts start",
-    "build": "env-cmd -f .env.production react-scripts build",
+    "build:dev": "env-cmd -f .env.development react-scripts build && npm run netlify-redirect:dev",
+    "build:prod": "env-cmd -f .env.production react-scripts build && npm run netlify-redirect:prod",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -48,6 +51,7 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.4.7",
+    "chalk": "^2.4.2",
     "env-cmd": "^10.1.0",
     "eslint-config-prettier": "^7.1.0",
     "eslint-plugin-prettier": "^4.0.0",
