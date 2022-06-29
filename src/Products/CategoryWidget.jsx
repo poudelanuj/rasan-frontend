@@ -105,8 +105,8 @@ function CategoryWidget({
         </>
       )}
       {is_published && (
-        <div className="absolute bottom-[0px] left-[0px] animate-categoryEditButton">
-          <EyeOutlined className="p-2 text-green-700" />
+        <div className="absolute bottom-[0px] left-[0px] animate-categoryEditButton max-w-[2.5rem] p-2">
+          <img src="/published.svg" alt="published" className="w-[100%]" />
         </div>
       )}
     </div>

@@ -44,11 +44,11 @@ const sidebarItems = [
     label: "Products",
     icon: <ShoppingOutlined />,
     children: [
-      { label: "Category List", key: "category-list" },
+      { label: "Categories", key: "category-list" },
       { label: "Brands", key: "brands" },
-      { label: "Product List", key: "product-list" },
-      { label: "Product Groups", key: "product-groups" },
-      { label: "Product SKU", key: "product-sku" },
+      { label: "Products", key: "product-list" },
+      { label: "Product SKUs", key: "product-sku" },
+      { label: "Rasan Choices", key: "product-groups" },
     ],
   },
   {

@@ -42,14 +42,6 @@ const columns = [
     // sorter: (a, b) => a.name.length - b.name.length,
   },
   {
-    title: "Name in Nepali",
-    dataIndex: "name_np",
-  },
-  {
-    title: "Slug",
-    dataIndex: "slug",
-  },
-  {
     title: "Quantity",
     dataIndex: "quantity",
   },

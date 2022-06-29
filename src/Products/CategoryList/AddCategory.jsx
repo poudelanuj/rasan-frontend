@@ -30,7 +30,14 @@ function AddCategory({ alert, setAlert }) {
       console.log(data.data.data.slug);
       navigate(`/category-list/edit/${data.data.data.slug}`);
     },
-    onError: (data) => {},
+    onError: (data) => {
+      console.log(data);
+      message.error(
+        data.response.data.errors.detail ||
+          data.message ||
+          "Something went wrong"
+      );
+    },
   });
 
   const closeAddCategories = () => {
@@ -50,10 +57,8 @@ function AddCategory({ alert, setAlert }) {
         form_data.append("category_image", formState.imageFile);
       }
       addCategoryMutate({ form_data });
-      return addCategoryResponseData?.data.data.slug;
     } else {
       message.error("Please fill all the fields");
-      return false;
     }
   };
   const props = {
@@ -176,7 +181,6 @@ function AddCategory({ alert, setAlert }) {
               type="button"
               onClick={async () => {
                 await handleSave();
-                return closeAddCategories();
               }}
             >
               Create

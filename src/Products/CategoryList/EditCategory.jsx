@@ -24,7 +24,7 @@ function EditCategory({ slug, alert, setAlert }) {
     imageFile: null,
   });
   const {
-    data,
+    data: categoryData,
     isLoading: getCategoryIsLoading,
     isError: getCategoryIsError,
     error: getCategoryError,
@@ -37,6 +37,15 @@ function EditCategory({ slug, alert, setAlert }) {
         is_published: data.data.data.is_published,
       });
     },
+    onError: (data) => {
+      console.log(data);
+      message.error(
+        data.response.data.errors.detail ||
+          data.response.data.errors.message ||
+          data.message ||
+          "Something went wrong"
+      );
+    },
   });
   const { mutate: deleteMutate, isLoading: deleteCategoryIsLoading } =
     useMutation(() => deleteCategory({ slug }), {
@@ -44,23 +53,66 @@ function EditCategory({ slug, alert, setAlert }) {
         message.success("Category deleted successfully");
         queryClient.invalidateQueries("get-categories");
       },
+      onError: (data) => {
+        console.log(data);
+        message.error(
+          data.response.data.errors.detail ||
+            data.response.data.errors.message ||
+            data.message ||
+            "Something went wrong"
+        );
+      },
     });
   const { mutate: updateMutate, isLoading: updateCategoryIsLoading } =
     useMutation(({ slug, form_data }) => updateCategory({ slug, form_data }), {
       onSuccess: (data) => {
         message.success("Category updated successfully");
+        console.log(data.data.data.slug);
         queryClient.invalidateQueries("get-categories");
+        queryClient.invalidateQueries(["get-category", slug]);
+        navigate(`/category-list/edit/${data.data.data.slug}`);
+      },
+      onError: (data) => {
+        console.log(data);
+        message.error(
+          data.response.data.errors.detail ||
+            data.response.data.errors.message ||
+            data.message ||
+            "Something went wrong"
+        );
       },
     });
   const { mutate: publishCategoryMutate, isLoading: publishCategoryIsLoading } =
     useMutation(publishCategory, {
       onSuccess: (data) => {
+        message.success("Category published successfully");
         queryClient.invalidateQueries("get-categories");
+        queryClient.invalidateQueries(["get-category", slug]);
+      },
+      onError: (data) => {
+        console.log(data);
+        message.error(
+          data.response.data.errors.detail ||
+            data.response.data.errors.message ||
+            data.message ||
+            "Something went wrong"
+        );
       },
     });
   const { mutate: unpublishCategoryMutate } = useMutation(unpublishCategory, {
     onSuccess: (data) => {
+      message.success("Category unpublished successfully");
       queryClient.invalidateQueries("get-categories");
+      queryClient.invalidateQueries(["get-category", slug]);
+    },
+    onError: (data) => {
+      console.log(data);
+      message.error(
+        data.response.data.errors.detail ||
+          data.response.data.errors.message ||
+          data.message ||
+          "Something went wrong"
+      );
     },
   });
   const navigate = useNavigate();
@@ -96,7 +148,7 @@ function EditCategory({ slug, alert, setAlert }) {
     handleSave();
   };
   const handleSave = async () => {
-    if (formState.name && formState.image && formState.name_np) {
+    if (formState.name && formState.name_np) {
       let form_data = new FormData();
       form_data.append("name", formState.name);
       form_data.append("name_np", formState.name_np);
@@ -104,30 +156,19 @@ function EditCategory({ slug, alert, setAlert }) {
         form_data.append("category_image", formState.imageFile);
       }
       updateMutate({ slug, form_data });
-      message.success("Category saved successfully!");
-      return true;
     } else {
       message.error("Please fill all the fields!");
-      return false;
     }
   };
   const handlePublish = async ({ slug }) => {
-    const isSaved = await handleSave();
-    if (isSaved) {
-      publishCategoryMutate({ slug });
-      closeEditCategories();
-      message.success("Category published successfully!");
-    }
+    publishCategoryMutate({ slug });
   };
   const handleUnpublish = async ({ slug }) => {
     unpublishCategoryMutate({ slug });
-    closeEditCategories();
-    message.success("Category unpublished successfully!");
   };
   const handleDelete = async ({ slug }) => {
     deleteMutate({ slug });
     closeEditCategories();
-    message.success("Category deleted successfully!");
   };
   const showAlert = ({
     title,
@@ -152,29 +193,30 @@ function EditCategory({ slug, alert, setAlert }) {
 
   return (
     <>
-      {getCategoryIsLoading && <LoadingOutlined />}
-      {getCategoryIsError && getCategoryError}
+      {getCategoryIsError && getCategoryError.message}
       <div
         className="fixed top-0 left-0 h-screen w-full bg-[#03022920] animate-popupopen"
         onClick={() => closeEditCategories()}
       ></div>
-      {data?.data?.data && (
+      {(getCategoryIsLoading ||
+        updateCategoryIsLoading ||
+        publishCategoryIsLoading ||
+        deleteCategoryIsLoading) && (
+        <div className="absolute top-0 right-0 bg-black/25 w-full h-full flex flex-col items-center justify-center z-50 animate-popupopen">
+          <LoadingOutlined style={{ color: "white", fontSize: "3rem" }} />
+          <span className="p-2 text-white">
+            {getCategoryIsLoading && "Getting category..."}
+            {deleteCategoryIsLoading && "Deleting..."}
+            {publishCategoryIsLoading && "Publishing..."}
+            {updateCategoryIsLoading && "Updating..."}
+          </span>
+        </div>
+      )}
+      {categoryData?.data?.data && (
         <div className="min-w-[36.25rem] min-h-[33.5rem] fixed z-[1] top-[50%] right-[50%] translate-x-[50%] translate-y-[-50%] bg-white rounded-[10px] flex flex-col p-8 shadow-[-14px_30px_20px_rgba(0,0,0,0.05)] overflow-hidden">
           <h2 className="text-3xl mb-3 text-[#192638] text-[2rem] font-medium capitalize">
             {"Edit " + parseSlug(slug) + " - Category"}
           </h2>
-          {(updateCategoryIsLoading ||
-            publishCategoryIsLoading ||
-            deleteCategoryIsLoading) && (
-            <div className="absolute top-0 right-0 bg-black/25 w-full h-full flex flex-col items-center justify-center z-50 animate-popupopen">
-              <LoadingOutlined style={{ color: "white", fontSize: "3rem" }} />
-              <span className="p-2 text-white">
-                {deleteCategoryIsLoading && "Deleting..."}
-                {publishCategoryIsLoading && "Publishing..."}
-                {updateCategoryIsLoading && "Updating..."}
-              </span>
-            </div>
-          )}
           <form
             className="flex flex-col justify-between flex-1"
             onSubmit={handleSubmit}
@@ -251,7 +293,7 @@ function EditCategory({ slug, alert, setAlert }) {
               >
                 Delete
               </button>
-              {data?.data?.data?.is_published ? (
+              {categoryData?.data?.data?.is_published ? (
                 <button
                   className="bg-[#FFF8E1] text-[#FF8F00] p-[8px_12px] ml-5 min-w-[5rem] rounded-[4px] border-[1px]   border-[#FFF8E1] hover:bg-[#f4eaca] transition-colors"
                   type="button"
@@ -290,7 +332,7 @@ function EditCategory({ slug, alert, setAlert }) {
               )}
               <button
                 className={`${
-                  data?.data?.data?.is_published
+                  categoryData?.data?.data?.is_published
                     ? "bg-[#00B0C2] text-white border-[#00B0C2] hover:bg-[#0091a1] "
                     : "text-[#00B0C2] bg-white border-[#00B0C2] hover:bg-[#effdff] "
                 }

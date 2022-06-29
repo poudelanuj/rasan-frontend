@@ -36,10 +36,6 @@ const columns = [
     // sorter: (a, b) => a.name.length - b.name.length,
   },
   {
-    title: "Name in Nepali",
-    dataIndex: "name_np",
-  },
-  {
     title: "Quantity",
     dataIndex: "quantity",
   },
@@ -93,16 +89,6 @@ const columns = [
       );
     },
   },
-  // {
-  //   title: "Published Date",
-  //   render: (text, record) => {
-  //     return (
-  //       <div className="text-center text-[14px] p-[2px_5px] text-[#0E9E49]">
-  //         {getDate(record.published_at)}
-  //       </div>
-  //     );
-  //   },
-  // },
   {
     title: "Status",
     // render jsx

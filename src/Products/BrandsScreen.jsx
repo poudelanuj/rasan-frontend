@@ -16,6 +16,8 @@ import SearchBox from "./subComponents/SearchBox";
 
 import { message, Pagination, Select } from "antd";
 import SimpleAlert from "./alerts/SimpleAlert";
+import ClearSelection from "./subComponents/ClearSelection";
+import Loader from "./subComponents/Loader";
 const { Option } = Select;
 
 function BrandsScreen() {
@@ -33,7 +35,9 @@ function BrandsScreen() {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedBrands, setSelectedBrands] = useState([]);
-  const { data } = useQuery("get-brands", () => getBrands({ currentPage }));
+  const { data, isLoading } = useQuery("get-brands", () =>
+    getBrands({ currentPage })
+  );
 
   const queryClient = useQueryClient();
   const { slug } = useParams();
@@ -51,6 +55,8 @@ function BrandsScreen() {
   const { mutate: deleteMutate } = useMutation(deleteBrand, {
     onSuccess: (data) => {
       queryClient.invalidateQueries("get-brands");
+      console.log(data, "hello");
+      message.success(data?.data?.message || "Brand deleted successfully");
     },
   });
 
@@ -85,7 +91,6 @@ function BrandsScreen() {
   const handleBulkDelete = () => {
     selectedBrands.forEach((category) => {
       deleteMutate({ slug: category.slug });
-      message.success(`${category.name} deleted`);
     });
     setSelectedBrands([]);
   };
@@ -96,8 +101,8 @@ function BrandsScreen() {
       case "publish":
         setAlert({
           show: true,
-          title: "Publish Selected Categories",
-          text: "Are you sure you want to publish selected categories?",
+          title: "Publish Selected Brands?",
+          text: "Are you sure you want to publish selected Brands?",
           type: "info",
           primaryButton: "Publish Selected",
           secondaryButton: "Cancel",
@@ -108,8 +113,8 @@ function BrandsScreen() {
       case "unpublish":
         setAlert({
           show: true,
-          title: "Unpublish Selected Categories",
-          text: "Are you sure you want to unpublish selected categories?",
+          title: "Unpublish Selected Brands?",
+          text: "Are you sure you want to unpublish selected Brands?",
           type: "warning",
           primaryButton: "Unpublish Selected",
           secondaryButton: "Cancel",
@@ -120,8 +125,8 @@ function BrandsScreen() {
       case "delete":
         setAlert({
           show: true,
-          title: "Delete Selected Categories",
-          text: "Are you sure you want to delete selected categories?",
+          title: "Delete Selected Brands?",
+          text: "Are you sure you want to delete selected Brands?",
           type: "danger",
           primaryButton: "Delete Selected",
           secondaryButton: "Cancel",
@@ -152,11 +157,15 @@ function BrandsScreen() {
       )}
       <div>
         <Header title="Brands" />
-        {/* {isLoading && <div>Loading....</div>} */}
+        {isLoading && <Loader loadingText={"Loading Brands..."} />}
         <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[75vh]">
           <div className="flex justify-between mb-3">
             <SearchBox placeholder="Search Brands..." />
             <div className="flex">
+              <ClearSelection
+                selectedCategories={selectedBrands}
+                setSelectedCategories={setSelectedBrands}
+              />
               <Select
                 style={{
                   width: 120,
@@ -180,6 +189,7 @@ function BrandsScreen() {
                   completeLink={`/brands/${brand.slug}`}
                   editLink={`/brands/edit/${brand.slug}`}
                   id={brand.sn}
+                  is_published={brand.is_published}
                   image={brand.brand_image.medium_square_crop}
                   imgClassName=""
                   selectedCategories={selectedBrands}

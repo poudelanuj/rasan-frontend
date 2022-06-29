@@ -39,10 +39,6 @@ const columns = [
     // sorter: (a, b) => a.name.length - b.name.length,
   },
   {
-    title: "Slug",
-    dataIndex: "slug",
-  },
-  {
     title: "Category",
     render: (text, record) => {
       return (

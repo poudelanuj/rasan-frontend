@@ -53,16 +53,21 @@ const CategoryList = () => {
   const { mutate: publishCategoryMutate } = useMutation(publishCategory, {
     onSuccess: (data) => {
       queryClient.invalidateQueries("get-categories");
+      message.success(data?.data?.message || "Category published successfully");
     },
   });
   const { mutate: unpublishCategoryMutate } = useMutation(unpublishCategory, {
     onSuccess: (data) => {
       queryClient.invalidateQueries("get-categories");
+      message.success(
+        data?.data?.message || "Category unpublished successfully"
+      );
     },
   });
   const { mutate: deleteMutate } = useMutation(deleteCategory, {
     onSuccess: (data) => {
       queryClient.invalidateQueries("get-categories");
+      message.success(data?.data?.message || "Category deleted successfully");
     },
   });
   const location = useLocation();
@@ -80,21 +85,18 @@ const CategoryList = () => {
   const handleBulkPublish = () => {
     selectedCategories.forEach(async (category) => {
       publishCategoryMutate({ slug: category.slug });
-      message.success(`${category.name} published`);
     });
     setSelectedCategories([]);
   };
   const handleBulkUnpublish = () => {
     selectedCategories.forEach(async (category) => {
       unpublishCategoryMutate({ slug: category.slug });
-      message.success(`${category.name} unpublished`);
     });
     setSelectedCategories([]);
   };
   const handleBulkDelete = () => {
     selectedCategories.forEach((category) => {
       deleteMutate({ slug: category.slug });
-      message.success(`${category.name} deleted`);
     });
     setSelectedCategories([]);
   };
