@@ -8,4 +8,4 @@ export { colors, siteInformation };
 
 export const IN_PROCESS = "in_process";
 export const CANCELLED = "cancelled";
-export const DELIVERED = "delivered";
+export const DELIVERED = "completed";

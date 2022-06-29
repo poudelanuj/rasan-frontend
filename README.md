@@ -4,11 +4,10 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## How To Deploy
 
-### Manual Deploy to Netlify
+### Steps to generate build
 
-- run command `npm run build` to generate a production build
-- copy `_redirects` file to `'./build` folder
-- upload `build` folder manually to netlify
+- development build: `npm run build:dev`
+- production build: `npm run build:prod`
 
 ## Available Scripts
 

@@ -55,16 +55,14 @@ function EditCategory({ alert, setAlert }) {
       setFormState(data.data.data);
     },
   });
-  const {
-    mutate: deleteMutate,
-    isLoading: deleteProductSKUIsLoading,
-  } = useMutation(() => deleteProductSKU({ slug }), {
-    onSuccess: (data) => {
-      message.success("Product SKU deleted successfully!");
-      queryClient.invalidateQueries("get-product-sku");
-      queryClient.invalidateQueries("get-product-skus");
-    },
-  });
+  const { mutate: deleteMutate, isLoading: deleteProductSKUIsLoading } =
+    useMutation(() => deleteProductSKU({ slug }), {
+      onSuccess: (data) => {
+        message.success("Product SKU deleted successfully!");
+        queryClient.invalidateQueries("get-product-sku");
+        queryClient.invalidateQueries("get-product-skus");
+      },
+    });
   const {
     mutate: updateMutate,
     isLoading: updateProductSKUIsLoading,
@@ -630,8 +628,7 @@ function EditCategory({ alert, setAlert }) {
                 onClick={async () =>
                   showAlert({
                     title: "Are you sure to Delete?",
-                    text:
-                      "Deleting this product will delete all the associated data",
+                    text: "Deleting this product will delete all the associated data",
                     primaryButton: "Delete",
                     secondaryButton: "Cancel",
                     type: "danger",
@@ -651,8 +648,7 @@ function EditCategory({ alert, setAlert }) {
                   onClick={async () =>
                     showAlert({
                       title: "Are you sure to Publish?",
-                      text:
-                        "Publishing this category would save it and make it visible to the public!",
+                      text: "Publishing this category would save it and make it visible to the public!",
                       primaryButton: "Publish",
                       secondaryButton: "Cancel",
                       type: "info",
@@ -672,8 +668,7 @@ function EditCategory({ alert, setAlert }) {
                   onClick={async () =>
                     showAlert({
                       title: "Are you sure to Unpublish?",
-                      text:
-                        "Unpublishing this category would make it invisible to the public!",
+                      text: "Unpublishing this category would make it invisible to the public!",
                       primaryButton: "Unpublish",
                       secondaryButton: "Cancel",
                       type: "warning",

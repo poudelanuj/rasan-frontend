@@ -1,6 +1,7 @@
 import { Button, Form, Modal, Select, Spin } from "antd";
 import { useState } from "react";
 import { useQuery, useMutation } from "react-query";
+import { CANCELLED, DELIVERED, IN_PROCESS } from "../../constants";
 import { createOrder, getUserList } from "../../context/OrdersContext";
 import {
   openErrorNotification,
@@ -72,9 +73,9 @@ const CreateOrder = ({
             placeholder="Select Order Status"
             showSearch
           >
-            <Option value="in_process">In Process</Option>
-            <Option value="cancelled">Cancelled</Option>
-            <Option value="delivered">Delivered</Option>
+            <Option value={IN_PROCESS}>In Process</Option>
+            <Option value={CANCELLED}>Cancelled</Option>
+            <Option value={DELIVERED}>Delivered</Option>
           </Select>
         </Form.Item>
 
