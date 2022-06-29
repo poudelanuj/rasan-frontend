@@ -64,7 +64,6 @@ function AddProductSKU({ alert, setAlert }) {
     error: errorCategories,
   } = useQuery("get-categories", getCategories, {
     onSuccess: (data) => {
-      console.log("categoriesData", data);
       setOptionsData({
         ...optionsData,
         categories: data.data.data.results,
@@ -78,7 +77,6 @@ function AddProductSKU({ alert, setAlert }) {
     error: errorBrands,
   } = useQuery("get-brands", getBrands, {
     onSuccess: (data) => {
-      console.log("brandsData", data);
       setOptionsData({
         ...optionsData,
         brands: data.data.data.results,
@@ -92,7 +90,6 @@ function AddProductSKU({ alert, setAlert }) {
     error: errorProductGroups,
   } = useQuery("get-product-groups", getProductGroups, {
     onSuccess: (data) => {
-      console.log("productGroupsData", data);
       setOptionsData({
         ...optionsData,
         productGroups: data.data.data.results,
@@ -121,9 +118,11 @@ function AddProductSKU({ alert, setAlert }) {
     error: errorCreateProductSKU,
   } = useMutation(({ form_data }) => createProductSKU({ form_data }), {
     onSuccess: (data) => {
+      message.success("Product SKU created successfully", {
+        zIndex: 9999999999,
+      });
       console.log("data", data);
-      message.success("Product SKU created successfully");
-      navigate("/product-sku/");
+      navigate(`/product-sku/${data.data.data.slug}/edit`);
     },
   });
 
@@ -139,7 +138,6 @@ function AddProductSKU({ alert, setAlert }) {
     if (
       formState.name &&
       formState.name_np &&
-      formState.product_sku_image &&
       formState.quantity &&
       formState.price_per_piece &&
       formState.mrp_per_piece &&
@@ -148,8 +146,7 @@ function AddProductSKU({ alert, setAlert }) {
       formState.product &&
       formState.product_group &&
       formState.brand &&
-      formState.category &&
-      formState.loyalty_policy
+      formState.category
     ) {
       let form_data = new FormData();
       for (let key in formState) {
@@ -161,24 +158,18 @@ function AddProductSKU({ alert, setAlert }) {
           for (let i = 0; i < formState[key].length; i++) {
             form_data.append("product_group[]", formState[key][i]);
           }
+        } else if (key === "product_sku_image") {
+          if (formState.imageFile) {
+            form_data.append("product_sku_image", formState.imageFile);
+          }
         } else {
           form_data.append(key, formState[key]);
         }
       }
-      form_data.append("product_sku_image", formState.imageFile);
       createProductSKUMutate({ form_data });
-      message.success("Category created successfully");
-      // return addCategoryResponseData.data.data.slug;
     } else {
-      console.log("Please fill all the fields");
       message.error("Please fill all the fields");
       return false;
-    }
-  };
-  const handlePublish = async () => {
-    const isSaved = await handleSave();
-    if (isSaved) {
-      // publishProductSKUM({ isSaved });
     }
   };
   const props = {
@@ -319,8 +310,8 @@ function AddProductSKU({ alert, setAlert }) {
                 <input
                   className=" bg-[#FFFFFF] border-[1px] border-[#D9D9D9] rounded-[2px] p-[8px_12px]"
                   id="quantity"
-                  placeholder="Eg. 5"
-                  type="number"
+                  placeholder="Eg. 5kg"
+                  type="text"
                   value={formState.quantity}
                   onChange={(e) =>
                     setFormState({ ...formState, quantity: e.target.value })
@@ -562,27 +553,6 @@ function AddProductSKU({ alert, setAlert }) {
               }}
             >
               Create
-            </button>
-            <button
-              className="bg-[#00B0C2] text-white p-[8px_12px] ml-5 min-w-[5rem] rounded-[4px] border-[1px] border-[#00B0C2] hover:bg-[#12919f] transition-colors"
-              type="button"
-              onClick={async () =>
-                showAlert({
-                  title: "Are you sure to Publish?",
-                  text:
-                    "Publishing this category would save it and make it visible to the public!",
-                  primaryButton: "Publish",
-                  secondaryButton: "Cancel",
-                  type: "info",
-                  image: "/publish-icon.svg",
-                  action: async () => {
-                    await handlePublish();
-                    return closeAddCategories();
-                  },
-                })
-              }
-            >
-              Publish Product SKU
             </button>
           </div>
         </form>

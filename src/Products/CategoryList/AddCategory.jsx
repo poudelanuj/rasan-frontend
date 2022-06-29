@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { UploadOutlined, LoadingOutlined } from "@ant-design/icons";
 
-import { addCategory, publishCategory } from "../../context/CategoryContext";
+import { addCategory } from "../../context/CategoryContext";
 import { useMutation, useQueryClient } from "react-query";
 
 import { message, Upload } from "antd";
@@ -18,25 +18,21 @@ function AddCategory({ alert, setAlert }) {
   });
   const queryClient = useQueryClient();
 
-  const {
-    mutate: addCategoryMutate,
-    isLoading: addCategoryIsLoading,
-    data: addCategoryResponseData,
-  } = useMutation(addCategory, {
-    onSuccess: (data) => {
-      queryClient.invalidateQueries("get-categories");
-    },
-    onError: (data) => {},
-  });
-
-  const {
-    mutate: publishCategoryMutate,
-    isLoading: publishCategoryIsLoading,
-  } = useMutation(publishCategory, {
-    onSuccess: (data) => {
-      queryClient.invalidateQueries("get-categories");
-    },
-  });
+  const { mutate: addCategoryMutate, isLoading: addCategoryIsLoading } =
+    useMutation(addCategory, {
+      onSuccess: (data) => {
+        queryClient.invalidateQueries("get-categories");
+        message.success("Category created successfully");
+        navigate(`/category-list/edit/${data.data.data.slug}`);
+      },
+      onError: (data) => {
+        message.error(
+          data.response.data.errors.detail ||
+            data.message ||
+            "Something went wrong"
+        );
+      },
+    });
 
   const closeAddCategories = () => {
     navigate("/category-list");
@@ -47,24 +43,16 @@ function AddCategory({ alert, setAlert }) {
     handleSave();
   };
   const handleSave = async () => {
-    if (formState.name && formState.image && formState.name_np) {
+    if (formState.name && formState.name_np) {
       let form_data = new FormData();
       form_data.append("name", formState.name);
       form_data.append("name_np", formState.name_np);
-      form_data.append("category_image", formState.imageFile);
+      if (formState.imageFile) {
+        form_data.append("category_image", formState.imageFile);
+      }
       addCategoryMutate({ form_data });
-      message.success("Category created successfully");
-      return addCategoryResponseData.data.data.slug;
     } else {
       message.error("Please fill all the fields");
-      return false;
-    }
-  };
-  const handlePublish = async () => {
-    const isSaved = await handleSave();
-    if (isSaved) {
-      publishCategoryMutate({ isSaved });
-      message.success("Category published successfully");
     }
   };
   const props = {
@@ -119,7 +107,7 @@ function AddCategory({ alert, setAlert }) {
         <h2 className="text-3xl mb-3 text-[#192638] text-[2rem] font-medium">
           Add Category
         </h2>
-        {(addCategoryIsLoading || publishCategoryIsLoading) && (
+        {addCategoryIsLoading && (
           <div className="absolute top-0 right-0 bg-black/25 w-full h-full flex flex-col items-center justify-center z-50 animate-popupopen">
             <LoadingOutlined style={{ color: "white", fontSize: "3rem" }} />
             <span className="p-2 text-white">Loading...</span>
@@ -183,35 +171,13 @@ function AddCategory({ alert, setAlert }) {
           </div>
           <div className="flex justify-end">
             <button
-              className="text-[#00B0C2] p-[8px_12px] min-w-[5rem] rounded-[4px] border-[1px] border-[#00B0C2] hover:bg-[#effdff] transition-colors"
+              className="bg-[#00B0C2] text-white p-[8px_12px] ml-5 min-w-[5rem] rounded-[4px] border-[1px] border-[#00B0C2] hover:bg-[#12919f] transition-colors"
               type="button"
               onClick={async () => {
                 await handleSave();
-                return closeAddCategories();
               }}
             >
               Create
-            </button>
-            <button
-              className="bg-[#00B0C2] text-white p-[8px_12px] ml-5 min-w-[5rem] rounded-[4px] border-[1px] border-[#00B0C2] hover:bg-[#12919f] transition-colors"
-              type="button"
-              onClick={async () =>
-                showAlert({
-                  title: "Are you sure to Publish?",
-                  text:
-                    "Publishing this category would save it and make it visible to the public!",
-                  primaryButton: "Publish",
-                  secondaryButton: "Cancel",
-                  type: "info",
-                  image: "/publish-icon.svg",
-                  action: async () => {
-                    await handlePublish();
-                    return closeAddCategories();
-                  },
-                })
-              }
-            >
-              Publish Category
             </button>
           </div>
         </form>

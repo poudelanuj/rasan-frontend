@@ -37,6 +37,15 @@ function EditBrand({ slug, alert, setAlert }) {
         is_published: data.data.data.is_published,
       });
     },
+    onError: (data) => {
+      console.log(data);
+      message.error(
+        data.response.data.errors.detail ||
+          data.response.data.errors.message ||
+          data.message ||
+          "Something went wrong"
+      );
+    },
   });
   const { mutate: deleteMutate, isLoading: deleteBrandIsLoading } = useMutation(
     () => deleteBrand({ slug }),
@@ -46,6 +55,15 @@ function EditBrand({ slug, alert, setAlert }) {
         queryClient.invalidateQueries("get-brands");
         navigate("/brands");
       },
+      onError: (data) => {
+        console.log(data);
+        message.error(
+          data.response.data.errors.detail ||
+            data.response.data.errors.message ||
+            data.message ||
+            "Something went wrong"
+        );
+      },
     }
   );
   const { mutate: updateMutate, isLoading: updateBrandIsLoading } = useMutation(
@@ -54,23 +72,50 @@ function EditBrand({ slug, alert, setAlert }) {
       onSuccess: (data) => {
         message.success("Brand updated successfully");
         queryClient.invalidateQueries("get-brands");
-        navigate("/brands");
+        queryClient.invalidateQueries(["get-brand", slug]);
+        console.log(data.data.data.slug);
+        navigate(`/brands/edit/` + data.data.data.slug);
+      },
+      onError: (data) => {
+        console.log(data);
+        message.error(
+          data.response.data.errors.detail ||
+            data.response.data.errors.message ||
+            data.message ||
+            "Something went wrong"
+        );
       },
     }
   );
-  const {
-    mutate: publishBrandMutate,
-    isLoading: publishBrandIsLoading,
-  } = useMutation(publishBrand, {
-    onSuccess: (data) => {
-      queryClient.invalidateQueries("get-brands");
-      navigate("/brands");
-    },
-  });
+  const { mutate: publishBrandMutate, isLoading: publishBrandIsLoading } =
+    useMutation(publishBrand, {
+      onSuccess: (data) => {
+        queryClient.invalidateQueries("get-brands");
+        queryClient.invalidateQueries(["get-brand", slug]);
+        message.success("Brand published successfully");
+      },
+      onError: (data) => {
+        message.error(
+          data.response.data.errors.detail ||
+            data.response.data.errors.message ||
+            data.message ||
+            "Something went wrong"
+        );
+      },
+    });
   const { mutate: unpublishBrandMutate } = useMutation(unpublishBrand, {
     onSuccess: (data) => {
       queryClient.invalidateQueries("get-brands");
-      navigate("/brands");
+      queryClient.invalidateQueries(["get-brand", slug]);
+      message.success("Brand unpublished successfully");
+    },
+    onError: (data) => {
+      message.error(
+        data.response.data.errors.detail ||
+          data.response.data.errors.message ||
+          data.message ||
+          "Something went wrong"
+      );
     },
   });
   const navigate = useNavigate();
@@ -122,22 +167,14 @@ function EditBrand({ slug, alert, setAlert }) {
     }
   };
   const handlePublish = async ({ slug }) => {
-    const isSaved = await handleSave();
-    if (isSaved) {
-      publishBrandMutate({ slug });
-      closeEditCategories();
-      message.success("Brand published successfully!");
-    }
+    publishBrandMutate({ slug });
   };
   const handleUnpublish = async ({ slug }) => {
     unpublishBrandMutate({ slug });
-    closeEditCategories();
-    message.success("Brand unpublished successfully!");
   };
   const handleDelete = async ({ slug }) => {
     deleteMutate({ slug });
     closeEditCategories();
-    message.success("Brand deleted successfully!");
   };
   const showAlert = ({
     title,
@@ -162,29 +199,30 @@ function EditBrand({ slug, alert, setAlert }) {
 
   return (
     <>
-      {getBrandIsLoading && <LoadingOutlined />}
-      {getBrandIsError && getBrandError}
+      {getBrandIsError && getBrandError.message}
       <div
         className="fixed top-0 left-0 h-screen w-full bg-[#03022920] animate-popupopen"
         onClick={() => closeEditCategories()}
       ></div>
+      {(getBrandIsLoading ||
+        updateBrandIsLoading ||
+        publishBrandIsLoading ||
+        deleteBrandIsLoading) && (
+        <div className="absolute top-0 right-0 bg-black/25 w-full h-full flex flex-col items-center justify-center z-50 animate-popupopen">
+          <LoadingOutlined style={{ color: "white", fontSize: "3rem" }} />
+          <span className="p-2 text-white">
+            {getBrandIsLoading && "Loading brand..."}
+            {deleteBrandIsLoading && "Deleting..."}
+            {publishBrandIsLoading && "Publishing..."}
+            {updateBrandIsLoading && "Updating..."}
+          </span>
+        </div>
+      )}
       {data?.data?.data && (
         <div className="min-w-[36.25rem] min-h-[33.5rem] fixed z-[1] top-[50%] right-[50%] translate-x-[50%] translate-y-[-50%] bg-white rounded-[10px] flex flex-col p-8 shadow-[-14px_30px_20px_rgba(0,0,0,0.05)] overflow-hidden">
           <h2 className="text-3xl mb-3 text-[#192638] text-[2rem] font-medium capitalize">
             {"Edit " + parseSlug(slug) + " - Brand"}
           </h2>
-          {(updateBrandIsLoading ||
-            publishBrandIsLoading ||
-            deleteBrandIsLoading) && (
-            <div className="absolute top-0 right-0 bg-black/25 w-full h-full flex flex-col items-center justify-center z-50 animate-popupopen">
-              <LoadingOutlined style={{ color: "white", fontSize: "3rem" }} />
-              <span className="p-2 text-white">
-                {deleteBrandIsLoading && "Deleting..."}
-                {publishBrandIsLoading && "Publishing..."}
-                {updateBrandIsLoading && "Updating..."}
-              </span>
-            </div>
-          )}
           <form
             className="flex flex-col justify-between flex-1"
             onSubmit={handleSubmit}
@@ -268,8 +306,7 @@ function EditBrand({ slug, alert, setAlert }) {
                   onClick={() =>
                     showAlert({
                       title: "Are you sure to Unpublish?",
-                      text:
-                        "Unpublishing this brand would make it invisible to the public!",
+                      text: "Unpublishing this brand would make it invisible to the public!",
                       primaryButton: "Unpublish",
                       secondaryButton: "Cancel",
                       type: "warning",
@@ -287,8 +324,7 @@ function EditBrand({ slug, alert, setAlert }) {
                   onClick={() =>
                     showAlert({
                       title: "Are you sure to Publish?",
-                      text:
-                        "Publishing this brand would make it visible to the public!",
+                      text: "Publishing this brand would make it visible to the public!",
                       primaryButton: "Publish",
                       secondaryButton: "Cancel",
                       type: "info",

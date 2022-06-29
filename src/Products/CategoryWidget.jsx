@@ -1,5 +1,9 @@
 import React, { useState } from "react";
-import { CheckCircleOutlined, EditOutlined } from "@ant-design/icons";
+import {
+  CheckCircleOutlined,
+  EditOutlined,
+  EyeOutlined,
+} from "@ant-design/icons";
 import { Link } from "react-router-dom";
 
 function CategoryWidget({
@@ -12,6 +16,7 @@ function CategoryWidget({
   imgClassName,
   selectedCategories,
   setSelectedCategories,
+  is_published = false,
 }) {
   const [isHovering, setIsHovering] = useState(false);
 
@@ -98,6 +103,11 @@ function CategoryWidget({
             </Link>
           </div>
         </>
+      )}
+      {is_published && (
+        <div className="absolute bottom-[0px] left-[0px] animate-categoryEditButton max-w-[2.5rem] p-2">
+          <img src="/published.svg" alt="published" className="w-[100%]" />
+        </div>
       )}
     </div>
   );

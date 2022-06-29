@@ -118,7 +118,7 @@ function ProductSKU() {
               <div className="mt-[1rem]">
                 <div className="flex justify-start items-center">
                   <h3 className="text-xl text-[#374253]">Product Details</h3>
-                  {productSKU.is_published ? (
+                  {productSKU?.is_published ? (
                     <p className="ml-[6rem] rounded-full bg-[#E4FEEF] text-[#0E9E49] px-[1rem] py-[2px]">
                       Published
                     </p>
@@ -131,16 +131,21 @@ function ProductSKU() {
                 <div className="mt-[0.5rem] flex">
                   <div className="grid grid-cols-2 ml-5 gap-y-0 gap-x-5 items-center flex-1">
                     <p className="text-[#596579] text-[0.8rem]">Sno.</p>
-                    <p className="text-[#596579] font-bold">{productSKU.sn}</p>
+                    <p className="text-[#596579] font-bold">{productSKU?.sn}</p>
 
                     <p className="text-[#596579] text-[0.8rem]">Product Name</p>
                     <p className="text-[#596579] font-bold">
-                      {productSKU.name}
+                      {productSKU?.name}
+                    </p>
+
+                    <p className="text-[#596579] text-[0.8rem]">Nepali Name</p>
+                    <p className="text-[#596579] font-bold">
+                      {productSKU?.name_np}
                     </p>
 
                     <p className="text-[#596579] text-[0.8rem]">Description</p>
                     <p className="text-[#596579] font-bold">
-                      {productSKU.description}
+                      {productSKU?.description}
                     </p>
 
                     <p className="text-[#596579] text-[0.8rem]">
@@ -156,13 +161,13 @@ function ProductSKU() {
                   <div className="grid grid-cols-2 ml-5 gap-y-0 gap-x-5 items-center flex-1">
                     <p className="text-[#596579] text-[0.8rem]">Brand</p>
                     <p className="text-[#596579] font-bold">
-                      {productSKU.brand}
+                      {productSKU?.brand}
                     </p>
 
                     <p className="text-[#596579] text-[0.8rem]">Category</p>
                     <p className="text-[#596579] font-bold capitalize">
-                      {productSKU.category.map((category, index) => {
-                        if (index === productSKU.category.length - 1) {
+                      {productSKU?.category?.map((category, index) => {
+                        if (index === productSKU?.category?.length - 1) {
                           return parseSlug(category);
                         } else {
                           return parseSlug(category) + ", ";
@@ -174,8 +179,8 @@ function ProductSKU() {
                       Product Group
                     </p>
                     <p className="text-[#596579] font-bold capitalize">
-                      {productSKU.product_group.map((group, index) => {
-                        if (index === productSKU.product_group.length - 1) {
+                      {productSKU?.product_group?.map((group, index) => {
+                        if (index === productSKU?.product_group?.length - 1) {
                           return parseSlug(group);
                         } else {
                           return parseSlug(group) + ", ";
@@ -187,34 +192,34 @@ function ProductSKU() {
                       Loyalty Policy
                     </p>
                     <p className="text-[#596579] font-bold">
-                      {productSKU.loyalty_policy}
+                      {productSKU?.loyalty_policy}
                     </p>
 
                     <p className="text-[#596579] text-[0.8rem]">Quantity</p>
                     <p className="text-[#596579] font-bold">
-                      {productSKU.quantity}
+                      {productSKU?.quantity}
                     </p>
 
                     <p className="text-[#596579] text-[0.8rem]">Price/piece</p>
                     <p className="text-[#596579] font-bold">
-                      {productSKU.price_per_piece}
+                      {productSKU?.price_per_piece}
                     </p>
 
                     <p className="text-[#596579] text-[0.8rem]">
                       CostPrice/Piece
                     </p>
                     <p className="text-[#596579] font-bold">
-                      {productSKU.cost_price_per_piece}
+                      {productSKU?.cost_price_per_piece}
                     </p>
 
                     <p className="text-[#596579] text-[0.8rem]">MRP/Piece</p>
                     <p className="text-[#596579] font-bold">
-                      {productSKU.mrp_per_piece}
+                      {productSKU?.mrp_per_piece}
                     </p>
 
                     <p className="text-[#596579] text-[0.8rem]">Slug</p>
                     <p className="text-[#596579] font-bold">
-                      {productSKU.slug}
+                      {productSKU?.slug}
                     </p>
 
                     <p className="text-[#596579] text-[0.8rem]">Includes VAT</p>

@@ -31,7 +31,14 @@ export const getCategory = async ({ slug }) => {
   return response;
 };
 
-export const getCategoryEndUser = async ({ slug }) => {
+export const getProductsFromCategory = async ({ slug }) => {
+  const response = await myaxios.get(
+    `${homeRoute}product/admin/categories/products/${slug}/`
+  );
+  return response;
+};
+
+export const getSKUsFromCategory = async ({ slug }) => {
   const response = await myaxios.get(`${homeRoute}product/categories/${slug}/`);
   return response;
 };

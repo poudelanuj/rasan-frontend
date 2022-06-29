@@ -193,7 +193,7 @@ function EditCategory({ alert, setAlert }) {
   };
 
   const closeProductSKUEditWidget = () => {
-    navigate(`/product-groups/${slug}`);
+    navigate(`/product-sku/${slug}`);
   };
 
   const handleSubmit = (e) => {
@@ -235,22 +235,15 @@ function EditCategory({ alert, setAlert }) {
         }
       }
       updateMutate({ slug, form_data });
-      return updateProductMutateData?.data?.data?.slug || true;
     } else {
       message.error("Please fill all the fields");
-      return false;
     }
   };
   const handlePublish = async () => {
-    const isSaved = await handleSave();
-    if (isSaved) {
-      publishProductSKUMutate({ slug });
-      closeProductSKUEditWidget();
-    }
+    publishProductSKUMutate({ slug });
   };
   const handleUnpublish = async () => {
     unpublishProductSKUMutate({ slug });
-    closeProductSKUEditWidget();
   };
   const handleDelete = async () => {
     deleteMutate({ slug });
@@ -382,8 +375,8 @@ function EditCategory({ alert, setAlert }) {
                   <input
                     className=" bg-[#FFFFFF] border-[1px] border-[#D9D9D9] rounded-[2px] p-[8px_12px]"
                     id="quantity"
-                    placeholder="Eg. 5"
-                    type="number"
+                    placeholder="Eg. 5kg"
+                    type="text"
                     value={formState.quantity}
                     onChange={(e) =>
                       setFormState({ ...formState, quantity: e.target.value })
@@ -666,7 +659,6 @@ function EditCategory({ alert, setAlert }) {
                       image: "/publish-icon.svg",
                       action: async () => {
                         await handlePublish();
-                        return closeProductSKUEditWidget();
                       },
                     })
                   }
@@ -688,7 +680,6 @@ function EditCategory({ alert, setAlert }) {
                       image: "/unpublish-icon.svg",
                       action: async () => {
                         await handleUnpublish();
-                        return closeProductSKUEditWidget();
                       },
                     })
                   }
@@ -700,10 +691,7 @@ function EditCategory({ alert, setAlert }) {
                 className="bg-[#00B0C2] text-white p-[8px_12px] ml-5 min-w-[5rem] rounded-[4px] border-[1px] border-[#00B0C2] hover:bg-[#12919f] transition-colors"
                 type="button"
                 onClick={async () => {
-                  let isSaved = await handleSave();
-                  if (isSaved) {
-                    return closeProductSKUEditWidget();
-                  }
+                  await handleSave();
                 }}
               >
                 Update

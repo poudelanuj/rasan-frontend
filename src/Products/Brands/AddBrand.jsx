@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { UploadOutlined, LoadingOutlined } from "@ant-design/icons";
 
-import { addBrand, publishBrand } from "../../context/CategoryContext";
+import { addBrand } from "../../context/CategoryContext";
 import { useMutation, useQueryClient } from "react-query";
 
 import { message, Upload } from "antd";
@@ -24,20 +24,19 @@ function AddBrand({ alert, setAlert }) {
     data: addBrandResponseData,
   } = useMutation(addBrand, {
     onSuccess: (data) => {
+      message.success("Brand added successfully");
       queryClient.invalidateQueries("get-brands");
+      navigate(`/brands/edit/` + data.data.data.slug);
     },
-    onError: (data) => {},
-  });
-
-  const {
-    mutate: publishBrandMutate,
-    isLoading: publishBrandIsLoading,
-  } = useMutation(publishBrand, {
-    onSuccess: (data) => {
-      queryClient.invalidateQueries("get-brands");
+    onError: (data) => {
+      message.error(
+        data.response.data.errors.detail ||
+          data.response.data.errors.message ||
+          data.message ||
+          "Something went wrong"
+      );
     },
   });
-
   const closeAddBrands = () => {
     navigate("/brands");
   };
@@ -47,24 +46,18 @@ function AddBrand({ alert, setAlert }) {
     handleSave();
   };
   const handleSave = async () => {
-    if (formState.name && formState.image && formState.name_np) {
+    if (formState.name && formState.name_np) {
       let form_data = new FormData();
       form_data.append("name", formState.name);
       form_data.append("name_np", formState.name_np);
-      form_data.append("brand_image", formState.imageFile);
+      if (formState.imageFile) {
+        form_data.append("brand_image", formState.imageFile);
+      }
       addBrandMutate({ form_data });
-      message.success("Brand created successfully");
       return addBrandResponseData.data.data.slug;
     } else {
       message.error("Please fill all the fields");
       return false;
-    }
-  };
-  const handlePublish = async () => {
-    const isSaved = await handleSave();
-    if (isSaved) {
-      publishBrandMutate({ isSaved });
-      message.success("Brand published successfully");
     }
   };
   const props = {
@@ -119,7 +112,7 @@ function AddBrand({ alert, setAlert }) {
         <h2 className="text-3xl mb-3 text-[#192638] text-[2rem] font-medium">
           Add Brand
         </h2>
-        {(addBrandIsLoading || publishBrandIsLoading) && (
+        {addBrandIsLoading && (
           <div className="absolute top-0 right-0 bg-black/25 w-full h-full flex flex-col items-center justify-center z-50 animate-popupopen">
             <LoadingOutlined style={{ color: "white", fontSize: "3rem" }} />
             <span className="p-2 text-white">Loading...</span>
@@ -187,31 +180,9 @@ function AddBrand({ alert, setAlert }) {
               type="button"
               onClick={async () => {
                 await handleSave();
-                return closeAddBrands();
               }}
             >
               Create
-            </button>
-            <button
-              className="bg-[#00B0C2] text-white p-[8px_12px] ml-5 min-w-[5rem] rounded-[4px] border-[1px] border-[#00B0C2] hover:bg-[#12919f] transition-colors"
-              type="button"
-              onClick={async () =>
-                showAlert({
-                  title: "Are you sure to Publish?",
-                  text:
-                    "Publishing this brand would save it and make it visible to the public!",
-                  primaryButton: "Publish",
-                  secondaryButton: "Cancel",
-                  type: "info",
-                  image: "/publish-icon.svg",
-                  action: async () => {
-                    await handlePublish();
-                    return closeAddBrands();
-                  },
-                })
-              }
-            >
-              Publish Brand
             </button>
           </div>
         </form>

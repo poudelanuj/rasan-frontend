@@ -52,11 +52,11 @@ root.render(
               {/* product part */}
               <Route element={<CategoryList />} path="category-list" />
               <Route element={<CategoryList />} path="category-list/add" />
+              <Route element={<Category />} path="category-list/:slug" />
               <Route
                 element={<CategoryList />}
                 path="category-list/edit/:slug"
               />
-              <Route element={<Category />} path="category-list/:slug" />
 
               <Route element={<BrandsScreen />} path="brands" />
               <Route element={<BrandsScreen />} path="brands/add" />

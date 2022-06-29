@@ -25,6 +25,7 @@ function ProductCategory({
           setSelectedCategories={setSelectedCategories}
           slug={category.slug}
           title={category.name}
+          is_published={category.is_published}
         />
       ))}
     </>

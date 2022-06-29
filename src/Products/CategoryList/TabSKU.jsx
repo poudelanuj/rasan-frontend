@@ -3,7 +3,10 @@ import { useNavigate } from "react-router-dom";
 
 import { Table, Select } from "antd";
 import AddCategoryButton from "../subComponents/AddCategoryButton";
-import { getCategoryEndUser } from "../../context/CategoryContext";
+import {
+  getCategory,
+  getSKUsFromCategory,
+} from "../../context/CategoryContext";
 import { useQuery } from "react-query";
 
 import { parseSlug } from "../../utility";
@@ -11,6 +14,10 @@ import { parseSlug } from "../../utility";
 const { Option } = Select;
 
 const columns = [
+  {
+    title: "S.No.",
+    dataIndex: "sn",
+  },
   {
     title: "Product Image",
     // dataIndex: 'key',
@@ -35,19 +42,19 @@ const columns = [
     // sorter: (a, b) => a.name.length - b.name.length,
   },
   {
-    title: "Name in Nepali",
-    dataIndex: "name_np",
-  },
-  {
     title: "Quantity",
     dataIndex: "quantity",
   },
   {
-    title: "MRP per piece",
+    title: "Cost Price / Piece (रु)",
+    dataIndex: "cost_price_per_piece",
+  },
+  {
+    title: "MRP / piece (रु)",
     dataIndex: "mrp_per_piece",
   },
   {
-    title: "Price per piece",
+    title: "Price / piece (रु)",
     dataIndex: "price_per_piece",
   },
   {
@@ -72,28 +79,40 @@ const columns = [
       return <div className="capitalize">{parseSlug(record.brand)}</div>;
     },
   },
+  {
+    title: "Loyalty Policy",
+    render: (text, record) => {
+      if (record.loyalty_policy) {
+        return <div className="capitalize">{record.loyalty_policy}</div>;
+      } else {
+        return <div className="text-center">-</div>;
+      }
+    },
+  },
+  {
+    title: "Status",
+    render: (text, record) => {
+      return (
+        <div
+          className={`text-center rounded-[36px] text-[14px] p-[2px_14px] ${
+            record.is_published
+              ? "bg-[#E4FEEF] text-[#0E9E49]"
+              : "bg-[#FFF8E1] text-[#FF8F00]"
+          }`}
+        >
+          {record.is_published ? "Published" : "Unpublished"}
+        </div>
+      );
+    },
+  },
 ];
-// const data = [];
-
-// for (let i = 0; i < 46; i++) {
-//   data.push({
-//     key: i,
-//     name: `Rice ${i}`,
-//     productid: "12345",
-//     productPrice: "$10.00",
-//     productBrand: "Preety",
-//     productGroup: "Food",
-//     profile_picture:
-//       "https://images.unsplash.com/photo-1518791841217-8f162f1e1131?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=60",
-//   });
-// }
 
 function TabSKU({ slug }) {
   // const { slug } = useParams();
   const [entriesPerPage, setEntriesPerPage] = useState(4);
   const { data, isLoading, isError, error } = useQuery(
-    "get-category-enduser",
-    () => getCategoryEndUser({ slug })
+    ["get-category", slug],
+    () => getCategory({ slug })
   );
 
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
@@ -150,7 +169,10 @@ function TabSKU({ slug }) {
 <input type="text" placeholder="Search category..." className="w-full ml-1 placeholder:text-[#D9D9D9]" />
 </div> */}
         <div>
-          <AddCategoryButton linkText="Add Product SKU" linkTo={`add`} />
+          <AddCategoryButton
+            linkText="Add Product SKU"
+            linkTo={`/product-sku/add`}
+          />
         </div>
       </div>
 
@@ -186,13 +208,19 @@ function TabSKU({ slug }) {
           )}
           pagination={{ pageSize: entriesPerPage }}
           rowSelection={rowSelection}
-          // onRow={(record) => {
-          //   return {
-          //     onDoubleClick: (_) => {
-          //       navigate("/category-list/" + slug + "/" + record.key);
-          //     }, // double click row
-          //   };
-          // }}
+          onRow={(record) => {
+            return {
+              onClick: (_) => {
+                navigate("/product-sku/" + record.slug);
+              },
+              onMouseEnter: () => {
+                document.body.style.cursor = "pointer";
+              },
+              onMouseLeave: () => {
+                document.body.style.cursor = "default";
+              },
+            };
+          }}
         />
       </div>
 

@@ -7,6 +7,7 @@ import CategoryWidget from "./CategoryWidget";
 import AddProductGroup from "./Product Groups/AddProductGroup";
 import EditProductGroup from "./Product Groups/EditProductGroup";
 import AddCategoryButton from "./subComponents/AddCategoryButton";
+import ClearSelection from "./subComponents/ClearSelection";
 import Header from "./subComponents/Header";
 import SearchBox from "./subComponents/SearchBox";
 
@@ -62,7 +63,11 @@ function ProductGroupsScreen() {
         <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[75vh]">
           <div className="flex justify-between mb-3">
             <SearchBox placeholder="Search Brands..." />
-            <div>
+            <div className="flex">
+              <ClearSelection
+                selectedCategories={selectedProducts}
+                setSelectedCategories={setSelectedProducts}
+              />
               <AddCategoryButton linkText="Add Product Groups" linkTo="add" />
             </div>
           </div>
