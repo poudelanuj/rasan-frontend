@@ -100,11 +100,14 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
       title: "Order ID",
       dataIndex: "id",
       key: "orderId",
-      render: (_, { id }) => {
+      render: (_, { id, status }) => {
         return (
           <div
             className="text-blue-500 cursor-pointer"
-            onClick={() => setIsOrderModalOpen(true)}
+            onClick={() => {
+              setIsOrderModalOpen(true);
+              setActiveOrder({ orderId: id, orderStatus: status });
+            }}
           >
             #{id}
           </div>
