@@ -1,6 +1,7 @@
 import { Tabs } from "antd";
 import React from "react";
 import { useQuery } from "react-query";
+import { CANCELLED, DELIVERED, IN_PROCESS } from "../constants";
 import { getOrders } from "../context/OrdersContext";
 import OrdersList from "./OrdersList";
 
@@ -25,21 +26,21 @@ const Orders = () => {
         </TabPane>
         <TabPane key="inProcess" tab="In Progress">
           <OrdersList
-            dataSource={data?.filter((order) => order.status === "in_process")}
+            dataSource={data?.filter((order) => order.status === IN_PROCESS)}
             refetchOrders={refetch}
             status={isRefetching ? "loading" : status}
           />
         </TabPane>
         <TabPane key="delivered" tab="Delivered">
           <OrdersList
-            dataSource={data?.filter((order) => order.status === "delivered")}
+            dataSource={data?.filter((order) => order.status === DELIVERED)}
             refetchOrders={refetch}
             status={isRefetching ? "loading" : status}
           />
         </TabPane>
         <TabPane key="cancelled" tab="Cancelled">
           <OrdersList
-            dataSource={data?.filter((order) => order.status === "cancelled")}
+            dataSource={data?.filter((order) => order.status === CANCELLED)}
             refetchOrders={refetch}
             status={isRefetching ? "loading" : status}
           />

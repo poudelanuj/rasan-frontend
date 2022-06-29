@@ -28,7 +28,12 @@ const OrderModal = ({
   const [selectedProductPack, setSelectedPack] = useState();
   const [quantity, setQuantity] = useState(1);
 
-  const { data, status, refetch: refetchOrderItems, isRefetching } = useQuery({
+  const {
+    data,
+    status,
+    refetch: refetchOrderItems,
+    isRefetching,
+  } = useQuery({
     queryFn: () => getOrder(orderId),
     queryKey: ["getOrder", orderId],
     enabled: !!orderId,
