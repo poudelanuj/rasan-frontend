@@ -1,11 +1,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@import "~antd/dist/antd.min.css";
 
 .header {
   @apply bg-primary flex items-center justify-between !important;
 }
 .ant-menu-item-selected {
   @apply bg-[#F4F7FB] text-[#00A0B0] !important;
+}
+
+.ant-switch-inner {
+  position: relative;
+  bottom: 2px;
 }

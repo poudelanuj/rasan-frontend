@@ -17,6 +17,7 @@ import BrandsScreen from "./Products/BrandsScreen";
 import Category from "./Products/Category";
 import ViewProductGroup from "./Products/Product Groups/ViewProductGroup";
 import ProductGroupsScreen from "./Products/ProductGroupsScreen";
+import AddProduct from "./Products/ProductList/AddProduct";
 import ViewProductList from "./Products/ProductList/ViewProductList";
 import ProductListScreen from "./Products/ProductListScreen";
 import ProductSKU from "./Products/ProductSKU";
@@ -27,6 +28,7 @@ import UserGroupPage from "./UserGroups/UserGroupPage";
 import Users from "./Users";
 import OTPRequests from "./Users/OTPRequests";
 import User from "./Users/User";
+import "antd/dist/antd.min.css";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const queryClient = new QueryClient();
@@ -77,13 +79,12 @@ root.render(
                 path="product-groups/:slug/edit"
               />
 
-              <Route element={<ProductListScreen />} path="product-list" />
-              <Route element={<ProductListScreen />} path="product-list/add" />
-              <Route element={<ViewProductList />} path="product-list/:slug" />
-              <Route
-                element={<ViewProductList />}
-                path="product-list/:slug/edit"
-              />
+              <Route path="product-list">
+                <Route element={<ProductListScreen />} index />
+                <Route element={<AddProduct />} path="add" />
+                <Route element={<ViewProductList />} path=":slug" />
+                <Route element={<ViewProductList />} path=":slug/edit" />
+              </Route>
 
               <Route element={<ProductSkuScreen />} path="product-sku" />
               <Route element={<ProductSkuScreen />} path="product-sku/add" />
