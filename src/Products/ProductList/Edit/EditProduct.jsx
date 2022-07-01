@@ -1,5 +1,14 @@
 import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
-import { Upload, Form, Input, Select, Switch, Button, Space } from "antd";
+import {
+  Upload,
+  Form,
+  Input,
+  Select,
+  Switch,
+  Button,
+  Space,
+  PageHeader,
+} from "antd";
 import { useState } from "react";
 import { useQuery, useMutation } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
@@ -12,6 +21,7 @@ import {
   updateProduct,
 } from "../../../api/products";
 import Loader from "../../../shared/Loader";
+import CustomPageHeader from "../../../shared/PageHeader";
 import {
   openErrorNotification,
   openSuccessNotification,
@@ -41,8 +51,6 @@ const EditProduct = () => {
     queryKey: ["get-product", slug],
     enabled: !!slug,
   });
-
-  console.log("PRODUCT", product, productStatus);
 
   const { data: categories, status: categoriesStatus } = useQuery({
     queryFn: () => getAllCategories(),
@@ -106,7 +114,7 @@ const EditProduct = () => {
       />
 
       <div className="py-5">
-        <h2 className="text-2xl  font-normal mb-5">Edit Product</h2>
+        <CustomPageHeader title="Edit Product" />
 
         {productStatus === "success" && product && product.name && (
           <div>

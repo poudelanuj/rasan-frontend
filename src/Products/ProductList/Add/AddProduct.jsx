@@ -8,6 +8,7 @@ import { getAllCategories } from "../../../api/categories";
 import { getLoyaltyPolicies } from "../../../api/loyalties";
 import { createProduct, getAllProducts } from "../../../api/products";
 import Loader from "../../../shared/Loader";
+import CustomPageHeader from "../../../shared/PageHeader";
 import {
   openErrorNotification,
   openSuccessNotification,
@@ -86,7 +87,7 @@ const AddProduct = () => {
       <Loader isOpen={onFormSubmit.status === "loading"} />
 
       <div className="py-5">
-        <h2 className="text-2xl  font-normal mb-5">Add Product</h2>
+        <CustomPageHeader title="Add Product" />
 
         <div>
           <Form

@@ -1,4 +1,5 @@
 import { EditOutlined } from "@ant-design/icons";
+import { Divider } from "antd";
 import { useState } from "react";
 import { useQuery } from "react-query";
 import { Link, useLocation, useParams } from "react-router-dom";
@@ -7,7 +8,6 @@ import { getDate, parseSlug } from "../utility";
 import SimpleAlert from "./alerts/SimpleAlert";
 import AddProductPack from "./ProductSku/AddProductPack";
 import EditProductPack from "./ProductSku/EditProductPack";
-import EditProductSKU from "./ProductSku/EditProductSKU";
 import ProductPackList from "./ProductSku/ProductPackList";
 
 function ProductSKU() {
@@ -59,9 +59,7 @@ function ProductSKU() {
           type={alert.type}
         />
       )}
-      {categorySlug === "edit" && (
-        <EditProductSKU alert={alert} setAlert={setAlert} />
-      )}
+
       {categorySlug === "edit-product-pack" && (
         <EditProductPack alert={alert} setAlert={setAlert} />
       )}
@@ -73,7 +71,7 @@ function ProductSKU() {
       {getProductSkuData && (
         <>
           <div className="text-3xl bg-white p-5 mb-7">{productSKU.name}</div>
-          <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[70vh] max-w-[70%]">
+          <div className="flex flex-col bg-white p-6 rounded ">
             <div>
               <div className="flex justify-start relative">
                 <div className="w-[100px] h-[150px]">
@@ -115,6 +113,9 @@ function ProductSKU() {
                   </Link>
                 </div>
               </div>
+
+              <Divider />
+
               <div className="mt-[1rem]">
                 <div className="flex justify-start items-center">
                   <h3 className="text-xl text-[#374253]">Product Details</h3>
@@ -228,7 +229,10 @@ function ProductSKU() {
                 </div>
               </div>
             </div>
-            <ProductPackList id={productSKU?.product_packs?.[0]?.id} />
+
+            <Divider />
+
+            <ProductPackList productPacks={productSKU?.product_packs} />
           </div>
         </>
       )}

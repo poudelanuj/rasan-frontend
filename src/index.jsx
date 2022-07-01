@@ -18,7 +18,7 @@ import Category from "./Products/Category";
 import ViewProductGroup from "./Products/Product Groups/ViewProductGroup";
 import ProductGroupsScreen from "./Products/ProductGroupsScreen";
 import AddProduct from "./Products/ProductList/Add";
-import ViewProductList from "./Products/ProductList/ViewProductList";
+import ProductList from "./Products/ProductList/ProductList";
 import ProductListScreen from "./Products/ProductListScreen";
 import ProductSKU from "./Products/ProductSKU";
 import ProductSkuScreen from "./Products/ProductSkuScreen";
@@ -85,7 +85,7 @@ root.render(
               <Route path="product-list">
                 <Route element={<ProductListScreen />} index />
                 <Route element={<AddProduct />} path="add" />
-                <Route element={<ViewProductList />} path=":slug" />
+                <Route element={<ProductList />} path=":slug" />
                 <Route element={<EditProduct />} path=":slug/edit" />
               </Route>
 

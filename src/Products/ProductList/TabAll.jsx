@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import moment from "moment";
 
 import { Table, Select } from "antd";
@@ -8,6 +8,7 @@ import { getProducts } from "../../context/CategoryContext";
 import { useQuery } from "react-query";
 
 import { parseSlug } from "../../utility";
+import Loader from "../../shared/Loader";
 
 const { Option } = Select;
 
@@ -90,16 +91,7 @@ const columns = [
 ];
 
 function TabAll() {
-  const { data, isLoading, isError, error } = useQuery("get-products", () =>
-    getProducts()
-  );
-  const location = useLocation();
-  let lastSlug;
-  try {
-    lastSlug = location.pathname.split("/")[2];
-  } catch (error) {
-    lastSlug = null;
-  }
+  const { data, status } = useQuery("get-products", () => getProducts());
 
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const navigate = useNavigate();
@@ -158,8 +150,8 @@ function TabAll() {
         </div>
 
         <div className="flex-1">
-          {isLoading ? "Loading..." : null}
-          {isError ? error.message : null}
+          {status === "loading" && <Loader />}
+
           <Table
             columns={columns}
             dataSource={data?.data?.data?.results?.map((item) => ({

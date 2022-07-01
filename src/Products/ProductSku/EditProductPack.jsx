@@ -13,8 +13,9 @@ import { useMutation, useQuery, useQueryClient } from "react-query";
 
 import { message } from "antd";
 
-function EditProductPack({ alert, setAlert }) {
-  const { id } = useParams();
+function EditProductPack({ alert, setAlert, id }) {
+  console.log(id);
+
   const location = useLocation();
   let slug;
   try {

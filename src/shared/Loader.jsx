@@ -7,7 +7,7 @@ const Loader = ({ isOpen }) => {
         display: "flex",
         justifyContent: "center",
       }}
-      className="p-8"
+      className="p-8 z-50"
       closable={false}
       footer={false}
       visible={isOpen}
