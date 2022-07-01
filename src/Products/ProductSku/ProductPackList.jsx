@@ -26,6 +26,7 @@ function ProductPackList({ id }) {
       console.log(data.data.data);
       setProductPack(data.data.data);
     },
+    enabled: !!id,
   });
   return (
     <div className="mt-[1rem] relative">

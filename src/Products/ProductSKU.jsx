@@ -228,7 +228,7 @@ function ProductSKU() {
                 </div>
               </div>
             </div>
-            <ProductPackList id={productSKU?.product_packs[0]?.id} />
+            <ProductPackList id={productSKU?.product_packs?.[0]?.id} />
           </div>
         </>
       )}
