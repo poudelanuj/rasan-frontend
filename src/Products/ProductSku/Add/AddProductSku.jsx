@@ -7,7 +7,7 @@ import { getAllBrands } from "../../../api/brands";
 import { getAllCategories } from "../../../api/categories";
 import { getLoyaltyPolicies } from "../../../api/loyalties";
 import { getAllProductGroups } from "../../../api/productGroups";
-import { createProduct, getAllProducts } from "../../../api/products";
+import { getAllProducts } from "../../../api/products";
 import { createProductSku } from "../../../api/productSku";
 import Loader from "../../../shared/Loader";
 import {
@@ -132,7 +132,7 @@ const AddProductSku = () => {
 
               <Form.Item
                 label="Product Name (In Nepali)"
-                name="nname"
+                name="name_np"
                 rules={[{ required: true, message: "product name required" }]}
               >
                 <Input />
@@ -145,7 +145,7 @@ const AddProductSku = () => {
                 name="quantity"
                 rules={[{ required: true, message: "quantity required" }]}
               >
-                <Input type="number" />
+                <Input />
               </Form.Item>
 
               <Form.Item

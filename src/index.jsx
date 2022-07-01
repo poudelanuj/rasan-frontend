@@ -31,6 +31,7 @@ import User from "./Users/User";
 import "antd/dist/antd.min.css";
 import EditProduct from "./Products/ProductList/Edit";
 import AddProductSku from "./Products/ProductSku/Add";
+import EditProductSku from "./Products/ProductSku/Edit";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const queryClient = new QueryClient();
@@ -88,10 +89,12 @@ root.render(
                 <Route element={<EditProduct />} path=":slug/edit" />
               </Route>
 
-              <Route element={<ProductSkuScreen />} path="product-sku" />
-              <Route element={<AddProductSku />} path="product-sku/add" />
-              <Route element={<ProductSKU />} path="product-sku/:slug" />
-              <Route element={<ProductSKU />} path="product-sku/:slug/edit" />
+              <Route path="product-sku">
+                <Route element={<ProductSkuScreen />} index />
+                <Route element={<AddProductSku />} path="add" />
+                <Route element={<ProductSKU />} path=":slug" />
+                <Route element={<EditProductSku />} path=":slug/edit" />
+              </Route>
 
               <Route
                 element={<ProductSKU />}
