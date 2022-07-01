@@ -17,7 +17,7 @@ import BrandsScreen from "./Products/BrandsScreen";
 import Category from "./Products/Category";
 import ViewProductGroup from "./Products/Product Groups/ViewProductGroup";
 import ProductGroupsScreen from "./Products/ProductGroupsScreen";
-import AddProduct from "./Products/ProductList/AddProduct";
+import AddProduct from "./Products/ProductList/Add";
 import ViewProductList from "./Products/ProductList/ViewProductList";
 import ProductListScreen from "./Products/ProductListScreen";
 import ProductSKU from "./Products/ProductSKU";
@@ -29,7 +29,8 @@ import Users from "./Users";
 import OTPRequests from "./Users/OTPRequests";
 import User from "./Users/User";
 import "antd/dist/antd.min.css";
-import EditProduct from "./Products/ProductList/EditProduct";
+import EditProduct from "./Products/ProductList/Edit";
+import AddProductSku from "./Products/ProductSku/Add";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const queryClient = new QueryClient();
@@ -88,7 +89,7 @@ root.render(
               </Route>
 
               <Route element={<ProductSkuScreen />} path="product-sku" />
-              <Route element={<ProductSkuScreen />} path="product-sku/add" />
+              <Route element={<AddProductSku />} path="product-sku/add" />
               <Route element={<ProductSKU />} path="product-sku/:slug" />
               <Route element={<ProductSKU />} path="product-sku/:slug/edit" />
 

@@ -3,14 +3,14 @@ import { Upload, Form, Input, Select, Switch, Button, Space } from "antd";
 import { useState } from "react";
 import { useQuery, useMutation } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
+import { getAllBrands } from "../../../api/brands";
+import { getAllCategories } from "../../../api/categories";
+import { getLoyaltyPolicies } from "../../../api/loyalties";
 import {
-  getAllBrands,
-  getAllCategories,
   getAllProducts,
-  getLoyaltyPolicies,
   getProduct,
   updateProduct,
-} from "../../../context/products";
+} from "../../../api/products";
 import Loader from "../../../shared/Loader";
 import {
   openErrorNotification,

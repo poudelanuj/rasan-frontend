@@ -199,10 +199,6 @@ function TabAll() {
       )}
       <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[70vh]">
         <div className="flex justify-end mb-3">
-          {/* <div className="py-[3px] px-3 min-w-[18rem] border-[1px] border-[#D9D9D9] rounded-lg flex items-center justify-between">
-  <SearchOutlined style={{color: "#D9D9D9"}} />
-  <input type="text" placeholder="Search category..." className="w-full ml-1 placeholder:text-[#D9D9D9]" />
-  </div> */}
           <div>
             <AddCategoryButton linkText="Add Product SKU" linkTo={`add`} />
           </div>
@@ -213,7 +209,10 @@ function TabAll() {
           {isError ? error.message : null}
           <Table
             columns={columns}
-            dataSource={data?.data?.data?.results}
+            dataSource={data?.data?.data?.results.map((item) => ({
+              ...item,
+              key: item.id || item.sn,
+            }))}
             footer={() => (
               <div className="absolute bottom-0 left-0 flex justify-start bg-white w-[100%]">
                 <div className="">
@@ -237,12 +236,13 @@ function TabAll() {
               </div>
             )}
             pagination={{ pageSize: entriesPerPage }}
+            rowClassName="cursor-pointer"
             rowSelection={rowSelection}
             onRow={(record) => {
               return {
-                onDoubleClick: (_) => {
+                onClick: (_) => {
                   navigate("/product-sku/" + record.slug);
-                }, // double click row
+                },
               };
             }}
           />

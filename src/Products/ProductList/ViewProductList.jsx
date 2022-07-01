@@ -6,7 +6,6 @@ import { Link, useLocation, useParams } from "react-router-dom";
 import { getProduct } from "../../context/CategoryContext";
 import { getDate, parseSlug } from "../../utility";
 import SimpleAlert from "../alerts/SimpleAlert";
-import EditProductList from "./EditProductList";
 
 function ViewProductList() {
   const [alert, setAlert] = useState({
@@ -68,9 +67,7 @@ function ViewProductList() {
           type={alert.type}
         />
       )}
-      {categorySlug === "edit" && (
-        <EditProductList alert={alert} setAlert={setAlert} />
-      )}
+
       {getProductIsLoading && <div>Loading....</div>}
       {getProductIsError && <div>Error: {getProductError.message}</div>}
       {productData && (
