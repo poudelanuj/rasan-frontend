@@ -1,4 +1,5 @@
 import { EditOutlined } from "@ant-design/icons";
+import { Divider } from "antd";
 import React, { useState } from "react";
 import { useQuery } from "react-query";
 import { Link, useLocation, useParams } from "react-router-dom";
@@ -78,45 +79,41 @@ function ViewProductList() {
           <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[70vh] max-w-[70%]">
             <div>
               <div className="flex justify-start relative">
-                <div className="w-[100px] h-[150px]">
+                <div className="w-[200px] h-[200px] rounded ">
                   <img
-                    src={productList?.product_image?.full_size}
                     alt="product"
-                    className="w-[100%] h-[100%] object-cover"
+                    className="w-[100%] h-[100%] rounded object-cover"
+                    src={productList?.product_image?.full_size}
                   />
                 </div>
                 <div className="grid grid-cols-2 ml-5 gap-y-0 gap-x-5 items-center">
-                  <p className="text-[#596579] text-[0.8rem]">Created at: </p>
+                  <p className="text-[#596579] text-[0.8rem]">Name : </p>
                   <p className="text-[#596579] font-bold">
-                    {productList.published_at
-                      ? getDate(productList.published_at)
-                      : "-"}
+                    {productList.name || "-"}
                   </p>
-                  <p className="text-[#596579] text-[0.8rem]">
-                    Last edited at:{" "}
-                  </p>
+                  <p className="text-[#596579] text-[0.8rem]">Category : </p>
                   <p className="text-[#596579] font-bold">
-                    {productList.published_at
-                      ? getDate(productList.published_at)
-                      : "-"}
+                    {productList.category || "-"}
                   </p>
-                  <p className="text-[#596579] text-[0.8rem]">Published at: </p>
+
+                  <p className="text-[#596579] text-[0.8rem]">Brand : </p>
                   <p className="text-[#596579] font-bold">
-                    {productList.published_at
-                      ? getDate(productList.published_at)
-                      : "-"}
+                    {productList.brand || "-"}
                   </p>
                 </div>
                 <div className="absolute top-0 right-0">
                   <Link
-                    to={"edit"}
                     className="text-[#00A0B0] hover:bg-[#d4e4e6] py-2 px-6"
+                    to={"edit"}
                   >
                     <EditOutlined style={{ verticalAlign: "middle" }} /> Edit
                     Details
                   </Link>
                 </div>
               </div>
+
+              <Divider />
+
               <div className="mt-[1rem]">
                 <div className="flex justify-start items-center">
                   <h3 className="text-xl text-[#374253]">

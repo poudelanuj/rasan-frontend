@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import moment from "moment";
 
 import { Table, Select } from "antd";
 import AddCategoryButton from "../subComponents/AddCategoryButton";
 import { getProducts } from "../../context/CategoryContext";
 import { useQuery } from "react-query";
 
-import { getDate, parseSlug } from "../../utility";
+import { parseSlug } from "../../utility";
 import AddProductList from "./AddProductList";
 
 const { Option } = Select;
@@ -77,32 +78,13 @@ const columns = [
       );
     },
   },
-  {
-    title: "Includes VAT",
-    render: (text, record) => {
-      return (
-        <div
-          className={`text-center rounded-[36px] text-[14px] p-[2px_5px] ${
-            record.includes_vat
-              ? "bg-[#E4FEEF] text-[#0E9E49]"
-              : "bg-[#FFF8E1] text-[#FF8F00]"
-          }`}
-        >
-          {record.includes_vat ? "Yes" : "No"}
-        </div>
-      );
-    },
-  },
+
   {
     title: "Published Date",
-    render: (text, record) => {
+    render: (_, { published_at }) => {
       return (
-        <div
-          className={`text-center text-[14px] p-[2px_5px] ${
-            record.is_published ? "text-[#0E9E49]" : "text-[#FF8F00]"
-          }`}
-        >
-          {getDate(record.published_at)}
+        <div className="text-center text-[14px] p-[2px_5px]">
+          {moment(published_at).format("ll")}
         </div>
       );
     },

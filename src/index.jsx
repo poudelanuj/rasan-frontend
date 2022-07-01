@@ -29,6 +29,7 @@ import Users from "./Users";
 import OTPRequests from "./Users/OTPRequests";
 import User from "./Users/User";
 import "antd/dist/antd.min.css";
+import EditProduct from "./Products/ProductList/EditProduct";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const queryClient = new QueryClient();
@@ -83,7 +84,7 @@ root.render(
                 <Route element={<ProductListScreen />} index />
                 <Route element={<AddProduct />} path="add" />
                 <Route element={<ViewProductList />} path=":slug" />
-                <Route element={<ViewProductList />} path=":slug/edit" />
+                <Route element={<EditProduct />} path=":slug/edit" />
               </Route>
 
               <Route element={<ProductSkuScreen />} path="product-sku" />
