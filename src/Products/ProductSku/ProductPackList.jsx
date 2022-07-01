@@ -67,7 +67,9 @@ function ProductPackList({ productPacks }) {
   return (
     <>
       {openEditPack && <EditProductPack id={selectedPack?.id} />}
-      <h3 className="text-xl text-[#374253]">Product Pack Details</h3>
+
+      <h3 className="text-xl text-[#374253] mb-4">Product Pack Details</h3>
+
       <Table
         columns={columns}
         dataSource={productPacks}

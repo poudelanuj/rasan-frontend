@@ -6,6 +6,7 @@ import { useQuery } from "react-query";
 import { Link, useParams } from "react-router-dom";
 import { getProduct } from "../../api/products";
 import Loader from "../../shared/Loader";
+import CustomPageHeader from "../../shared/PageHeader";
 import { parseSlug } from "../../utility";
 
 function ViewProduct() {
@@ -21,7 +22,10 @@ function ViewProduct() {
       {productStatus === "loading" && <Loader isOpen />}
       {product && (
         <>
-          <div className="text-3xl bg-white p-5 mb-7">{product.name}</div>
+          <div className="mt-4">
+            <CustomPageHeader title={product.name} />
+          </div>
+
           <div className="flex flex-col bg-white p-6 rounded">
             <div>
               <div className="flex justify-start relative">
@@ -97,13 +101,11 @@ function ViewProduct() {
               <Divider />
 
               <div className="mt-[1rem]">
-                <div className="flex justify-start items-center">
-                  <h3 className="text-xl text-[#374253] mb-4">
-                    Product Details
-                  </h3>
+                <div className="mb-4">
+                  <h3 className="text-xl text-[#374253]">Product Details</h3>
                 </div>
 
-                <Descriptions column={2} title="">
+                <Descriptions column={2} size="middle" bordered>
                   <Descriptions.Item label="S.No">
                     <span className="font-medium">{product.sn}</span>
                   </Descriptions.Item>
@@ -113,19 +115,15 @@ function ViewProduct() {
                       {product.includes_vat ? "Yes" : "No"}
                     </Tag>
                   </Descriptions.Item>
-                  <Descriptions.Item label="Created At">
-                    <span className="font-medium">
-                      {product.created_at
-                        ? moment(product.created_at).format("ll")
-                        : "-"}
-                    </span>
-                  </Descriptions.Item>
+
                   <Descriptions.Item label="Published At">
                     <span className="font-medium">
-                      {moment(product.published_at).format("ll")}
+                      {product.published_at
+                        ? moment(product.published_at).format("ll")
+                        : product.published_at}
                     </span>
                   </Descriptions.Item>
-                  <Descriptions.Item label="Alternate Products">
+                  <Descriptions.Item label="Alternate Products" span={3}>
                     <span className="font-medium">
                       {product.alternate_products.map((item) => (
                         <span
@@ -137,7 +135,7 @@ function ViewProduct() {
                       ))}
                     </span>
                   </Descriptions.Item>
-                  <Descriptions.Item label="Supplement Products">
+                  <Descriptions.Item label="Supplement Products" span={3}>
                     <span className="font-medium">
                       {product.supplementary_products.map((item) => (
                         <span

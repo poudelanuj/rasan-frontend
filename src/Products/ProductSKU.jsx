@@ -1,108 +1,95 @@
 import { EditOutlined } from "@ant-design/icons";
-import { Divider } from "antd";
-import { useState } from "react";
+import { Descriptions, Divider, Tag } from "antd";
+import moment from "moment";
 import { useQuery } from "react-query";
-import { Link, useLocation, useParams } from "react-router-dom";
-import { getProductSKU } from "../context/CategoryContext";
-import { getDate, parseSlug } from "../utility";
-import SimpleAlert from "./alerts/SimpleAlert";
-import AddProductPack from "./ProductSku/AddProductPack";
-import EditProductPack from "./ProductSku/EditProductPack";
+import { Link, useParams } from "react-router-dom";
+import { getProductSku } from "../api/productSku";
+import { GET_PRODUCT_SKU } from "../constants/queryKeys";
+import Loader from "../shared/Loader";
+import CustomPageHeader from "../shared/PageHeader";
+import { parseSlug } from "../utility";
 import ProductPackList from "./ProductSku/ProductPackList";
 
 function ProductSKU() {
-  const [alert, setAlert] = useState({
-    show: false,
-    title: "",
-    text: "",
-    type: "",
-    primaryButton: "",
-    secondaryButton: "",
-    image: "",
-    action: "",
-    actionOn: "",
-    icon: "",
-  });
-  const { slug, id } = useParams();
-  const location = useLocation();
-  let categorySlug;
-  try {
-    categorySlug = location.pathname.split("/")[3];
-  } catch (error) {
-    categorySlug = null;
-  }
-  const [productSKU, setProductSKU] = useState({});
-  const {
-    data: getProductSkuData,
-    isLoading: getProductSkuIsLoading,
-    isError: getProductSkuIsError,
-    error: getProductSkuError,
-  } = useQuery(["get-product-sku", slug], () => getProductSKU({ slug }), {
-    onSuccess: (data) => {
-      console.log(data.data.data);
-      setProductSKU(data.data.data);
-    },
-  });
+  const { slug } = useParams();
+
+  const { data: productSku, status: productSkustatus } = useQuery(
+    [GET_PRODUCT_SKU, slug],
+    () => getProductSku(slug)
+  );
+
+  console.log("productSku", productSku);
+
   return (
     <>
-      {alert.show && (
-        <SimpleAlert
-          action={alert.action}
-          alert={alert}
-          icon={alert.icon}
-          image={alert.image}
-          primaryButton={alert.primaryButton}
-          secondaryButton={alert.secondaryButton}
-          setAlert={setAlert}
-          text={alert.text}
-          title={alert.title}
-          type={alert.type}
-        />
-      )}
-
-      {categorySlug === "edit-product-pack" && (
-        <EditProductPack alert={alert} setAlert={setAlert} />
-      )}
-      {categorySlug === "add-product-pack" && (
-        <AddProductPack alert={alert} setAlert={setAlert} />
-      )}
-      {getProductSkuIsLoading && <div>Loading....</div>}
-      {getProductSkuIsError && <div>Error: {getProductSkuError.message}</div>}
-      {getProductSkuData && (
+      {productSkustatus === "loading" && <Loader />}
+      {productSkustatus === "success" && productSku && (
         <>
-          <div className="text-3xl bg-white p-5 mb-7">{productSKU.name}</div>
+          <div className="mt-4">
+            <CustomPageHeader title={productSku.name} />
+          </div>
+
           <div className="flex flex-col bg-white p-6 rounded ">
             <div>
               <div className="flex justify-start relative">
-                <div className="w-[100px] h-[150px]">
+                <div className="w-[200px] h-[200px] rounded ">
                   <img
                     alt="product"
-                    className="w-[100%] h-[100%] object-cover"
-                    src={productSKU?.product_sku_image?.full_size}
+                    className="w-[100%] h-[100%] rounded object-cover"
+                    src={productSku?.product_sku_image?.full_size}
                   />
                 </div>
-                <div className="grid grid-cols-2 ml-5 gap-y-0 gap-x-5 items-center">
-                  <p className="text-[#596579] text-[0.8rem]">Created at: </p>
-                  <p className="text-[#596579] font-bold">
-                    {productSKU.published_at
-                      ? getDate(productSKU.published_at)
-                      : "-"}
-                  </p>
-                  <p className="text-[#596579] text-[0.8rem]">
-                    Last edited at:{" "}
-                  </p>
-                  <p className="text-[#596579] font-bold">
-                    {productSKU.published_at
-                      ? getDate(productSKU.published_at)
-                      : "-"}
-                  </p>
-                  <p className="text-[#596579] text-[0.8rem]">Published at: </p>
-                  <p className="text-[#596579] font-bold">
-                    {productSKU.published_at
-                      ? getDate(productSKU.published_at)
-                      : "-"}
-                  </p>
+
+                <div className="w-[50%] mx-8">
+                  <Descriptions column={1} title="">
+                    <Descriptions.Item label="Name">
+                      <span className="font-medium">{productSku.name}</span>
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Name (Nepali)">
+                      <span className="font-medium">{productSku.name_np}</span>
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Category">
+                      <span className="font-medium">
+                        {Array.isArray(productSku.category)
+                          ? productSku.category.map((item) => (
+                              <span
+                                key={item}
+                                className="mr-2 cursor-pointer hover:underline"
+                              >
+                                {parseSlug(item)}
+                              </span>
+                            ))
+                          : productSku.category}
+                      </span>
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Brand">
+                      <span className="font-medium">
+                        {Array.isArray(productSku.brand) ? (
+                          productSku.brand.map((item) => (
+                            <span
+                              key={item}
+                              className="mr-2 cursor-pointer hover:underline"
+                            >
+                              {parseSlug(item)}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="mr-2 cursor-pointer hover:underline">
+                            {productSku.brand}
+                          </span>
+                        )}
+                      </span>
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Published">
+                      <Tag color={productSku.is_published ? "green" : "orange"}>
+                        {productSku.is_published
+                          ? "Published"
+                          : "Not Published"}
+                      </Tag>
+                    </Descriptions.Item>
+                  </Descriptions>
                 </div>
+
                 <div className="absolute top-0 right-0">
                   <Link
                     className="text-[#00A0B0] hover:bg-[#d4e4e6] py-2 px-6"
@@ -117,122 +104,78 @@ function ProductSKU() {
               <Divider />
 
               <div className="mt-[1rem]">
-                <div className="flex justify-start items-center">
-                  <h3 className="text-xl text-[#374253]">Product Details</h3>
-                  {productSKU?.is_published ? (
-                    <p className="ml-[6rem] rounded-full bg-[#E4FEEF] text-[#0E9E49] px-[1rem] py-[2px]">
-                      Published
-                    </p>
-                  ) : (
-                    <p className="ml-[6rem] rounded-full bg-[#FFF8E1] text-[#FF8F00] px-[1rem] py-[2px]">
-                      Unpublished
-                    </p>
-                  )}
+                <div className="mb-4">
+                  <h3 className="text-xl text-[#374253]">
+                    Product SKU Details
+                  </h3>
                 </div>
-                <div className="mt-[0.5rem] flex">
-                  <div className="grid grid-cols-2 ml-5 gap-y-0 gap-x-5 items-center flex-1">
-                    <p className="text-[#596579] text-[0.8rem]">Sno.</p>
-                    <p className="text-[#596579] font-bold">{productSKU?.sn}</p>
 
-                    <p className="text-[#596579] text-[0.8rem]">Product Name</p>
-                    <p className="text-[#596579] font-bold">
-                      {productSKU?.name}
-                    </p>
+                <Descriptions column={3} size="middle" bordered>
+                  <Descriptions.Item label="S.No">
+                    <span className="font-medium">{productSku.sn}</span>
+                  </Descriptions.Item>
 
-                    <p className="text-[#596579] text-[0.8rem]">Nepali Name</p>
-                    <p className="text-[#596579] font-bold">
-                      {productSKU?.name_np}
-                    </p>
+                  <Descriptions.Item label="Quantity">
+                    <span className="font-medium">{productSku.quantity}</span>
+                  </Descriptions.Item>
 
-                    <p className="text-[#596579] text-[0.8rem]">Description</p>
-                    <p className="text-[#596579] font-bold">
-                      {productSKU?.description}
-                    </p>
+                  <Descriptions.Item label="Cost Price/Piece">
+                    <span className="font-medium">
+                      {productSku.cost_price_per_piece}
+                    </span>
+                  </Descriptions.Item>
 
-                    <p className="text-[#596579] text-[0.8rem]">
-                      Alternate Products
-                    </p>
-                    <p className="text-[#596579] font-bold">123456</p>
+                  <Descriptions.Item label="Price/Piece">
+                    <span className="font-medium">
+                      {productSku.price_per_piece}
+                    </span>
+                  </Descriptions.Item>
 
-                    <p className="text-[#596579] text-[0.8rem]">
-                      Supplementary Products
-                    </p>
-                    <p className="text-[#596579] font-bold">123456</p>
-                  </div>
-                  <div className="grid grid-cols-2 ml-5 gap-y-0 gap-x-5 items-center flex-1">
-                    <p className="text-[#596579] text-[0.8rem]">Brand</p>
-                    <p className="text-[#596579] font-bold">
-                      {productSKU?.brand}
-                    </p>
+                  <Descriptions.Item label="MRP Price/Piece">
+                    <span className="font-medium">
+                      {productSku.mrp_per_piece}
+                    </span>
+                  </Descriptions.Item>
 
-                    <p className="text-[#596579] text-[0.8rem]">Category</p>
-                    <p className="text-[#596579] font-bold capitalize">
-                      {productSKU?.category?.map((category, index) => {
-                        if (index === productSKU?.category?.length - 1) {
-                          return parseSlug(category);
-                        } else {
-                          return parseSlug(category) + ", ";
-                        }
-                      })}
-                    </p>
+                  <Descriptions.Item label="Published At">
+                    <span className="font-medium">
+                      {productSku.published_at
+                        ? moment(productSku.published_at).format("ll")
+                        : productSku.published_at}
+                    </span>
+                  </Descriptions.Item>
 
-                    <p className="text-[#596579] text-[0.8rem]">
-                      Product Group
-                    </p>
-                    <p className="text-[#596579] font-bold capitalize">
-                      {productSKU?.product_group?.map((group, index) => {
-                        if (index === productSKU?.product_group?.length - 1) {
-                          return parseSlug(group);
-                        } else {
-                          return parseSlug(group) + ", ";
-                        }
-                      })}
-                    </p>
+                  <Descriptions.Item label="Product Group" span={3}>
+                    <span className="font-medium">
+                      {Array.isArray(productSku.product_group)
+                        ? productSku.product_group.map((item) => (
+                            <span
+                              key={item}
+                              className="mr-2 cursor-pointer hover:underline"
+                            >
+                              {parseSlug(item)}
+                            </span>
+                          ))
+                        : productSku.product_group}
+                    </span>
+                  </Descriptions.Item>
 
-                    <p className="text-[#596579] text-[0.8rem]">
-                      Loyalty Policy
-                    </p>
-                    <p className="text-[#596579] font-bold">
-                      {productSKU?.loyalty_policy}
-                    </p>
+                  <Descriptions.Item label="Product" span={3}>
+                    <span className="font-medium">{productSku.product}</span>
+                  </Descriptions.Item>
 
-                    <p className="text-[#596579] text-[0.8rem]">Quantity</p>
-                    <p className="text-[#596579] font-bold">
-                      {productSKU?.quantity}
-                    </p>
-
-                    <p className="text-[#596579] text-[0.8rem]">Price/piece</p>
-                    <p className="text-[#596579] font-bold">
-                      {productSKU?.price_per_piece}
-                    </p>
-
-                    <p className="text-[#596579] text-[0.8rem]">
-                      CostPrice/Piece
-                    </p>
-                    <p className="text-[#596579] font-bold">
-                      {productSKU?.cost_price_per_piece}
-                    </p>
-
-                    <p className="text-[#596579] text-[0.8rem]">MRP/Piece</p>
-                    <p className="text-[#596579] font-bold">
-                      {productSKU?.mrp_per_piece}
-                    </p>
-
-                    <p className="text-[#596579] text-[0.8rem]">Slug</p>
-                    <p className="text-[#596579] font-bold">
-                      {productSKU?.slug}
-                    </p>
-
-                    <p className="text-[#596579] text-[0.8rem]">Includes VAT</p>
-                    <p className="text-[#596579] font-bold">Yes</p>
-                  </div>
-                </div>
+                  <Descriptions.Item label="Description" span={3}>
+                    <span className="font-medium">
+                      {productSku.description}
+                    </span>
+                  </Descriptions.Item>
+                </Descriptions>
               </div>
             </div>
 
             <Divider />
 
-            <ProductPackList productPacks={productSKU?.product_packs} />
+            <ProductPackList productPacks={productSku?.product_packs} />
           </div>
         </>
       )}

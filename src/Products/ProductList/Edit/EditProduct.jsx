@@ -114,7 +114,7 @@ const EditProduct = () => {
       />
 
       <div className="py-5">
-        <CustomPageHeader title="Edit Product" />
+        <CustomPageHeader title={`Edit ${product?.name}`} />
 
         {productStatus === "success" && product && product.name && (
           <div>
