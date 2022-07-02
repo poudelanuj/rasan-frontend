@@ -210,28 +210,6 @@ function TabAll() {
               ...item,
               key: item.id || item.sn,
             }))}
-            footer={() => (
-              <div className="absolute bottom-0 left-0 flex justify-start bg-white w-[100%]">
-                <div className="">
-                  <span className="text-sm text-gray-600">
-                    Entries per page:{" "}
-                  </span>
-                  <Select
-                    defaultValue="4"
-                    style={{
-                      width: 120,
-                    }}
-                    onChange={(value) => setEntriesPerPage(value)}
-                  >
-                    <Option value={4}>4</Option>
-                    <Option value={10}>10</Option>
-                    <Option value={20}>20</Option>
-                    <Option value={50}>50</Option>
-                    <Option value={100}>100</Option>
-                  </Select>
-                </div>
-              </div>
-            )}
             pagination={{ pageSize: entriesPerPage }}
             rowClassName="cursor-pointer"
             rowSelection={rowSelection}

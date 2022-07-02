@@ -3,7 +3,11 @@ import { useMutation } from "react-query";
 import { useState } from "react";
 import { Space, Table, Tag, Button } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import { deleteProductPack } from "../../api/productPack";
+import {
+  deleteProductPack,
+  publishProductPack,
+  unpublishProductPack,
+} from "../../api/productPack";
 import ConfirmDelete from "../../shared/ConfirmDelete";
 import {
   openErrorNotification,
@@ -24,13 +28,20 @@ function ProductPackList({ productSkuSlug, productPacks, refetchProductSku }) {
       openSuccessNotification(data.message || "Product Pack Deleted");
       refetchProductSku();
     },
-    onError: (err) => {
-      openErrorNotification(err);
-    },
-    onSettled: () => {
-      setConfirmDelete(false);
-    },
+    onError: (err) => openErrorNotification(err),
+    onSettled: () => setConfirmDelete(false),
   });
+
+  const handlePublish = useMutation(
+    ({ bool, id }) => {
+      return bool ? publishProductPack(id) : unpublishProductPack(id);
+    },
+    {
+      onSuccess: (data) => openSuccessNotification(data.message),
+      onError: (err) => openErrorNotification(err),
+      onSettled: () => refetchProductSku(),
+    }
+  );
 
   const columns = [
     {
@@ -78,7 +89,6 @@ function ProductPackList({ productSkuSlug, productPacks, refetchProductSku }) {
               setConfirmDelete(true);
             }}
           />
-
           <Button
             icon={<EditOutlined />}
             onClick={() => {
@@ -86,6 +96,18 @@ function ProductPackList({ productSkuSlug, productPacks, refetchProductSku }) {
               setSelectedPack(record);
             }}
           />
+          <Button
+            className="rounded"
+            type={record.is_published ? "danger" : "primary"}
+            onClick={() => {
+              handlePublish.mutate({
+                bool: !record.is_published,
+                id: record.id,
+              });
+            }}
+          >
+            {record.is_published ? "Unpublish" : "Publish"}
+          </Button>
         </Space>
       ),
     },

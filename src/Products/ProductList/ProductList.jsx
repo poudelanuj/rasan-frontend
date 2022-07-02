@@ -1,20 +1,39 @@
 import { EditOutlined } from "@ant-design/icons";
-import { Descriptions, Divider, Tag } from "antd";
+import { Descriptions, Divider, Tag, Button } from "antd";
 import moment from "moment";
 import React from "react";
-import { useQuery } from "react-query";
+import { useQuery, useMutation } from "react-query";
 import { Link, useParams } from "react-router-dom";
-import { getProduct } from "../../api/products";
+import {
+  getProduct,
+  publishProduct,
+  unpublishProduct,
+} from "../../api/products";
+import { GET_PRODUCT } from "../../constants/queryKeys";
 import Loader from "../../shared/Loader";
 import CustomPageHeader from "../../shared/PageHeader";
 import { parseSlug } from "../../utility";
+import {
+  openErrorNotification,
+  openSuccessNotification,
+} from "../../utils/openNotification";
 
 function ViewProduct() {
   const { slug } = useParams();
 
-  const { data: product, status: productStatus } = useQuery(
-    ["get-product", slug],
-    () => getProduct(slug)
+  const {
+    data: product,
+    status: productStatus,
+    refetch: refetchProduct,
+  } = useQuery([GET_PRODUCT, slug], () => getProduct(slug));
+
+  const handlePublish = useMutation(
+    (bool) => (bool ? publishProduct(slug) : unpublishProduct(slug)),
+    {
+      onSuccess: (data) => openSuccessNotification(data.message),
+      onError: (err) => openErrorNotification(err),
+      onSettled: () => refetchProduct(),
+    }
   );
 
   return (
@@ -88,6 +107,13 @@ function ViewProduct() {
                 </div>
 
                 <div className="absolute top-0 right-0">
+                  <Button
+                    className="rounded"
+                    type={product.is_published ? "danger" : "primary"}
+                    onClick={() => handlePublish.mutate(!product.is_published)}
+                  >
+                    {product.is_published ? "Unpublish" : "Publish"}
+                  </Button>
                   <Link
                     className="text-[#00A0B0] hover:bg-[#d4e4e6] py-2 px-6"
                     to={"edit"}
