@@ -3,18 +3,20 @@ import { useMutation } from "react-query";
 import { useState } from "react";
 import { Space, Table, Tag, Button } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import EditProductPack from "./EditProductPack";
-import { DELETE_PRODUCT_PACK } from "../../constants/queryKeys";
 import { deleteProductPack } from "../../api/productPack";
 import ConfirmDelete from "../../shared/ConfirmDelete";
 import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../utils/openNotification";
+import AddProductPack from "./ProductPack/AddProductPack";
+import EditProductPack from "./ProductPack/EditProductPack";
 
-function ProductPackList({ productPacks, refetchProductSku }) {
+function ProductPackList({ productSkuSlug, productPacks, refetchProductSku }) {
+  const [openAddPack, setOpenAddPack] = useState(false);
   const [openEditPack, setOpenEditPack] = useState(false);
   const [openConfirmDelete, setConfirmDelete] = useState(false);
+
   const [selectedPack, setSelectedPack] = useState(null);
 
   const handleDelete = useMutation((id) => deleteProductPack(id), {
@@ -64,28 +66,26 @@ function ProductPackList({ productPacks, refetchProductSku }) {
         );
       },
     },
-
     {
       title: "Action",
       key: "action",
       render: (_, record) => (
         <Space size="middle">
           <Button
+            icon={<DeleteOutlined />}
             onClick={() => {
               setSelectedPack(record);
               setConfirmDelete(true);
             }}
-          >
-            <DeleteOutlined />
-          </Button>
-          <Button>
-            <EditOutlined
-              onClick={() => {
-                setOpenEditPack(true);
-                setSelectedPack(record);
-              }}
-            />
-          </Button>
+          />
+
+          <Button
+            icon={<EditOutlined />}
+            onClick={() => {
+              setOpenEditPack(true);
+              setSelectedPack(record);
+            }}
+          />
         </Space>
       ),
     },
@@ -93,16 +93,33 @@ function ProductPackList({ productPacks, refetchProductSku }) {
 
   return (
     <>
-      {openEditPack && <EditProductPack id={selectedPack?.id} />}
+      <AddProductPack
+        closeModal={() => setOpenAddPack(false)}
+        isOpen={openAddPack}
+        productSkuSlug={productSkuSlug}
+        refetchProductSku={refetchProductSku}
+      />
+      <EditProductPack
+        closeModal={() => setOpenEditPack(false)}
+        isOpen={openEditPack}
+        productPackId={selectedPack?.id}
+        productSkuSlug={productSkuSlug}
+        refetchProductSku={refetchProductSku}
+      />
       <ConfirmDelete
         closeModal={() => setConfirmDelete(false)}
         deleteMutation={() => handleDelete.mutate(selectedPack?.id)}
         isOpen={openConfirmDelete}
         status={handleDelete.status}
-        title="Delete Product Pack"
+        title={`Product Pack #${selectedPack?.sn}`}
       />
 
-      <h3 className="text-xl text-[#374253] mb-4">Product Pack Details</h3>
+      <div className="flex justify-between">
+        <h3 className="text-xl text-[#374253] mb-4">Product Pack Details</h3>
+        <Button type="primary" onClick={() => setOpenAddPack(true)}>
+          Add New
+        </Button>
+      </div>
 
       <Table
         columns={columns}

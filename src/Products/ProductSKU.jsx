@@ -176,6 +176,7 @@ function ProductSKU() {
 
             <ProductPackList
               productPacks={productSku?.product_packs}
+              productSkuSlug={productSku?.slug}
               refetchProductSku={refetchProductSku}
             />
           </div>
