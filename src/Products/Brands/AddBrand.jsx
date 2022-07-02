@@ -5,10 +5,14 @@ import { UploadOutlined, LoadingOutlined } from "@ant-design/icons";
 import { addBrand } from "../../context/CategoryContext";
 import { useMutation, useQueryClient } from "react-query";
 
-import { message, Upload } from "antd";
+import { Upload } from "antd";
+import {
+  openErrorNotification,
+  openSuccessNotification,
+} from "../../utils/openNotification";
 const { Dragger } = Upload;
 
-function AddBrand({ alert, setAlert }) {
+function AddBrand() {
   const navigate = useNavigate();
   const [formState, setFormState] = useState({
     name: "",
@@ -24,19 +28,14 @@ function AddBrand({ alert, setAlert }) {
     data: addBrandResponseData,
   } = useMutation(addBrand, {
     onSuccess: (data) => {
-      message.success("Brand added successfully");
+      openSuccessNotification(
+        data.data.message || "Brand created successfully"
+      );
       queryClient.invalidateQueries("get-brands");
-      console.log(data.data.data.slug);
       navigate(`/brands/edit/` + data.data.data.slug);
     },
-    onError: (data) => {
-      console.log(data);
-      message.error(
-        data.response.data.errors.detail ||
-          data.response.data.errors.message ||
-          data.message ||
-          "Something went wrong"
-      );
+    onError: (error) => {
+      openErrorNotification(error);
     },
   });
   const closeAddBrands = () => {
@@ -57,7 +56,9 @@ function AddBrand({ alert, setAlert }) {
       }
       addBrandMutate({ form_data });
     } else {
-      message.error("Please fill all the fields");
+      openErrorNotification({
+        response: { data: { message: "Please fill all the fields" } },
+      });
     }
   };
   const props = {

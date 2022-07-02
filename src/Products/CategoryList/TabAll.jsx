@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { Table, Select, message } from "antd";
+import { Table, Select } from "antd";
 import AddCategoryButton from "../subComponents/AddCategoryButton";
 import {
   deleteProduct,
@@ -13,6 +13,11 @@ import { useMutation, useQuery, useQueryClient } from "react-query";
 
 import { getDate, parseSlug, parseArray } from "../../utility";
 import SimpleAlert from "../alerts/SimpleAlert";
+import {
+  openErrorNotification,
+  openSuccessNotification,
+} from "../../utils/openNotification";
+import Loader from "../subComponents/Loader";
 
 const { Option } = Select;
 
@@ -188,11 +193,7 @@ function TabAll({ slug }) {
     () => getProductsFromCategory({ slug }),
     {
       onError: (err) => {
-        message.error(
-          err.response.data.errors.detail ||
-            err.message ||
-            "Error while fetching products from category"
-        );
+        openErrorNotification(err);
       },
     }
   );
@@ -212,15 +213,11 @@ function TabAll({ slug }) {
     (slug) => publishProduct({ slug }),
     {
       onSuccess: (data) => {
-        message.success(data.data.message || "Product published");
+        openSuccessNotification(data.data.message || "Product published");
         queryClient.invalidateQueries(["get-products-from-category", slug]);
       },
       onError: (err) => {
-        message.error(
-          err.response.data.errors.detail ||
-            err.message ||
-            "Error while publishing product"
-        );
+        openErrorNotification(err);
       },
     }
   );
@@ -228,15 +225,11 @@ function TabAll({ slug }) {
     (slug) => unpublishProduct({ slug }),
     {
       onSuccess: (data) => {
-        message.success(data.data.message || "Product unpublished");
+        openSuccessNotification(data.data.message || "Product unpublished");
         queryClient.invalidateQueries(["get-products-from-category", slug]);
       },
       onError: (err) => {
-        message.error(
-          err.response.data.errors.detail ||
-            err.message ||
-            "Error while unpublishing product"
-        );
+        openErrorNotification(err);
       },
     }
   );
@@ -244,15 +237,11 @@ function TabAll({ slug }) {
     (slug) => deleteProduct({ slug }),
     {
       onSuccess: (data) => {
-        message.success(data.data.message || "Product deleted");
+        openSuccessNotification(data.data.message || "Product deleted");
         queryClient.invalidateQueries(["get-products-from-category", slug]);
       },
       onError: (err) => {
-        message.error(
-          err.response.data.errors.detail ||
-            err.message ||
-            "Error while deleting product"
-        );
+        openErrorNotification(err);
       },
     }
   );
@@ -335,13 +324,9 @@ function TabAll({ slug }) {
           type={alert.type}
         />
       )}
-
+      {isLoading && <Loader loadingText={"Loading Products..."} />}
       <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[70vh]">
         <div className="flex justify-end mb-3">
-          {/* <div className="py-[3px] px-3 min-w-[18rem] border-[1px] border-[#D9D9D9] rounded-lg flex items-center justify-between">
-<SearchOutlined style={{color: "#D9D9D9"}} />
-<input type="text" placeholder="Search category..." className="w-full ml-1 placeholder:text-[#D9D9D9]" />
-</div> */}
           <div className="flex">
             {selectedRowKeys.length > 0 && (
               <Select

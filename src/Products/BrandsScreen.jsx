@@ -14,11 +14,15 @@ import AddCategoryButton from "./subComponents/AddCategoryButton";
 import Header from "./subComponents/Header";
 import SearchBox from "./subComponents/SearchBox";
 
-import { message, Pagination, Select } from "antd";
+import { Pagination, Select } from "antd";
 import SimpleAlert from "./alerts/SimpleAlert";
 import ClearSelection from "./subComponents/ClearSelection";
 import Loader from "./subComponents/Loader";
 import { noImageImage } from "./constants";
+import {
+  openErrorNotification,
+  openSuccessNotification,
+} from "../utils/openNotification";
 const { Option } = Select;
 
 function BrandsScreen() {
@@ -41,11 +45,7 @@ function BrandsScreen() {
     () => getBrands({ currentPage }),
     {
       onError: (err) => {
-        message.error(
-          err.response.data.errors.detail ||
-            err.message ||
-            "Error getting Brands"
-        );
+        openErrorNotification(err);
       },
     }
   );
@@ -55,38 +55,35 @@ function BrandsScreen() {
 
   const { mutate: publishCategoryMutate } = useMutation(publishBrand, {
     onSuccess: (data) => {
+      openSuccessNotification(
+        data?.data?.message || "Brand published successfully"
+      );
       queryClient.invalidateQueries("get-brands");
     },
     onError: (err) => {
-      message.error(
-        err.response.data.errors.detail ||
-          err.message ||
-          "Error publishing Brand"
-      );
+      openErrorNotification(err);
     },
   });
   const { mutate: unpublishCategoryMutate } = useMutation(unpublishBrand, {
     onSuccess: (data) => {
+      openSuccessNotification(
+        data?.data?.message || "Brand unpublished successfully"
+      );
       queryClient.invalidateQueries("get-brands");
     },
     onError: (err) => {
-      message.error(
-        err.response.data.errors.detail ||
-          err.message ||
-          "Error publishing Brand"
-      );
+      openErrorNotification(err);
     },
   });
   const { mutate: deleteMutate } = useMutation(deleteBrand, {
     onSuccess: (data) => {
+      openSuccessNotification(
+        data?.data?.message || "Brand deleted successfully"
+      );
       queryClient.invalidateQueries("get-brands");
-      console.log(data, "hello");
-      message.success(data?.data?.message || "Brand deleted successfully");
     },
     onError: (err) => {
-      message.error(
-        err.response.data.errors.detail || err.message || "Error deleting Brand"
-      );
+      openErrorNotification(err);
     },
   });
 
@@ -107,14 +104,14 @@ function BrandsScreen() {
   const handleBulkPublish = () => {
     selectedBrands.forEach(async (category) => {
       publishCategoryMutate({ slug: category.slug });
-      message.success(`${category.name} published`);
+      openSuccessNotification(`${category.name} published`);
     });
     setSelectedBrands([]);
   };
   const handleBulkUnpublish = () => {
     selectedBrands.forEach(async (category) => {
       unpublishCategoryMutate({ slug: category.slug });
-      message.success(`${category.name} unpublished`);
+      openSuccessNotification(`${category.name} unpublished`);
     });
     setSelectedBrands([]);
   };

@@ -135,7 +135,6 @@ export const getProductGroup = async ({ slug }) => {
   const response = await myaxios.get(
     `${homeRoute}product/admin/product-groups/${slug}/`
   );
-  console.log(response);
   return response;
 };
 
@@ -266,7 +265,6 @@ export const publishProductSKU = async ({ slug }) => {
   const response = await myaxios.post(
     `${homeRoute}product/admin/product-skus/publish/${slug}/`
   );
-  console.log(response);
   return response;
 };
 

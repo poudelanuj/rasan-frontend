@@ -5,10 +5,14 @@ import { UploadOutlined, LoadingOutlined } from "@ant-design/icons";
 import { createProductGroup } from "../../context/CategoryContext";
 import { useMutation, useQueryClient } from "react-query";
 
-import { message, Switch, Upload } from "antd";
+import { Switch, Upload } from "antd";
+import {
+  openErrorNotification,
+  openSuccessNotification,
+} from "../../utils/openNotification";
 const { Dragger } = Upload;
 
-function AddProductGroup({ alert, setAlert }) {
+function AddProductGroup() {
   const navigate = useNavigate();
   const [formState, setFormState] = useState({
     name: "",
@@ -26,17 +30,13 @@ function AddProductGroup({ alert, setAlert }) {
   } = useMutation(createProductGroup, {
     onSuccess: (data) => {
       queryClient.invalidateQueries("get-product-groups");
-      message.success(
+      openSuccessNotification(
         data?.data?.message || "Rasan Choice created successfully"
       );
       navigate(`/product-groups/${data?.data.data.slug}/edit`);
     },
     onError: (err) => {
-      message.error(
-        err.response.data.errors.detail ||
-          err.message ||
-          "Error creating Rasan Choice"
-      );
+      openErrorNotification(err);
     },
   });
 
@@ -59,7 +59,9 @@ function AddProductGroup({ alert, setAlert }) {
       }
       addProductGroupMutate({ form_data });
     } else {
-      message.error("Please fill all the fields");
+      openErrorNotification({
+        response: { data: { message: "Please fill all fields" } },
+      });
     }
   };
   const props = {
@@ -81,27 +83,6 @@ function AddProductGroup({ alert, setAlert }) {
       };
       reader.readAsDataURL(filename.file);
     },
-  };
-
-  const showAlert = ({
-    title,
-    text,
-    primaryButton,
-    secondaryButton,
-    type,
-    image,
-    action,
-  }) => {
-    setAlert({
-      show: true,
-      title,
-      text,
-      primaryButton,
-      secondaryButton,
-      type,
-      image,
-      action,
-    });
   };
 
   return (

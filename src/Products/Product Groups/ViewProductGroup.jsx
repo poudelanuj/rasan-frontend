@@ -12,10 +12,14 @@ import { getDate, parseArray, parseSlug } from "../../utility";
 import SimpleAlert from "../alerts/SimpleAlert";
 import { noImageImage } from "../constants";
 import EditProductGroup from "./EditProductGroup";
-import { message, Select, Table } from "antd";
+import { Select, Table } from "antd";
 import AddCategoryButton from "../subComponents/AddCategoryButton";
 import Loader from "../subComponents/Loader";
 import ClearSelection from "../subComponents/ClearSelection";
+import {
+  openErrorNotification,
+  openSuccessNotification,
+} from "../../utils/openNotification";
 const { Option } = Select;
 
 const columns = [
@@ -151,7 +155,6 @@ function ViewProductGroup() {
     setSelectedRowKeys(selectedRowKeys);
   };
   const rowSelection = {
-    // select by slug
     onChange: onSelectChange,
     selectedRowKeys,
   };
@@ -196,8 +199,10 @@ function ViewProductGroup() {
       newData.product_skus.results.map((productSku, index) => {
         productSku["key"] = productSku.slug;
       });
-      // setProductGroup(data.data.data);
       setProductGroup(newData);
+    },
+    onError: (error) => {
+      openErrorNotification(error);
     },
   });
 
@@ -205,7 +210,7 @@ function ViewProductGroup() {
     (slug) => publishProductSKU({ slug }),
     {
       onSuccess: (data) => {
-        message.success(data.data.message || "Product SKU published");
+        openSuccessNotification(data.data.message || "Product SKU published");
         queryClient.invalidateQueries(["get-product-group", slug]);
       },
     }
@@ -214,7 +219,7 @@ function ViewProductGroup() {
     (slug) => unpublishProductSKU({ slug }),
     {
       onSuccess: (data) => {
-        message.success(data.data.message || "Product SKU unpublished");
+        openSuccessNotification(data.data.message || "Product SKU unpublished");
         queryClient.invalidateQueries(["get-product-group", slug]);
       },
     }
@@ -223,7 +228,7 @@ function ViewProductGroup() {
     (slug) => deleteProductSKU({ slug }),
     {
       onSuccess: (data) => {
-        message.success(data.data.message || "Product SKU deleted");
+        openSuccessNotification(data.data.message || "Product SKU deleted");
         queryClient.invalidateQueries(["get-product-group", slug]);
       },
     }
@@ -368,17 +373,17 @@ function ViewProductGroup() {
                 <div className="mt-[0.5rem] flex">
                   <div className="flex flex-col flex-1 items-start">
                     <div className="grid grid-cols-[10rem_10rem] gap-x-5 bg-[#f5f5f5] rounded-2xl py-2 px-4 mt-5">
-                      <p className="text-[#596579] text-[0.8rem]">S.N.</p>
-                      <p className="text-[#596579] font-bold">
+                      <p className="text-[#596579] text-[0.8rem] mb-0">S.N.</p>
+                      <p className="text-[#596579] font-bold mb-0">
                         {productGroup.sn}
                       </p>
                     </div>
 
                     <div className="grid grid-cols-[10rem_10rem] gap-x-5 bg-[#f5f5f5] rounded-2xl py-2 px-4 mt-5">
-                      <p className="text-[#596579] text-[0.8rem]">
+                      <p className="text-[#596579] text-[0.8rem] mb-0">
                         Published At
                       </p>
-                      <p className="text-[#596579] font-bold">
+                      <p className="text-[#596579] font-bold mb-0">
                         {productGroup.published_at
                           ? getDate(productGroup.published_at)
                           : "-"}
@@ -386,8 +391,10 @@ function ViewProductGroup() {
                     </div>
 
                     <div className="grid grid-cols-[10rem_10rem] gap-x-5 bg-[#f5f5f5] rounded-2xl py-2 px-4 mt-5">
-                      <p className="text-[#596579] text-[0.8rem]">Featured</p>
-                      <p className="text-[#596579] font-bold">
+                      <p className="text-[#596579] text-[0.8rem] mb-0">
+                        Featured
+                      </p>
+                      <p className="text-[#596579] font-bold mb-0">
                         {productGroup.is_featured ? "Yes" : "No"}
                       </p>
                     </div>

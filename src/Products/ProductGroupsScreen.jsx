@@ -1,4 +1,4 @@
-import { message, Select } from "antd";
+import { Select } from "antd";
 import React, { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useLocation } from "react-router-dom";
@@ -17,11 +17,14 @@ import ClearSelection from "./subComponents/ClearSelection";
 import Header from "./subComponents/Header";
 import Loader from "./subComponents/Loader";
 import SearchBox from "./subComponents/SearchBox";
+import {
+  openErrorNotification,
+  openSuccessNotification,
+} from "../utils/openNotification";
 
 const { Option } = Select;
 
 function ProductGroupsScreen() {
-  // const [entriesPerPage, setEntriesPerPage] = useState(20);
   const [alert, setAlert] = useState({
     show: false,
     title: "",
@@ -37,16 +40,12 @@ function ProductGroupsScreen() {
   const queryClient = useQueryClient();
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const { data, isLoading, isError, error } = useQuery(
+  const { data, isLoading } = useQuery(
     ["get-product-groups", currentPage],
     () => getProductGroups({ currentPage }),
     {
       onError: (err) => {
-        message.error(
-          err.response.data.errors.detail ||
-            err.message ||
-            "Error getting Product Groups"
-        );
+        openErrorNotification(err);
       },
     }
   );
@@ -57,24 +56,17 @@ function ProductGroupsScreen() {
   } catch (error) {
     extraSlug = null;
   }
-  const paginate = async (page) => {
-    setCurrentPage(page);
-  };
   const { mutate: publishProductGroupMutate } = useMutation(
     publishProductGroup,
     {
       onSuccess: (data) => {
         queryClient.invalidateQueries("get-product-groups");
-        message.success(
+        openSuccessNotification(
           data?.data?.message || "Rasan Choice published successfully"
         );
       },
       onError: (err) => {
-        message.error(
-          err.response.data.errors.detail ||
-            err.message ||
-            "Error publishing Rasan Choice"
-        );
+        openErrorNotification(err);
       },
     }
   );
@@ -83,32 +75,24 @@ function ProductGroupsScreen() {
     {
       onSuccess: (data) => {
         queryClient.invalidateQueries("get-product-groups");
-        message.success(
+        openSuccessNotification(
           data?.data?.message || "Rasan Choice unpublished successfully"
         );
       },
       onError: (err) => {
-        message.error(
-          err.response.data.errors.detail ||
-            err.message ||
-            "Error unpublishing Rasan Choice"
-        );
+        openErrorNotification(err);
       },
     }
   );
   const { mutate: deleteProductGroupMutate } = useMutation(deleteProductGroup, {
     onSuccess: (data) => {
       queryClient.invalidateQueries("get-product-groups");
-      message.success(
+      openSuccessNotification(
         data?.data?.message || "Rasan Choice deleted successfully"
       );
     },
     onError: (err) => {
-      message.error(
-        err.response.data.errors.detail ||
-          err.message ||
-          "Error deleting Rasan Choice"
-      );
+      openErrorNotification(err);
     },
   });
 
@@ -195,6 +179,7 @@ function ProductGroupsScreen() {
       {extraSlug === "add" && (
         <AddProductGroup alert={alert} setAlert={setAlert} />
       )}
+      {isLoading && <Loader loadingText={"Loading Rasan Choices..."} />}
       <div>
         <Header title="Rasan Choices" />
         <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[75vh]">
@@ -239,52 +224,16 @@ function ProductGroupsScreen() {
                     noImageImage
                   }
                   imgClassName=""
-                  slug={group.slug}
-                  title={group.name}
+                  is_published={group.is_published}
                   selectedCategories={selectedProducts}
                   setSelectedCategories={setSelectedProducts}
-                  is_published={group.is_published}
+                  slug={group.slug}
+                  title={group.name}
                 />
               ))}
           </div>
-          {/* {groups && (
-            <div className="flex justify-between bg-white w-[100%] mt-10">
-              <div className="">
-                <span className="text-sm text-gray-600">
-                  Entries per page :{" "}
-                </span>
-                <Select
-                  defaultValue="20"
-                  style={{
-                    width: 120,
-                  }}
-                  onChange={(value) => setEntriesPerPage(value)}
-                >
-                  <Option value={20}>20</Option>
-                  <Option value={50}>50</Option>
-                  <Option value={100}>100</Option>
-                </Select>
-              </div>
-              <Pagination
-                pageSize={entriesPerPage}
-                showTotal={(total) => `Total ${total} items`}
-                style={{
-                  alignSelf: "end",
-                }}
-                total={data.data.data.count}
-                // hideOnSinglePage
-                showQuickJumper
-                onChange={async (page) => await paginate(page)}
-              />
-            </div>
-          )} */}
         </div>
       </div>
-      {/* {
-      brandSlug && (
-        <AddCategory />
-      )
-    } */}
     </>
   );
 }

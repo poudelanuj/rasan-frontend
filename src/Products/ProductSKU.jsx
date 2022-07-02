@@ -68,8 +68,6 @@ function ProductSKU() {
       {categorySlug === "add-product-pack" && (
         <AddProductPack alert={alert} setAlert={setAlert} />
       )}
-      {getProductSkuIsLoading && <div>Loading....</div>}
-      {getProductSkuIsError && <div>Error: {getProductSkuError.message}</div>}
       {getProductSkuData && (
         <>
           <div className="text-3xl bg-white p-5 mb-7">{productSKU.name}</div>

@@ -10,12 +10,16 @@ import {
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { parseSlug } from "../../utility";
 
-import { message, Upload } from "antd";
+import { Upload } from "antd";
 import { UploadOutlined, LoadingOutlined } from "@ant-design/icons";
+import {
+  openErrorNotification,
+  openSuccessNotification,
+} from "../../utils/openNotification";
 
 const { Dragger } = Upload;
 
-function EditCategory({ slug, alert, setAlert }) {
+function EditCategory({ slug, setAlert }) {
   const [formState, setFormState] = useState({
     name: "",
     name_np: "",
@@ -37,76 +41,59 @@ function EditCategory({ slug, alert, setAlert }) {
         is_published: data.data.data.is_published,
       });
     },
-    onError: (data) => {
-      message.error(
-        data.response.data.errors.detail ||
-          data.response.data.errors.message ||
-          data.message ||
-          "Error fetching Category"
-      );
+    onError: (error) => {
+      openErrorNotification(error);
     },
   });
   const { mutate: deleteMutate, isLoading: deleteCategoryIsLoading } =
     useMutation(() => deleteCategory({ slug }), {
       onSuccess: (data) => {
-        message.success(data.data.message || "Category deleted successfully");
+        openSuccessNotification(
+          data.data.message || "Category deleted successfully"
+        );
         queryClient.invalidateQueries("get-categories");
       },
-      onError: (data) => {
-        message.error(
-          data.response.data.errors.detail ||
-            data.response.data.errors.message ||
-            data.message ||
-            "Error deleting Category"
-        );
+      onError: (error) => {
+        openErrorNotification(error);
       },
     });
   const { mutate: updateMutate, isLoading: updateCategoryIsLoading } =
     useMutation(({ slug, form_data }) => updateCategory({ slug, form_data }), {
       onSuccess: (data) => {
-        message.success(data.data.message || "Category updated successfully");
+        openSuccessNotification(
+          data.data.message || "Category updated successfully"
+        );
         queryClient.invalidateQueries("get-categories");
         queryClient.invalidateQueries(["get-category", slug]);
         navigate(`/category-list/edit/${data.data.data.slug}`);
       },
-      onError: (data) => {
-        message.error(
-          data.response.data.errors.detail ||
-            data.response.data.errors.message ||
-            data.message ||
-            "Error updating Category"
-        );
+      onError: (error) => {
+        openErrorNotification(error);
       },
     });
   const { mutate: publishCategoryMutate, isLoading: publishCategoryIsLoading } =
     useMutation(publishCategory, {
       onSuccess: (data) => {
-        message.success(data.data.message || "Category published successfully");
+        openSuccessNotification(
+          data.data.message || "Category published successfully"
+        );
         queryClient.invalidateQueries("get-categories");
         queryClient.invalidateQueries(["get-category", slug]);
       },
-      onError: (data) => {
-        message.error(
-          data.response.data.errors.detail ||
-            data.response.data.errors.message ||
-            data.message ||
-            "Error publishing Category"
-        );
+      onError: (error) => {
+        openErrorNotification(error);
       },
     });
   const { mutate: unpublishCategoryMutate } = useMutation(unpublishCategory, {
     onSuccess: (data) => {
-      message.success(data.data.message || "Category unpublished successfully");
+      openSuccessNotification(
+        data.data.message || "Category unpublished successfully"
+      );
       queryClient.invalidateQueries("get-categories");
       queryClient.invalidateQueries(["get-category", slug]);
     },
-    onError: (data) => {
-      message.error(
-        data.response.data.errors.detail ||
-          data.response.data.errors.message ||
-          data.message ||
-          "Error unpublishing Category"
-      );
+    onError: (error) => {
+      openErrorNotification(error);
     },
   });
   const navigate = useNavigate();
@@ -151,7 +138,9 @@ function EditCategory({ slug, alert, setAlert }) {
       }
       updateMutate({ slug, form_data });
     } else {
-      message.error("Please fill all the fields!");
+      openErrorNotification({
+        response: { data: { message: "Please fill all the fields" } },
+      });
     }
   };
   const handlePublish = async ({ slug }) => {

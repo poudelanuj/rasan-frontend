@@ -6,6 +6,7 @@ import { getBrand } from "../context/CategoryContext";
 
 import { Tabs } from "antd";
 import { useParams } from "react-router-dom";
+import Loader from "./subComponents/Loader";
 const { TabPane } = Tabs;
 
 const onChange = (key) => {};
@@ -18,7 +19,7 @@ function Brands() {
 
   return (
     <>
-      {isLoading && <div>Loading....</div>}
+      {isLoading && <Loader loadingText={"Loading Brand..."} />}
       {isError && <div>Error: {error.message}</div>}
       {data && (
         <div>

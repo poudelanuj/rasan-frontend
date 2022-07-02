@@ -11,7 +11,11 @@ import {
   updateProductGroup,
 } from "../../context/CategoryContext";
 
-import { message, Switch, Upload } from "antd";
+import { Switch, Upload } from "antd";
+import {
+  openErrorNotification,
+  openSuccessNotification,
+} from "../../utils/openNotification";
 const { Dragger } = Upload;
 
 function EditProductGroup({ alert, setAlert }) {
@@ -48,13 +52,8 @@ function EditProductGroup({ alert, setAlert }) {
       });
     },
     onError: (err) => {
-      message.error(
-        err.response.data.errors.detail ||
-          err.message ||
-          "Error getting Rasan Choice"
-      );
+      openErrorNotification(err);
     },
-    refetchOnWindowFocus: false,
   });
 
   const {
@@ -62,15 +61,11 @@ function EditProductGroup({ alert, setAlert }) {
     isLoading: publishProductGroupIsLoading,
   } = useMutation(publishProductGroup, {
     onSuccess: (data) => {
-      message.success(data.data.message || "Product Group Published");
+      openSuccessNotification(data.data.message || "Product Group Published");
       queryClient.invalidateQueries(["get-product-group", slug]);
     },
     onError: (err) => {
-      message.error(
-        err.response.data.errors.detail ||
-          err.message ||
-          "Error publishing Product Group"
-      );
+      openErrorNotification(err);
     },
   });
 
@@ -79,15 +74,11 @@ function EditProductGroup({ alert, setAlert }) {
     isLoading: unpublishProductGroupIsLoading,
   } = useMutation(unpublishProductGroup, {
     onSuccess: (data) => {
-      message.success(data.data.message || "Product Group Unpublished");
+      openSuccessNotification(data.data.message || "Product Group Unpublished");
       queryClient.invalidateQueries(["get-product-group", slug]);
     },
     onError: (err) => {
-      message.error(
-        err.response.data.errors.detail ||
-          err.message ||
-          "Error unpublishing Product Group"
-      );
+      openErrorNotification(err);
     },
   });
 
@@ -98,17 +89,13 @@ function EditProductGroup({ alert, setAlert }) {
     isError: updateProductGroupIsError,
   } = useMutation(updateProductGroup, {
     onSuccess: (data) => {
-      message.success(
+      openSuccessNotification(
         data.data.message || "Product Group Updated Successfully"
       );
       queryClient.invalidateQueries(["get-product-group", slug]);
     },
     onError: (err) => {
-      message.error(
-        err.response.data.errors.detail ||
-          err.message ||
-          "Error updating Product Group"
-      );
+      openErrorNotification(err);
     },
   });
 
@@ -119,16 +106,12 @@ function EditProductGroup({ alert, setAlert }) {
     isError: deleteProductGroupIsError,
   } = useMutation(deleteProductGroup, {
     onSuccess: (data) => {
-      message.success("Product Group Deleted");
+      openSuccessNotification(data.data.message || "Product Group Deleted");
       queryClient.invalidateQueries("get-product-groups");
       navigate("/product-groups");
     },
     onError: (err) => {
-      message.error(
-        err.response.data.errors.detail ||
-          err.message ||
-          "Error deleting Product Group"
-      );
+      openErrorNotification(err);
     },
   });
 
@@ -151,7 +134,9 @@ function EditProductGroup({ alert, setAlert }) {
       }
       updateProductGroupMutate({ slug, form_data });
     } else {
-      message.error("Please fill all the fields");
+      openErrorNotification({
+        response: { data: { message: "Please fill all the fields" } },
+      });
     }
   };
   const handlePublish = async () => {
@@ -218,6 +203,8 @@ function EditProductGroup({ alert, setAlert }) {
         </h2>
         {(updateProductGroupIsLoading ||
           publishProductGroupIsLoading ||
+          unpublishProductGroupIsLoading ||
+          deleteProductGroupIsLoading ||
           productGroupIsLoading) && (
           <div className="absolute top-0 right-0 bg-black/25 w-full h-full flex flex-col items-center justify-center z-50 animate-popupopen">
             <LoadingOutlined style={{ color: "white", fontSize: "3rem" }} />

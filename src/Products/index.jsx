@@ -17,9 +17,13 @@ import AddCategoryButton from "./subComponents/AddCategoryButton";
 import SearchBox from "./subComponents/SearchBox";
 import Header from "./subComponents/Header";
 
-import { message, Pagination, Select } from "antd";
+import { Pagination, Select } from "antd";
 import ClearSelection from "./subComponents/ClearSelection";
 import Loader from "./subComponents/Loader";
+import {
+  openErrorNotification,
+  openSuccessNotification,
+} from "../utils/openNotification";
 const { Option } = Select;
 
 const CategoryList = () => {
@@ -45,53 +49,41 @@ const CategoryList = () => {
     () => getCategories({ currentPage }),
     {
       onError: (err) => {
-        message.error(
-          err.response.data.errors.detail ||
-            err.message ||
-            "Error getting Categories"
-        );
+        openErrorNotification(err);
       },
     }
   );
   const { mutate: publishCategoryMutate } = useMutation(publishCategory, {
     onSuccess: (data) => {
       queryClient.invalidateQueries("get-categories");
-      message.success(data?.data?.message || "Category published successfully");
+      openSuccessNotification(
+        data?.data?.message || "Category published successfully"
+      );
     },
     onError: (err) => {
-      message.error(
-        err.response.data.errors.detail ||
-          err.message ||
-          "Error publishing Category"
-      );
+      openErrorNotification(err);
     },
   });
   const { mutate: unpublishCategoryMutate } = useMutation(unpublishCategory, {
     onSuccess: (data) => {
       queryClient.invalidateQueries("get-categories");
-      message.success(
+      openSuccessNotification(
         data?.data?.message || "Category unpublished successfully"
       );
     },
     onError: (err) => {
-      message.error(
-        err.response.data.errors.detail ||
-          err.message ||
-          "Error unpublishing Category"
-      );
+      openErrorNotification(err);
     },
   });
   const { mutate: deleteMutate } = useMutation(deleteCategory, {
     onSuccess: (data) => {
       queryClient.invalidateQueries("get-categories");
-      message.success(data?.data?.message || "Category deleted successfully");
+      openSuccessNotification(
+        data?.data?.message || "Category deleted successfully"
+      );
     },
     onError: (err) => {
-      message.error(
-        err.response.data.errors.detail ||
-          err.message ||
-          "Error deleting Category"
-      );
+      openErrorNotification(err);
     },
   });
   const location = useLocation();

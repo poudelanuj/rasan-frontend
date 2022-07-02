@@ -35,8 +35,6 @@ const LoginRasan = () => {
         // user experience.
         navigate(from, { replace: true });
       });
-      //   setOnOTPReceived(true);
-      //   setNumber(data.data.phone);
     },
   });
 
@@ -65,7 +63,6 @@ const LoginRasan = () => {
               remember: true,
             }}
             name="basic"
-            // onValuesChange={onValuesChanged}
             wrapperCol={{
               span: 16,
             }}
@@ -78,10 +75,7 @@ const LoginRasan = () => {
               name="otp"
               className="flex justify-between mx-auto max-w-full"
             >
-              <InputNumber
-              // addonBefore="+977"
-              //   className="w-11/12"
-              />
+              <InputNumber />
             </Form.Item>
 
             <Button
@@ -100,7 +94,6 @@ const LoginRasan = () => {
               remember: true,
             }}
             name="basic"
-            // onValuesChange={onValuesChanged}
             wrapperCol={{
               span: 16,
             }}

@@ -5,7 +5,11 @@ import { UploadOutlined, LoadingOutlined } from "@ant-design/icons";
 import { addCategory } from "../../context/CategoryContext";
 import { useMutation, useQueryClient } from "react-query";
 
-import { message, Upload } from "antd";
+import { Upload } from "antd";
+import {
+  openErrorNotification,
+  openSuccessNotification,
+} from "../../utils/openNotification";
 const { Dragger } = Upload;
 
 function AddCategory() {
@@ -25,15 +29,13 @@ function AddCategory() {
   } = useMutation(addCategory, {
     onSuccess: (data) => {
       queryClient.invalidateQueries("get-categories");
-      message.success(data.data.message || "Category created successfully");
+      openSuccessNotification(
+        data.data.message || "Category created successfully"
+      );
       navigate(`/category-list/edit/${data.data.data.slug}`);
     },
     onError: (data) => {
-      message.error(
-        data.response.data.errors.detail ||
-          data.message ||
-          "Error creating Category"
-      );
+      openErrorNotification(data);
     },
   });
 
@@ -55,7 +57,9 @@ function AddCategory() {
       }
       addCategoryMutate({ form_data });
     } else {
-      message.error("Please fill all the fields");
+      openErrorNotification({
+        response: { data: { message: "Please fill all the fields" } },
+      });
     }
   };
   const props = {
