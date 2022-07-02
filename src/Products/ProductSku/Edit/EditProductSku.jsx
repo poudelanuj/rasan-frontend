@@ -1,5 +1,4 @@
-import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
-import { Upload, Form, Input, Select, Switch, Button, Space } from "antd";
+import { Upload, Form, Input, Select, Button, Space } from "antd";
 import { useState } from "react";
 import { useQuery, useMutation } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
@@ -40,8 +39,6 @@ const EditProductSku = () => {
     queryKey: ["get-product-sku", slug],
     enabled: !!slug,
   });
-
-  console.log(productSku);
 
   const { data: categories, status: categoriesStatus } = useQuery({
     queryFn: () => getAllCategories(),
@@ -302,15 +299,6 @@ const EditProductSku = () => {
                         </Select.Option>
                       ))}
                   </Select>
-                </Form.Item>
-
-                <Form.Item label="Is Published?" name="is_published">
-                  <Switch
-                    checkedChildren={<CheckOutlined />}
-                    className="flex"
-                    defaultChecked={productSku.is_published}
-                    unCheckedChildren={<CloseOutlined />}
-                  />
                 </Form.Item>
               </div>
 

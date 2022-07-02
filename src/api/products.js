@@ -19,3 +19,15 @@ export const updateProduct = async (slug, data) => {
   const res = await axios.put(`/api/product/admin/products/${slug}/`, data);
   return res.data;
 };
+
+export const publishProduct = async (slug) => {
+  const res = await axios.post(`/api/product/admin/products/publish/${slug}/`);
+  return res.data;
+};
+
+export const unpublishProduct = async (slug) => {
+  const res = await axios.delete(
+    `/api/product/admin/products/publish/${slug}/`
+  );
+  return res.data;
+};

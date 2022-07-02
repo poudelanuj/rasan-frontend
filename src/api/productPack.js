@@ -19,3 +19,17 @@ export const updateProductPack = async (id, data) => {
   const res = await axios.put(`/api/product/admin/product-packs/${id}/`, data);
   return res.data;
 };
+
+export const publishProductPack = async (id) => {
+  const res = await axios.post(
+    `/api/product/admin/product-packs/publish/${id}/`
+  );
+  return res.data;
+};
+
+export const unpublishProductPack = async (id) => {
+  const res = await axios.delete(
+    `/api/product/admin/product-packs/publish/${id}/`
+  );
+  return res.data;
+};
