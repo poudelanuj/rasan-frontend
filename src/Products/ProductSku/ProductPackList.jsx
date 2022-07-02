@@ -1,12 +1,34 @@
 import React from "react";
+import { useMutation } from "react-query";
 import { useState } from "react";
 import { Space, Table, Tag, Button } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import EditProductPack from "./EditProductPack";
+import { DELETE_PRODUCT_PACK } from "../../constants/queryKeys";
+import { deleteProductPack } from "../../api/productPack";
+import ConfirmDelete from "../../shared/ConfirmDelete";
+import {
+  openErrorNotification,
+  openSuccessNotification,
+} from "../../utils/openNotification";
 
-function ProductPackList({ productPacks }) {
+function ProductPackList({ productPacks, refetchProductSku }) {
   const [openEditPack, setOpenEditPack] = useState(false);
+  const [openConfirmDelete, setConfirmDelete] = useState(false);
   const [selectedPack, setSelectedPack] = useState(null);
+
+  const handleDelete = useMutation((id) => deleteProductPack(id), {
+    onSuccess: (data) => {
+      openSuccessNotification(data.message || "Product Pack Deleted");
+      refetchProductSku();
+    },
+    onError: (err) => {
+      openErrorNotification(err);
+    },
+    onSettled: () => {
+      setConfirmDelete(false);
+    },
+  });
 
   const columns = [
     {
@@ -48,7 +70,12 @@ function ProductPackList({ productPacks }) {
       key: "action",
       render: (_, record) => (
         <Space size="middle">
-          <Button>
+          <Button
+            onClick={() => {
+              setSelectedPack(record);
+              setConfirmDelete(true);
+            }}
+          >
             <DeleteOutlined />
           </Button>
           <Button>
@@ -67,6 +94,13 @@ function ProductPackList({ productPacks }) {
   return (
     <>
       {openEditPack && <EditProductPack id={selectedPack?.id} />}
+      <ConfirmDelete
+        closeModal={() => setConfirmDelete(false)}
+        deleteMutation={() => handleDelete.mutate(selectedPack?.id)}
+        isOpen={openConfirmDelete}
+        status={handleDelete.status}
+        title="Delete Product Pack"
+      />
 
       <h3 className="text-xl text-[#374253] mb-4">Product Pack Details</h3>
 

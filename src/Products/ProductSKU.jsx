@@ -13,12 +13,11 @@ import ProductPackList from "./ProductSku/ProductPackList";
 function ProductSKU() {
   const { slug } = useParams();
 
-  const { data: productSku, status: productSkustatus } = useQuery(
-    [GET_PRODUCT_SKU, slug],
-    () => getProductSku(slug)
-  );
-
-  console.log("productSku", productSku);
+  const {
+    data: productSku,
+    status: productSkustatus,
+    refetch: refetchProductSku,
+  } = useQuery([GET_PRODUCT_SKU, slug], () => getProductSku(slug));
 
   return (
     <>
@@ -175,7 +174,10 @@ function ProductSKU() {
 
             <Divider />
 
-            <ProductPackList productPacks={productSku?.product_packs} />
+            <ProductPackList
+              productPacks={productSku?.product_packs}
+              refetchProductSku={refetchProductSku}
+            />
           </div>
         </>
       )}
