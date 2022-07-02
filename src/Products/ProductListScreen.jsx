@@ -3,22 +3,21 @@ import { getProducts } from "../context/CategoryContext";
 import Header from "./subComponents/Header";
 
 import TabAll from "./ProductList/TabAll";
-import Loader from "./subComponents/Loader";
+import Loader from "../shared/Loader";
 
 function ProductListScreen() {
-  const { data, isLoading } = useQuery("get-products", getProducts);
+  const { data, status } = useQuery("get-products", getProducts);
+
   return (
-    <>
-      <>
-        {isLoading && <Loader loadingText={"Loading Products..."} />}
-        {data && (
-          <div>
-            <Header title="Products List" />
-            <TabAll />
-          </div>
-        )}
-      </>
-    </>
+    <div>
+      {status === "loading" && <Loader isOpen />}
+      {status === "success" && data && (
+        <div>
+          <Header title="Products List" />
+          <TabAll />
+        </div>
+      )}
+    </div>
   );
 }
 

@@ -2,7 +2,6 @@
   "name": "rasan-frontend",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://159.65.145.153:8000/",
   "dependencies": {
     "@ant-design/icons": "^4.7.0",
     "@faker-js/faker": "^7.2.0",
@@ -11,7 +10,9 @@
     "@testing-library/user-event": "^13.5.0",
     "antd": "^4.20.6",
     "axios": "^0.27.2",
+    "g": "^2.0.1",
     "moment": "^2.29.3",
+    "netlify-cli": "^10.6.3",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
     "react-icons": "^4.4.0",
@@ -24,8 +25,11 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint --fix",
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "env-cmd -f .env.development react-scripts start",
+    "netlify-redirect:dev": "node netlify/_redirects.js --development",
+    "netlify-redirect:prod": "node netlify/_redirects.js --production",
+    "build:dev": "env-cmd -f .env.development react-scripts build && npm run netlify-redirect:dev",
+    "build:prod": "env-cmd -f .env.production react-scripts build && npm run netlify-redirect:prod",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -49,10 +53,14 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.4.7",
+    "chalk": "^2.4.2",
+    "env-cmd": "^10.1.0",
     "eslint-config-prettier": "^7.1.0",
     "eslint-plugin-prettier": "^4.0.0",
     "postcss": "^8.4.14",
     "prettier": "^2.2.1",
     "tailwindcss": "^3.0.24"
-  }
+  },
+  "proxy": "http://159.65.145.153:8000/",
+  "homepage": "http://159.65.145.153:8000/"
 }

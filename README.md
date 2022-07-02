@@ -2,7 +2,19 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## How To Deploy
+
+### Steps to generate build
+
+- development build: `npm run build:dev`
+- production build: `npm run build:prod`
+
 ## Available Scripts
+
+### ENV Order
+
+- `npm start`: `.env.development` `.env`
+- `npm run build`: `env.production` `.env`
 
 In the project directory, you can run:
 

@@ -1,13 +1,22 @@
 import { Button, Form, Modal, Select, Spin } from "antd";
 import { useState } from "react";
 import { useQuery, useMutation } from "react-query";
+import { CANCELLED, DELIVERED, IN_PROCESS } from "../../constants";
 import { createOrder, getUserList } from "../../context/OrdersContext";
 import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../utils/openNotification";
 
-const CreateOrder = ({ isOpen, closeModal, title }) => {
+const CreateOrder = ({
+  isOpen,
+  closeModal,
+  title,
+
+  // * From Live User Basket
+  isFromLiveUserBasket,
+  userId,
+}) => {
   const { Option } = Select;
   const [form] = Form.useForm();
   const [selectedUserPhone, setSelectedUserPhone] = useState(0);
@@ -25,7 +34,7 @@ const CreateOrder = ({ isOpen, closeModal, title }) => {
           payment_method: formValues.payment_method,
           status: formValues.payment_status,
         },
-        user: formValues.user,
+        user: isFromLiveUserBasket ? userId : formValues.user,
         shipping_address: formValues.shipping_address,
       }),
     {
@@ -64,9 +73,9 @@ const CreateOrder = ({ isOpen, closeModal, title }) => {
             placeholder="Select Order Status"
             showSearch
           >
-            <Option value="in_process">In Process</Option>
-            <Option value="cancelled">Cancelled</Option>
-            <Option value="delivered">Delivered</Option>
+            <Option value={IN_PROCESS}>In Process</Option>
+            <Option value={CANCELLED}>Cancelled</Option>
+            <Option value={DELIVERED}>Delivered</Option>
           </Select>
         </Form.Item>
 
@@ -148,11 +157,21 @@ const CreateOrder = ({ isOpen, closeModal, title }) => {
             showSearch
             onSelect={(value) => setSelectedUserPhone(value)}
           >
-            {userList?.map((user) => (
-              <Option key={user.id} value={user.phone}>
-                {user.full_name}
+            {!isFromLiveUserBasket &&
+              userList?.map((user) => (
+                <Option key={user.id} value={user.phone}>
+                  {user.full_name}
+                </Option>
+              ))}
+
+            {isFromLiveUserBasket && (
+              <Option
+                key={userId}
+                value={userList?.find((item) => item.id === userId)?.phone}
+              >
+                {userList?.find((item) => item.id === userId)?.full_name}
               </Option>
-            ))}
+            )}
           </Select>
         </Form.Item>
 
@@ -176,7 +195,11 @@ const CreateOrder = ({ isOpen, closeModal, title }) => {
             showSearch
           >
             {userList
-              ?.find((user) => user.phone === selectedUserPhone)
+              ?.find((user) =>
+                !isFromLiveUserBasket
+                  ? user.phone === selectedUserPhone
+                  : user.id.toString() === userId.toString()
+              )
               ?.addresses?.map((address) => (
                 <Option
                   key={address.id}
@@ -189,12 +212,14 @@ const CreateOrder = ({ isOpen, closeModal, title }) => {
         <Form.Item>
           <Button
             className="bg-blue-400"
+            disabled={onFinish.status === "loading"}
             htmlType="submit"
             size="large"
             type="primary"
             block
           >
-            Create
+            {onFinish.status !== "loading" && <span>Create</span>}
+            {onFinish.status === "loading" && <Spin size="small" />}
           </Button>
         </Form.Item>
       </Form>

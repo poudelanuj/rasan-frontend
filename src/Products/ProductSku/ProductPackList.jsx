@@ -1,76 +1,159 @@
 import React from "react";
+import { useMutation } from "react-query";
 import { useState } from "react";
-import { getProductPack } from "../../context/CategoryContext";
-import { useQuery } from "react-query";
-import { Link } from "react-router-dom";
-import { EditOutlined } from "@ant-design/icons";
+import { Space, Table, Tag, Button } from "antd";
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import {
+  deleteProductPack,
+  publishProductPack,
+  unpublishProductPack,
+} from "../../api/productPack";
+import ConfirmDelete from "../../shared/ConfirmDelete";
+import {
+  openErrorNotification,
+  openSuccessNotification,
+} from "../../utils/openNotification";
+import AddProductPack from "./ProductPack/AddProductPack";
+import EditProductPack from "./ProductPack/EditProductPack";
 
-function ProductPackList({ id }) {
-  const [productPack, setProductPack] = useState({
-    sn: 2,
-    number_of_items: 10,
-    price_per_piece: "2450.00",
-    mrp_per_piece: "3100.00",
-    product_sku: "taleju-sonam-rice-25-kg",
-    is_published: true,
-    published_at: "2022-06-09T17:11:37.272564Z",
-    id: 5,
-  });
-  const {
-    data: getProductPackData,
-    isLoading: getProductPackIsLoading,
-    isError: getProductPackIsError,
-    error: getProductPackError,
-  } = useQuery(["get-product-pack", id], () => getProductPack({ id }), {
+function ProductPackList({ productSkuSlug, productPacks, refetchProductSku }) {
+  const [openAddPack, setOpenAddPack] = useState(false);
+  const [openEditPack, setOpenEditPack] = useState(false);
+  const [openConfirmDelete, setConfirmDelete] = useState(false);
+
+  const [selectedPack, setSelectedPack] = useState(null);
+
+  const handleDelete = useMutation((id) => deleteProductPack(id), {
     onSuccess: (data) => {
-      console.log(data.data.data);
-      setProductPack(data.data.data);
+      openSuccessNotification(data.message || "Product Pack Deleted");
+      refetchProductSku();
     },
+    onError: (err) => openErrorNotification(err),
+    onSettled: () => setConfirmDelete(false),
   });
+
+  const handlePublish = useMutation(
+    ({ bool, id }) => {
+      return bool ? publishProductPack(id) : unpublishProductPack(id);
+    },
+    {
+      onSuccess: (data) => openSuccessNotification(data.message),
+      onError: (err) => openErrorNotification(err),
+      onSettled: () => refetchProductSku(),
+    }
+  );
+
+  const columns = [
+    {
+      title: "S.No.",
+      dataIndex: "sn",
+      key: "sn",
+      render: (text) => <div className="text-blue-500">#{text}</div>,
+    },
+    {
+      title: "Number Of Items",
+      dataIndex: "number_of_items",
+      key: "number_of_items",
+    },
+    {
+      title: "Price/Piece",
+      dataIndex: "price_per_piece",
+      key: "price_per_piece",
+    },
+    {
+      title: "MRP/Piece",
+      dataIndex: "mrp_per_piece",
+      key: "mrp_per_piece",
+    },
+    {
+      title: "Published",
+      dataIndex: "is_published",
+      key: "is_published",
+      render: (_, { is_published }) => {
+        return (
+          <Tag color={is_published ? "green" : "orange"}>
+            {is_published ? "Published" : "Not Published"}
+          </Tag>
+        );
+      },
+    },
+    {
+      title: "Action",
+      key: "action",
+      render: (_, record) => (
+        <Space size="middle">
+          <Button
+            icon={<DeleteOutlined />}
+            onClick={() => {
+              setSelectedPack(record);
+              setConfirmDelete(true);
+            }}
+          />
+          <Button
+            icon={<EditOutlined />}
+            onClick={() => {
+              setOpenEditPack(true);
+              setSelectedPack(record);
+            }}
+          />
+          <Button
+            className="rounded"
+            disabled={handlePublish.status === "loading"}
+            type={record.is_published ? "danger" : "primary"}
+            onClick={() =>
+              handlePublish.mutate({
+                bool: !record.is_published,
+                id: record.id,
+              })
+            }
+          >
+            {record.is_published ? "Unpublish" : "Publish"}
+          </Button>
+        </Space>
+      ),
+    },
+  ];
+
   return (
-    <div className="mt-[1rem] relative">
-      <div className="flex justify-start items-center">
-        <h3 className="text-xl text-[#374253]">Product Pack</h3>
-        {productPack.is_published ? (
-          <p className="ml-[6rem] rounded-full bg-[#E4FEEF] text-[#0E9E49] px-[1rem] py-[2px]">
-            Published
-          </p>
-        ) : (
-          <p className="ml-[6rem] rounded-full bg-[#FFF8E1] text-[#FF8F00] px-[1rem] py-[2px]">
-            Unpublished
-          </p>
-        )}
-      </div>
-      <div className="absolute top-0 right-0">
-        <Link
-          className="text-[#00A0B0] hover:bg-[#d4e4e6] py-2 px-6"
-          to={
-            id != null
-              ? `edit-product-pack/${productPack.id}`
-              : "add-product-pack"
-          }
-        >
-          <EditOutlined style={{ verticalAlign: "middle" }} /> Edit Details
-        </Link>
-      </div>
-      <div className="grid grid-cols-2 ml-5 gap-y-0 gap-x-5 items-center w-[50%] mt-[0.5rem]">
-        <p className="text-[#596579] text-[0.8rem]">S.N.</p>
-        <p className="text-[#596579] font-bold">{productPack.sn}</p>
+    <>
+      <AddProductPack
+        closeModal={() => setOpenAddPack(false)}
+        isOpen={openAddPack}
+        productSkuSlug={productSkuSlug}
+        refetchProductSku={refetchProductSku}
+      />
+      <EditProductPack
+        closeModal={() => setOpenEditPack(false)}
+        isOpen={openEditPack}
+        productPackId={selectedPack?.id}
+        productSkuSlug={productSkuSlug}
+        refetchProductSku={refetchProductSku}
+      />
+      <ConfirmDelete
+        closeModal={() => setConfirmDelete(false)}
+        deleteMutation={() => handleDelete.mutate(selectedPack?.id)}
+        isOpen={openConfirmDelete}
+        status={handleDelete.status}
+        title={`Product Pack #${selectedPack?.sn}`}
+      />
 
-        <p className="text-[#596579] text-[0.8rem]">No. of items</p>
-        <p className="text-[#596579] font-bold">
-          {productPack.number_of_items}
-        </p>
-
-        <p className="text-[#596579] text-[0.8rem]">Price/Piece</p>
-        <p className="text-[#596579] font-bold">
-          {productPack.price_per_piece}
-        </p>
-
-        <p className="text-[#596579] text-[0.8rem]">MRP/Piece</p>
-        <p className="text-[#596579] font-bold">{productPack.mrp_per_piece}</p>
+      <div className="flex justify-between">
+        <h3 className="text-xl text-[#374253] mb-4">Product Pack Details</h3>
+        <Button type="primary" onClick={() => setOpenAddPack(true)}>
+          Add New
+        </Button>
       </div>
-    </div>
+
+      <Table
+        columns={columns}
+        dataSource={productPacks}
+        onRow={(record) => {
+          return {
+            onClick: () => {},
+          };
+        }}
+      />
+    </>
   );
 }
 

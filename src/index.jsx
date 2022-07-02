@@ -17,7 +17,8 @@ import BrandsScreen from "./Products/BrandsScreen";
 import Category from "./Products/Category";
 import ViewProductGroup from "./Products/Product Groups/ViewProductGroup";
 import ProductGroupsScreen from "./Products/ProductGroupsScreen";
-import ViewProductList from "./Products/ProductList/ViewProductList";
+import AddProduct from "./Products/ProductList/Add";
+import ProductList from "./Products/ProductList/ProductView";
 import ProductListScreen from "./Products/ProductListScreen";
 import ProductSKU from "./Products/ProductSKU";
 import ProductSkuScreen from "./Products/ProductSkuScreen";
@@ -27,7 +28,10 @@ import UserGroupPage from "./UserGroups/UserGroupPage";
 import Users from "./Users";
 import OTPRequests from "./Users/OTPRequests";
 import User from "./Users/User";
-import "antd/dist/antd.css";
+import "antd/dist/antd.min.css";
+import EditProduct from "./Products/ProductList/Edit";
+import AddProductSku from "./Products/ProductSku/Add";
+import EditProductSku from "./Products/ProductSku/Edit";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const queryClient = new QueryClient();
@@ -78,18 +82,19 @@ root.render(
                 path="product-groups/:slug/edit"
               />
 
-              <Route element={<ProductListScreen />} path="product-list" />
-              <Route element={<ProductListScreen />} path="product-list/add" />
-              <Route element={<ViewProductList />} path="product-list/:slug" />
-              <Route
-                element={<ViewProductList />}
-                path="product-list/:slug/edit"
-              />
+              <Route path="product-list">
+                <Route element={<ProductListScreen />} index />
+                <Route element={<AddProduct />} path="add" />
+                <Route element={<ProductList />} path=":slug" />
+                <Route element={<EditProduct />} path=":slug/edit" />
+              </Route>
 
-              <Route element={<ProductSkuScreen />} path="product-sku" />
-              <Route element={<ProductSkuScreen />} path="product-sku/add" />
-              <Route element={<ProductSKU />} path="product-sku/:slug" />
-              <Route element={<ProductSKU />} path="product-sku/:slug/edit" />
+              <Route path="product-sku">
+                <Route element={<ProductSkuScreen />} index />
+                <Route element={<AddProductSku />} path="add" />
+                <Route element={<ProductSKU />} path=":slug" />
+                <Route element={<EditProductSku />} path=":slug/edit" />
+              </Route>
 
               <Route
                 element={<ProductSKU />}

@@ -22,7 +22,7 @@ import {
   openErrorNotification,
   openSuccessNotification,
 } from "../utils/openNotification";
-import { IN_PROCESS } from "../constants";
+import { CANCELLED, DELIVERED, IN_PROCESS } from "../constants";
 import DeleteOrder from "./components/DeleteOrder";
 
 const OrdersList = ({ dataSource, status, refetchOrders }) => {
@@ -41,11 +41,11 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
 
   const getTagColor = (status) => {
     switch (status) {
-      case "in progress":
+      case IN_PROCESS:
         return "orange";
-      case "cancelled":
+      case CANCELLED:
         return "red";
-      case "delivered":
+      case DELIVERED:
         return "green";
       default:
         return "green";
@@ -100,8 +100,18 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
       title: "Order ID",
       dataIndex: "id",
       key: "orderId",
-      render: (_, { id }) => {
-        return <div className="text-blue-500">#{id}</div>;
+      render: (_, { id, status }) => {
+        return (
+          <div
+            className="text-blue-500 cursor-pointer"
+            onClick={() => {
+              setIsOrderModalOpen(true);
+              setActiveOrder({ orderId: id, orderStatus: status });
+            }}
+          >
+            #{id}
+          </div>
+        );
       },
       ...getColumnSearchProps("order Id"),
       sorter: (a, b) => a.id - b.id,
@@ -133,7 +143,9 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
       render: (_, { status }) => {
         return (
           <>
-            <Tag color={getTagColor(status)}>{status.toUpperCase()}</Tag>
+            <Tag color={getTagColor(status)}>
+              {status.toUpperCase().replaceAll("_", " ")}
+            </Tag>
           </>
         );
       },
@@ -317,9 +329,9 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
               showSearch
               onChange={(value) => handleUpdateStatus.mutate(value)}
             >
-              <Select.Option value="in_process">In Process</Select.Option>
-              <Select.Option value="cancelled">Cancelled</Select.Option>
-              <Select.Option value="delivered">Delivered</Select.Option>
+              <Select.Option value={IN_PROCESS}>In Process</Select.Option>
+              <Select.Option value={CANCELLED}>Cancelled</Select.Option>
+              <Select.Option value={DELIVERED}>Delivered</Select.Option>
             </Select>
             {handleUpdateStatus.status === "loading" && <Spin size="small" />}
           </>
