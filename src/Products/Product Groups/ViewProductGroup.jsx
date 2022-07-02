@@ -3,11 +3,8 @@ import React, { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import {
-  deleteProductSKU,
   getProductGroup,
   getProductSKUs,
-  publishProductSKU,
-  unpublishProductSKU,
   updateProductSKU,
 } from "../../context/CategoryContext";
 import { getDate, parseArray } from "../../utility";
@@ -63,6 +60,7 @@ function ViewProductGroup() {
     is_featured: "",
     product_group_image: "",
   });
+  const [selectedProductSku, setSelectedProductSku] = useState(null);
   const {
     data: productGroupData,
     isLoading: getProductGroupIsLoading,
@@ -91,8 +89,10 @@ function ViewProductGroup() {
   );
   const { mutate: productSKUGroupUpdate } = useMutation(updateProductSKU, {
     onSuccess: (data) => {
-      openSuccessNotification(`Product SKU added to ${productGroup.name}`);
+      openSuccessNotification(`Product SKU updated in ${productGroup.name}`);
       queryClient.invalidateQueries(["get-product-group", slug]);
+      queryClient.invalidateQueries("get-product-sku");
+      setSelectedProductSku(null);
     },
     onError: (error) => {
       openErrorNotification(error);
@@ -100,17 +100,33 @@ function ViewProductGroup() {
   });
 
   const handleDeleteProductSKUFromGroup = (value) => {
-    let form_data = new FormData();
     let productGroups = allProductSKUs.find(
       (productSKU) => productSKU.slug === value
     ).product_group;
-    productGroups.map((productGroup) => {
-      if (!productGroup.includes(slug)) {
-        form_data.append("product_group", productGroup);
+    productGroups.map((productGroup, index) => {
+      if (productGroup === slug) {
+        productGroups.splice(index, 1);
+        console.log(productGroup, "matched");
       }
     });
-    productSKUGroupUpdate({ slug: value, form_data });
+    productSKUGroupUpdate({
+      slug: value,
+      form_data: { product_group: productGroups },
+    });
   };
+
+  const addProductSKUToGroup = (value) => {
+    setSelectedProductSku(value);
+    let productGroups = allProductSKUs.find(
+      (productSKU) => productSKU.slug === value
+    ).product_group;
+    productGroups.push(slug);
+    productSKUGroupUpdate({
+      slug: value,
+      form_data: { product_group: productGroups },
+    });
+  };
+
   const columns = [
     {
       title: "S.N.",
@@ -122,7 +138,10 @@ function ViewProductGroup() {
       title: "Product Name",
       render: (text, record) => {
         return (
-          <div className="h-[50px]">
+          <Link
+            to={"/product-sku/" + record.slug}
+            className="block text-black h-[50px]"
+          >
             {record.product_sku_image.full_size && (
               <>
                 <img
@@ -133,7 +152,7 @@ function ViewProductGroup() {
                 {record.name}
               </>
             )}
-          </div>
+          </Link>
         );
       },
     },
@@ -308,15 +327,8 @@ function ViewProductGroup() {
                     columns={columns}
                     dataSource={productGroup?.product_skus?.results}
                     pagination={false}
-                    rowClassName="cursor-pointer h-[3rem]"
+                    rowClassName="h-[3rem]"
                     className="w-[75%]"
-                    onRow={(record) => {
-                      return {
-                        onClick: (_) => {
-                          navigate("/product-sku/" + record.slug);
-                        },
-                      };
-                    }}
                   />
                 </div>
                 <div>
@@ -327,27 +339,9 @@ function ViewProductGroup() {
                         width: 400,
                         marginTop: "1rem",
                       }}
+                      value={selectedProductSku}
                       placeholder={`Add Product SKU to ${productGroup.name}`}
-                      optionFilterProp="children"
-                      filterOption={(input, option) =>
-                        option.children.includes(input)
-                      }
-                      filterSort={(optionA, optionB) =>
-                        optionA.children
-                          .toLowerCase()
-                          .localeCompare(optionB.children.toLowerCase())
-                      }
-                      onChange={(value) => {
-                        let form_data = new FormData();
-                        let productGroups = allProductSKUs.find(
-                          (productSKU) => productSKU.slug === value
-                        ).product_group;
-                        productGroups.map((productGroup) => {
-                          form_data.append("product_group", productGroup);
-                        });
-                        form_data.append("product_group", slug);
-                        productSKUGroupUpdate({ slug: value, form_data });
-                      }}
+                      onChange={(value) => addProductSKUToGroup(value)}
                     >
                       {allProductSKUs
                         ?.filter(
