@@ -1,5 +1,5 @@
 import { EditOutlined } from "@ant-design/icons";
-import { Descriptions, Divider, Tag, Button } from "antd";
+import { Descriptions, Divider, Tag, Button, Space, Spin } from "antd";
 import moment from "moment";
 import { useQuery, useMutation } from "react-query";
 import { Link, useParams } from "react-router-dom";
@@ -38,7 +38,7 @@ function ProductSKU() {
 
   return (
     <>
-      {productSkustatus === "loading" && <Loader />}
+      {productSkustatus === "loading" && <Loader isOpen />}
       {productSkustatus === "success" && productSku && (
         <>
           <div className="mt-4">
@@ -107,22 +107,31 @@ function ProductSKU() {
                 </div>
 
                 <div className="absolute top-0 right-0">
-                  <Button
-                    className="rounded"
-                    type={productSku.is_published ? "danger" : "primary"}
-                    onClick={() =>
-                      handlePublish.mutate(!productSku.is_published)
-                    }
-                  >
-                    {productSku.is_published ? "Unpublish" : "Publish"}
-                  </Button>
-                  <Link
-                    className="text-[#00A0B0] hover:bg-[#d4e4e6] py-2 px-6"
-                    to={"edit"}
-                  >
-                    <EditOutlined style={{ verticalAlign: "middle" }} /> Edit
-                    Details
-                  </Link>
+                  <Space>
+                    <Button
+                      className="rounded"
+                      disabled={handlePublish.status === "loading"}
+                      type={productSku.is_published ? "danger" : "primary"}
+                      onClick={() =>
+                        handlePublish.mutate(!productSku.is_published)
+                      }
+                    >
+                      {handlePublish.status === "loading" ? (
+                        <Spin size="small" />
+                      ) : (
+                        <span>
+                          {productSku.is_published ? "Unpublish" : "Publish"}
+                        </span>
+                      )}
+                    </Button>
+                    <Link
+                      className="text-[#00A0B0] hover:bg-[#d4e4e6] py-2 px-6"
+                      to={"edit"}
+                    >
+                      <EditOutlined style={{ verticalAlign: "middle" }} /> Edit
+                      Details
+                    </Link>
+                  </Space>
                 </div>
               </div>
 
