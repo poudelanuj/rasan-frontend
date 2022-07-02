@@ -5,10 +5,14 @@ import { UploadOutlined, LoadingOutlined } from "@ant-design/icons";
 import { addBrand } from "../../context/CategoryContext";
 import { useMutation, useQueryClient } from "react-query";
 
-import { message, Upload } from "antd";
+import { Upload } from "antd";
+import {
+  openErrorNotification,
+  openSuccessNotification,
+} from "../../utils/openNotification";
 const { Dragger } = Upload;
 
-function AddBrand({ alert, setAlert }) {
+function AddBrand() {
   const navigate = useNavigate();
   const [formState, setFormState] = useState({
     name: "",
@@ -24,17 +28,14 @@ function AddBrand({ alert, setAlert }) {
     data: addBrandResponseData,
   } = useMutation(addBrand, {
     onSuccess: (data) => {
-      message.success("Brand added successfully");
+      openSuccessNotification(
+        data.data.message || "Brand created successfully"
+      );
       queryClient.invalidateQueries("get-brands");
       navigate(`/brands/edit/` + data.data.data.slug);
     },
-    onError: (data) => {
-      message.error(
-        data.response.data.errors.detail ||
-          data.response.data.errors.message ||
-          data.message ||
-          "Something went wrong"
-      );
+    onError: (error) => {
+      openErrorNotification(error);
     },
   });
   const closeAddBrands = () => {
@@ -54,10 +55,10 @@ function AddBrand({ alert, setAlert }) {
         form_data.append("brand_image", formState.imageFile);
       }
       addBrandMutate({ form_data });
-      return addBrandResponseData.data.data.slug;
     } else {
-      message.error("Please fill all the fields");
-      return false;
+      openErrorNotification({
+        response: { data: { message: "Please fill all the fields" } },
+      });
     }
   };
   const props = {
@@ -79,27 +80,6 @@ function AddBrand({ alert, setAlert }) {
       };
       reader.readAsDataURL(filename.file);
     },
-  };
-
-  const showAlert = ({
-    title,
-    text,
-    primaryButton,
-    secondaryButton,
-    type,
-    image,
-    action,
-  }) => {
-    setAlert({
-      show: true,
-      title,
-      text,
-      primaryButton,
-      secondaryButton,
-      type,
-      image,
-      action,
-    });
   };
 
   return (

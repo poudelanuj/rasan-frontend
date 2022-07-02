@@ -1,13 +1,8 @@
 import React, { useState } from "react";
-import {
-  CheckCircleOutlined,
-  EditOutlined,
-  EyeOutlined,
-} from "@ant-design/icons";
+import { CheckCircleOutlined, EditOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 
 function CategoryWidget({
-  id,
   image,
   title,
   slug,
@@ -34,6 +29,7 @@ function CategoryWidget({
       className="relative hover:scale-[1.03] transition-all rounded-[8.633px] shadow-[0px_2.46px_12.33px_rgba(135,135,135,0.13)] hover:shadow-[0px_2.46px_12.33px_rgba(135,135,135,0.33)]"
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
+      key={slug}
     >
       <Link
         key={slug}
@@ -105,7 +101,10 @@ function CategoryWidget({
         </>
       )}
       {is_published && (
-        <div className="absolute bottom-[0px] left-[0px] animate-categoryEditButton max-w-[2.5rem] p-2">
+        <div
+          className="absolute bottom-[0px] left-[0px] animate-categoryEditButton max-w-[2.5rem] p-2"
+          title="Published"
+        >
           <img src="/published.svg" alt="published" className="w-[100%]" />
         </div>
       )}

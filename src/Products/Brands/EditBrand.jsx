@@ -10,12 +10,16 @@ import {
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { parseSlug } from "../../utility";
 
-import { message, Upload } from "antd";
+import { Upload } from "antd";
 import { UploadOutlined, LoadingOutlined } from "@ant-design/icons";
+import {
+  openErrorNotification,
+  openSuccessNotification,
+} from "../../utils/openNotification";
 
 const { Dragger } = Upload;
 
-function EditBrand({ slug, alert, setAlert }) {
+function EditBrand({ slug, setAlert }) {
   const [formState, setFormState] = useState({
     name: "",
     name_np: "",
@@ -31,38 +35,28 @@ function EditBrand({ slug, alert, setAlert }) {
   } = useQuery(["get-brand", slug], () => getBrand({ slug }), {
     onSuccess: (data) => {
       setFormState({
+        ...formState,
         name: data.data.data.name,
         name_np: data.data.data.name_np,
-        image: data.data.data.brand_image.full_size,
         is_published: data.data.data.is_published,
       });
     },
-    onError: (data) => {
-      console.log(data);
-      message.error(
-        data.response.data.errors.detail ||
-          data.response.data.errors.message ||
-          data.message ||
-          "Something went wrong"
-      );
+    onError: (error) => {
+      openErrorNotification(error);
     },
   });
   const { mutate: deleteMutate, isLoading: deleteBrandIsLoading } = useMutation(
     () => deleteBrand({ slug }),
     {
       onSuccess: (data) => {
-        message.success("Brand deleted successfully");
+        openSuccessNotification(
+          data.data.message || "Brand deleted successfully"
+        );
         queryClient.invalidateQueries("get-brands");
         navigate("/brands");
       },
       onError: (data) => {
-        console.log(data);
-        message.error(
-          data.response.data.errors.detail ||
-            data.response.data.errors.message ||
-            data.message ||
-            "Something went wrong"
-        );
+        openErrorNotification(data);
       },
     }
   );
@@ -70,52 +64,41 @@ function EditBrand({ slug, alert, setAlert }) {
     ({ slug, form_data }) => updateBrand({ slug, form_data }),
     {
       onSuccess: (data) => {
-        message.success("Brand updated successfully");
+        openSuccessNotification(
+          data.data.message || "Brand updated successfully"
+        );
         queryClient.invalidateQueries("get-brands");
         queryClient.invalidateQueries(["get-brand", slug]);
-        console.log(data.data.data.slug);
         navigate(`/brands/edit/` + data.data.data.slug);
       },
-      onError: (data) => {
-        console.log(data);
-        message.error(
-          data.response.data.errors.detail ||
-            data.response.data.errors.message ||
-            data.message ||
-            "Something went wrong"
-        );
+      onError: (error) => {
+        openErrorNotification(error);
       },
     }
   );
   const { mutate: publishBrandMutate, isLoading: publishBrandIsLoading } =
     useMutation(publishBrand, {
       onSuccess: (data) => {
+        openSuccessNotification(
+          data.data.message || "Brand published successfully"
+        );
         queryClient.invalidateQueries("get-brands");
         queryClient.invalidateQueries(["get-brand", slug]);
-        message.success("Brand published successfully");
       },
-      onError: (data) => {
-        message.error(
-          data.response.data.errors.detail ||
-            data.response.data.errors.message ||
-            data.message ||
-            "Something went wrong"
-        );
+      onError: (error) => {
+        openErrorNotification(error);
       },
     });
   const { mutate: unpublishBrandMutate } = useMutation(unpublishBrand, {
     onSuccess: (data) => {
+      openSuccessNotification(
+        data.data.message || "Brand unpublished successfully"
+      );
       queryClient.invalidateQueries("get-brands");
       queryClient.invalidateQueries(["get-brand", slug]);
-      message.success("Brand unpublished successfully");
     },
-    onError: (data) => {
-      message.error(
-        data.response.data.errors.detail ||
-          data.response.data.errors.message ||
-          data.message ||
-          "Something went wrong"
-      );
+    onError: (error) => {
+      openErrorNotification(error);
     },
   });
   const navigate = useNavigate();
@@ -159,11 +142,10 @@ function EditBrand({ slug, alert, setAlert }) {
         form_data.append("brand_image", formState.imageFile);
       }
       updateMutate({ slug, form_data });
-      message.success("Brand saved successfully!");
-      return true;
     } else {
-      message.error("Please fill all the fields!");
-      return false;
+      openErrorNotification({
+        response: { data: { message: "Please fill all the fields" } },
+      });
     }
   };
   const handlePublish = async ({ slug }) => {
@@ -199,7 +181,6 @@ function EditBrand({ slug, alert, setAlert }) {
 
   return (
     <>
-      {getBrandIsError && getBrandError.message}
       <div
         className="fixed top-0 left-0 h-screen w-full bg-[#03022920] animate-popupopen"
         onClick={() => closeEditCategories()}
@@ -234,7 +215,9 @@ function EditBrand({ slug, alert, setAlert }) {
                     alt="gallery"
                     className="h-[6rem] mx-auto"
                     src={
-                      formState.image ? formState.image : "/gallery-icon.svg"
+                      formState.image ||
+                      data.data.data.brand_image.full_size ||
+                      "/gallery-icon.svg"
                     }
                   />
                 </p>

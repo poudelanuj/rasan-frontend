@@ -81,8 +81,10 @@ export const addBrand = async ({ form_data }) => {
   return response;
 };
 
-export const getBrandEndUser = async ({ slug }) => {
-  const response = await myaxios.get(`${homeRoute}product/brands/${slug}/`);
+export const getProductsFromBrand = async ({ slug }) => {
+  const response = await myaxios.get(
+    `${homeRoute}product/admin/brands/products/${slug}/`
+  );
   return response;
 };
 
@@ -123,9 +125,9 @@ export const unpublishBrand = async ({ slug }) => {
 };
 
 // product groups
-export const getProductGroups = async () => {
+export const getProductGroups = async ({ currentPage = 1 }) => {
   const response = await myaxios.get(`
-    ${homeRoute}product/admin/product-groups/`);
+    ${homeRoute}product/admin/product-groups/?page=${currentPage}`);
   return response;
 };
 

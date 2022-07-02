@@ -35,8 +35,6 @@ const LoginRasan = () => {
         // user experience.
         navigate(from, { replace: true });
       });
-      //   setOnOTPReceived(true);
-      //   setNumber(data.data.phone);
     },
   });
 
@@ -64,22 +62,20 @@ const LoginRasan = () => {
             initialValues={{
               remember: true,
             }}
-            labelCol={{
-              span: 6,
-            }}
             name="basic"
-            // onValuesChange={onValuesChanged}
             wrapperCol={{
               span: 16,
             }}
             onFinish={onFinishLogin}
             onFinishFailed={onFinishFailed}
+            className="flex flex-col items-center max-w-full"
           >
-            <Form.Item label={<div>OTP</div>} name="otp">
-              <InputNumber
-              // addonBefore="+977"
-              //   className="w-11/12"
-              />
+            <Form.Item
+              label={<div>OTP</div>}
+              name="otp"
+              className="flex justify-between mx-auto max-w-full"
+            >
+              <InputNumber />
             </Form.Item>
 
             <Button
@@ -97,22 +93,20 @@ const LoginRasan = () => {
             initialValues={{
               remember: true,
             }}
-            labelCol={{
-              span: 6,
-            }}
             name="basic"
-            // onValuesChange={onValuesChanged}
             wrapperCol={{
               span: 16,
             }}
             onFinish={onFinish}
             onFinishFailed={onFinishFailed}
+            className="flex flex-col items-center justify-center max-w-full"
           >
-            <Form.Item label={<div>Phone Number</div>} name="phone">
-              <InputNumber
-                addonBefore="+977"
-                //   className="w-11/12"
-              />
+            <Form.Item
+              label={<span className="w-fit">Phone Number</span>}
+              name="phone"
+              className="flex justify-between mx-auto max-w-full"
+            >
+              <InputNumber addonBefore="+977" className="max-w-[13rem]" />
             </Form.Item>
 
             <Button

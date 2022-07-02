@@ -1,5 +1,6 @@
 import React from "react";
 import CategoryWidget from "./CategoryWidget";
+import { noImageImage } from "./constants";
 
 function ProductCategory({
   categories,
@@ -10,7 +11,7 @@ function ProductCategory({
     <>
       {categories.map((category, index) => (
         <CategoryWidget
-          key={category.id}
+          key={category.slug}
           completeLink={`/category-list/${category.slug}`}
           editLink={`/category-list/edit/${category.slug}`}
           id={category.sn}
@@ -19,7 +20,7 @@ function ProductCategory({
             category.category_image.medium_square_crop ||
             category.category_image.small_square_crop ||
             category.category_image.thumbnail ||
-            "https://fisnikde.com/wp-content/uploads/2019/01/broken-image.png"
+            noImageImage
           }
           selectedCategories={selectedCategories}
           setSelectedCategories={setSelectedCategories}

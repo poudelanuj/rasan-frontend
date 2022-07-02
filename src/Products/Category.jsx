@@ -6,20 +6,27 @@ import { getCategory } from "../context/CategoryContext";
 
 import { Tabs } from "antd";
 import { useParams } from "react-router-dom";
+import { openErrorNotification } from "../utils/openNotification";
+import Loader from "./subComponents/Loader";
 const { TabPane } = Tabs;
 
 const onChange = (key) => {};
 
 function Category() {
   const { slug } = useParams();
-  const { data, isLoading, isError, error } = useQuery("get-category", () =>
-    getCategory({ slug })
+  const { data, isLoading } = useQuery(
+    "get-category",
+    () => getCategory({ slug }),
+    {
+      onError: (err) => {
+        openErrorNotification(err);
+      },
+    }
   );
 
   return (
     <>
-      {isLoading && <div>Loading....</div>}
-      {isError && <div>Error: {error.message}</div>}
+      {isLoading && <Loader loadingText={"Loading Category..."} />}
       {data && (
         <div>
           <div className="text-3xl bg-white p-5">{data.data.data.name}</div>

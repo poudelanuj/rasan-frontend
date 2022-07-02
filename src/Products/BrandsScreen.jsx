@@ -14,10 +14,15 @@ import AddCategoryButton from "./subComponents/AddCategoryButton";
 import Header from "./subComponents/Header";
 import SearchBox from "./subComponents/SearchBox";
 
-import { message, Pagination, Select } from "antd";
+import { Pagination, Select } from "antd";
 import SimpleAlert from "./alerts/SimpleAlert";
 import ClearSelection from "./subComponents/ClearSelection";
 import Loader from "./subComponents/Loader";
+import { noImageImage } from "./constants";
+import {
+  openErrorNotification,
+  openSuccessNotification,
+} from "../utils/openNotification";
 const { Option } = Select;
 
 function BrandsScreen() {
@@ -35,8 +40,14 @@ function BrandsScreen() {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedBrands, setSelectedBrands] = useState([]);
-  const { data, isLoading } = useQuery("get-brands", () =>
-    getBrands({ currentPage })
+  const { data, isLoading } = useQuery(
+    "get-brands",
+    () => getBrands({ currentPage }),
+    {
+      onError: (err) => {
+        openErrorNotification(err);
+      },
+    }
   );
 
   const queryClient = useQueryClient();
@@ -44,19 +55,35 @@ function BrandsScreen() {
 
   const { mutate: publishCategoryMutate } = useMutation(publishBrand, {
     onSuccess: (data) => {
+      openSuccessNotification(
+        data?.data?.message || "Brand published successfully"
+      );
       queryClient.invalidateQueries("get-brands");
+    },
+    onError: (err) => {
+      openErrorNotification(err);
     },
   });
   const { mutate: unpublishCategoryMutate } = useMutation(unpublishBrand, {
     onSuccess: (data) => {
+      openSuccessNotification(
+        data?.data?.message || "Brand unpublished successfully"
+      );
       queryClient.invalidateQueries("get-brands");
+    },
+    onError: (err) => {
+      openErrorNotification(err);
     },
   });
   const { mutate: deleteMutate } = useMutation(deleteBrand, {
     onSuccess: (data) => {
+      openSuccessNotification(
+        data?.data?.message || "Brand deleted successfully"
+      );
       queryClient.invalidateQueries("get-brands");
-      console.log(data, "hello");
-      message.success(data?.data?.message || "Brand deleted successfully");
+    },
+    onError: (err) => {
+      openErrorNotification(err);
     },
   });
 
@@ -77,14 +104,14 @@ function BrandsScreen() {
   const handleBulkPublish = () => {
     selectedBrands.forEach(async (category) => {
       publishCategoryMutate({ slug: category.slug });
-      message.success(`${category.name} published`);
+      openSuccessNotification(`${category.name} published`);
     });
     setSelectedBrands([]);
   };
   const handleBulkUnpublish = () => {
     selectedBrands.forEach(async (category) => {
       unpublishCategoryMutate({ slug: category.slug });
-      message.success(`${category.name} unpublished`);
+      openSuccessNotification(`${category.name} unpublished`);
     });
     setSelectedBrands([]);
   };
@@ -166,18 +193,20 @@ function BrandsScreen() {
                 selectedCategories={selectedBrands}
                 setSelectedCategories={setSelectedBrands}
               />
-              <Select
-                style={{
-                  width: 120,
-                  marginRight: "1rem",
-                }}
-                value={"Bulk Actions"}
-                onChange={handleBulkAction}
-              >
-                <Option value="publish">Publish</Option>
-                <Option value="unpublish">Unpublish</Option>
-                <Option value="delete">Delete</Option>
-              </Select>
+              {selectedBrands.length > 0 && (
+                <Select
+                  style={{
+                    width: 120,
+                    marginRight: "1rem",
+                  }}
+                  value={"Bulk Actions"}
+                  onChange={handleBulkAction}
+                >
+                  <Option value="publish">Publish</Option>
+                  <Option value="unpublish">Unpublish</Option>
+                  <Option value="delete">Delete</Option>
+                </Select>
+              )}
               <AddCategoryButton linkText="Add Brand" linkTo="add" />
             </div>
           </div>
@@ -190,7 +219,13 @@ function BrandsScreen() {
                   editLink={`/brands/edit/${brand.slug}`}
                   id={brand.sn}
                   is_published={brand.is_published}
-                  image={brand.brand_image.medium_square_crop}
+                  image={
+                    brand.brand_image.full_size ||
+                    brand.brand_image.medium_square_crop ||
+                    brand.brand_image.small_square_crop ||
+                    brand.brand_image.thumbnail ||
+                    noImageImage
+                  }
                   imgClassName=""
                   selectedCategories={selectedBrands}
                   setSelectedCategories={setSelectedBrands}
@@ -200,7 +235,7 @@ function BrandsScreen() {
               ))}
           </div>
           <Pagination
-            pageSize={10}
+            pageSize={20}
             showTotal={(total) => `Total ${total} items`}
             style={{
               marginTop: "1rem",

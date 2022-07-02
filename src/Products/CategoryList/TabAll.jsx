@@ -3,21 +3,33 @@ import { useNavigate } from "react-router-dom";
 
 import { Table, Select } from "antd";
 import AddCategoryButton from "../subComponents/AddCategoryButton";
-import { getProductsFromCategory } from "../../context/CategoryContext";
-import { useQuery } from "react-query";
+import {
+  deleteProduct,
+  getProductsFromCategory,
+  publishProduct,
+  unpublishProduct,
+} from "../../context/CategoryContext";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 
 import { getDate, parseSlug, parseArray } from "../../utility";
+import SimpleAlert from "../alerts/SimpleAlert";
+import {
+  openErrorNotification,
+  openSuccessNotification,
+} from "../../utils/openNotification";
+import Loader from "../subComponents/Loader";
 
 const { Option } = Select;
 
 const columns = [
   {
-    title: "S.No.",
+    title: "S.N.",
     dataIndex: "sn",
+    defaultSortOrder: "ascend",
+    sorter: (a, b) => a.sn - b.sn,
   },
   {
     title: "Product Image",
-    // dataIndex: 'key',
     render: (text, record) => {
       return (
         <div className="h-[80px]">
@@ -36,7 +48,6 @@ const columns = [
     title: "Product Name",
     dataIndex: "name",
     defaultSortOrder: "descend",
-    // sorter: (a, b) => a.name.length - b.name.length,
   },
   {
     title: "Category",
@@ -92,6 +103,7 @@ const columns = [
   },
   {
     title: "Includes VAT",
+    dataIndex: "includes_vat",
     render: (text, record) => {
       return (
         <div
@@ -105,6 +117,17 @@ const columns = [
         </div>
       );
     },
+    filters: [
+      {
+        text: "Includes VAT",
+        value: true,
+      },
+      {
+        text: "Doesn't Include VAT",
+        value: false,
+      },
+    ],
+    onFilter: (value, record) => record.includes_vat === value,
   },
   {
     title: "Status",
@@ -121,13 +144,24 @@ const columns = [
         </div>
       );
     },
+    filters: [
+      {
+        text: "Published",
+        value: true,
+      },
+      {
+        text: "Unpublished",
+        value: false,
+      },
+    ],
+    onFilter: (value, record) => record.is_published === value,
   },
   {
     title: "Published At",
     render: (text, record) => {
       return (
         <div className="text-center">
-          {record.published_at.length > 0 ? (
+          {record.published_at?.length > 0 ? (
             getDate(record.published_at)
           ) : (
             <div className="text-center">-</div>
@@ -139,11 +173,29 @@ const columns = [
 ];
 
 function TabAll({ slug }) {
+  const queryClient = useQueryClient();
   // const { slug } = useParams();
   const [entriesPerPage, setEntriesPerPage] = useState(4);
+  const [alert, setAlert] = useState({
+    show: false,
+    title: "",
+    text: "",
+    type: "",
+    primaryButton: "",
+    secondaryButton: "",
+    image: "",
+    action: "",
+    actionOn: "",
+    icon: "",
+  });
   const { data, isLoading, isError, error } = useQuery(
-    "get-products-from-category",
-    () => getProductsFromCategory({ slug })
+    ["get-products-from-category", slug],
+    () => getProductsFromCategory({ slug }),
+    {
+      onError: (err) => {
+        openErrorNotification(err);
+      },
+    }
   );
 
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
@@ -154,108 +206,195 @@ function TabAll({ slug }) {
   };
 
   const rowSelection = {
-    selectedRowKeys,
     onChange: onSelectChange,
-    selections: [
-      Table.SELECTION_ALL,
-      Table.SELECTION_INVERT,
-      Table.SELECTION_NONE,
-      {
-        key: "odd",
-        text: "Select Odd Row",
-        onSelect: (changableRowKeys) => {
-          let newSelectedRowKeys = [];
-          newSelectedRowKeys = changableRowKeys.filter((_, index) => {
-            if (index % 2 !== 0) {
-              return false;
-            }
-
-            return true;
-          });
-          setSelectedRowKeys(newSelectedRowKeys);
-        },
+    selectedRowKeys,
+  };
+  const { mutate: publishMutate } = useMutation(
+    (slug) => publishProduct({ slug }),
+    {
+      onSuccess: (data) => {
+        openSuccessNotification(data.data.message || "Product published");
+        queryClient.invalidateQueries(["get-products-from-category", slug]);
       },
-      {
-        key: "even",
-        text: "Select Even Row",
-        onSelect: (changableRowKeys) => {
-          let newSelectedRowKeys = [];
-          newSelectedRowKeys = changableRowKeys.filter((_, index) => {
-            if (index % 2 !== 0) {
-              return true;
-            }
-
-            return false;
-          });
-          setSelectedRowKeys(newSelectedRowKeys);
-        },
+      onError: (err) => {
+        openErrorNotification(err);
       },
-    ],
+    }
+  );
+  const { mutate: unpublishProductMutate } = useMutation(
+    (slug) => unpublishProduct({ slug }),
+    {
+      onSuccess: (data) => {
+        openSuccessNotification(data.data.message || "Product unpublished");
+        queryClient.invalidateQueries(["get-products-from-category", slug]);
+      },
+      onError: (err) => {
+        openErrorNotification(err);
+      },
+    }
+  );
+  const { mutate: deleteProductMutate } = useMutation(
+    (slug) => deleteProduct({ slug }),
+    {
+      onSuccess: (data) => {
+        openSuccessNotification(data.data.message || "Product deleted");
+        queryClient.invalidateQueries(["get-products-from-category", slug]);
+      },
+      onError: (err) => {
+        openErrorNotification(err);
+      },
+    }
+  );
+
+  const handleBulkPublish = () => {
+    selectedRowKeys.forEach(async (slug) => {
+      publishMutate(slug);
+    });
+    setSelectedRowKeys([]);
+  };
+  const handleBulkUnpublish = () => {
+    selectedRowKeys.forEach(async (slug) => {
+      unpublishProductMutate(slug);
+    });
+    setSelectedRowKeys([]);
+  };
+  const handleBulkDelete = () => {
+    selectedRowKeys.forEach((slug) => {
+      deleteProductMutate(slug);
+    });
+    setSelectedRowKeys([]);
+  };
+
+  const handleBulkAction = (event) => {
+    const action = event;
+    switch (action) {
+      case "publish":
+        setAlert({
+          show: true,
+          title: "Publish Selected Product?",
+          text: "Are you sure you want to publish selected Product?",
+          type: "info",
+          primaryButton: "Publish Selected",
+          secondaryButton: "Cancel",
+          image: "/publish-icon.svg",
+          action: async () => handleBulkPublish(),
+        });
+        break;
+      case "unpublish":
+        setAlert({
+          show: true,
+          title: "Unpublish Selected Product?",
+          text: "Are you sure you want to unpublish selected Product?",
+          type: "warning",
+          primaryButton: "Unpublish Selected",
+          secondaryButton: "Cancel",
+          image: "/unpublish-icon.svg",
+          action: async () => handleBulkUnpublish(),
+        });
+        break;
+      case "delete":
+        setAlert({
+          show: true,
+          title: "Delete Selected Product?",
+          text: "Are you sure you want to delete selected Product?",
+          type: "danger",
+          primaryButton: "Delete Selected",
+          secondaryButton: "Cancel",
+          image: "/delete-icon.svg",
+          action: async () => handleBulkDelete(),
+        });
+        break;
+      default:
+        break;
+    }
   };
   return (
-    <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[70vh]">
-      <div className="flex justify-end mb-3">
-        {/* <div className="py-[3px] px-3 min-w-[18rem] border-[1px] border-[#D9D9D9] rounded-lg flex items-center justify-between">
-<SearchOutlined style={{color: "#D9D9D9"}} />
-<input type="text" placeholder="Search category..." className="w-full ml-1 placeholder:text-[#D9D9D9]" />
-</div> */}
-        <div>
-          <AddCategoryButton
-            linkText="Add Products"
-            linkTo={`/product-list/add`}
+    <>
+      {alert.show && (
+        <SimpleAlert
+          action={alert.action}
+          alert={alert}
+          icon={alert.icon}
+          image={alert.image}
+          primaryButton={alert.primaryButton}
+          secondaryButton={alert.secondaryButton}
+          setAlert={setAlert}
+          text={alert.text}
+          title={alert.title}
+          type={alert.type}
+        />
+      )}
+      {isLoading && <Loader loadingText={"Loading Products..."} />}
+      <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[70vh]">
+        <div className="flex justify-end mb-3">
+          <div className="flex">
+            {selectedRowKeys.length > 0 && (
+              <Select
+                style={{
+                  width: 120,
+                  marginRight: "1rem",
+                }}
+                value={"Bulk Actions"}
+                onChange={handleBulkAction}
+              >
+                <Option value="publish">Publish</Option>
+                <Option value="unpublish">Unpublish</Option>
+                <Option value="delete">Delete</Option>
+              </Select>
+            )}
+            <AddCategoryButton
+              linkText="Add Products"
+              linkTo={`/product-list/add?category=${slug}`}
+            />
+          </div>
+        </div>
+
+        <div className="flex-1">
+          {isLoading ? "Loading..." : null}
+          {isError ? error.message : null}
+          <Table
+            columns={columns}
+            dataSource={data?.data?.data?.products.results}
+            rowKey="slug"
+            footer={() => (
+              <div className="absolute bottom-0 left-0 flex justify-start bg-white w-[100%]">
+                <div className="mt-5">
+                  <span className="text-sm text-gray-600">
+                    Entries per page:{" "}
+                  </span>
+                  <Select
+                    defaultValue={4}
+                    style={{
+                      width: 120,
+                    }}
+                    // loading
+                    onChange={(value) => setEntriesPerPage(value)}
+                  >
+                    <Option value={4}>4</Option>
+                    <Option value={10}>10</Option>
+                    <Option value={20}>20</Option>
+                    <Option value={50}>50</Option>
+                    <Option value={100}>100</Option>
+                  </Select>
+                </div>
+              </div>
+            )}
+            pagination={{ pageSize: entriesPerPage }}
+            rowSelection={rowSelection}
+            rowClassName="cursor-pointer"
+            onRow={(record) => {
+              return {
+                onClick: (_) => {
+                  navigate("/product-list/" + record.slug);
+                },
+              };
+            }}
           />
         </div>
-      </div>
 
-      <div className="flex-1">
-        {isLoading ? "Loading..." : null}
-        {isError ? error.message : null}
-        <Table
-          columns={columns}
-          dataSource={data?.data?.data?.products.results}
-          footer={() => (
-            <div className="absolute bottom-0 left-0 flex justify-start bg-white w-[100%]">
-              <div className="">
-                <span className="text-sm text-gray-600">
-                  Entries per page:{" "}
-                </span>
-                <Select
-                  defaultValue={4}
-                  style={{
-                    width: 120,
-                  }}
-                  // loading
-                  onChange={(value) => setEntriesPerPage(value)}
-                >
-                  <Option value={4}>4</Option>
-                  <Option value={10}>10</Option>
-                  <Option value={20}>20</Option>
-                  <Option value={50}>50</Option>
-                  <Option value={100}>100</Option>
-                </Select>
-              </div>
-            </div>
-          )}
-          pagination={{ pageSize: entriesPerPage }}
-          rowSelection={rowSelection}
-          onRow={(record) => {
-            return {
-              onClick: (_) => {
-                navigate("/product-list/" + record.slug);
-              },
-              onMouseEnter: () => {
-                document.body.style.cursor = "pointer";
-              },
-              onMouseLeave: () => {
-                document.body.style.cursor = "default";
-              },
-            };
-          }}
-        />
+        <div></div>
       </div>
-
-      <div></div>
-    </div>
+    </>
   );
 }
 
