@@ -18,7 +18,7 @@ import Category from "./Products/Category";
 import ViewProductGroup from "./Products/Product Groups/ViewProductGroup";
 import ProductGroupsScreen from "./Products/ProductGroupsScreen";
 import AddProduct from "./Products/ProductList/Add";
-import ProductList from "./Products/ProductList/ProductList";
+import ProductList from "./Products/ProductList/ProductView";
 import ProductListScreen from "./Products/ProductListScreen";
 import ProductSKU from "./Products/ProductSKU";
 import ProductSkuScreen from "./Products/ProductSkuScreen";
