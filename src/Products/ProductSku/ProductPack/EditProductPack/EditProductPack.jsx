@@ -1,6 +1,6 @@
 import React from "react";
 import { useMutation, useQuery } from "react-query";
-import { Modal, Form, Select, Input, Space, Button, Spin, Switch } from "antd";
+import { Modal, Form, Select, Input, Space, Button, Spin } from "antd";
 import { getProductSku } from "../../../../api/productSku";
 import {
   GET_PRODUCT_PACK,
@@ -11,7 +11,6 @@ import {
   openSuccessNotification,
 } from "../../../../utils/openNotification";
 import { getProductPack, updateProductPack } from "../../../../api/productPack";
-import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
 
 function EditProductPack({
   productSkuSlug,
@@ -126,19 +125,6 @@ function EditProductPack({
                 <Input
                   defaultValue={productPack?.mrp_per_piece}
                   type="number"
-                />
-              </Form.Item>
-
-              <Form.Item
-                initialValue={productPack?.is_published}
-                label="Is Published?"
-                name="is_published"
-              >
-                <Switch
-                  checkedChildren={<CheckOutlined />}
-                  className="flex"
-                  defaultChecked={productPack?.is_published}
-                  unCheckedChildren={<CloseOutlined />}
                 />
               </Form.Item>
 
