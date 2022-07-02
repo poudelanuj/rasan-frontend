@@ -181,8 +181,8 @@ function TabAll() {
 
               onChange: (page, pageSize) => {
                 if (page * pageSize > data?.results?.length) {
-                  const next = parseInt(data?.next?.split("page=")[1], 10);
-                  const prev = parseInt(data?.previous?.split("page=")[1], 10);
+                  const next = parseInt(data?.next?.split("?page=")[1], 10);
+                  const prev = parseInt(data?.previous?.split("?page=")[1], 10);
 
                   setNextPage(next || prev || nextPage);
                 }
