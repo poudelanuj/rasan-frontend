@@ -98,13 +98,14 @@ function ProductPackList({ productSkuSlug, productPacks, refetchProductSku }) {
           />
           <Button
             className="rounded"
+            disabled={handlePublish.status === "loading"}
             type={record.is_published ? "danger" : "primary"}
-            onClick={() => {
+            onClick={() =>
               handlePublish.mutate({
                 bool: !record.is_published,
                 id: record.id,
-              });
-            }}
+              })
+            }
           >
             {record.is_published ? "Unpublish" : "Publish"}
           </Button>

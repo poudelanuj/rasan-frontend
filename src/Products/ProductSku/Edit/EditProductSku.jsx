@@ -302,7 +302,7 @@ const EditProductSku = () => {
                   </Select>
                 </Form.Item>
 
-                <Form.Item label="Is Published?" name="includes_vat">
+                <Form.Item label="Is Vat Included?" name="includes_vat">
                   <Switch
                     checkedChildren={<CheckOutlined />}
                     className="flex"
