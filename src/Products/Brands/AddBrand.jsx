@@ -22,22 +22,21 @@ function AddBrand() {
   });
   const queryClient = useQueryClient();
 
-  const {
-    mutate: addBrandMutate,
-    isLoading: addBrandIsLoading,
-    data: addBrandResponseData,
-  } = useMutation(addBrand, {
-    onSuccess: (data) => {
-      openSuccessNotification(
-        data.data.message || "Brand created successfully"
-      );
-      queryClient.invalidateQueries("get-brands");
-      navigate(`/brands/edit/` + data.data.data.slug);
-    },
-    onError: (error) => {
-      openErrorNotification(error);
-    },
-  });
+  const { mutate: addBrandMutate, isLoading: addBrandIsLoading } = useMutation(
+    addBrand,
+    {
+      onSuccess: (data) => {
+        openSuccessNotification(
+          data.data.message || "Brand created successfully"
+        );
+        queryClient.invalidateQueries("get-brands");
+        navigate(`/brands/edit/` + data.data.data.slug);
+      },
+      onError: (error) => {
+        openErrorNotification(error);
+      },
+    }
+  );
   const closeAddBrands = () => {
     navigate("/brands");
   };

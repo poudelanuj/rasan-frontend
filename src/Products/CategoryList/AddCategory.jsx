@@ -22,22 +22,19 @@ function AddCategory() {
   });
   const queryClient = useQueryClient();
 
-  const {
-    mutate: addCategoryMutate,
-    isLoading: addCategoryIsLoading,
-    data: addCategoryResponseData,
-  } = useMutation(addCategory, {
-    onSuccess: (data) => {
-      queryClient.invalidateQueries("get-categories");
-      openSuccessNotification(
-        data.data.message || "Category created successfully"
-      );
-      navigate(`/category-list/edit/${data.data.data.slug}`);
-    },
-    onError: (data) => {
-      openErrorNotification(data);
-    },
-  });
+  const { mutate: addCategoryMutate, isLoading: addCategoryIsLoading } =
+    useMutation(addCategory, {
+      onSuccess: (data) => {
+        queryClient.invalidateQueries("get-categories");
+        openSuccessNotification(
+          data.data.message || "Category created successfully"
+        );
+        navigate(`/category-list/edit/${data.data.data.slug}`);
+      },
+      onError: (data) => {
+        openErrorNotification(data);
+      },
+    });
 
   const closeAddCategories = () => {
     navigate("/category-list");

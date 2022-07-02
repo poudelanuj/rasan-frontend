@@ -1,7 +1,8 @@
 import React from "react";
+import { Navigate } from "react-router-dom";
 
 const Dashboard = () => {
-  return <div className="text-3xl">Dashboard</div>;
+  return <Navigate to="orders" />;
 };
 
 export default Dashboard;

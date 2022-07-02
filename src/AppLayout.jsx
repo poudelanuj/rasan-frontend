@@ -29,11 +29,11 @@ const headerItem = (logout) => (
   />
 );
 const sidebarItems = [
-  {
-    key: "/",
-    label: "Dashboard",
-    icon: <AppstoreOutlined />,
-  },
+  // {
+  //   key: "/",
+  //   label: "Dashboard",
+  //   icon: <AppstoreOutlined />,
+  // },
   {
     key: "orders",
     label: "Orders",
@@ -70,11 +70,11 @@ const sidebarItems = [
     label: "Live User Basket",
     icon: <ShopOutlined />,
   },
-  {
-    key: "crm",
-    label: "CRM",
-    icon: <CustomerServiceOutlined />,
-  },
+  // {
+  //   key: "crm",
+  //   label: "CRM",
+  //   icon: <CustomerServiceOutlined />,
+  // },
 ];
 const AppLayout = () => {
   let navigate = useNavigate();

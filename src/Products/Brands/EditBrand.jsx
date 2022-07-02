@@ -27,24 +27,23 @@ function EditBrand({ slug, setAlert }) {
     is_published: false,
     imageFile: null,
   });
-  const {
-    data,
-    isLoading: getBrandIsLoading,
-    isError: getBrandIsError,
-    error: getBrandError,
-  } = useQuery(["get-brand", slug], () => getBrand({ slug }), {
-    onSuccess: (data) => {
-      setFormState({
-        ...formState,
-        name: data.data.data.name,
-        name_np: data.data.data.name_np,
-        is_published: data.data.data.is_published,
-      });
-    },
-    onError: (error) => {
-      openErrorNotification(error);
-    },
-  });
+  const { data, isLoading: getBrandIsLoading } = useQuery(
+    ["get-brand", slug],
+    () => getBrand({ slug }),
+    {
+      onSuccess: (data) => {
+        setFormState({
+          ...formState,
+          name: data.data.data.name,
+          name_np: data.data.data.name_np,
+          is_published: data.data.data.is_published,
+        });
+      },
+      onError: (error) => {
+        openErrorNotification(error);
+      },
+    }
+  );
   const { mutate: deleteMutate, isLoading: deleteBrandIsLoading } = useMutation(
     () => deleteBrand({ slug }),
     {
