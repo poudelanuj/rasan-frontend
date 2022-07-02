@@ -1,22 +1,27 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { Table, Select } from "antd";
+import { Table, Select, message } from "antd";
 import AddCategoryButton from "../subComponents/AddCategoryButton";
 import {
+  deleteProductSKU,
   getCategory,
-  getSKUsFromCategory,
+  publishProductSKU,
+  unpublishProductSKU,
 } from "../../context/CategoryContext";
-import { useQuery } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 
-import { parseSlug } from "../../utility";
+import { parseArray, parseSlug } from "../../utility";
+import SimpleAlert from "../alerts/SimpleAlert";
 
 const { Option } = Select;
 
 const columns = [
   {
-    title: "S.No.",
+    title: "S.N.",
     dataIndex: "sn",
+    defaultSortOrder: "ascend",
+    sorter: (a, b) => a.sn - b.sn,
   },
   {
     title: "Product Image",
@@ -48,18 +53,17 @@ const columns = [
   {
     title: "Cost Price / Piece (रु)",
     dataIndex: "cost_price_per_piece",
+    sorter: (a, b) => a.cost_price_per_piece - b.cost_price_per_piece,
   },
   {
     title: "MRP / piece (रु)",
     dataIndex: "mrp_per_piece",
+    sorter: (a, b) => a.mrp_per_piece - b.mrp_per_piece,
   },
   {
     title: "Price / piece (रु)",
     dataIndex: "price_per_piece",
-  },
-  {
-    title: "Product Group",
-    dataIndex: "product_group",
+    sorter: (a, b) => a.price_per_piece - b.price_per_piece,
   },
   {
     title: "Category",
@@ -74,9 +78,29 @@ const columns = [
     },
   },
   {
+    title: "Product",
+    render: (text, record) => {
+      return (
+        <div className="flex items-center capitalize">
+          {parseSlug(record.product)}
+        </div>
+      );
+    },
+  },
+  {
     title: "Brand",
     render: (text, record) => {
       return <div className="capitalize">{parseSlug(record.brand)}</div>;
+    },
+  },
+  {
+    title: "Rasan Choices",
+    render: (text, record) => {
+      return (
+        <div className="flex items-center capitalize">
+          {parseArray(record.product_group)}
+        </div>
+      );
     },
   },
   {
@@ -104,128 +128,261 @@ const columns = [
         </div>
       );
     },
+    filters: [
+      {
+        text: "Published",
+        value: true,
+      },
+      {
+        text: "Unpublished",
+        value: false,
+      },
+    ],
+    onFilter: (value, record) => record.is_published === value,
   },
 ];
 
 function TabSKU({ slug }) {
+  const queryClient = useQueryClient();
   // const { slug } = useParams();
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [alert, setAlert] = useState({
+    show: false,
+    title: "",
+    text: "",
+    type: "",
+    primaryButton: "",
+    secondaryButton: "",
+    image: "",
+    action: "",
+    actionOn: "",
+    icon: "",
+  });
+  const onSelectChange = (selectedRowKeys) => {
+    setSelectedRowKeys(selectedRowKeys);
+  };
+  const rowSelection = {
+    onChange: onSelectChange,
+    selectedRowKeys,
+  };
   const [entriesPerPage, setEntriesPerPage] = useState(4);
   const { data, isLoading, isError, error } = useQuery(
     ["get-category", slug],
-    () => getCategory({ slug })
+    () => getCategory({ slug }),
+    {
+      onError: (err) => {
+        message.error(
+          err.response.data.errors.detail ||
+            err.message ||
+            "Error while fetching data"
+        );
+      },
+    }
   );
-
-  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const navigate = useNavigate();
 
-  const onSelectChange = (newSelectedRowKeys) => {
-    setSelectedRowKeys(newSelectedRowKeys);
+  const { mutate: publishSKUMutate } = useMutation(
+    (slug) => publishProductSKU({ slug }),
+    {
+      onSuccess: (data) => {
+        message.success(data.data.message || "Product SKU published");
+        queryClient.invalidateQueries(["get-category", slug]);
+      },
+      onError: (err) => {
+        message.error(
+          err.response.data.errors.detail ||
+            err.message ||
+            "Error while deleting Product SKU"
+        );
+      },
+    }
+  );
+  const { mutate: unpublishProductSKUMutate } = useMutation(
+    (slug) => unpublishProductSKU({ slug }),
+    {
+      onSuccess: (data) => {
+        message.success(data.data.message || "Product SKU unpublished");
+        queryClient.invalidateQueries(["get-category", slug]);
+      },
+      onError: (err) => {
+        message.error(
+          err.response.data.errors.detail ||
+            err.message ||
+            "Error while deleting Product SKU"
+        );
+      },
+    }
+  );
+  const { mutate: deleteProductSKUMutate } = useMutation(
+    (slug) => deleteProductSKU({ slug }),
+    {
+      onSuccess: (data) => {
+        message.success(data.data.message || "Product SKU deleted");
+        queryClient.invalidateQueries(["get-category", slug]);
+      },
+      onError: (err) => {
+        message.error(
+          err.response.data.errors.detail ||
+            err.message ||
+            "Error while deleting Product SKU"
+        );
+      },
+    }
+  );
+
+  const handleBulkPublish = () => {
+    selectedRowKeys.forEach(async (slug) => {
+      publishSKUMutate(slug);
+    });
+    setSelectedRowKeys([]);
+  };
+  const handleBulkUnpublish = () => {
+    selectedRowKeys.forEach(async (slug) => {
+      unpublishProductSKUMutate(slug);
+    });
+    setSelectedRowKeys([]);
+  };
+  const handleBulkDelete = () => {
+    selectedRowKeys.forEach((slug) => {
+      deleteProductSKUMutate(slug);
+    });
+    setSelectedRowKeys([]);
   };
 
-  const rowSelection = {
-    selectedRowKeys,
-    onChange: onSelectChange,
-    selections: [
-      Table.SELECTION_ALL,
-      Table.SELECTION_INVERT,
-      Table.SELECTION_NONE,
-      {
-        key: "odd",
-        text: "Select Odd Row",
-        onSelect: (changableRowKeys) => {
-          let newSelectedRowKeys = [];
-          newSelectedRowKeys = changableRowKeys.filter((_, index) => {
-            if (index % 2 !== 0) {
-              return false;
-            }
-
-            return true;
-          });
-          setSelectedRowKeys(newSelectedRowKeys);
-        },
-      },
-      {
-        key: "even",
-        text: "Select Even Row",
-        onSelect: (changableRowKeys) => {
-          let newSelectedRowKeys = [];
-          newSelectedRowKeys = changableRowKeys.filter((_, index) => {
-            if (index % 2 !== 0) {
-              return true;
-            }
-
-            return false;
-          });
-          setSelectedRowKeys(newSelectedRowKeys);
-        },
-      },
-    ],
+  const handleBulkAction = (event) => {
+    const action = event;
+    switch (action) {
+      case "publish":
+        setAlert({
+          show: true,
+          title: "Publish Selected Product SKUs?",
+          text: "Are you sure you want to publish selected Product SKUs?",
+          type: "info",
+          primaryButton: "Publish Selected",
+          secondaryButton: "Cancel",
+          image: "/publish-icon.svg",
+          action: async () => handleBulkPublish(),
+        });
+        break;
+      case "unpublish":
+        setAlert({
+          show: true,
+          title: "Unpublish Selected Product SKUs?",
+          text: "Are you sure you want to unpublish selected Product SKUs?",
+          type: "warning",
+          primaryButton: "Unpublish Selected",
+          secondaryButton: "Cancel",
+          image: "/unpublish-icon.svg",
+          action: async () => handleBulkUnpublish(),
+        });
+        break;
+      case "delete":
+        setAlert({
+          show: true,
+          title: "Delete Selected Product SKUs?",
+          text: "Are you sure you want to delete selected Product SKUs?",
+          type: "danger",
+          primaryButton: "Delete Selected",
+          secondaryButton: "Cancel",
+          image: "/delete-icon.svg",
+          action: async () => handleBulkDelete(),
+        });
+        break;
+      default:
+        break;
+    }
   };
   return (
-    <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[70vh]">
-      <div className="flex justify-end mb-3">
-        {/* <div className="py-[3px] px-3 min-w-[18rem] border-[1px] border-[#D9D9D9] rounded-lg flex items-center justify-between">
+    <>
+      {alert.show && (
+        <SimpleAlert
+          action={alert.action}
+          alert={alert}
+          icon={alert.icon}
+          image={alert.image}
+          primaryButton={alert.primaryButton}
+          secondaryButton={alert.secondaryButton}
+          setAlert={setAlert}
+          text={alert.text}
+          title={alert.title}
+          type={alert.type}
+        />
+      )}
+      <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[70vh]">
+        <div className="flex justify-end mb-3">
+          {/* <div className="py-[3px] px-3 min-w-[18rem] border-[1px] border-[#D9D9D9] rounded-lg flex items-center justify-between">
 <SearchOutlined style={{color: "#D9D9D9"}} />
 <input type="text" placeholder="Search category..." className="w-full ml-1 placeholder:text-[#D9D9D9]" />
 </div> */}
-        <div>
-          <AddCategoryButton
-            linkText="Add Product SKU"
-            linkTo={`/product-sku/add`}
+          <div className="flex">
+            {selectedRowKeys.length > 0 && (
+              <Select
+                style={{
+                  width: 120,
+                  marginRight: "1rem",
+                }}
+                value={"Bulk Actions"}
+                onChange={handleBulkAction}
+              >
+                <Option value="publish">Publish</Option>
+                <Option value="unpublish">Unpublish</Option>
+                <Option value="delete">Delete</Option>
+              </Select>
+            )}
+            <AddCategoryButton
+              linkText="Add Product SKU"
+              linkTo={`/product-sku/add?category=${slug}`}
+            />
+          </div>
+        </div>
+
+        <div className="flex-1">
+          {isLoading ? "Loading..." : null}
+          {isError ? error.message : null}
+          <Table
+            columns={columns}
+            dataSource={data?.data?.data?.product_skus.results}
+            rowKey="slug"
+            footer={() => (
+              <div className="absolute bottom-0 left-0 flex justify-start bg-white w-[100%]">
+                <div className="mt-5">
+                  <span className="text-sm text-gray-600">
+                    Entries per page:{" "}
+                  </span>
+                  <Select
+                    defaultValue={4}
+                    style={{
+                      width: 120,
+                    }}
+                    // loading
+                    onChange={(value) => setEntriesPerPage(value)}
+                  >
+                    <Option value={4}>4</Option>
+                    <Option value={10}>10</Option>
+                    <Option value={15}>15</Option>
+                    <Option value={20}>20</Option>
+                    <Option value={25}>25</Option>
+                    <Option value={50}>50</Option>
+                  </Select>
+                </div>
+              </div>
+            )}
+            pagination={{ pageSize: entriesPerPage }}
+            rowSelection={rowSelection}
+            rowClassName="cursor-pointer"
+            onRow={(record) => {
+              return {
+                onClick: (_) => {
+                  navigate("/product-sku/" + record.slug);
+                },
+              };
+            }}
           />
         </div>
-      </div>
 
-      <div className="flex-1">
-        {isLoading ? "Loading..." : null}
-        {isError ? error.message : null}
-        <Table
-          columns={columns}
-          dataSource={data?.data?.data?.product_skus.results}
-          footer={() => (
-            <div className="absolute bottom-0 left-0 flex justify-start bg-white w-[100%]">
-              <div className="">
-                <span className="text-sm text-gray-600">
-                  Entries per page:{" "}
-                </span>
-                <Select
-                  defaultValue={4}
-                  style={{
-                    width: 120,
-                  }}
-                  // loading
-                  onChange={(value) => setEntriesPerPage(value)}
-                >
-                  <Option value={4}>4</Option>
-                  <Option value={10}>10</Option>
-                  <Option value={15}>15</Option>
-                  <Option value={20}>20</Option>
-                  <Option value={25}>25</Option>
-                  <Option value={50}>50</Option>
-                </Select>
-              </div>
-            </div>
-          )}
-          pagination={{ pageSize: entriesPerPage }}
-          rowSelection={rowSelection}
-          onRow={(record) => {
-            return {
-              onClick: (_) => {
-                navigate("/product-sku/" + record.slug);
-              },
-              onMouseEnter: () => {
-                document.body.style.cursor = "pointer";
-              },
-              onMouseLeave: () => {
-                document.body.style.cursor = "default";
-              },
-            };
-          }}
-        />
+        <div></div>
       </div>
-
-      <div></div>
-    </div>
+    </>
   );
 }
 

@@ -1,8 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@import "~antd/dist/antd.min.css";
-
+/* @import "~antd/dist/antd.min.css"; */
 .header {
   @apply bg-primary flex items-center justify-between !important;
 }

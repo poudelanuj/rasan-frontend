@@ -2,13 +2,13 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { UploadOutlined, LoadingOutlined } from "@ant-design/icons";
 
-import { addCategory, publishCategory } from "../../context/CategoryContext";
+import { addCategory } from "../../context/CategoryContext";
 import { useMutation, useQueryClient } from "react-query";
 
 import { message, Upload } from "antd";
 const { Dragger } = Upload;
 
-function AddCategory({ alert, setAlert }) {
+function AddCategory() {
   const navigate = useNavigate();
   const [formState, setFormState] = useState({
     name: "",
@@ -25,17 +25,14 @@ function AddCategory({ alert, setAlert }) {
   } = useMutation(addCategory, {
     onSuccess: (data) => {
       queryClient.invalidateQueries("get-categories");
-      message.success("Category created successfully");
-      console.log(data.data.data);
-      console.log(data.data.data.slug);
+      message.success(data.data.message || "Category created successfully");
       navigate(`/category-list/edit/${data.data.data.slug}`);
     },
     onError: (data) => {
-      console.log(data);
       message.error(
         data.response.data.errors.detail ||
           data.message ||
-          "Something went wrong"
+          "Error creating Category"
       );
     },
   });
@@ -82,27 +79,6 @@ function AddCategory({ alert, setAlert }) {
     },
   };
 
-  const showAlert = ({
-    title,
-    text,
-    primaryButton,
-    secondaryButton,
-    type,
-    image,
-    action,
-  }) => {
-    setAlert({
-      show: true,
-      title,
-      text,
-      primaryButton,
-      secondaryButton,
-      type,
-      image,
-      action,
-    });
-  };
-
   return (
     <>
       <div
@@ -139,7 +115,7 @@ function AddCategory({ alert, setAlert }) {
             </Dragger>
             <div className="flex flex-col">
               <label className="mb-1" htmlFor="name">
-                Category Name
+                Category Name *
               </label>
               <input
                 className=" bg-[#FFFFFF] border-[1px] border-[#D9D9D9] rounded-[2px] p-[8px_12px]"
@@ -162,6 +138,7 @@ function AddCategory({ alert, setAlert }) {
                   className="w-[0.8rem] ml-2"
                   src="/flag_nepal.svg"
                 />
+                *
               </div>
               <input
                 className=" bg-[#FFFFFF] border-[1px] border-[#D9D9D9] rounded-[2px] p-[8px_12px]"

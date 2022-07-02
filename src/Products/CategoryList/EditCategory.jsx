@@ -31,87 +31,81 @@ function EditCategory({ slug, alert, setAlert }) {
   } = useQuery(["get-category", slug], () => getCategory({ slug }), {
     onSuccess: (data) => {
       setFormState({
+        ...formState,
         name: data.data.data.name,
         name_np: data.data.data.name_np,
-        image: data.data.data.category_image.full_size,
         is_published: data.data.data.is_published,
       });
     },
     onError: (data) => {
-      console.log(data);
       message.error(
         data.response.data.errors.detail ||
           data.response.data.errors.message ||
           data.message ||
-          "Something went wrong"
+          "Error fetching Category"
       );
     },
   });
   const { mutate: deleteMutate, isLoading: deleteCategoryIsLoading } =
     useMutation(() => deleteCategory({ slug }), {
       onSuccess: (data) => {
-        message.success("Category deleted successfully");
+        message.success(data.data.message || "Category deleted successfully");
         queryClient.invalidateQueries("get-categories");
       },
       onError: (data) => {
-        console.log(data);
         message.error(
           data.response.data.errors.detail ||
             data.response.data.errors.message ||
             data.message ||
-            "Something went wrong"
+            "Error deleting Category"
         );
       },
     });
   const { mutate: updateMutate, isLoading: updateCategoryIsLoading } =
     useMutation(({ slug, form_data }) => updateCategory({ slug, form_data }), {
       onSuccess: (data) => {
-        message.success("Category updated successfully");
-        console.log(data.data.data.slug);
+        message.success(data.data.message || "Category updated successfully");
         queryClient.invalidateQueries("get-categories");
         queryClient.invalidateQueries(["get-category", slug]);
         navigate(`/category-list/edit/${data.data.data.slug}`);
       },
       onError: (data) => {
-        console.log(data);
         message.error(
           data.response.data.errors.detail ||
             data.response.data.errors.message ||
             data.message ||
-            "Something went wrong"
+            "Error updating Category"
         );
       },
     });
   const { mutate: publishCategoryMutate, isLoading: publishCategoryIsLoading } =
     useMutation(publishCategory, {
       onSuccess: (data) => {
-        message.success("Category published successfully");
+        message.success(data.data.message || "Category published successfully");
         queryClient.invalidateQueries("get-categories");
         queryClient.invalidateQueries(["get-category", slug]);
       },
       onError: (data) => {
-        console.log(data);
         message.error(
           data.response.data.errors.detail ||
             data.response.data.errors.message ||
             data.message ||
-            "Something went wrong"
+            "Error publishing Category"
         );
       },
     });
   const { mutate: unpublishCategoryMutate } = useMutation(unpublishCategory, {
     onSuccess: (data) => {
-      message.success("Category unpublished successfully");
+      message.success(data.data.message || "Category unpublished successfully");
       queryClient.invalidateQueries("get-categories");
       queryClient.invalidateQueries(["get-category", slug]);
     },
     onError: (data) => {
-      console.log(data);
       message.error(
         data.response.data.errors.detail ||
           data.response.data.errors.message ||
           data.message ||
-          "Something went wrong"
+          "Error unpublishing Category"
       );
     },
   });
@@ -228,7 +222,9 @@ function EditCategory({ slug, alert, setAlert }) {
                     alt="gallery"
                     className="h-[6rem] mx-auto"
                     src={
-                      formState.image ? formState.image : "/gallery-icon.svg"
+                      formState.image ||
+                      categoryData?.data.data.category_image.full_size ||
+                      "/gallery-icon.svg"
                     }
                   />
                 </p>
@@ -239,7 +235,7 @@ function EditCategory({ slug, alert, setAlert }) {
               </Dragger>
               <div className="flex flex-col">
                 <label className="mb-1" htmlFor="name">
-                  Category Name
+                  Category Name *
                 </label>
                 <input
                   className=" bg-[#FFFFFF] border-[1px] border-[#D9D9D9] rounded-[2px] p-[8px_12px]"
@@ -261,7 +257,8 @@ function EditCategory({ slug, alert, setAlert }) {
                     alt="nepali"
                     className="w-[0.8rem] ml-2"
                     src="/flag_nepal.svg"
-                  />
+                  />{" "}
+                  *
                 </div>
                 <input
                   className=" bg-[#FFFFFF] border-[1px] border-[#D9D9D9] rounded-[2px] p-[8px_12px]"

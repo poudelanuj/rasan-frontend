@@ -11,7 +11,7 @@ import {
   updateProductGroup,
 } from "../../context/CategoryContext";
 
-import { message, Upload } from "antd";
+import { message, Switch, Upload } from "antd";
 const { Dragger } = Upload;
 
 function EditProductGroup({ alert, setAlert }) {
@@ -28,6 +28,7 @@ function EditProductGroup({ alert, setAlert }) {
     name_np: "",
     image: "",
     imageFile: null,
+    is_featured: false,
   });
   const queryClient = useQueryClient();
 
@@ -38,14 +39,22 @@ function EditProductGroup({ alert, setAlert }) {
     error: productGroupError,
   } = useQuery(["get-product-group", slug], () => getProductGroup({ slug }), {
     onSuccess: (data) => {
-      console.log(data.data.data);
       setFormState({
+        ...formState,
         name: data.data.data.name,
         name_np: data.data.data.name_np,
-        image: data.data.data.product_group_image.full_size,
         is_published: data.data.data.is_published,
+        is_featured: data.data.data.is_featured,
       });
     },
+    onError: (err) => {
+      message.error(
+        err.response.data.errors.detail ||
+          err.message ||
+          "Error getting Rasan Choice"
+      );
+    },
+    refetchOnWindowFocus: false,
   });
 
   const {
@@ -53,8 +62,15 @@ function EditProductGroup({ alert, setAlert }) {
     isLoading: publishProductGroupIsLoading,
   } = useMutation(publishProductGroup, {
     onSuccess: (data) => {
-      message.success("Product Group Published");
+      message.success(data.data.message || "Product Group Published");
       queryClient.invalidateQueries(["get-product-group", slug]);
+    },
+    onError: (err) => {
+      message.error(
+        err.response.data.errors.detail ||
+          err.message ||
+          "Error publishing Product Group"
+      );
     },
   });
 
@@ -63,8 +79,15 @@ function EditProductGroup({ alert, setAlert }) {
     isLoading: unpublishProductGroupIsLoading,
   } = useMutation(unpublishProductGroup, {
     onSuccess: (data) => {
-      message.success("Product Group Unpublished");
+      message.success(data.data.message || "Product Group Unpublished");
       queryClient.invalidateQueries(["get-product-group", slug]);
+    },
+    onError: (err) => {
+      message.error(
+        err.response.data.errors.detail ||
+          err.message ||
+          "Error unpublishing Product Group"
+      );
     },
   });
 
@@ -75,8 +98,17 @@ function EditProductGroup({ alert, setAlert }) {
     isError: updateProductGroupIsError,
   } = useMutation(updateProductGroup, {
     onSuccess: (data) => {
-      message.success("Product Group Updated Successfully");
+      message.success(
+        data.data.message || "Product Group Updated Successfully"
+      );
       queryClient.invalidateQueries(["get-product-group", slug]);
+    },
+    onError: (err) => {
+      message.error(
+        err.response.data.errors.detail ||
+          err.message ||
+          "Error updating Product Group"
+      );
     },
   });
 
@@ -91,6 +123,13 @@ function EditProductGroup({ alert, setAlert }) {
       queryClient.invalidateQueries("get-product-groups");
       navigate("/product-groups");
     },
+    onError: (err) => {
+      message.error(
+        err.response.data.errors.detail ||
+          err.message ||
+          "Error deleting Product Group"
+      );
+    },
   });
 
   const closeProductGroupWidget = () => {
@@ -102,25 +141,21 @@ function EditProductGroup({ alert, setAlert }) {
     handleSave();
   };
   const handleSave = async () => {
-    if (formState.name && formState.image && formState.name_np) {
+    if (formState.name && formState.name_np) {
       let form_data = new FormData();
       form_data.append("name", formState.name);
       form_data.append("name_np", formState.name_np);
+      form_data.append("is_featured", formState.is_featured);
       if (formState.imageFile) {
         form_data.append("product_group_image", formState.imageFile);
       }
       updateProductGroupMutate({ slug, form_data });
-      return updateProductGroupResponseData?.data.data.slug || true;
     } else {
       message.error("Please fill all the fields");
-      return false;
     }
   };
   const handlePublish = async () => {
-    const isSaved = await handleSave();
-    if (isSaved) {
-      publishProductGroupMutate({ slug });
-    }
+    publishProductGroupMutate({ slug });
   };
   const handleDelete = async () => {
     deleteProductGroupMutate({ slug });
@@ -179,7 +214,7 @@ function EditProductGroup({ alert, setAlert }) {
       ></div>
       <div className="min-w-[36.25rem] min-h-[33.5rem] fixed z-[99999] top-[50%] right-[50%] translate-x-[50%] translate-y-[-50%] bg-white rounded-[10px] flex flex-col p-8 shadow-[-14px_30px_20px_rgba(0,0,0,0.05)] overflow-hidden">
         <h2 className="text-3xl mb-3 text-[#192638] text-[2rem] font-medium">
-          Edit Product Group
+          Edit Rasan Choice
         </h2>
         {(updateProductGroupIsLoading ||
           publishProductGroupIsLoading ||
@@ -199,7 +234,11 @@ function EditProductGroup({ alert, setAlert }) {
                 <img
                   alt="gallery"
                   className="h-[6rem] mx-auto"
-                  src={formState.image ? formState.image : "/gallery-icon.svg"}
+                  src={
+                    formState.image ||
+                    productGroupData?.data.data.product_group_image.full_size ||
+                    "/gallery-icon.svg"
+                  }
                 />
               </p>
               <p className="ant-upload-text text-[13px]">
@@ -209,7 +248,7 @@ function EditProductGroup({ alert, setAlert }) {
             </Dragger>
             <div className="flex flex-col">
               <label className="mb-1" htmlFor="name">
-                Product Group Name
+                Rasan Choice Name *
               </label>
               <input
                 className=" bg-[#FFFFFF] border-[1px] border-[#D9D9D9] rounded-[2px] p-[8px_12px]"
@@ -225,13 +264,14 @@ function EditProductGroup({ alert, setAlert }) {
             <div className="flex flex-col">
               <div className="flex">
                 <label className="mb-1" htmlFor="name">
-                  Product Group Name (In Nepali)
+                  Rasan Choice Name (In Nepali)
                 </label>
                 <img
                   alt="nepali"
                   className="w-[0.8rem] ml-2"
                   src="/flag_nepal.svg"
-                />
+                />{" "}
+                *
               </div>
               <input
                 className=" bg-[#FFFFFF] border-[1px] border-[#D9D9D9] rounded-[2px] p-[8px_12px]"
@@ -245,9 +285,22 @@ function EditProductGroup({ alert, setAlert }) {
               />
             </div>
           </div>
+          <div>
+            <Switch
+              checkedChildren="Featured"
+              unCheckedChildren="Feature"
+              defaultChecked
+              className={`px-1 ${
+                formState.is_featured ? "bg-[#1890ff]" : "bg-[#bfbfbf]"
+              }`}
+              onChange={(e) => setFormState({ ...formState, is_featured: e })}
+              checked={formState.is_featured}
+              size="default"
+            />
+          </div>
           <div className="flex justify-end">
             <button
-              className="text-[#00B0C2] p-[8px_12px] min-w-[5rem] rounded-[4px] border-[1px] border-[#00B0C2] hover:bg-[#effdff] transition-colors"
+              className="text-white bg-[#C63617] p-[8px_12px] min-w-[5rem] rounded-[4px] border-[1px] border-  [#C63617] hover:bg-[#ad2f13] transition-colors"
               type="button"
               onClick={async () =>
                 showAlert({
@@ -267,24 +320,23 @@ function EditProductGroup({ alert, setAlert }) {
             </button>
             {formState.is_published ? (
               <button
-                className="text-[#00B0C2] p-[8px_12px] min-w-[5rem] rounded-[4px] border-[1px] border-[#00B0C2] hover:bg-[#effdff] transition-colors ml-[1rem]"
+                className="bg-[#FFF8E1] text-[#FF8F00] p-[8px_12px] ml-5 min-w-[5rem] rounded-[4px] border-[1px]   border-[#FFF8E1] hover:bg-[#f4eaca] transition-colors"
                 type="button"
                 onClick={async () =>
                   showAlert({
                     title: "Are you sure to Unpublish?",
-                    text: "Unpublishing will make this product group unavailable to users",
+                    text: "Unpublishing will make this Rasan Choice unavailable to users",
                     primaryButton: "Unpublish",
                     secondaryButton: "Cancel",
                     type: "warning",
                     image: "/unpublish-icon.svg",
                     action: async () => {
                       await handleUnpublish();
-                      return closeProductGroupWidget();
                     },
                   })
                 }
               >
-                Unpublish Product Group
+                Unpublish Rasan Choice
               </button>
             ) : (
               <button
@@ -293,19 +345,18 @@ function EditProductGroup({ alert, setAlert }) {
                 onClick={async () =>
                   showAlert({
                     title: "Are you sure to Publish?",
-                    text: "Publishing this category would save it and make it visible to the public!",
+                    text: "Publishing this Rasan Choice would save it and make it visible to the public!",
                     primaryButton: "Publish",
                     secondaryButton: "Cancel",
                     type: "info",
                     image: "/publish-icon.svg",
                     action: async () => {
                       await handlePublish();
-                      return closeProductGroupWidget();
                     },
                   })
                 }
               >
-                Publish Product Group
+                Publish Rasan Choice
               </button>
             )}
             ;
@@ -314,7 +365,6 @@ function EditProductGroup({ alert, setAlert }) {
               type="button"
               onClick={async () => {
                 await handleSave();
-                return closeProductGroupWidget();
               }}
             >
               Save

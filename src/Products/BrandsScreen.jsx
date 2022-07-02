@@ -18,6 +18,7 @@ import { message, Pagination, Select } from "antd";
 import SimpleAlert from "./alerts/SimpleAlert";
 import ClearSelection from "./subComponents/ClearSelection";
 import Loader from "./subComponents/Loader";
+import { noImageImage } from "./constants";
 const { Option } = Select;
 
 function BrandsScreen() {
@@ -35,8 +36,18 @@ function BrandsScreen() {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedBrands, setSelectedBrands] = useState([]);
-  const { data, isLoading } = useQuery("get-brands", () =>
-    getBrands({ currentPage })
+  const { data, isLoading } = useQuery(
+    "get-brands",
+    () => getBrands({ currentPage }),
+    {
+      onError: (err) => {
+        message.error(
+          err.response.data.errors.detail ||
+            err.message ||
+            "Error getting Brands"
+        );
+      },
+    }
   );
 
   const queryClient = useQueryClient();
@@ -46,10 +57,24 @@ function BrandsScreen() {
     onSuccess: (data) => {
       queryClient.invalidateQueries("get-brands");
     },
+    onError: (err) => {
+      message.error(
+        err.response.data.errors.detail ||
+          err.message ||
+          "Error publishing Brand"
+      );
+    },
   });
   const { mutate: unpublishCategoryMutate } = useMutation(unpublishBrand, {
     onSuccess: (data) => {
       queryClient.invalidateQueries("get-brands");
+    },
+    onError: (err) => {
+      message.error(
+        err.response.data.errors.detail ||
+          err.message ||
+          "Error publishing Brand"
+      );
     },
   });
   const { mutate: deleteMutate } = useMutation(deleteBrand, {
@@ -57,6 +82,11 @@ function BrandsScreen() {
       queryClient.invalidateQueries("get-brands");
       console.log(data, "hello");
       message.success(data?.data?.message || "Brand deleted successfully");
+    },
+    onError: (err) => {
+      message.error(
+        err.response.data.errors.detail || err.message || "Error deleting Brand"
+      );
     },
   });
 
@@ -166,18 +196,20 @@ function BrandsScreen() {
                 selectedCategories={selectedBrands}
                 setSelectedCategories={setSelectedBrands}
               />
-              <Select
-                style={{
-                  width: 120,
-                  marginRight: "1rem",
-                }}
-                value={"Bulk Actions"}
-                onChange={handleBulkAction}
-              >
-                <Option value="publish">Publish</Option>
-                <Option value="unpublish">Unpublish</Option>
-                <Option value="delete">Delete</Option>
-              </Select>
+              {selectedBrands.length > 0 && (
+                <Select
+                  style={{
+                    width: 120,
+                    marginRight: "1rem",
+                  }}
+                  value={"Bulk Actions"}
+                  onChange={handleBulkAction}
+                >
+                  <Option value="publish">Publish</Option>
+                  <Option value="unpublish">Unpublish</Option>
+                  <Option value="delete">Delete</Option>
+                </Select>
+              )}
               <AddCategoryButton linkText="Add Brand" linkTo="add" />
             </div>
           </div>
@@ -190,7 +222,13 @@ function BrandsScreen() {
                   editLink={`/brands/edit/${brand.slug}`}
                   id={brand.sn}
                   is_published={brand.is_published}
-                  image={brand.brand_image.medium_square_crop}
+                  image={
+                    brand.brand_image.full_size ||
+                    brand.brand_image.medium_square_crop ||
+                    brand.brand_image.small_square_crop ||
+                    brand.brand_image.thumbnail ||
+                    noImageImage
+                  }
                   imgClassName=""
                   selectedCategories={selectedBrands}
                   setSelectedCategories={setSelectedBrands}
@@ -200,7 +238,7 @@ function BrandsScreen() {
               ))}
           </div>
           <Pagination
-            pageSize={10}
+            pageSize={20}
             showTotal={(total) => `Total ${total} items`}
             style={{
               marginTop: "1rem",

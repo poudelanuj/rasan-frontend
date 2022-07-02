@@ -27,6 +27,7 @@ import UserGroupPage from "./UserGroups/UserGroupPage";
 import Users from "./Users";
 import OTPRequests from "./Users/OTPRequests";
 import User from "./Users/User";
+import "antd/dist/antd.css";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const queryClient = new QueryClient();

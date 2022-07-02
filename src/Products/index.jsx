@@ -20,7 +20,6 @@ import Header from "./subComponents/Header";
 import { message, Pagination, Select } from "antd";
 import ClearSelection from "./subComponents/ClearSelection";
 import Loader from "./subComponents/Loader";
-import Notification from "./subComponents/Notification";
 const { Option } = Select;
 
 const CategoryList = () => {
@@ -46,7 +45,11 @@ const CategoryList = () => {
     () => getCategories({ currentPage }),
     {
       onError: (err) => {
-        console.log(err);
+        message.error(
+          err.response.data.errors.detail ||
+            err.message ||
+            "Error getting Categories"
+        );
       },
     }
   );
@@ -54,6 +57,13 @@ const CategoryList = () => {
     onSuccess: (data) => {
       queryClient.invalidateQueries("get-categories");
       message.success(data?.data?.message || "Category published successfully");
+    },
+    onError: (err) => {
+      message.error(
+        err.response.data.errors.detail ||
+          err.message ||
+          "Error publishing Category"
+      );
     },
   });
   const { mutate: unpublishCategoryMutate } = useMutation(unpublishCategory, {
@@ -63,11 +73,25 @@ const CategoryList = () => {
         data?.data?.message || "Category unpublished successfully"
       );
     },
+    onError: (err) => {
+      message.error(
+        err.response.data.errors.detail ||
+          err.message ||
+          "Error unpublishing Category"
+      );
+    },
   });
   const { mutate: deleteMutate } = useMutation(deleteCategory, {
     onSuccess: (data) => {
       queryClient.invalidateQueries("get-categories");
       message.success(data?.data?.message || "Category deleted successfully");
+    },
+    onError: (err) => {
+      message.error(
+        err.response.data.errors.detail ||
+          err.message ||
+          "Error deleting Category"
+      );
     },
   });
   const location = useLocation();
@@ -161,7 +185,7 @@ const CategoryList = () => {
         />
       )}
       <div>
-        <Header title="Category List" />
+        <Header title="Categories" />
         <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[75vh]">
           <div className="flex justify-between mb-3">
             <SearchBox placeholder="Search Category..." />
@@ -170,23 +194,24 @@ const CategoryList = () => {
                 selectedCategories={selectedCategories}
                 setSelectedCategories={setSelectedCategories}
               />
-              <Select
-                style={{
-                  width: 120,
-                  marginRight: "1rem",
-                }}
-                value={"Bulk Actions"}
-                onChange={handleBulkAction}
-              >
-                <Option value="publish">Publish</Option>
-                <Option value="unpublish">Unpublish</Option>
-                <Option value="delete">Delete</Option>
-              </Select>
+              {selectedCategories.length > 0 && (
+                <Select
+                  style={{
+                    width: 120,
+                    marginRight: "1rem",
+                  }}
+                  value={"Bulk Actions"}
+                  onChange={handleBulkAction}
+                >
+                  <Option value="publish">Publish</Option>
+                  <Option value="unpublish">Unpublish</Option>
+                  <Option value="delete">Delete</Option>
+                </Select>
+              )}
               <AddCategoryButton linkText="Add Category" linkTo="add" />
             </div>
           </div>
           {isLoading && <Loader loadingText={"Loading Categories..."} />}
-          {isError && <Notification text={error.message} title="Error" />}
           {categories && (
             <>
               <div className="grid gap-8 grid-cols-[repeat(auto-fill,_minmax(200px,_1fr))]">
@@ -196,10 +221,10 @@ const CategoryList = () => {
                   setSelectedCategories={setSelectedCategories}
                 />
               </div>
-              <div className="flex justify-start bg-white w-[100%]">
+              <div className="flex justify-between bg-white w-[100%] mt-10">
                 <div className="">
                   <span className="text-sm text-gray-600">
-                    Entries per page:{" "}
+                    Entries per page :{" "}
                   </span>
                   <Select
                     defaultValue="20"
@@ -213,19 +238,18 @@ const CategoryList = () => {
                     <Option value={100}>100</Option>
                   </Select>
                 </div>
+                <Pagination
+                  pageSize={entriesPerPage}
+                  showTotal={(total) => `Total ${total} items`}
+                  style={{
+                    alignSelf: "end",
+                  }}
+                  total={data.data.data.count}
+                  hideOnSinglePage
+                  showQuickJumper
+                  onChange={async (page) => await paginate(page)}
+                />
               </div>
-              <Pagination
-                pageSize={entriesPerPage}
-                showTotal={(total) => `Total ${total} items`}
-                style={{
-                  marginTop: "1rem",
-                  alignSelf: "end",
-                }}
-                total={data.data.data.count}
-                hideOnSinglePage
-                showQuickJumper
-                onChange={async (page) => paginate(page)}
-              />
             </>
           )}
         </div>

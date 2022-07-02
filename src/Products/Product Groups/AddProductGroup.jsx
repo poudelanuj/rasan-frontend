@@ -2,13 +2,10 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { UploadOutlined, LoadingOutlined } from "@ant-design/icons";
 
-import {
-  createProductGroup,
-  publishProductGroup,
-} from "../../context/CategoryContext";
+import { createProductGroup } from "../../context/CategoryContext";
 import { useMutation, useQueryClient } from "react-query";
 
-import { message, Upload } from "antd";
+import { message, Switch, Upload } from "antd";
 const { Dragger } = Upload;
 
 function AddProductGroup({ alert, setAlert }) {
@@ -18,6 +15,7 @@ function AddProductGroup({ alert, setAlert }) {
     name_np: "",
     image: "",
     imageFile: null,
+    is_featured: false,
   });
   const queryClient = useQueryClient();
 
@@ -28,16 +26,17 @@ function AddProductGroup({ alert, setAlert }) {
   } = useMutation(createProductGroup, {
     onSuccess: (data) => {
       queryClient.invalidateQueries("get-product-groups");
+      message.success(
+        data?.data?.message || "Rasan Choice created successfully"
+      );
+      navigate(`/product-groups/${data?.data.data.slug}/edit`);
     },
-    onError: (data) => {},
-  });
-
-  const {
-    mutate: publishProductGroupMutate,
-    isLoading: publishProductGroupIsLoading,
-  } = useMutation(publishProductGroup, {
-    onSuccess: (data) => {
-      queryClient.invalidateQueries("get-product-groups");
+    onError: (err) => {
+      message.error(
+        err.response.data.errors.detail ||
+          err.message ||
+          "Error creating Rasan Choice"
+      );
     },
   });
 
@@ -50,24 +49,17 @@ function AddProductGroup({ alert, setAlert }) {
     handleSave();
   };
   const handleSave = async () => {
-    if (formState.name && formState.image && formState.name_np) {
+    if (formState.name && formState.name_np) {
       let form_data = new FormData();
       form_data.append("name", formState.name);
       form_data.append("name_np", formState.name_np);
-      form_data.append("product_group_image", formState.imageFile);
+      form_data.append("is_featured", formState.is_featured);
+      if (formState.imageFile) {
+        form_data.append("product_group_image", formState.imageFile);
+      }
       addProductGroupMutate({ form_data });
-      message.success("Product Group created successfully");
-      return addProductGroupResponseData?.data.data.slug;
     } else {
       message.error("Please fill all the fields");
-      return false;
-    }
-  };
-  const handlePublish = async () => {
-    const isSaved = await handleSave();
-    if (isSaved) {
-      //   publishProductGroup({ isSaved });
-      message.success("Category published successfully");
     }
   };
   const props = {
@@ -120,9 +112,9 @@ function AddProductGroup({ alert, setAlert }) {
       ></div>
       <div className="min-w-[36.25rem] min-h-[33.5rem] fixed z-[99999] top-[50%] right-[50%] translate-x-[50%] translate-y-[-50%] bg-white rounded-[10px] flex flex-col p-8 shadow-[-14px_30px_20px_rgba(0,0,0,0.05)] overflow-hidden">
         <h2 className="text-3xl mb-3 text-[#192638] text-[2rem] font-medium">
-          Add Product Group
+          Add Rasan Choices
         </h2>
-        {(addProductGroupIsLoading || publishProductGroupIsLoading) && (
+        {addProductGroupIsLoading && (
           <div className="absolute top-0 right-0 bg-black/25 w-full h-full flex flex-col items-center justify-center z-50 animate-popupopen">
             <LoadingOutlined style={{ color: "white", fontSize: "3rem" }} />
             <span className="p-2 text-white">Loading...</span>
@@ -148,7 +140,7 @@ function AddProductGroup({ alert, setAlert }) {
             </Dragger>
             <div className="flex flex-col">
               <label className="mb-1" htmlFor="name">
-                Product Group Name
+                Rasan Choice Name *
               </label>
               <input
                 className=" bg-[#FFFFFF] border-[1px] border-[#D9D9D9] rounded-[2px] p-[8px_12px]"
@@ -164,13 +156,14 @@ function AddProductGroup({ alert, setAlert }) {
             <div className="flex flex-col">
               <div className="flex">
                 <label className="mb-1" htmlFor="name">
-                  Product Group Name (In Nepali)
+                  Rasan Choice Name (In Nepali)
                 </label>
                 <img
                   alt="nepali"
                   className="w-[0.8rem] ml-2"
                   src="/flag_nepal.svg"
-                />
+                />{" "}
+                *
               </div>
               <input
                 className=" bg-[#FFFFFF] border-[1px] border-[#D9D9D9] rounded-[2px] p-[8px_12px]"
@@ -183,6 +176,19 @@ function AddProductGroup({ alert, setAlert }) {
                 }
               />
             </div>
+            <div>
+              <Switch
+                checkedChildren="Featured"
+                unCheckedChildren="Feature"
+                defaultChecked
+                className={`px-1 ${
+                  formState.is_featured ? "bg-[#1890ff]" : "bg-[#bfbfbf]"
+                }`}
+                onChange={(e) => setFormState({ ...formState, is_featured: e })}
+                checked={formState.is_featured}
+                size="default"
+              />
+            </div>
           </div>
           <div className="flex justify-end">
             <button
@@ -190,30 +196,9 @@ function AddProductGroup({ alert, setAlert }) {
               type="button"
               onClick={async () => {
                 await handleSave();
-                return closeProductGroupWidget();
               }}
             >
               Create
-            </button>
-            <button
-              className="bg-[#00B0C2] text-white p-[8px_12px] ml-5 min-w-[5rem] rounded-[4px] border-[1px] border-[#00B0C2] hover:bg-[#12919f] transition-colors"
-              type="button"
-              onClick={async () =>
-                showAlert({
-                  title: "Are you sure to Publish?",
-                  text: "Publishing this category would save it and make it visible to the public!",
-                  primaryButton: "Publish",
-                  secondaryButton: "Cancel",
-                  type: "info",
-                  image: "/publish-icon.svg",
-                  action: async () => {
-                    await handlePublish();
-                    return closeProductGroupWidget();
-                  },
-                })
-              }
-            >
-              Publish Category
             </button>
           </div>
         </form>

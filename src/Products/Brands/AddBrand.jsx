@@ -56,10 +56,8 @@ function AddBrand({ alert, setAlert }) {
         form_data.append("brand_image", formState.imageFile);
       }
       addBrandMutate({ form_data });
-      return addBrandResponseData.data.data.slug;
     } else {
       message.error("Please fill all the fields");
-      return false;
     }
   };
   const props = {
@@ -81,27 +79,6 @@ function AddBrand({ alert, setAlert }) {
       };
       reader.readAsDataURL(filename.file);
     },
-  };
-
-  const showAlert = ({
-    title,
-    text,
-    primaryButton,
-    secondaryButton,
-    type,
-    image,
-    action,
-  }) => {
-    setAlert({
-      show: true,
-      title,
-      text,
-      primaryButton,
-      secondaryButton,
-      type,
-      image,
-      action,
-    });
   };
 
   return (
