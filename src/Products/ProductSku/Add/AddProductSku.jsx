@@ -10,6 +10,7 @@ import { getAllProductGroups } from "../../../api/productGroups";
 import { getAllProducts } from "../../../api/products";
 import { createProductSku } from "../../../api/productSku";
 import Loader from "../../../shared/Loader";
+import CustomPageHeader from "../../../shared/PageHeader";
 import {
   openErrorNotification,
   openSuccessNotification,
@@ -93,7 +94,7 @@ const AddProductSku = () => {
       <Loader isOpen={onFormSubmit.status === "loading"} />
 
       <div className="py-5">
-        <h2 className="text-2xl  font-normal mb-5">Add Product SKU</h2>
+        <CustomPageHeader title="Add Product SKU" />
 
         <div>
           <Form
