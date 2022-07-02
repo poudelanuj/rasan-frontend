@@ -42,7 +42,7 @@ function ProductSKU() {
       {productSkustatus === "success" && productSku && (
         <>
           <div className="mt-4">
-            <CustomPageHeader title={productSku.name} />
+            <CustomPageHeader path="../" title={productSku.name} />
           </div>
 
           <div className="flex flex-col bg-white p-6 rounded ">

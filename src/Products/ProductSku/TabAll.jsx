@@ -1,15 +1,13 @@
 import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-import { Select, Table } from "antd";
+import { Table } from "antd";
 import { useQuery } from "react-query";
 import { getProductSKUs } from "../../context/CategoryContext";
 import AddCategoryButton from "../subComponents/AddCategoryButton";
 
 import { parseSlug } from "../../utility";
 import SimpleAlert from "../alerts/SimpleAlert";
-
-const { Option } = Select;
 
 const columns = [
   {
@@ -120,17 +118,11 @@ function TabAll() {
     actionOn: "",
     icon: "",
   });
-  const location = useLocation();
-  let categorySlug;
-  try {
-    categorySlug = location.pathname.split("/")[2];
-  } catch (error) {
-    categorySlug = null;
-  }
+
   const { data, isLoading, isError, error } = useQuery("get-product-skus", () =>
     getProductSKUs()
   );
-  const [entriesPerPage, setEntriesPerPage] = useState(4);
+  const entriesPerPage = 4;
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const navigate = useNavigate();
 
@@ -222,8 +214,6 @@ function TabAll() {
             }}
           />
         </div>
-
-        <div></div>
       </div>
     </>
   );

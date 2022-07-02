@@ -8,7 +8,7 @@ import { getAllCategories } from "../../../api/categories";
 import { getLoyaltyPolicies } from "../../../api/loyalties";
 import { getAllProductGroups } from "../../../api/productGroups";
 import { getAllProducts } from "../../../api/products";
-import { createProductSku, getProductSku } from "../../../api/productSku";
+import { getProductSku, updateProductSku } from "../../../api/productSku";
 import Loader from "../../../shared/Loader";
 import CustomPageHeader from "../../../shared/PageHeader";
 import {
@@ -83,12 +83,12 @@ const EditProductSku = () => {
       });
       if (selectedImage) formData.append("product_sku_image", selectedImage);
 
-      return createProductSku(formData);
+      return updateProductSku(slug, formData);
     },
     {
       onSuccess: (data) => {
         openSuccessNotification(data.message || "Product Created");
-        navigate(-1);
+        navigate(`../${data.data.slug}`);
       },
       onError: (error) => {
         openErrorNotification(error);
@@ -133,6 +133,7 @@ const EditProductSku = () => {
 
               <div className="grid grid-cols-2 gap-2">
                 <Form.Item
+                  initialValue={productSku.name}
                   label="Product Name"
                   name="name"
                   rules={[{ required: true, message: "product name required" }]}
@@ -141,6 +142,7 @@ const EditProductSku = () => {
                 </Form.Item>
 
                 <Form.Item
+                  initialValue={productSku.name_np}
                   label="Product Name (In Nepali)"
                   name="name_np"
                   rules={[{ required: true, message: "product name required" }]}
@@ -151,6 +153,7 @@ const EditProductSku = () => {
 
               <div className="grid grid-cols-4 gap-2">
                 <Form.Item
+                  initialValue={productSku.quantity}
                   label="Quantity"
                   name="quantity"
                   rules={[{ required: true, message: "quantity required" }]}
@@ -159,6 +162,7 @@ const EditProductSku = () => {
                 </Form.Item>
 
                 <Form.Item
+                  initialValue={productSku.cost_price_per_piece}
                   label="Cost Price/Piece"
                   name="cost_price_per_piece"
                   rules={[
@@ -172,6 +176,7 @@ const EditProductSku = () => {
                 </Form.Item>
 
                 <Form.Item
+                  initialValue={productSku.price_per_piece}
                   label="Price/Piece"
                   name="price_per_piece"
                   rules={[{ required: true, message: "price/piece required" }]}
@@ -179,6 +184,7 @@ const EditProductSku = () => {
                   <Input defaultValue={productSku.price_per_piece} />
                 </Form.Item>
                 <Form.Item
+                  initialValue={productSku.mrp_per_piece}
                   label="MRP/Piece"
                   name="mrp_per_piece"
                   rules={[{ required: true, message: "MRP/piece required" }]}
@@ -191,6 +197,7 @@ const EditProductSku = () => {
               </div>
 
               <Form.Item
+                initialValue={productSku.description}
                 label="Product SKU Description"
                 name="description"
                 rules={[{ required: true, message: "product name required" }]}
@@ -204,6 +211,7 @@ const EditProductSku = () => {
 
               <div className="grid grid-cols-2 gap-2">
                 <Form.Item
+                  initialValue={productSku.category}
                   label="Product Category"
                   name="category"
                   rules={[{ required: true, message: "category required" }]}
@@ -225,6 +233,7 @@ const EditProductSku = () => {
                 </Form.Item>
 
                 <Form.Item
+                  initialValue={productSku.brand}
                   label="Product Brand"
                   name="brand"
                   rules={[{ required: true, message: "brand required" }]}
@@ -248,6 +257,7 @@ const EditProductSku = () => {
 
               <div className="grid grid-cols-2 gap-2">
                 <Form.Item
+                  initialValue={productSku.product}
                   label="Product"
                   name="product"
                   rules={[{ required: true, message: "product required" }]}
@@ -267,7 +277,11 @@ const EditProductSku = () => {
                   </Select>
                 </Form.Item>
 
-                <Form.Item label="Product Group" name="product_group">
+                <Form.Item
+                  initialValue={productSku.product_group}
+                  label="Product Group"
+                  name="product_group"
+                >
                   <Select
                     defaultValue={productSku.product_group}
                     loading={productGroupsStatus === "loading"}
@@ -286,7 +300,11 @@ const EditProductSku = () => {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <Form.Item label="Loyalty Policy" name="loyalty_policy">
+                <Form.Item
+                  initialValue={productSku.loyalty_policy}
+                  label="Loyalty Policy"
+                  name="loyalty_policy"
+                >
                   <Select
                     defaultValue={productSku.loyalty_policy}
                     loading={loyaltiesStatus === "loading"}
@@ -302,7 +320,11 @@ const EditProductSku = () => {
                   </Select>
                 </Form.Item>
 
-                <Form.Item label="Is Vat Included?" name="includes_vat">
+                <Form.Item
+                  initialValue={productSku.includes_vat}
+                  label="Is Vat Included?"
+                  name="includes_vat"
+                >
                   <Switch
                     checkedChildren={<CheckOutlined />}
                     className="flex"
@@ -315,7 +337,7 @@ const EditProductSku = () => {
               <Form.Item>
                 <Space className="w-full flex justify-end">
                   <Button htmlType="submit" size="large" type="primary">
-                    Create
+                    Update
                   </Button>
                 </Space>
               </Form.Item>

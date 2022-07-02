@@ -42,7 +42,7 @@ function ViewProduct() {
       {product && (
         <>
           <div className="mt-4">
-            <CustomPageHeader title={product.name} />
+            <CustomPageHeader path="../" title={product.name} />
           </div>
 
           <div className="flex flex-col bg-white p-6 rounded">

@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "antd";
 
-const CustomPageHeader = ({ title }) => {
+const CustomPageHeader = ({ title, path }) => {
   const navigate = useNavigate();
 
   return (
@@ -9,11 +9,11 @@ const CustomPageHeader = ({ title }) => {
       className="site-page-header m-0"
       style={{ padding: 0, marginBottom: 16 }}
       title={
-        <div className="cursor-pointer" onClick={() => navigate(-1)}>
+        <div className="cursor-pointer" onClick={() => navigate(path || -1)}>
           {title || "Page Title"}
         </div>
       }
-      onBack={() => navigate(-1)}
+      onBack={() => navigate(path || -1)}
     />
   );
 };

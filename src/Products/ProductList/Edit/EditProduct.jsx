@@ -85,7 +85,7 @@ const EditProduct = () => {
     {
       onSuccess: (data) => {
         openSuccessNotification(data.message || "Product Updated");
-        navigate(-1);
+        navigate(`../${data.data.slug}`);
       },
       onError: (error) => {
         openErrorNotification(error);

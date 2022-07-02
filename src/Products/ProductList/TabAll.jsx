@@ -2,15 +2,13 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
 
-import { Table, Select } from "antd";
+import { Table } from "antd";
 import AddCategoryButton from "../subComponents/AddCategoryButton";
 import { getProducts } from "../../context/CategoryContext";
 import { useQuery } from "react-query";
 
 import { parseSlug } from "../../utility";
 import Loader from "../../shared/Loader";
-
-const { Option } = Select;
 
 const columns = [
   {

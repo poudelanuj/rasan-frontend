@@ -5,6 +5,11 @@ export const createProductSku = async (data) => {
   return res.data;
 };
 
+export const updateProductSku = async (slug, data) => {
+  const res = await axios.put(`/api/product/admin/product-skus/${slug}/`, data);
+  return res.data;
+};
+
 export const getProductSku = async (slug) => {
   const res = await axios.get(`/api/product/admin/product-skus/${slug}/`);
   return res.data.data;
