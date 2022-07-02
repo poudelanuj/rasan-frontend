@@ -4,11 +4,13 @@ import moment from "moment";
 
 import { Table } from "antd";
 import AddCategoryButton from "../subComponents/AddCategoryButton";
-import { getProducts } from "../../context/CategoryContext";
 import { useQuery } from "react-query";
 
 import { parseSlug } from "../../utility";
 import Loader from "../../shared/Loader";
+import { GET_PAGINATED_PRODUCTS } from "../../constants/queryKeys";
+import { getPaginatedProducts } from "../../api/products";
+import { useEffect } from "react";
 
 const columns = [
   {
@@ -89,7 +91,24 @@ const columns = [
 ];
 
 function TabAll() {
-  const { data, status } = useQuery("get-products", () => getProducts());
+  const [nextPage, setNextPage] = useState(1); //* api
+  const [products, setProducts] = useState([]);
+
+  const {
+    data,
+    status: productsStatus,
+    refetch: refetchProducts,
+    isRefetching,
+  } = useQuery(GET_PAGINATED_PRODUCTS, () => getPaginatedProducts(nextPage));
+
+  useEffect(() => {
+    if (data) setProducts((prev) => [...prev, ...data.results]);
+  }, [data]);
+
+  useEffect(() => {
+    refetchProducts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nextPage]);
 
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const navigate = useNavigate();
@@ -148,15 +167,27 @@ function TabAll() {
         </div>
 
         <div className="flex-1">
-          {status === "loading" && <Loader />}
+          {(productsStatus === "loading" || isRefetching) && <Loader />}
 
           <Table
             columns={columns}
-            dataSource={data?.data?.data?.results?.map((item) => ({
+            dataSource={products.map((item) => ({
               ...item,
               key: item.sn,
             }))}
-            pagination={{ pageSize: 10 }}
+            pagination={{
+              pageSize: 5,
+              total: data?.count,
+
+              onChange: (page, pageSize) => {
+                if (page * pageSize > data?.results?.length) {
+                  const next = parseInt(data?.next?.split("page=")[1], 10);
+                  const prev = parseInt(data?.previous?.split("page=")[1], 10);
+
+                  setNextPage(next || prev || nextPage);
+                }
+              },
+            }}
             rowClassName="cursor-pointer"
             rowSelection={rowSelection}
             onRow={(record) => {
