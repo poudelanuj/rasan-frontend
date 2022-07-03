@@ -305,7 +305,17 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
         <Table
           columns={columns}
           dataSource={dataSource?.map((item) => ({ ...item, key: item.id }))}
+          rowClassName="cursor-pointer"
           rowSelection={{ ...rowSelection }}
+          onRow={(record) => {
+            const { id, status } = record;
+            return {
+              onClick: () => {
+                setIsOrderModalOpen((prev) => !prev);
+                setActiveOrder({ orderId: id, orderStatus: status });
+              },
+            };
+          }}
         />
       )}
 

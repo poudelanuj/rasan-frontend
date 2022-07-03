@@ -17,6 +17,7 @@ import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../utils/openNotification";
+import ProductSkuList from "./ProductSkuList";
 
 function ViewProduct() {
   const { slug } = useParams();
@@ -35,6 +36,8 @@ function ViewProduct() {
       onSettled: () => refetchProduct(),
     }
   );
+
+  console.log("PRDOCUT", product);
 
   return (
     <>
@@ -186,6 +189,10 @@ function ViewProduct() {
                   </Descriptions.Item>
                 </Descriptions>
               </div>
+
+              <Divider />
+
+              <ProductSkuList productSkus={product.product_skus?.results} />
             </div>
           </div>
         </>
