@@ -207,7 +207,7 @@ const OrderModal = ({
               >
                 {productSkus &&
                   productSkus.map((item) => (
-                    <Select.Option key={item.sn} value={item.sn}>
+                    <Select.Option key={item.slug} value={item.slug}>
                       {item.name}
                     </Select.Option>
                   ))}
@@ -222,16 +222,16 @@ const OrderModal = ({
                   setSelectedPack(
                     productSkus &&
                       productSkus
-                        .find((item) => item.sn === selectedProductSku)
-                        ?.product_packs?.find((pack) => pack.sn === value)
+                        .find((item) => item.slug === selectedProductSku)
+                        ?.product_packs?.find((pack) => pack.id === value)
                   )
                 }
               >
                 {productSkus &&
                   productSkus
-                    .find((item) => item.sn === selectedProductSku)
+                    .find((item) => item.slug === selectedProductSku)
                     ?.product_packs?.map((pack) => (
-                      <Select.Option key={pack.sn} value={pack.sn}>
+                      <Select.Option key={pack.id} value={pack.id}>
                         {pack.number_of_items}
                       </Select.Option>
                     ))}

@@ -37,8 +37,6 @@ function ViewProduct() {
     }
   );
 
-  console.log("PRDOCUT", product);
-
   return (
     <>
       {productStatus === "loading" && <Loader isOpen />}

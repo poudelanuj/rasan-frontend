@@ -14,25 +14,19 @@ import { useEffect } from "react";
 
 const columns = [
   {
-    title: "Product Image",
-    render: (text, record) => {
-      return (
-        <div className="h-[80px]">
-          {record.product_image.full_size && (
-            <img
-              alt={"text"}
-              className="inline pr-4 h-[100%]"
-              src={record.product_image.full_size}
-            />
-          )}
-        </div>
-      );
-    },
-  },
-  {
     title: "Product Name",
     dataIndex: "name",
     defaultSortOrder: "descend",
+    render: (_, { name, product_image }) => (
+      <div className="flex items-center gap-3">
+        <img
+          alt=""
+          className="h-[40px] w-[40px] object-cover rounded"
+          src={product_image?.thumbnail || "/rasan-default.png"}
+        />
+        <span>{name}</span>
+      </div>
+    ),
   },
   {
     title: "Brand",
@@ -173,7 +167,7 @@ function TabAll() {
             columns={columns}
             dataSource={products.map((item) => ({
               ...item,
-              key: item.sn,
+              key: item.id || item.slug,
             }))}
             pagination={{
               pageSize: 5,
