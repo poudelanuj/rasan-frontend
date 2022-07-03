@@ -2,7 +2,7 @@ import { EditOutlined } from "@ant-design/icons";
 import { Descriptions, Divider, Tag, Button, Space, Spin } from "antd";
 import moment from "moment";
 import { useQuery, useMutation } from "react-query";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import {
   getProductSku,
   publishProductSku,
@@ -20,6 +20,8 @@ import ProductPackList from "./ProductSku/ProductPackList";
 
 function ProductSKU() {
   const { slug } = useParams();
+  const [searchParam] = useSearchParams();
+  const pageHeaderPath = searchParam.get("path");
 
   const {
     data: productSku,
@@ -42,7 +44,10 @@ function ProductSKU() {
       {productSkustatus === "success" && productSku && (
         <>
           <div className="mt-4">
-            <CustomPageHeader path="../" title={productSku.name} />
+            <CustomPageHeader
+              path={pageHeaderPath || "../"}
+              title={productSku.name}
+            />
           </div>
 
           <div className="flex flex-col bg-white p-6 rounded ">

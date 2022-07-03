@@ -1,9 +1,6 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { Table, Tag } from "antd";
-
-import { parseSlug } from "../../utility";
+import { Button, Table, Tag } from "antd";
 
 const columns = [
   {
@@ -64,11 +61,19 @@ const columns = [
   },
 ];
 
-function ProductSkuList({ productSkus }) {
+function ProductSkuList({ productSkus, productSlug }) {
+  const navigate = useNavigate();
+
   return (
     <>
-      <div className="mb-4">
+      <div className="mb-4 flex justify-between">
         <h3 className="text-xl text-[#374253]">Product SKU List</h3>
+        <Button
+          type="primary"
+          onClick={() => navigate(`/product-sku/add?product=${productSlug}`)}
+        >
+          Create New Product SKU
+        </Button>
       </div>
       <div className="flex flex-col bg-white ">
         <div className="flex-1">
@@ -80,6 +85,16 @@ function ProductSkuList({ productSkus }) {
               index: index + 1,
             }))}
             rowClassName="cursor-pointer"
+            onRow={(record) => {
+              return {
+                onClick: () => {
+                  const pageHeaderPath = `/product-list/${productSlug}`;
+                  navigate(
+                    `/product-sku/${record.slug}?path=${pageHeaderPath}`
+                  );
+                },
+              };
+            }}
           />
         </div>
       </div>
