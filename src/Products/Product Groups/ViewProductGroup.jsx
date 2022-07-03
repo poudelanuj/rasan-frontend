@@ -4,7 +4,6 @@ import { useMutation, useQuery, useQueryClient } from "react-query";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   getProductGroup,
-  getProductSKUs,
   updateProductSKU,
 } from "../../context/CategoryContext";
 import { getDate, parseArray } from "../../utility";
@@ -17,12 +16,13 @@ import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../utils/openNotification";
+import { getAllProductSkus } from "../../api/productSku";
+import { GET_ALL_PRODUCT_SKUS } from "../../constants/queryKeys";
 const { Option } = Select;
 
 function ViewProductGroup() {
   const queryClient = useQueryClient();
 
-  const [allProductSKUs, setAllProductSKUs] = useState([]);
   const [alert, setAlert] = useState({
     show: false,
     title: "",
@@ -80,9 +80,9 @@ function ViewProductGroup() {
   });
 
   const handleDeleteProductSKUFromGroup = (value) => {
-    let productGroups = allProductSKUs.find(
+    let productGroups = productSkus?.find(
       (productSKU) => productSKU.slug === value
-    ).product_group;
+    )?.product_group;
     productGroups.forEach((productGroup, index) => {
       if (productGroup === slug) {
         productGroups.splice(index, 1);
@@ -96,15 +96,22 @@ function ViewProductGroup() {
 
   const addProductSKUToGroup = (value) => {
     setSelectedProductSku(value);
-    let productGroups = allProductSKUs.find(
+    let productGroups = productSkus?.find(
       (productSKU) => productSKU.slug === value
-    ).product_group;
+    )?.product_group;
     productGroups.push(slug);
     productSKUGroupUpdate({
       slug: value,
       form_data: { product_group: productGroups },
     });
   };
+
+  const { data: productSkus, status: productSkusStatus } = useQuery({
+    queryFn: () => getAllProductSkus(),
+    queryKey: GET_ALL_PRODUCT_SKUS,
+  });
+
+  console.log("productSkus", productSkus);
 
   const navigate = useNavigate();
 
@@ -327,7 +334,7 @@ function ViewProductGroup() {
                       placeholder={`Add Product SKU to ${productGroup.name}`}
                       onChange={(value) => addProductSKUToGroup(value)}
                     >
-                      {allProductSKUs
+                      {productSkus
                         ?.filter(
                           (productSKU) =>
                             !productSKU.product_group.includes(slug)

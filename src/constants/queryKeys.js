@@ -5,6 +5,7 @@ export const GET_PAGINATED_PRODUCTS = "paginated-products";
 
 //* Product SKUs
 export const GET_PRODUCT_SKU = "product-sku";
+export const GET_ALL_PRODUCT_SKUS = "all-product-skus";
 
 //* Product Packs
 export const GET_PRODUCT_PACK = "product-pack";
