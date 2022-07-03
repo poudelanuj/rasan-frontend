@@ -1,7 +1,7 @@
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import React, { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import { Link, useLocation, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   getProductGroup,
   getProductSKUs,
@@ -53,32 +53,20 @@ function ViewProductGroup() {
     product_group_image: "",
   });
   const [selectedProductSku, setSelectedProductSku] = useState(null);
-  const {
-    data: productGroupData,
-    isLoading: getProductGroupIsLoading,
-    isError: getProductGroupIsError,
-    error: getProductGroupError,
-  } = useQuery(["get-product-group", slug], () => getProductGroup({ slug }), {
-    onSuccess: (data) => {
-      let newData = data.data.data;
-      newData.product_skus.results.map((productSku, index) => {
-        productSku["key"] = productSku.slug;
-      });
-      setProductGroup(newData);
-    },
-    onError: (error) => {
-      openErrorNotification(error);
-    },
-  });
-  const { data: productSKUData } = useQuery(
-    "get-product-sku",
-    () => getProductSKUs(),
-    {
+  const { data: productGroupData, isLoading: getProductGroupIsLoading } =
+    useQuery(["get-product-group", slug], () => getProductGroup({ slug }), {
       onSuccess: (data) => {
-        setAllProductSKUs(data.data.data.results);
+        let newData = data.data.data;
+        newData.product_skus.results.map((productSku, index) => {
+          productSku["key"] = productSku.slug;
+        });
+        setProductGroup(newData);
       },
-    }
-  );
+      onError: (error) => {
+        openErrorNotification(error);
+      },
+    });
+
   const { mutate: productSKUGroupUpdate } = useMutation(updateProductSKU, {
     onSuccess: (data) => {
       openSuccessNotification(`Product SKU updated in ${productGroup.name}`);
@@ -95,10 +83,9 @@ function ViewProductGroup() {
     let productGroups = allProductSKUs.find(
       (productSKU) => productSKU.slug === value
     ).product_group;
-    productGroups.map((productGroup, index) => {
+    productGroups.forEach((productGroup, index) => {
       if (productGroup === slug) {
         productGroups.splice(index, 1);
-        console.log(productGroup, "matched");
       }
     });
     productSKUGroupUpdate({
@@ -119,6 +106,8 @@ function ViewProductGroup() {
     });
   };
 
+  const navigate = useNavigate();
+
   const columns = [
     {
       title: "S.N.",
@@ -130,21 +119,14 @@ function ViewProductGroup() {
       title: "Product Name",
       render: (text, record) => {
         return (
-          <Link
-            to={"/product-sku/" + record.slug}
-            className="block text-black h-[50px]"
-          >
-            {record.product_sku_image.full_size && (
-              <>
-                <img
-                  alt={"text"}
-                  className="inline pr-4 h-[100%]"
-                  src={record.product_sku_image.full_size}
-                />
-                {record.name}
-              </>
-            )}
-          </Link>
+          <div className="flex items-center gap-3">
+            <img
+              alt={"text"}
+              className="h-[40px] rounded"
+              src={record?.product_sku_image?.full_size || "/rasan-default.png"}
+            />
+            {record.name}
+          </div>
         );
       },
     },
@@ -316,11 +298,21 @@ function ViewProductGroup() {
                 </div>
                 <div className="flex-1">
                   <Table
+                    className="w-[75%]"
                     columns={columns}
                     dataSource={productGroup?.product_skus?.results}
                     pagination={false}
-                    rowClassName="h-[3rem]"
-                    className="w-[75%]"
+                    rowClassName="h-[3rem] cursor-pointer"
+                    onRow={(record) => {
+                      return {
+                        onClick: () => {
+                          const pageHeaderPath = `/product-groups/${productGroup.slug}`;
+                          navigate(
+                            `/product-sku/${record.slug}?path=${pageHeaderPath}`
+                          );
+                        },
+                      };
+                    }}
                   />
                 </div>
                 <div>

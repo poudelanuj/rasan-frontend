@@ -2,7 +2,7 @@ import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
 import { Upload, Form, Input, Select, Button, Switch, Space } from "antd";
 import { useState } from "react";
 import { useQuery, useMutation } from "react-query";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { getAllBrands } from "../../../api/brands";
 import { getAllCategories } from "../../../api/categories";
 import { getLoyaltyPolicies } from "../../../api/loyalties";
@@ -15,12 +15,20 @@ import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../../utils/openNotification";
+import {
+  GET_ALL_BRANDS,
+  GET_ALL_CATEGORIES,
+  GET_ALL_LOYALTIES,
+  GET_ALL_PRODUCTS,
+  GET_ALL_PRODUCT_GROUPS,
+} from "../../../constants/queryKeys";
 
 const AddProductSku = () => {
   const [selectedImage, setSelectedImage] = useState(null);
 
   const { Dragger } = Upload;
 
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
   const fileUploadOptions = {
@@ -36,27 +44,27 @@ const AddProductSku = () => {
 
   const { data: categories, status: categoriesStatus } = useQuery({
     queryFn: () => getAllCategories(),
-    queryKey: ["all-categories"],
+    queryKey: [GET_ALL_CATEGORIES],
   });
 
   const { data: productGroups, status: productGroupsStatus } = useQuery({
     queryFn: () => getAllProductGroups(),
-    queryKey: ["all-categories"],
+    queryKey: [GET_ALL_PRODUCT_GROUPS],
   });
 
   const { data: brands, status: brandsStatus } = useQuery({
     queryFn: () => getAllBrands(),
-    queryKey: ["all-brands"],
+    queryKey: [GET_ALL_BRANDS],
   });
 
   const { data: products, status: productsStatus } = useQuery({
     queryFn: () => getAllProducts(),
-    queryKey: ["all-products"],
+    queryKey: [GET_ALL_PRODUCTS],
   });
 
   const { data: loyalties, status: loyaltiesStatus } = useQuery({
     queryFn: () => getLoyaltyPolicies(),
-    queryKey: ["loyalties"],
+    queryKey: [GET_ALL_LOYALTIES],
   });
 
   const onFormSubmit = useMutation(
@@ -227,11 +235,13 @@ const AddProductSku = () => {
 
             <div className="grid grid-cols-2 gap-2">
               <Form.Item
+                initialValue={searchParams.get("product")}
                 label="Product"
                 name="product"
                 rules={[{ required: true, message: "product required" }]}
               >
                 <Select
+                  defaultValue={searchParams.get("product")}
                   loading={productsStatus === "loading"}
                   placeholder="Select Product"
                   allowClear

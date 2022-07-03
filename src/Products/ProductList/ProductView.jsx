@@ -190,7 +190,10 @@ function ViewProduct() {
 
               <Divider />
 
-              <ProductSkuList productSkus={product.product_skus?.results} />
+              <ProductSkuList
+                productSkus={product.product_skus?.results}
+                productSlug={product.slug}
+              />
             </div>
           </div>
         </>
