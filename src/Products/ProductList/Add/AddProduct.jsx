@@ -137,7 +137,7 @@ const AddProduct = () => {
                 >
                   {categories &&
                     categories.map((category) => (
-                      <Select.Option key={category.sn} value={category.slug}>
+                      <Select.Option key={category.slug} value={category.slug}>
                         {category.name}
                       </Select.Option>
                     ))}
@@ -157,7 +157,7 @@ const AddProduct = () => {
                 >
                   {brands &&
                     brands.map((brand) => (
-                      <Select.Option key={brand.sn} value={brand.slug}>
+                      <Select.Option key={brand.slug} value={brand.slug}>
                         {brand.name}
                       </Select.Option>
                     ))}
@@ -175,7 +175,7 @@ const AddProduct = () => {
                 >
                   {products &&
                     products.map((product) => (
-                      <Select.Option key={product.sn} value={product.slug}>
+                      <Select.Option key={product.slug} value={product.slug}>
                         {product.name}
                       </Select.Option>
                     ))}
@@ -194,7 +194,7 @@ const AddProduct = () => {
                 >
                   {products &&
                     products.map((product) => (
-                      <Select.Option key={product.sn} value={product.slug}>
+                      <Select.Option key={product.slug} value={product.slug}>
                         {product.name}
                       </Select.Option>
                     ))}

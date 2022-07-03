@@ -1,7 +1,7 @@
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import React, { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import {
   getProductGroup,
   getProductSKUs,
@@ -21,16 +21,8 @@ const { Option } = Select;
 
 function ViewProductGroup() {
   const queryClient = useQueryClient();
-  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const onSelectChange = (selectedRowKeys) => {
-    setSelectedRowKeys(selectedRowKeys);
-  };
-  const rowSelection = {
-    onChange: onSelectChange,
-    selectedRowKeys,
-  };
+
   const [allProductSKUs, setAllProductSKUs] = useState([]);
-  const navigate = useNavigate();
   const [alert, setAlert] = useState({
     show: false,
     title: "",

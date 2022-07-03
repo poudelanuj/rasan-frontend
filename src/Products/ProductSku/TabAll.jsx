@@ -11,26 +11,19 @@ import SimpleAlert from "../alerts/SimpleAlert";
 
 const columns = [
   {
-    title: "Product Image",
-    render: (text, record) => {
-      return (
-        <div className="h-[80px]">
-          {record.product_sku_image.full_size && (
-            <img
-              alt={"text"}
-              className="inline pr-4 h-[100%]"
-              src={record.product_sku_image.full_size}
-            />
-          )}
-        </div>
-      );
-    },
-  },
-  {
     title: "Product Name",
     dataIndex: "name",
     defaultSortOrder: "descend",
-    // sorter: (a, b) => a.name.length - b.name.length,
+    render: (_, { name, product_sku_image }) => (
+      <div className="flex items-center gap-3">
+        <img
+          alt=""
+          className="h-[40px] w-[40px] object-cover rounded"
+          src={product_sku_image?.thumbnail || "/rasan-default.png"}
+        />
+        <span>{name}</span>
+      </div>
+    ),
   },
   {
     title: "Quantity",
@@ -200,7 +193,7 @@ function TabAll() {
             columns={columns}
             dataSource={data?.data?.data?.results.map((item) => ({
               ...item,
-              key: item.id || item.sn,
+              key: item.id || item.slug,
             }))}
             pagination={{ pageSize: entriesPerPage }}
             rowClassName="cursor-pointer"

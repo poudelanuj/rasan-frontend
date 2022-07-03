@@ -17,6 +17,16 @@ const columns = [
     title: "Product Name",
     dataIndex: "name",
     defaultSortOrder: "descend",
+    render: (_, { product_sku_image, name }) => (
+      <div className="flex items-center gap-3">
+        <img
+          alt=""
+          className="h-[40px] w-[40px] object-cover rounded"
+          src={product_sku_image?.thumbnail || "/rasan-default.png"}
+        />
+        <span>{name}</span>
+      </div>
+    ),
     // sorter: (a, b) => a.name.length - b.name.length,
   },
   {
@@ -41,28 +51,7 @@ const columns = [
     defaultSortOrder: "descend",
     // sorter: (a, b) => a.address.length - b.address.length,
   },
-  {
-    title: "Category",
-    render: (text, record) => {
-      return (
-        <div className="flex items-center capitalize">
-          {record.category.map((cat, index) => {
-            return parseSlug(cat);
-          })}
-        </div>
-      );
-    },
-  },
-  {
-    title: "Brand",
-    render: (text, record) => {
-      return (
-        <div className="flex items-center capitalize">
-          {parseSlug(record.brand)}
-        </div>
-      );
-    },
-  },
+
   {
     title: "Status",
     render: (text, record) => {
@@ -87,7 +76,7 @@ function ProductSkuList({ productSkus }) {
             columns={columns}
             dataSource={productSkus?.map((item, index) => ({
               ...item,
-              key: item.id || item.sn,
+              key: item.id || item.slug,
               index: index + 1,
             }))}
             rowClassName="cursor-pointer"

@@ -68,7 +68,7 @@ function AddProductPack({
                   defaultValue={productSku.slug}
                   placeholder="Select Product Sku"
                 >
-                  <Select.Option key={productSku.sn} value={productSku.slug}>
+                  <Select.Option key={productSku.slug} value={productSku.slug}>
                     {productSku.name}
                   </Select.Option>
                 </Select>
