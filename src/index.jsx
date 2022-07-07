@@ -32,6 +32,10 @@ import "antd/dist/antd.min.css";
 import EditProduct from "./Products/ProductList/Edit";
 import AddProductSku from "./Products/ProductSku/Add";
 import EditProductSku from "./Products/ProductSku/Edit";
+import SupportTicket from "./CRM/SupportTicket";
+import UserFeedbacks from "./CRM/UserFeedbacks";
+import StockEnquiry from "./CRM/StockEnquiry";
+import ReturnRequest from "./CRM/ReturnRequest";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const queryClient = new QueryClient();
@@ -113,7 +117,13 @@ root.render(
               <Route element={<UserGroupPage />} path="user-group/:group_id" />
 
               <Route element={<LiveUserBasket />} path="live-user-basket" />
-              <Route element={<CRM />} path="crm" />
+
+              <Route element={<CRM />} path="crm">
+                <Route element={<SupportTicket />} index />
+                <Route element={<ReturnRequest />} path="return-request" />
+                <Route element={<StockEnquiry />} path="stock-enquiry" />
+                <Route element={<UserFeedbacks />} path="user-feedbacks" />
+              </Route>
             </Route>
           </Routes>
         </React.StrictMode>

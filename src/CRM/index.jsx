@@ -1,7 +1,12 @@
 import React from "react";
+import { Outlet } from "react-router-dom";
 
 const CRM = () => {
-  return <div className="text-3xl">CRM</div>;
+  return (
+    <div>
+      <Outlet />
+    </div>
+  );
 };
 
 export default CRM;
