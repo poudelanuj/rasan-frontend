@@ -70,11 +70,17 @@ const sidebarItems = [
     label: "Live User Basket",
     icon: <ShopOutlined />,
   },
-  // {
-  //   key: "crm",
-  //   label: "CRM",
-  //   icon: <CustomerServiceOutlined />,
-  // },
+  {
+    key: "crm",
+    label: "CRM",
+    icon: <CustomerServiceOutlined />,
+    children: [
+      { label: "Support Ticket", key: "crm" },
+      { label: "Return Request", key: "crm/return-request" },
+      { label: "Out of Stock Enquiry", key: "crm/stock-enquiry" },
+      { label: "User Feedbacks", key: "crm/user-feedbacks" },
+    ],
+  },
 ];
 const AppLayout = () => {
   let navigate = useNavigate();
