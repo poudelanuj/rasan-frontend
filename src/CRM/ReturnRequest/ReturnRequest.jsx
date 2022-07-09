@@ -1,13 +1,38 @@
-import { Breadcrumb, Tabs, Table } from "antd";
+import { Breadcrumb, Tabs, Table, Tag } from "antd";
+import { useEffect, useState } from "react";
+import moment from "moment";
+import { useQuery } from "react-query";
+import getAllTickets from "../../api/crm/tickets";
+import { TICKET_TYPE_RETURN } from "../../constants";
+
+import Loader from "../../shared/Loader";
+import { getStatusColor } from "../shared/getTicketStatusColor";
 
 const ReturnRequest = () => {
-  const dataSource = [];
+  const [tickets, setTickets] = useState([]);
+
+  const { data: ticketsList, status } = useQuery({
+    queryFn: () => getAllTickets(),
+    queryKey: ["get-all-tickets"],
+  });
+
+  useEffect(() => {
+    setTickets(
+      ticketsList
+        ?.filter((item) => item.type === TICKET_TYPE_RETURN)
+        ?.map((item, index) => ({
+          ...item,
+          key: item.id || item.slug || index,
+        }))
+    );
+  }, [ticketsList]);
 
   const columns = [
     {
-      title: "Request ID",
+      title: "Return Request ID",
       dataIndex: "id",
       key: "id",
+      render: (text) => <>#{text}</>,
     },
     {
       title: "Title",
@@ -16,54 +41,91 @@ const ReturnRequest = () => {
     },
     {
       title: "Customer Name",
-      dataIndex: "name",
-      key: "name",
+      dataIndex: "user",
+      key: "user",
     },
     {
       title: "Phone Number",
-      dataIndex: "phone",
-      key: "phone",
+      dataIndex: "user",
+      key: "user",
     },
     {
-      title: "Request Date",
-      dataIndex: "requested_at",
-      key: "requested_at",
+      title: "Requested Date",
+      dataIndex: "created_at",
+      key: "created_at",
+      render: (_, { created_at }) => {
+        return <>{moment(created_at).format("ll")}</>;
+      },
     },
     {
       title: "Return Status",
       dataIndex: "status",
       key: "status",
+      render: (_, { status }) => (
+        <Tag color={getStatusColor(status)}>{status}</Tag>
+      ),
     },
   ];
 
   return (
-    <div className="py-4">
-      <Breadcrumb>
-        <Breadcrumb.Item>CRM</Breadcrumb.Item>
-        <Breadcrumb.Item>
-          <>Return Request</>
-        </Breadcrumb.Item>
-      </Breadcrumb>
+    <>
+      {status === "loading" && <Loader isOpen />}
 
-      <h2 className="text-2xl my-3">Return Request</h2>
+      <div className="py-4">
+        <Breadcrumb>
+          <Breadcrumb.Item>CRM</Breadcrumb.Item>
+          <Breadcrumb.Item>
+            <>Return Request</>
+          </Breadcrumb.Item>
+        </Breadcrumb>
 
-      <div>
-        <Tabs defaultActiveKey="all">
-          <Tabs.TabPane key="all" tab="All">
-            <Table columns={columns} dataSource={dataSource} />
-          </Tabs.TabPane>
-          <Tabs.TabPane key="returned" tab="Returned">
-            <Table columns={columns} dataSource={dataSource} />
-          </Tabs.TabPane>
-          <Tabs.TabPane key="in-review" tab="In Review">
-            <Table columns={columns} dataSource={dataSource} />
-          </Tabs.TabPane>
-          <Tabs.TabPane key="rejected" tab="Rejected">
-            <Table columns={columns} dataSource={dataSource} />
-          </Tabs.TabPane>
-        </Tabs>
+        <h2 className="text-2xl my-3">Return Request</h2>
+
+        <div>
+          <Tabs defaultActiveKey="all">
+            <Tabs.TabPane key="all" tab="All">
+              <Table
+                columns={columns}
+                dataSource={tickets}
+                rowClassName="cursor-pointer"
+              />
+            </Tabs.TabPane>
+            <Tabs.TabPane key="new" tab="New">
+              <Table
+                columns={columns}
+                dataSource={tickets?.filter((item) => item.status === "new")}
+                rowClassName="cursor-pointer"
+              />
+            </Tabs.TabPane>
+            <Tabs.TabPane key="processing" tab="Processing">
+              <Table
+                columns={columns}
+                dataSource={tickets?.filter(
+                  (item) => item.status === "processing"
+                )}
+                rowClassName="cursor-pointer"
+              />
+            </Tabs.TabPane>
+            <Tabs.TabPane key="closed" tab="Closed">
+              <Table
+                columns={columns}
+                dataSource={tickets?.filter((item) => item.status === "closed")}
+                rowClassName="cursor-pointer"
+              />
+            </Tabs.TabPane>
+            <Tabs.TabPane key="on_hold" tab="On Hold">
+              <Table
+                columns={columns}
+                dataSource={tickets?.filter(
+                  (item) => item.status === "on_hold"
+                )}
+                rowClassName="cursor-pointer"
+              />
+            </Tabs.TabPane>
+          </Tabs>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
