@@ -21,3 +21,7 @@ export const GET_ALL_CATEGORIES = "all-categories";
 
 //* Loyalty Policies
 export const GET_ALL_LOYALTIES = "all-loyalties";
+
+//* tickets
+export const GET_ALL_TICKETS = "all-tickets";
+export const GET_TICKET = "single-ticket";

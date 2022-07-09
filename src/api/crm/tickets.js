@@ -5,4 +5,9 @@ const getAllTickets = async () => {
   return res.data.data.results;
 };
 
+export const getTicket = async (ticketId) => {
+  const res = await axios.get(`/api/crm/admin/ticket/${ticketId}/`);
+  return res.data.data;
+};
+
 export default getAllTickets;

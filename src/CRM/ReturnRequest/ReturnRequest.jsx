@@ -1,6 +1,7 @@
 import { Breadcrumb, Tabs, Table, Tag } from "antd";
 import { useEffect, useState } from "react";
 import moment from "moment";
+import { useNavigate } from "react-router-dom";
 import { useQuery } from "react-query";
 import getAllTickets from "../../api/crm/tickets";
 import { TICKET_TYPE_RETURN } from "../../constants";
@@ -9,6 +10,8 @@ import Loader from "../../shared/Loader";
 import { getStatusColor } from "../shared/getTicketStatusColor";
 
 const ReturnRequest = () => {
+  const navigate = useNavigate();
+
   const [tickets, setTickets] = useState([]);
 
   const { data: ticketsList, status } = useQuery({
@@ -88,6 +91,13 @@ const ReturnRequest = () => {
                 columns={columns}
                 dataSource={tickets}
                 rowClassName="cursor-pointer"
+                onRow={(record) => {
+                  return {
+                    onClick: () => {
+                      navigate(`/crm/return-request/${record.id}`);
+                    },
+                  };
+                }}
               />
             </Tabs.TabPane>
             <Tabs.TabPane key="new" tab="New">
@@ -95,6 +105,13 @@ const ReturnRequest = () => {
                 columns={columns}
                 dataSource={tickets?.filter((item) => item.status === "new")}
                 rowClassName="cursor-pointer"
+                onRow={(record) => {
+                  return {
+                    onClick: () => {
+                      navigate(`/crm/return-request/${record.id}`);
+                    },
+                  };
+                }}
               />
             </Tabs.TabPane>
             <Tabs.TabPane key="processing" tab="Processing">
@@ -104,6 +121,13 @@ const ReturnRequest = () => {
                   (item) => item.status === "processing"
                 )}
                 rowClassName="cursor-pointer"
+                onRow={(record) => {
+                  return {
+                    onClick: () => {
+                      navigate(`/crm/return-request/${record.id}`);
+                    },
+                  };
+                }}
               />
             </Tabs.TabPane>
             <Tabs.TabPane key="closed" tab="Closed">
@@ -111,6 +135,13 @@ const ReturnRequest = () => {
                 columns={columns}
                 dataSource={tickets?.filter((item) => item.status === "closed")}
                 rowClassName="cursor-pointer"
+                onRow={(record) => {
+                  return {
+                    onClick: () => {
+                      navigate(`/crm/return-request/${record.id}`);
+                    },
+                  };
+                }}
               />
             </Tabs.TabPane>
             <Tabs.TabPane key="on_hold" tab="On Hold">
@@ -120,6 +151,13 @@ const ReturnRequest = () => {
                   (item) => item.status === "on_hold"
                 )}
                 rowClassName="cursor-pointer"
+                onRow={(record) => {
+                  return {
+                    onClick: () => {
+                      navigate(`/crm/return-request/${record.id}`);
+                    },
+                  };
+                }}
               />
             </Tabs.TabPane>
           </Tabs>
