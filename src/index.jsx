@@ -36,6 +36,8 @@ import SupportTicket from "./CRM/SupportTicket";
 import UserFeedbacks from "./CRM/UserFeedbacks";
 import StockEnquiry from "./CRM/StockEnquiry";
 import ReturnRequest from "./CRM/ReturnRequest";
+import ViewReturnRequest from "./CRM/ReturnRequest/ViewReturnRequest";
+import ViewSupportTicket from "./CRM/SupportTicket/ViewSupportTicket";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const queryClient = new QueryClient();
@@ -119,8 +121,14 @@ root.render(
               <Route element={<LiveUserBasket />} path="live-user-basket" />
 
               <Route element={<CRM />} path="crm">
-                <Route element={<SupportTicket />} index />
-                <Route element={<ReturnRequest />} path="return-request" />
+                <Route element={<SupportTicket />} path="/crm">
+                  <Route element={<SupportTicket />} index />
+                  <Route element={<ViewSupportTicket />} path=":ticketId" />
+                </Route>
+                <Route path="return-request">
+                  <Route element={<ReturnRequest />} index />
+                  <Route element={<ViewReturnRequest />} path=":ticketId" />
+                </Route>
                 <Route element={<StockEnquiry />} path="stock-enquiry" />
                 <Route element={<UserFeedbacks />} path="user-feedbacks" />
               </Route>
