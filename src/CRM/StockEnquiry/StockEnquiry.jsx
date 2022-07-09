@@ -1,53 +1,67 @@
 import { Breadcrumb, Tabs, Table } from "antd";
+import { useQuery } from "react-query";
+import moment from "moment";
+import getAllStockEnquiries from "../../api/crm/stockEnquiry";
+import Loader from "../../shared/Loader";
 
 const StockEnquiry = () => {
-  const dataSource = [];
+  const { data: enquiriesList, status } = useQuery({
+    queryFn: () => getAllStockEnquiries(),
+    queryKey: ["get-all-stock-enquiries"],
+  });
 
   const columns = [
     {
       title: "Product ID",
       dataIndex: "id",
       key: "id",
+      render: (text) => <>#{text}</>,
     },
     {
       title: "Product Name",
-      dataIndex: "name",
-      key: "name",
+      dataIndex: "product",
+      key: "product",
     },
     {
       title: "Phone Number",
-      dataIndex: "phone",
-      key: "phone",
+      dataIndex: "user",
+      key: "user",
     },
     {
       title: "Enquiry Date",
-      dataIndex: "requested_at",
-      key: "requested_at",
+      dataIndex: "created_at",
+      key: "created_at",
+      render: (_, { created_at }) => {
+        return <>{moment(created_at).format("ll")}</>;
+      },
     },
   ];
 
   return (
-    <div className="py-4">
-      <Breadcrumb>
-        <Breadcrumb.Item>CRM</Breadcrumb.Item>
-        <Breadcrumb.Item>
-          <>Stock Enquiry</>
-        </Breadcrumb.Item>
-      </Breadcrumb>
+    <>
+      {status === "loading" && <Loader isOpen />}
+      <div className="py-4">
+        <Breadcrumb>
+          <Breadcrumb.Item>CRM</Breadcrumb.Item>
+          <Breadcrumb.Item>
+            <>Stock Enquiry</>
+          </Breadcrumb.Item>
+        </Breadcrumb>
 
-      <h2 className="text-2xl my-3">Out of Stock Enquiry</h2>
+        <h2 className="text-2xl my-3">Out of Stock Enquiry</h2>
 
-      <div>
-        <Tabs defaultActiveKey="all">
-          <Tabs.TabPane key="all" tab="All">
-            <Table columns={columns} dataSource={dataSource} />
-          </Tabs.TabPane>
-          <Tabs.TabPane key="archived" tab="Archived">
-            <Table columns={columns} dataSource={dataSource} />
-          </Tabs.TabPane>
-        </Tabs>
+        <div>
+          <Tabs defaultActiveKey="all">
+            <Tabs.TabPane key="all" tab="All">
+              <Table columns={columns} dataSource={enquiriesList} />
+            </Tabs.TabPane>
+            <Tabs.TabPane key="archived" tab="Archived">
+              <Table columns={columns} dataSource={enquiriesList} />
+            </Tabs.TabPane>
+          </Tabs>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

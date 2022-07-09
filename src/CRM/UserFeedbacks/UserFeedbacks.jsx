@@ -1,58 +1,74 @@
-import { Breadcrumb, Tabs, Table } from "antd";
+import { Breadcrumb, Tabs, Table, Rate } from "antd";
+import moment from "moment";
+import { useQuery } from "react-query";
+import getAllUserFeedbacks from "../../api/crm/userFeedbacks";
+import Loader from "../../shared/Loader";
 
 const UserFeedbacks = () => {
-  const dataSource = [];
+  const { data: userFeedbacks, status } = useQuery({
+    queryFn: () => getAllUserFeedbacks(),
+    queryKey: ["get-all-user-feedbacks"],
+  });
 
   const columns = [
     {
       title: "Customer Name",
-      dataIndex: "name",
-      key: "name",
+      dataIndex: "user",
+      key: "user",
     },
     {
       title: "Phone Number",
-      dataIndex: "phone",
-      key: "phone",
+      dataIndex: "user",
+      key: "user",
     },
     {
       title: "Date",
-      dataIndex: "requested_at",
-      key: "requested_at",
+      dataIndex: "created_at",
+      key: "created_at",
+      render: (_, { created_at }) => {
+        return <>{moment(created_at).format("ll")}</>;
+      },
     },
     {
       title: "Feedback",
-      dataIndex: "feedback",
-      key: "feedback",
+      dataIndex: "message",
+      key: "message",
     },
     {
       title: "Ratings",
-      dataIndex: "ratings",
-      key: "ratings",
+      dataIndex: "stars",
+      key: "stars",
+      render: (_, { stars }) => (
+        <Rate defaultValue={stars} allowHalf disabled />
+      ),
     },
   ];
 
   return (
-    <div className="py-4">
-      <Breadcrumb>
-        <Breadcrumb.Item>CRM</Breadcrumb.Item>
-        <Breadcrumb.Item>
-          <>User Feedbacks</>
-        </Breadcrumb.Item>
-      </Breadcrumb>
+    <>
+      {status === "loading" && <Loader isOpen />}
+      <div className="py-4">
+        <Breadcrumb>
+          <Breadcrumb.Item>CRM</Breadcrumb.Item>
+          <Breadcrumb.Item>
+            <>User Feedbacks</>
+          </Breadcrumb.Item>
+        </Breadcrumb>
 
-      <h2 className="text-2xl my-3">User Feedbacks</h2>
+        <h2 className="text-2xl my-3">User Feedbacks</h2>
 
-      <div>
-        <Tabs defaultActiveKey="all">
-          <Tabs.TabPane key="all" tab="All">
-            <Table columns={columns} dataSource={dataSource} />
-          </Tabs.TabPane>
-          <Tabs.TabPane key="archived" tab="Archived">
-            <Table columns={columns} dataSource={dataSource} />
-          </Tabs.TabPane>
-        </Tabs>
+        <div>
+          <Tabs defaultActiveKey="all">
+            <Tabs.TabPane key="all" tab="All">
+              <Table columns={columns} dataSource={userFeedbacks} />
+            </Tabs.TabPane>
+            <Tabs.TabPane key="archived" tab="Archived">
+              <Table columns={columns} dataSource={userFeedbacks} />
+            </Tabs.TabPane>
+          </Tabs>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
