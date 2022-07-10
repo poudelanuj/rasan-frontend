@@ -122,39 +122,41 @@ const ViewReturnRequest = () => {
 
       <Divider />
 
-      <Form
-        layout="vertical"
-        onFinish={(values) => onStatusUpdate.mutate(values)}
-      >
-        <div className="flex items-end gap-3">
-          <Form.Item
-            initialValue={ticket?.status}
-            label="Ticket Status"
-            name="status"
-          >
-            <Select
-              defaultValue={ticket?.status}
-              placeholder="Select Status"
-              style={{ width: 200 }}
-              allowClear
+      {ticket && (
+        <Form
+          layout="vertical"
+          onFinish={(values) => onStatusUpdate.mutate(values)}
+        >
+          <div className="flex items-end gap-3">
+            <Form.Item
+              initialValue={ticket.status}
+              label="Ticket Status"
+              name="status"
             >
-              {TICKET_STATUS.map((status) => (
-                <Select.Option key={status} value={status}>
-                  {status.replaceAll("_", " ")}
-                </Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
+              <Select
+                defaultValue={ticket.status}
+                placeholder="Select Status"
+                style={{ width: 200 }}
+                allowClear
+              >
+                {TICKET_STATUS.map((status) => (
+                  <Select.Option key={status} value={status}>
+                    {status.replaceAll("_", " ")}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
 
-          <Form.Item>
-            <Space className="w-full flex justify-end">
-              <Button htmlType="submit" size="medium" type="primary">
-                Update
-              </Button>
-            </Space>
-          </Form.Item>
-        </div>
-      </Form>
+            <Form.Item>
+              <Space className="w-full flex justify-end">
+                <Button htmlType="submit" size="medium" type="primary">
+                  Update
+                </Button>
+              </Space>
+            </Form.Item>
+          </div>
+        </Form>
+      )}
     </>
   );
 };
