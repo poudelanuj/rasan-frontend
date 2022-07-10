@@ -107,7 +107,7 @@ const ViewReturnRequest = () => {
         <Descriptions.Item label="Description" span={2}>
           {ticket?.description}
         </Descriptions.Item>
-        <Descriptions.Item label="Status" span={2}>
+        <Descriptions.Item className="uppercase" label="Status" span={2}>
           <Tag color={getStatusColor(ticket?.status)}>
             {ticket?.status?.replaceAll("_", " ")}
           </Tag>

@@ -8,6 +8,7 @@ import { getUsers } from "../../../api/users";
 import {
   TICKET_STATUS,
   TICKET_TYPES,
+  TICKET_TYPE_CANCEL,
   TICKET_TYPE_RETURN,
 } from "../../../constants";
 import {
@@ -24,6 +25,7 @@ import {
 
 const EditSupportTicket = () => {
   const [selectedImage, setSelectedImage] = useState([]);
+  const [selectedType, setSelectedType] = useState("");
   const { Dragger } = Upload;
   const navigate = useNavigate();
   const { ticketId } = useParams();
@@ -160,20 +162,20 @@ const EditSupportTicket = () => {
                 </Select>
               </Form.Item>
 
-              <Form.Item label="Assigned to" name="assigned_to">
+              <Form.Item
+                initialValue={ticket?.assigned_to?.phone}
+                label="Assigned to"
+                name="assigned_to"
+              >
                 <Select
-                  initialValue={ticket?.assigned_to?.phone}
+                  defaultValue={ticket?.assigned_to?.phone}
                   loading={usersStatus === "loading"}
                   placeholder="Select Assigned To"
                   allowClear
                 >
                   {users &&
                     users.map((user) => (
-                      <Select.Option
-                        key={user.id}
-                        defaultValue={ticket?.assigned_to?.phone}
-                        value={user.phone}
-                      >
+                      <Select.Option key={user.id} value={user.phone}>
                         {user.full_name} {user.phone}
                       </Select.Option>
                     ))}
@@ -183,7 +185,12 @@ const EditSupportTicket = () => {
 
             <div
               className={`grid gap-2 grid-cols-${
-                searchParam.get("ticketType") === TICKET_TYPE_RETURN ? "3" : "2"
+                (searchParam.get("ticketType") === TICKET_TYPE_RETURN ||
+                  searchParam.get("ticketType") === TICKET_TYPE_CANCEL) &&
+                (selectedType === TICKET_TYPE_RETURN ||
+                  selectedType === TICKET_TYPE_CANCEL)
+                  ? "3"
+                  : "2"
               }`}
             >
               <Form.Item
@@ -215,6 +222,7 @@ const EditSupportTicket = () => {
                   defaultValue={ticket?.type}
                   placeholder="Select Type"
                   allowClear
+                  onChange={(value) => setSelectedType(value)}
                 >
                   {TICKET_TYPES.map((type) => (
                     <Select.Option key={type} value={type}>
@@ -224,8 +232,10 @@ const EditSupportTicket = () => {
                 </Select>
               </Form.Item>
 
-              {searchParam.get("ticketType") === TICKET_TYPE_RETURN &&
-                ticket?.order && (
+              {(searchParam.get("ticketType") === TICKET_TYPE_RETURN ||
+                searchParam.get("ticketType") === TICKET_TYPE_CANCEL) &&
+                (selectedType === TICKET_TYPE_RETURN ||
+                  selectedType === TICKET_TYPE_CANCEL) && (
                   <Form.Item
                     initialValue={ticket?.order}
                     label="Order"
