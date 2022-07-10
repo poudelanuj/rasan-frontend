@@ -1,15 +1,20 @@
-import { Upload, Form, Input, Select, Button, Space } from "antd";
+import { Upload, Form, Input, Select, Button, Space, Tag } from "antd";
 import { useState } from "react";
 import { useQuery, useMutation } from "react-query";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { createTicket, getTicket } from "../../../api/crm/tickets";
+import { getTicket, updateTicket } from "../../../api/crm/tickets";
+import { getOrders } from "../../../api/orders";
 import { getUsers } from "../../../api/users";
 import {
   TICKET_STATUS,
   TICKET_TYPES,
   TICKET_TYPE_RETURN,
 } from "../../../constants";
-import { GET_TICKET, GET_USERS } from "../../../constants/queryKeys";
+import {
+  GET_ORDERS,
+  GET_TICKET,
+  GET_USERS,
+} from "../../../constants/queryKeys";
 import Loader from "../../../shared/Loader";
 import CustomPageHeader from "../../../shared/PageHeader";
 import {
@@ -17,7 +22,7 @@ import {
   openSuccessNotification,
 } from "../../../utils/openNotification";
 
-const EditSupportTicket = ({ refetchTickets }) => {
+const EditSupportTicket = () => {
   const [selectedImage, setSelectedImage] = useState([]);
   const { Dragger } = Upload;
   const navigate = useNavigate();
@@ -38,6 +43,11 @@ const EditSupportTicket = ({ refetchTickets }) => {
   const { data: users, status: usersStatus } = useQuery({
     queryFn: () => getUsers(),
     queryKey: [GET_USERS],
+  });
+
+  const { data: orders, status: ordersStatus } = useQuery({
+    queryFn: () => getOrders(),
+    queryKey: [GET_ORDERS],
   });
 
   const { data: ticket, status: ticketStatus } = useQuery({
@@ -64,7 +74,7 @@ const EditSupportTicket = ({ refetchTickets }) => {
       if (selectedImage?.length)
         selectedImage.forEach((file) => formData.append("image", file));
 
-      return createTicket(formData);
+      return updateTicket(ticket?.id, formData);
     },
     {
       onSuccess: (data) => {
@@ -73,9 +83,6 @@ const EditSupportTicket = ({ refetchTickets }) => {
       },
       onError: (error) => {
         openErrorNotification(error);
-      },
-      onSettled: () => {
-        if (refetchTickets) refetchTickets();
       },
     }
   );
@@ -174,7 +181,11 @@ const EditSupportTicket = ({ refetchTickets }) => {
               </Form.Item>
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
+            <div
+              className={`grid gap-2 grid-cols-${
+                searchParam.get("ticketType") === TICKET_TYPE_RETURN ? "3" : "2"
+              }`}
+            >
               <Form.Item
                 initialValue={ticket?.status}
                 label="Ticket Status"
@@ -212,6 +223,34 @@ const EditSupportTicket = ({ refetchTickets }) => {
                   ))}
                 </Select>
               </Form.Item>
+
+              {searchParam.get("ticketType") === TICKET_TYPE_RETURN &&
+                ticket?.order && (
+                  <Form.Item
+                    initialValue={ticket?.order}
+                    label="Order"
+                    name="order"
+                    rules={[{ required: true, message: "order required" }]}
+                  >
+                    <Select
+                      defaultValue={ticket?.order}
+                      loading={ordersStatus === "loading"}
+                      placeholder="Select Order"
+                      allowClear
+                    >
+                      {orders &&
+                        orders.map((order) => (
+                          <Select.Option key={order.id} value={order.id}>
+                            <Space>
+                              <span className="text-blue-500">#{order.id}</span>
+                              <span>{order.user}</span>
+                              <Tag>{order.status.replaceAll("_", " ")}</Tag>
+                            </Space>
+                          </Select.Option>
+                        ))}
+                    </Select>
+                  </Form.Item>
+                )}
             </div>
 
             <div>
@@ -227,7 +266,7 @@ const EditSupportTicket = ({ refetchTickets }) => {
             <Form.Item>
               <Space className="w-full flex justify-end">
                 <Button htmlType="submit" size="large" type="primary">
-                  Create
+                  Save
                 </Button>
               </Space>
             </Form.Item>

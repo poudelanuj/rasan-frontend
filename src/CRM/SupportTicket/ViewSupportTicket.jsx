@@ -1,11 +1,25 @@
-import { Descriptions, Divider, Image, Tag, Button } from "antd";
+import {
+  Descriptions,
+  Divider,
+  Image,
+  Tag,
+  Button,
+  Select,
+  Form,
+  Space,
+} from "antd";
 import moment from "moment";
-import { useQuery } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { getTicket } from "../../api/crm/tickets";
+import { getTicket, updateTicket } from "../../api/crm/tickets";
+import { TICKET_STATUS } from "../../constants";
 import { GET_TICKET } from "../../constants/queryKeys";
 import Loader from "../../shared/Loader";
 import CustomPageHeader from "../../shared/PageHeader";
+import {
+  openErrorNotification,
+  openSuccessNotification,
+} from "../../utils/openNotification";
 import { getStatusColor } from "../shared/getTicketStatusColor";
 
 const ViewSupportTicket = () => {
@@ -14,15 +28,33 @@ const ViewSupportTicket = () => {
   const [searchParam] = useSearchParams();
   const pageHeaderPath = searchParam.get("path");
 
-  const { data: ticket, status } = useQuery({
+  const {
+    data: ticket,
+    status,
+    refetch,
+  } = useQuery({
     queryFn: () => getTicket(ticketId),
     queryKey: [GET_TICKET, ticketId],
     enabled: !!ticketId,
   });
 
+  const onStatusUpdate = useMutation(
+    (formValues) => {
+      return updateTicket(ticket?.id, { status: formValues["status"] });
+    },
+    {
+      onSuccess: (data) =>
+        openSuccessNotification(data.message || "Ticket Updated"),
+      onError: (error) => openErrorNotification(error),
+      onSettled: () => refetch(),
+    }
+  );
+
   return (
     <>
-      {status === "loading" && <Loader isOpen />}
+      {(status === "loading" || onStatusUpdate.status === "loading") && (
+        <Loader isOpen />
+      )}
 
       <div className="mt-4 flex items-center justify-between">
         <CustomPageHeader
@@ -73,6 +105,42 @@ const ViewSupportTicket = () => {
           {ticket?.initiator?.phone}
         </Descriptions.Item>
       </Descriptions>
+
+      <Divider />
+
+      <Form
+        layout="vertical"
+        onFinish={(values) => onStatusUpdate.mutate(values)}
+      >
+        <div className="flex items-end gap-3">
+          <Form.Item
+            initialValue={ticket?.status}
+            label="Ticket Status"
+            name="status"
+          >
+            <Select
+              defaultValue={ticket?.status}
+              placeholder="Select Status"
+              style={{ width: 200 }}
+              allowClear
+            >
+              {TICKET_STATUS.map((status) => (
+                <Select.Option key={status} value={status}>
+                  {status.replaceAll("_", " ")}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item>
+            <Space className="w-full flex justify-end">
+              <Button htmlType="submit" size="medium" type="primary">
+                Update
+              </Button>
+            </Space>
+          </Form.Item>
+        </div>
+      </Form>
     </>
   );
 };

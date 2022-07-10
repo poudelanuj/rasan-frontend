@@ -15,4 +15,9 @@ export const createTicket = async (data) => {
   return res.data;
 };
 
+export const updateTicket = async (id, data) => {
+  const res = await axios.put(`/api/crm/admin/ticket/${id}/`, data);
+  return res.data;
+};
+
 export default getAllTickets;
