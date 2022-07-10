@@ -10,4 +10,9 @@ export const getTicket = async (ticketId) => {
   return res.data.data;
 };
 
+export const createTicket = async (data) => {
+  const res = await axios.post("/api/crm/admin/tickets/", data);
+  return res.data;
+};
+
 export default getAllTickets;

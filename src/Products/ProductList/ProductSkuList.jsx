@@ -61,7 +61,12 @@ const columns = [
   },
 ];
 
-function ProductSkuList({ productSkus, productSlug }) {
+function ProductSkuList({
+  productSkus,
+  productSlug,
+  productBrand,
+  productCategory,
+}) {
   const navigate = useNavigate();
 
   return (
@@ -70,7 +75,11 @@ function ProductSkuList({ productSkus, productSlug }) {
         <h3 className="text-xl text-[#374253]">Product SKU List</h3>
         <Button
           type="primary"
-          onClick={() => navigate(`/product-sku/add?product=${productSlug}`)}
+          onClick={() => {
+            navigate(
+              `/product-sku/add?product=${productSlug}&&brand=${productBrand}&&category=${productCategory}`
+            );
+          }}
         >
           Create New Product SKU
         </Button>

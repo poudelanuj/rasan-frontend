@@ -1,1 +1,1 @@
-export { default } from "./SupportTicket";
+export { default } from "./SupportTicketList";

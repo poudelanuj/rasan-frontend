@@ -193,6 +193,7 @@ const AddProductSku = () => {
 
             <div className="grid grid-cols-2 gap-2">
               <Form.Item
+                initialValue={JSON.parse(searchParams.get("category") || "[]")}
                 label="Product Category"
                 name="category"
                 rules={[{ required: true, message: "category required" }]}
@@ -213,6 +214,7 @@ const AddProductSku = () => {
               </Form.Item>
 
               <Form.Item
+                initialValue={JSON.parse(searchParams.get("brand") || [""])}
                 label="Product Brand"
                 name="brand"
                 rules={[{ required: true, message: "brand required" }]}
