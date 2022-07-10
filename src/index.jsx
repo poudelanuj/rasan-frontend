@@ -32,12 +32,16 @@ import "antd/dist/antd.min.css";
 import EditProduct from "./Products/ProductList/Edit";
 import AddProductSku from "./Products/ProductSku/Add";
 import EditProductSku from "./Products/ProductSku/Edit";
-import SupportTicket from "./CRM/SupportTicket";
 import UserFeedbacks from "./CRM/UserFeedbacks";
 import StockEnquiry from "./CRM/StockEnquiry";
-import ReturnRequest from "./CRM/ReturnRequest";
 import ViewReturnRequest from "./CRM/ReturnRequest/ViewReturnRequest";
 import ViewSupportTicket from "./CRM/SupportTicket/ViewSupportTicket";
+import CreateSupportTicket from "./CRM/SupportTicket/CreateSupportTicket";
+import EditSupportTicket from "./CRM/SupportTicket/EditSupportTicket";
+import SupportTicketList from "./CRM/SupportTicket/SupportTicketList";
+import ReturnRequestList from "./CRM/ReturnRequest/ReturnRequestList";
+import CreateReturnTicket from "./CRM/ReturnRequest/CreateReturnTicket";
+import Notifications from "./Notifications";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const queryClient = new QueryClient();
@@ -121,17 +125,25 @@ root.render(
               <Route element={<LiveUserBasket />} path="live-user-basket" />
 
               <Route element={<CRM />} path="crm">
-                <Route element={<SupportTicket />} path="/crm">
-                  <Route element={<SupportTicket />} index />
+                <Route path="support-ticket">
+                  <Route element={<SupportTicketList />} index />
+                  <Route element={<CreateSupportTicket />} path="create" />
+                  <Route
+                    element={<EditSupportTicket />}
+                    path="edit/:ticketId"
+                  />
                   <Route element={<ViewSupportTicket />} path=":ticketId" />
                 </Route>
                 <Route path="return-request">
-                  <Route element={<ReturnRequest />} index />
+                  <Route element={<ReturnRequestList />} index />
+                  <Route element={<CreateReturnTicket />} path="create" />
                   <Route element={<ViewReturnRequest />} path=":ticketId" />
                 </Route>
                 <Route element={<StockEnquiry />} path="stock-enquiry" />
                 <Route element={<UserFeedbacks />} path="user-feedbacks" />
               </Route>
+
+              <Route element={<Notifications />} path="notifications" />
             </Route>
           </Routes>
         </React.StrictMode>

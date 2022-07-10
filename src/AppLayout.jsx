@@ -6,6 +6,7 @@ import {
   ShoppingOutlined,
   UsergroupAddOutlined,
   UserOutlined,
+  BellOutlined,
 } from "@ant-design/icons";
 import { Button, Dropdown, Layout, Menu } from "antd";
 import React from "react";
@@ -80,6 +81,11 @@ const sidebarItems = [
       { label: "Out of Stock Enquiry", key: "crm/stock-enquiry" },
       { label: "User Feedbacks", key: "crm/user-feedbacks" },
     ],
+  },
+  {
+    key: "notifications",
+    label: "Notifications",
+    icon: <BellOutlined />,
   },
 ];
 const AppLayout = () => {

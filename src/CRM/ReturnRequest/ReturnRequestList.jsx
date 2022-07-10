@@ -1,4 +1,4 @@
-import { Breadcrumb, Tabs, Table, Tag } from "antd";
+import { Breadcrumb, Tabs, Table, Tag, Button } from "antd";
 import { useEffect, useState } from "react";
 import moment from "moment";
 import { useNavigate } from "react-router-dom";
@@ -9,7 +9,7 @@ import { TICKET_TYPE_RETURN } from "../../constants";
 import Loader from "../../shared/Loader";
 import { getStatusColor } from "../shared/getTicketStatusColor";
 
-const ReturnRequest = () => {
+const ReturnRequestList = () => {
   const navigate = useNavigate();
 
   const [tickets, setTickets] = useState([]);
@@ -44,13 +44,15 @@ const ReturnRequest = () => {
     },
     {
       title: "Customer Name",
-      dataIndex: "user",
-      key: "user",
+      dataIndex: "initiator.full_name",
+      key: "full_name",
+      render: (_, { initiator }) => initiator?.full_name,
     },
     {
       title: "Phone Number",
-      dataIndex: "user",
-      key: "user",
+      dataIndex: "initiator.phone",
+      key: "initiator.phone",
+      render: (_, { initiator }) => initiator?.phone,
     },
     {
       title: "Requested Date",
@@ -82,7 +84,12 @@ const ReturnRequest = () => {
           </Breadcrumb.Item>
         </Breadcrumb>
 
-        <h2 className="text-2xl my-3">Return Request</h2>
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl my-3">Return Request</h2>
+          <Button type="primary" onClick={() => navigate("create")}>
+            Create Return Ticket
+          </Button>
+        </div>
 
         <div>
           <Tabs defaultActiveKey="all">
@@ -167,4 +174,4 @@ const ReturnRequest = () => {
   );
 };
 
-export default ReturnRequest;
+export default ReturnRequestList;

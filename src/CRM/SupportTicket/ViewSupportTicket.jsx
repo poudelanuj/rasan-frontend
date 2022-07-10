@@ -1,7 +1,7 @@
-import { Descriptions, Divider, Tag } from "antd";
+import { Descriptions, Divider, Image, Tag, Button } from "antd";
 import moment from "moment";
 import { useQuery } from "react-query";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { getTicket } from "../../api/crm/tickets";
 import { GET_TICKET } from "../../constants/queryKeys";
 import Loader from "../../shared/Loader";
@@ -9,6 +9,7 @@ import CustomPageHeader from "../../shared/PageHeader";
 import { getStatusColor } from "../shared/getTicketStatusColor";
 
 const ViewSupportTicket = () => {
+  const navigate = useNavigate();
   const { ticketId } = useParams();
   const [searchParam] = useSearchParams();
   const pageHeaderPath = searchParam.get("path");
@@ -23,21 +24,32 @@ const ViewSupportTicket = () => {
     <>
       {status === "loading" && <Loader isOpen />}
 
-      <div className="mt-4">
+      <div className="mt-4 flex items-center justify-between">
         <CustomPageHeader
           path={pageHeaderPath || "../"}
-          title={`Supoort Ticket #${ticketId}`}
+          title={`Support Ticket #${ticketId}`}
         />
+        <Button type="primary" onClick={() => navigate(`../edit/${ticketId}`)}>
+          Edit
+        </Button>
       </div>
       <div className="flex mt-5 font-medium justify-between items-center">
         <span>{moment(ticket?.created_at).format("MMMM Do YYYY, h:mm a")}</span>
-        <span>Order Id: #{ticket?.order}</span>
       </div>
       <Divider />
 
-      <div className="flex flex-wrap gap-5 p-5 w-fit border rounded bg-white">
-        <img alt="" className="h-[100px] rounded" src="/gallery-icon.svg" />
-        <img alt="" className="h-[100px] rounded" src="/rasan-default.png" />
+      <div className="flex flex-wrap gap-5 w-fit">
+        {ticket?.images?.map((image) => (
+          <div key={image} className="bg-white border rounded p-2 flex">
+            <Image height={100} src={image.image.thumbnail} />
+          </div>
+        ))}
+
+        {!ticket?.images?.length && (
+          <div className="p-2 border bg-white rounded">
+            <img alt="" className="h-[100px]" src="/rasan-default.png" />
+          </div>
+        )}
       </div>
 
       <Descriptions
@@ -55,10 +67,10 @@ const ViewSupportTicket = () => {
           <Tag color={getStatusColor(ticket?.status)}>{ticket?.status}</Tag>
         </Descriptions.Item>
         <Descriptions.Item label="Customer Name">
-          {ticket?.initiator}
+          {ticket?.initiator?.full_name}
         </Descriptions.Item>
         <Descriptions.Item label="Phone Number">
-          {ticket?.initiator}
+          {ticket?.initiator?.phone}
         </Descriptions.Item>
       </Descriptions>
     </>

@@ -191,6 +191,8 @@ function ViewProduct() {
               <Divider />
 
               <ProductSkuList
+                productBrand={JSON.stringify(product.brand)}
+                productCategory={JSON.stringify(product.category)}
                 productSkus={product.product_skus?.results}
                 productSlug={product.slug}
               />

@@ -25,3 +25,6 @@ export const GET_ALL_LOYALTIES = "all-loyalties";
 //* tickets
 export const GET_ALL_TICKETS = "all-tickets";
 export const GET_TICKET = "single-ticket";
+
+//* Users
+export const GET_USERS = "all-users";
