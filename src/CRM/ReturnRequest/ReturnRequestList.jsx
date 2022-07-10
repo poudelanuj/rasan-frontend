@@ -73,7 +73,9 @@ const ReturnRequestList = () => {
       dataIndex: "status",
       key: "status",
       render: (_, { status }) => (
-        <Tag color={getStatusColor(status)}>{status.replaceAll("_", " ")}</Tag>
+        <Tag className="uppercase" color={getStatusColor(status)}>
+          {status.replaceAll("_", " ")}
+        </Tag>
       ),
     },
   ];

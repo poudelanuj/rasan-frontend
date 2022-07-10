@@ -96,7 +96,7 @@ const ViewSupportTicket = () => {
           {ticket?.description}
         </Descriptions.Item>
         <Descriptions.Item label="Status" span={2}>
-          <Tag color={getStatusColor(ticket?.status)}>
+          <Tag className="uppercase" color={getStatusColor(ticket?.status)}>
             {ticket?.status?.replaceAll("_", " ")}
           </Tag>
         </Descriptions.Item>

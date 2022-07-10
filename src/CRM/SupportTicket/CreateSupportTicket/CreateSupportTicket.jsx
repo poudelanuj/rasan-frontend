@@ -1,16 +1,19 @@
-import { Upload, Form, Input, Select, Button, Space } from "antd";
+import { Upload, Form, Input, Select, Button, Space, Tag } from "antd";
 import { useState } from "react";
 import { useQuery, useMutation } from "react-query";
 import { useNavigate } from "react-router-dom";
 import { createTicket } from "../../../api/crm/tickets";
+import { getOrders } from "../../../api/orders";
 import { getUsers } from "../../../api/users";
 import {
   TICKET_STATUS,
   TICKET_STATUS_NEW,
   TICKET_TYPES,
+  TICKET_TYPE_CANCEL,
   TICKET_TYPE_GENERAL,
+  TICKET_TYPE_RETURN,
 } from "../../../constants";
-import { GET_USERS } from "../../../constants/queryKeys";
+import { GET_ORDERS, GET_USERS } from "../../../constants/queryKeys";
 import Loader from "../../../shared/Loader";
 import CustomPageHeader from "../../../shared/PageHeader";
 import {
@@ -20,6 +23,7 @@ import {
 
 const CreateSupportTicket = () => {
   const [selectedImage, setSelectedImage] = useState([]);
+  const [selectedType, setSelectedType] = useState("");
   const { Dragger } = Upload;
   const navigate = useNavigate();
 
@@ -37,6 +41,10 @@ const CreateSupportTicket = () => {
   const { data: users, status: usersStatus } = useQuery({
     queryFn: () => getUsers(),
     queryKey: [GET_USERS],
+  });
+  const { data: orders, status: ordersStatus } = useQuery({
+    queryFn: () => getOrders(),
+    queryKey: [GET_ORDERS],
   });
 
   const onFormSubmit = useMutation(
@@ -147,7 +155,14 @@ const CreateSupportTicket = () => {
               </Form.Item>
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
+            <div
+              className={`grid gap-2 grid-cols-${
+                selectedType === TICKET_TYPE_RETURN ||
+                selectedType === TICKET_TYPE_CANCEL
+                  ? "3"
+                  : "2"
+              }`}
+            >
               <Form.Item
                 initialValue={TICKET_STATUS_NEW}
                 label="Ticket Status"
@@ -177,6 +192,7 @@ const CreateSupportTicket = () => {
                   defaultValue={TICKET_TYPE_GENERAL}
                   placeholder="Select Type"
                   allowClear
+                  onChange={(value) => setSelectedType(value)}
                 >
                   {TICKET_TYPES.map((type) => (
                     <Select.Option key={type} value={type}>
@@ -185,6 +201,32 @@ const CreateSupportTicket = () => {
                   ))}
                 </Select>
               </Form.Item>
+
+              {(selectedType === TICKET_TYPE_RETURN ||
+                selectedType === TICKET_TYPE_CANCEL) && (
+                <Form.Item
+                  label="Order"
+                  name="order"
+                  rules={[{ required: true, message: "order required" }]}
+                >
+                  <Select
+                    loading={ordersStatus === "loading"}
+                    placeholder="Select Order"
+                    allowClear
+                  >
+                    {orders &&
+                      orders.map((order) => (
+                        <Select.Option key={order.id} value={order.id}>
+                          <Space>
+                            <span className="text-blue-500">#{order.id}</span>
+                            <span>{order.user}</span>
+                            <Tag>{order.status.replaceAll("_", " ")}</Tag>
+                          </Space>
+                        </Select.Option>
+                      ))}
+                  </Select>
+                </Form.Item>
+              )}
             </div>
 
             <div>

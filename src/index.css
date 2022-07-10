@@ -17,3 +17,11 @@
 .grid-cols-3 {
   grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
 }
+
+.ant-image-preview-img {
+  height: 80% !important;
+  position: absolute !important;
+  top: 10% !important;
+  left: 50% !important;
+  transform: translate(-50%, 0%) !important;
+}
