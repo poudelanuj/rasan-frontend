@@ -63,7 +63,9 @@ const CreateSupportTicket = () => {
         if (formValues[key]) formData.append(key, formValues[key]);
       });
       if (selectedImage?.length)
-        selectedImage.forEach((file) => formData.append("image", file));
+        selectedImage.forEach((file, index) =>
+          formData.append(`image${index + 1}`, file)
+        );
 
       return createTicket(formData);
     },
