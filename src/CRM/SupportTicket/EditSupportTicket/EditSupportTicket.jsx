@@ -1,5 +1,5 @@
 import { Upload, Form, Input, Select, Button, Space, Tag } from "antd";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "react-query";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { getTicket, updateTicket } from "../../../api/crm/tickets";
@@ -30,6 +30,12 @@ const EditSupportTicket = () => {
   const navigate = useNavigate();
   const { ticketId } = useParams();
   const [searchParam] = useSearchParams();
+
+  useEffect(() => {
+    const ticketType = searchParam.get("ticketType");
+    if (ticketType === TICKET_TYPE_RETURN || ticketType === TICKET_TYPE_CANCEL)
+      setSelectedType(TICKET_TYPE_RETURN);
+  }, [searchParam]);
 
   const fileUploadOptions = {
     maxCount: 6,
