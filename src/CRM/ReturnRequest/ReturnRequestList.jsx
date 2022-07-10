@@ -63,11 +63,17 @@ const ReturnRequestList = () => {
       },
     },
     {
+      title: "Assigned To",
+      dataIndex: "assigned_to",
+      key: "assigned_to",
+      render: (_, { assigned_to }) => assigned_to?.full_name || "",
+    },
+    {
       title: "Return Status",
       dataIndex: "status",
       key: "status",
       render: (_, { status }) => (
-        <Tag color={getStatusColor(status)}>{status}</Tag>
+        <Tag color={getStatusColor(status)}>{status.replaceAll("_", " ")}</Tag>
       ),
     },
   ];

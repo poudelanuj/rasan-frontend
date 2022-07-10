@@ -28,3 +28,6 @@ export const GET_TICKET = "single-ticket";
 
 //* Users
 export const GET_USERS = "all-users";
+
+// * Orders
+export const GET_ORDERS = "all-orders";

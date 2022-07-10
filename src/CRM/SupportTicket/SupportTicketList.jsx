@@ -68,15 +68,14 @@ const SupportTicketList = () => {
       title: "Assigned To",
       dataIndex: "assigned_to",
       key: "assigned_to",
-      render: (_, { assigned_to }) =>
-        `${assigned_to?.full_name || ""} ${assigned_to?.phone || ""}`,
+      render: (_, { assigned_to }) => assigned_to?.full_name || "",
     },
     {
       title: "Ticket Status",
       dataIndex: "status",
       key: "status",
       render: (_, { status }) => (
-        <Tag color={getStatusColor(status)}>{status}</Tag>
+        <Tag color={getStatusColor(status)}>{status.replaceAll("_", " ")}</Tag>
       ),
     },
   ];
