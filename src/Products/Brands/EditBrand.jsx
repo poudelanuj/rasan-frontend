@@ -8,7 +8,6 @@ import {
   unpublishBrand,
 } from "../../context/CategoryContext";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import { parseSlug } from "../../utility";
 
 import { Upload } from "antd";
 import { UploadOutlined, LoadingOutlined } from "@ant-design/icons";
@@ -16,6 +15,7 @@ import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../utils/openNotification";
+import { parseSlug } from "../../utils";
 
 const { Dragger } = Upload;
 

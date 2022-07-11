@@ -11,13 +11,13 @@ import {
 } from "../../context/CategoryContext";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 
-import { getDate, parseArray, parseSlug } from "../../utility";
 import SimpleAlert from "../alerts/SimpleAlert";
 import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../utils/openNotification";
 import Loader from "../subComponents/Loader";
+import { getDate, parseArray, parseSlug } from "../../utils";
 
 const { Option } = Select;
 
@@ -186,7 +186,7 @@ function TabAll({ slug }) {
     actionOn: "",
     icon: "",
   });
-  const { data, isLoading, isError, error } = useQuery(
+  const { data, isLoading } = useQuery(
     ["get-products-from-brand", slug],
     () => getProductsFromBrand({ slug }),
     {
@@ -352,8 +352,6 @@ function TabAll({ slug }) {
           <Table
             columns={columns}
             dataSource={data?.data?.data?.products.results}
-            rowKey="slug"
-            rowClassName="cursor-pointer"
             footer={() => (
               <div className="absolute bottom-0 left-0 flex justify-start bg-white w-[100%]">
                 <div className="mt-5">
@@ -378,6 +376,8 @@ function TabAll({ slug }) {
               </div>
             )}
             pagination={{ pageSize: entriesPerPage }}
+            rowClassName="cursor-pointer"
+            rowKey="slug"
             rowSelection={rowSelection}
             onRow={(record) => {
               return {

@@ -6,8 +6,8 @@ import { useQuery } from "react-query";
 import { getProductSKUs } from "../../context/CategoryContext";
 import AddCategoryButton from "../subComponents/AddCategoryButton";
 
-import { parseSlug } from "../../utility";
 import SimpleAlert from "../alerts/SimpleAlert";
+import { parseSlug } from "../../utils";
 
 const columns = [
   {

@@ -1,4 +1,4 @@
-import axios from "../../myaxios";
+import axios from "../../axios";
 
 const getAllStockEnquiries = async () => {
   const res = await axios.get("/api/crm/admin/notifications/");
