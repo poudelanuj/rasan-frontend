@@ -6,11 +6,11 @@ import { Table } from "antd";
 import AddCategoryButton from "../subComponents/AddCategoryButton";
 import { useQuery } from "react-query";
 
-import { parseSlug } from "../../utility";
 import Loader from "../../shared/Loader";
 import { GET_PAGINATED_PRODUCTS } from "../../constants/queryKeys";
 import { getPaginatedProducts } from "../../api/products";
 import { useEffect } from "react";
+import { parseSlug } from "../../utils";
 
 const columns = [
   {

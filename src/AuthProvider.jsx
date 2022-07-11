@@ -1,19 +1,19 @@
 import { useContext, useState } from "react";
 import { createContext } from "react";
-import { loggedInOrNot } from "./utility";
+import { isLoggedIn } from "./utils";
 
 let AuthContext = createContext(null);
 
 export default function AuthProvider({ children }) {
-  let [user, setUser] = useState(loggedInOrNot());
+  let [user, setUser] = useState(isLoggedIn());
   const loginFinalise = (token, callback) => {
     localStorage.setItem("auth_token", token);
-    setUser(loggedInOrNot());
+    setUser(isLoggedIn());
     callback();
   };
   const logout = () => {
     localStorage.removeItem("auth_token");
-    setUser(loggedInOrNot());
+    setUser(isLoggedIn());
   };
   let value = { user, loginFinalise, logout };
 

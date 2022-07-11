@@ -11,13 +11,13 @@ import {
 } from "../../context/CategoryContext";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 
-import { parseArray, parseSlug } from "../../utility";
 import SimpleAlert from "../alerts/SimpleAlert";
 import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../utils/openNotification";
 import Loader from "../subComponents/Loader";
+import { parseArray, parseSlug } from "../../utils";
 
 const { Option } = Select;
 
@@ -326,7 +326,6 @@ function TabSKU({ slug }) {
           <Table
             columns={columns}
             dataSource={data?.data?.data?.product_skus.results}
-            rowKey="slug"
             footer={() => (
               <div className="absolute bottom-0 left-0 flex justify-start bg-white w-[100%]">
                 <div className="mt-5">
@@ -352,8 +351,9 @@ function TabSKU({ slug }) {
               </div>
             )}
             pagination={{ pageSize: entriesPerPage }}
-            rowSelection={rowSelection}
             rowClassName="cursor-pointer"
+            rowKey="slug"
+            rowSelection={rowSelection}
             onRow={(record) => {
               return {
                 onClick: (_) => {

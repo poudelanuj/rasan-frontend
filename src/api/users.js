@@ -1,4 +1,4 @@
-import axios from "../myaxios";
+import axios from "../axios";
 
 export const getUsers = async () => {
   const res = await axios.get("/api/profile/admin/user-list/");

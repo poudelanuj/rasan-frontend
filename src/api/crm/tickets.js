@@ -1,4 +1,4 @@
-import axios from "../../myaxios";
+import axios from "../../axios";
 
 const getAllTickets = async () => {
   const res = await axios.get("/api/crm/admin/tickets/");

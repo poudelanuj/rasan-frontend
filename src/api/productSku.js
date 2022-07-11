@@ -1,4 +1,4 @@
-import axios from "../myaxios";
+import axios from "../axios";
 
 export const getAllProductSkus = async () => {
   const res = await axios.get("/api/product/admin/product-skus/");

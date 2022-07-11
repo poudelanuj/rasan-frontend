@@ -6,7 +6,6 @@ import {
   getProductGroup,
   updateProductSKU,
 } from "../../context/CategoryContext";
-import { getDate, parseArray } from "../../utility";
 import SimpleAlert from "../alerts/SimpleAlert";
 import { noImageImage } from "../constants";
 import EditProductGroup from "./EditProductGroup";
@@ -18,6 +17,7 @@ import {
 } from "../../utils/openNotification";
 import { getAllProductSkus } from "../../api/productSku";
 import { GET_ALL_PRODUCT_SKUS } from "../../constants/queryKeys";
+import { getDate, parseArray } from "../../utils";
 const { Option } = Select;
 
 function ViewProductGroup() {
@@ -57,7 +57,7 @@ function ViewProductGroup() {
     useQuery(["get-product-group", slug], () => getProductGroup({ slug }), {
       onSuccess: (data) => {
         let newData = data.data.data;
-        newData.product_skus.results.map((productSku, index) => {
+        newData.product_skus.results.forEach((productSku) => {
           productSku["key"] = productSku.slug;
         });
         setProductGroup(newData);
@@ -106,12 +106,10 @@ function ViewProductGroup() {
     });
   };
 
-  const { data: productSkus, status: productSkusStatus } = useQuery({
+  const { data: productSkus } = useQuery({
     queryFn: () => getAllProductSkus(),
     queryKey: GET_ALL_PRODUCT_SKUS,
   });
-
-  console.log("productSkus", productSkus);
 
   const navigate = useNavigate();
 
@@ -170,8 +168,8 @@ function ViewProductGroup() {
         return (
           <div className="flex items-center">
             <button
-              type="button"
               className="text-red-500 text-xl p-4 flex items-center justify-center"
+              type="button"
               onClick={() => {
                 return setAlert({
                   show: true,
@@ -223,6 +221,8 @@ function ViewProductGroup() {
               <div className="flex justify-start relative">
                 <div className="w-[150px] h-[150px]">
                   <img
+                    alt="product"
+                    className="w-[100%] h-[100%] object-cover"
                     src={
                       productGroup.product_group_image.full_size ||
                       productGroup.product_group_image.medium_square_crop ||
@@ -230,8 +230,6 @@ function ViewProductGroup() {
                       productGroup.product_group_image.thumbnail ||
                       noImageImage
                     }
-                    alt="product"
-                    className="w-[100%] h-[100%] object-cover"
                   />
                 </div>
                 <div className="ml-5 items-center">
@@ -244,8 +242,8 @@ function ViewProductGroup() {
                 </div>
                 <div className="absolute top-0 right-0">
                   <Link
-                    to={"edit"}
                     className="text-[#00A0B0] hover:bg-[#d4e4e6] py-2 px-6"
+                    to={"edit"}
                   >
                     <EditOutlined style={{ verticalAlign: "middle" }} /> Edit
                     Details
@@ -325,13 +323,13 @@ function ViewProductGroup() {
                 <div>
                   <form>
                     <Select
-                      showSearch
+                      placeholder={`Add Product SKU to ${productGroup.name}`}
                       style={{
                         width: 400,
                         marginTop: "1rem",
                       }}
                       value={selectedProductSku}
-                      placeholder={`Add Product SKU to ${productGroup.name}`}
+                      showSearch
                       onChange={(value) => addProductSKUToGroup(value)}
                     >
                       {productSkus
@@ -340,7 +338,7 @@ function ViewProductGroup() {
                             !productSKU.product_group.includes(slug)
                         )
                         .map((productSKU) => (
-                          <Option value={productSKU.slug} key={productSKU.slug}>
+                          <Option key={productSKU.slug} value={productSKU.slug}>
                             {productSKU.name}
                           </Option>
                         ))}

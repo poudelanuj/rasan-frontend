@@ -11,7 +11,7 @@ import {
 import { GET_PRODUCT_SKU } from "../constants/queryKeys";
 import Loader from "../shared/Loader";
 import CustomPageHeader from "../shared/PageHeader";
-import { parseSlug } from "../utility";
+import { parseSlug } from "../utils";
 import {
   openErrorNotification,
   openSuccessNotification,
