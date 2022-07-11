@@ -8,12 +8,12 @@ import {
   getBasketInfo,
   getProductSkus,
   getUserInfo,
-} from "../context/OrdersContext";
-import CreateOrder from "../Orders/components/CreateOrder";
+} from "../../context/OrdersContext";
+import CreateOrder from "../../Orders/components/CreateOrder";
 import {
   openErrorNotification,
   openSuccessNotification,
-} from "../utils/openNotification";
+} from "../../utils/openNotification";
 
 const BasketModal = ({ isModalOpen, onClose, basket }) => {
   const { user, basket_id } = basket;
