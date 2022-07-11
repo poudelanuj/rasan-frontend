@@ -214,7 +214,7 @@ const AddProductSku = () => {
               </Form.Item>
 
               <Form.Item
-                initialValue={JSON.parse(searchParams.get("brand") || [""])}
+                initialValue={JSON.parse(searchParams.get("brand") || "[]")}
                 label="Product Brand"
                 name="brand"
                 rules={[{ required: true, message: "brand required" }]}
