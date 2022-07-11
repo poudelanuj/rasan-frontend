@@ -1,6 +1,6 @@
 import { Spin } from "antd";
 import { useQuery } from "react-query";
-import { getBasketInfo } from "../context/OrdersContext";
+import { getBasketInfo } from "../../context/OrdersContext";
 
 const BasketInfo = ({ basketId }) => {
   const { data, status } = useQuery({

@@ -1,4 +1,4 @@
-import { COMING_SOON_IMAGE } from "../constants";
+import { COMING_SOON_IMAGE } from "../../constants";
 
 const Notifications = () => {
   return (
