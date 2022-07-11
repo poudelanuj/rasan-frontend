@@ -1,5 +1,4 @@
 import {
-  AppstoreOutlined,
   CustomerServiceOutlined,
   ShopOutlined,
   ShoppingCartOutlined,
@@ -8,7 +7,7 @@ import {
   UserOutlined,
   BellOutlined,
 } from "@ant-design/icons";
-import { Button, Dropdown, Layout, Menu } from "antd";
+import { Dropdown, Layout, Menu } from "antd";
 import React from "react";
 import { useQuery } from "react-query";
 import { Outlet, useNavigate } from "react-router-dom";
@@ -107,18 +106,23 @@ const AppLayout = () => {
         <Logo />
         <div className="w-12 h-12 rounded-full text-center text-3xl align-middle text-white">
           <Dropdown overlay={() => headerItem(logout)} arrow>
-            <a href="null" onClick={(e) => e.preventDefault()}>
-              {isSuccess && userInfo.profile_picture && (
-                <img
-                  alt={userInfo.full_name[0]}
-                  className="rounded-full w-12 h-12"
-                  src={userInfo.profile_picture.thumbnail}
-                />
+            <div className="cursor-pointer" onClick={(e) => e.preventDefault()}>
+              {isSuccess && (
+                <>
+                  {userInfo?.profile_picture?.thumbnail ? (
+                    <img
+                      alt={userInfo?.full_name?.[0]}
+                      className="rounded-full w-12 h-12"
+                      src={userInfo?.profile_picture?.thumbnail}
+                    />
+                  ) : (
+                    <UserOutlined />
+                  )}
+                </>
               )}
-            </a>
+            </div>
           </Dropdown>
         </div>
-        {/* <div className="logo" /> */}
       </Header>
       <Layout>
         <Sider width={200}>
@@ -142,11 +146,7 @@ const AppLayout = () => {
           }}
         >
           <Content
-            // className="site-layout-background"
             style={{
-              // padding: 24,
-              // backgroundColor: "white",
-              // margin: 0,
               minHeight: 280,
             }}
           >
