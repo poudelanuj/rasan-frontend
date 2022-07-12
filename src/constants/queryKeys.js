@@ -31,3 +31,6 @@ export const GET_USERS = "all-users";
 
 // * Orders
 export const GET_ORDERS = "all-orders";
+
+//* Baskets
+export const GET_BASKETS = "all-baskets";

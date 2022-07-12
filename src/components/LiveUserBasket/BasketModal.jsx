@@ -7,7 +7,6 @@ import {
   deleteBasketItem,
   getBasketInfo,
   getProductSkus,
-  getUserInfo,
 } from "../../context/OrdersContext";
 import CreateOrder from "../../Orders/components/CreateOrder";
 import {
@@ -24,12 +23,6 @@ const BasketModal = ({ isModalOpen, onClose, basket }) => {
   const [selectedProductSku, setSelectedSku] = useState();
   const [selectedProductPack, setSelectedPack] = useState();
   const [quantity, setQuantity] = useState(1);
-
-  const { data: userData, status: userStatus } = useQuery({
-    queryFn: () => getUserInfo(user),
-    queryKey: ["getUserInfo", user],
-    enabled: !!user,
-  });
 
   const {
     data: basketData,
@@ -188,9 +181,7 @@ const BasketModal = ({ isModalOpen, onClose, basket }) => {
       ]}
       title={
         <>
-          {userStatus === "loading" && <Spin size="small" />}
-          {userStatus === "success" &&
-            `${userData?.full_name || ""} ${userData?.phone || ""}`}
+          {basket?.user?.full_name || ""} {basket?.user?.phone || ""}
         </>
       }
       visible={isModalOpen}
