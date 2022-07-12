@@ -106,20 +106,17 @@ const AppLayout = () => {
         <Logo />
         <div className="w-12 h-12 rounded-full text-center text-3xl align-middle text-white">
           <Dropdown overlay={() => headerItem(logout)} arrow>
-            <div className="cursor-pointer" onClick={(e) => e.preventDefault()}>
-              {isSuccess && (
-                <>
-                  {userInfo?.profile_picture?.thumbnail ? (
-                    <img
-                      alt={userInfo?.full_name?.[0]}
-                      className="rounded-full w-12 h-12"
-                      src={userInfo?.profile_picture?.thumbnail}
-                    />
-                  ) : (
-                    <UserOutlined />
-                  )}
-                </>
-              )}
+            <div className="cursor-pointer">
+              {isSuccess &&
+                (userInfo?.profile_picture?.thumbnail ? (
+                  <img
+                    alt={userInfo?.full_name?.[0]}
+                    className="rounded-full w-12 h-12"
+                    src={userInfo?.profile_picture?.thumbnail}
+                  />
+                ) : (
+                  <UserOutlined />
+                ))}
             </div>
           </Dropdown>
         </div>
