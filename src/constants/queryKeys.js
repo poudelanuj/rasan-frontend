@@ -34,3 +34,6 @@ export const GET_ORDERS = "all-orders";
 
 //* Baskets
 export const GET_BASKETS = "all-baskets";
+
+// * Notifications
+export const GET_NOTIFICATIONS = "all-notifications";
