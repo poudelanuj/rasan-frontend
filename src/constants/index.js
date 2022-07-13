@@ -36,3 +36,5 @@ export const TICKET_TYPES = [
   TICKET_TYPE_CANCEL,
   TICKET_TYPE_OTHER,
 ];
+
+export const NOTIFICATION_STATUS = ["pending"];
