@@ -1,12 +1,14 @@
-import { Table, Tag } from "antd";
+import { Button, Table, Tag } from "antd";
 import { useState } from "react";
 import { useQuery } from "react-query";
 import { getAllNotifications } from "../../api/notifications";
 import { GET_NOTIFICATIONS } from "../../constants/queryKeys";
+import CreateNotification from "./CreateNotification";
 import ViewNotification from "./ViewNotification";
 
 const Notifications = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedNotification, setSelected] = useState();
 
   const { data: notifications, status } = useQuery({
@@ -45,24 +47,31 @@ const Notifications = () => {
       render: (_, { status }) =>
         status ? <Tag color="green">YES</Tag> : <Tag color="orange">NO</Tag>,
     },
-    {
-      title: "Total Notification Sent",
-      dataIndex: "total_notification",
-      key: "total_notification",
-    },
   ];
 
   return (
     <div className="py-5">
       <ViewNotification
-        isOpen={isModalOpen}
+        isOpen={isViewModalOpen}
         notification={selectedNotification}
         onClose={() => {
-          setIsModalOpen(false);
+          setIsViewModalOpen(false);
         }}
       />
 
-      <h2 className="text-2xl">Notifications</h2>
+      <CreateNotification
+        isOpen={isCreateModalOpen}
+        onClose={() => {
+          setIsCreateModalOpen(false);
+        }}
+      />
+
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl">Notifications</h2>
+        <Button type="primary" onClick={() => setIsCreateModalOpen(true)}>
+          Create New Notification
+        </Button>
+      </div>
       <div className="my-5">
         <Table
           columns={columns}
@@ -76,7 +85,7 @@ const Notifications = () => {
           onRow={(record) => {
             return {
               onClick: () => {
-                setIsModalOpen(true);
+                setIsViewModalOpen(true);
                 setSelected(record);
               },
             };
