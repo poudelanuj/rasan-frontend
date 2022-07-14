@@ -12,3 +12,8 @@ export const updateNotification = async (notificationId, data) => {
   );
   return res.data;
 };
+
+export const createNotification = async (data) => {
+  const res = await axios.post("/api/notification/admin/notifications/", data);
+  return res.data;
+};

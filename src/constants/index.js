@@ -37,4 +37,11 @@ export const TICKET_TYPES = [
   TICKET_TYPE_OTHER,
 ];
 
-export const NOTIFICATION_STATUS = ["pending"];
+export const NOTIFICATION_STATUS = ["pending", "seen", "clicked"];
+export const NOTIFICATION_TYPES = [
+  "offer",
+  "info",
+  "notice",
+  "order_received",
+  "order_fulfilled",
+];
