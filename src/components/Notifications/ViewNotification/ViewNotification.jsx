@@ -4,14 +4,14 @@ import {
   Divider,
   Form,
   Modal,
-  Select,
   Space,
+  Card,
   Tag,
 } from "antd";
 import { useState } from "react";
 import { useMutation } from "react-query";
-import { updateNotification } from "../../../api/notifications";
-import { NOTIFICATION_STATUS } from "../../../constants";
+import { dispatchNotification } from "../../../api/notifications";
+import { colors } from "../../../constants";
 import {
   openErrorNotification,
   openSuccessNotification,
@@ -21,15 +21,13 @@ import EditNotification from "../EditNotification";
 const ViewNotification = ({ notification, isOpen, onClose }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  const onStatusUpdate = useMutation(
-    (formValues) => {
-      return updateNotification(notification?.id, {
-        status: formValues["status"],
-      });
+  const onDispatch = useMutation(
+    () => {
+      return dispatchNotification(notification.id);
     },
     {
       onSuccess: (data) =>
-        openSuccessNotification(data.message || "Notification Updated"),
+        openSuccessNotification(data.message || "Notification Dispatched"),
       onError: (error) => openErrorNotification(error),
     }
   );
@@ -53,12 +51,51 @@ const ViewNotification = ({ notification, isOpen, onClose }) => {
         width={1000}
         onCancel={onClose}
       >
+        <div className="w-full flex gap-4 mb-8">
+          <Card
+            bodyStyle={{
+              backgroundColor: colors.notification_sent,
+              borderRadius: 8,
+            }}
+            bordered={false}
+            className="rounded grow bg-blue-400"
+          >
+            <h3 className="text-2xl">{notification?.metrics?.sent_count}</h3>
+            <h5>Sent Notifications</h5>
+          </Card>
+
+          <Card
+            bodyStyle={{
+              backgroundColor: colors.notification_clicked,
+              borderRadius: 8,
+            }}
+            bordered={false}
+            className="rounded grow"
+          >
+            <h3 className="text-2xl">{notification?.metrics?.clicked_count}</h3>
+            <h5>Clicked Notifications</h5>
+          </Card>
+
+          <Card
+            bodyStyle={{
+              backgroundColor: colors.notification_seen,
+              borderRadius: 8,
+            }}
+            bordered={false}
+            className="rounded grow"
+          >
+            <h3 className="text-2xl">{notification?.metrics?.seen_count}</h3>
+            <h5>Seen Notifications</h5>
+          </Card>
+        </div>
+
         {notification && (
           <Descriptions
             column={2}
             title={
               <div className="flex justify-between items-center">
                 <h3>Notification Details</h3>
+
                 <Button type="primary" onClick={() => setIsEditModalOpen(true)}>
                   Edit
                 </Button>
@@ -68,22 +105,17 @@ const ViewNotification = ({ notification, isOpen, onClose }) => {
             <Descriptions.Item label="Title" span={2}>
               {notification.title}
             </Descriptions.Item>
-            <Descriptions.Item label="Type">
+            <Descriptions.Item label="Type" span={1}>
               {notification.type.replaceAll("_", " ").toUpperCase()}
             </Descriptions.Item>
-            <Descriptions.Item label="Status">
-              {notification.status.replaceAll("_", " ").toUpperCase()}
-            </Descriptions.Item>
-            <Descriptions.Item label="User">
-              {notification.user?.user}
-            </Descriptions.Item>
-            <Descriptions.Item label="Seen">
-              {notification.seen ? (
-                <Tag color="green">YES</Tag>
+            <Descriptions.Item label="Dispatch Info" span={1}>
+              {notification.is_dispatched ? (
+                <Tag color="green">Dispatched</Tag>
               ) : (
-                <Tag color="orange">NO</Tag>
+                <Tag color="red">Not Dispatched</Tag>
               )}
             </Descriptions.Item>
+
             <Descriptions.Item label="Description" span={2}>
               {notification.content}
             </Descriptions.Item>
@@ -93,38 +125,15 @@ const ViewNotification = ({ notification, isOpen, onClose }) => {
         <Divider />
 
         {notification && (
-          <Form
-            layout="vertical"
-            onFinish={(values) => onStatusUpdate.mutate(values)}
-          >
-            <div className="flex items-end gap-3">
-              <Form.Item
-                initialValue={notification.status}
-                label="Notification Status"
-                name="status"
-              >
-                <Select
-                  defaultValue={notification.status}
-                  placeholder="Select Status"
-                  style={{ width: 200 }}
-                  allowClear
-                >
-                  {NOTIFICATION_STATUS.map((status) => (
-                    <Select.Option key={status} value={status}>
-                      {status.replaceAll("_", " ")}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item>
-
-              <Form.Item>
-                <Space className="w-full flex justify-end">
-                  <Button htmlType="submit" size="medium" type="primary">
-                    Update
-                  </Button>
-                </Space>
-              </Form.Item>
-            </div>
+          <Form layout="vertical" onFinish={() => onDispatch.mutate()}>
+            <Form.Item>
+              <Space className="w-full flex justify-end">
+                <Button onClick={onClose}>Close</Button>
+                <Button htmlType="submit" size="medium" type="primary">
+                  Dispatch
+                </Button>
+              </Space>
+            </Form.Item>
           </Form>
         )}
       </Modal>

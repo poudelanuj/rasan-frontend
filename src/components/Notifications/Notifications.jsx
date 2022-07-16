@@ -1,8 +1,8 @@
-import { Button, Table, Tag } from "antd";
+import { Button, Table } from "antd";
 import { useState } from "react";
 import { useQuery } from "react-query";
-import { getAllNotifications } from "../../api/notifications";
-import { GET_NOTIFICATIONS } from "../../constants/queryKeys";
+import { getNotificationGroups } from "../../api/notifications";
+import { GET_NOTIFICATION_GROUPS } from "../../constants/queryKeys";
 import CreateNotification from "./CreateNotification";
 import ViewNotification from "./ViewNotification";
 
@@ -12,8 +12,8 @@ const Notifications = () => {
   const [selectedNotification, setSelected] = useState();
 
   const { data: notifications, status } = useQuery({
-    queryFn: () => getAllNotifications(),
-    queryKey: GET_NOTIFICATIONS,
+    queryFn: () => getNotificationGroups(),
+    queryKey: GET_NOTIFICATION_GROUPS,
   });
 
   const columns = [
@@ -35,17 +35,10 @@ const Notifications = () => {
       render: (text) => text.replaceAll("_", " ").toUpperCase(),
     },
     {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-      render: (text) => text.replaceAll("_", " ").toUpperCase(),
-    },
-    {
-      title: "Seen",
-      dataIndex: "status",
-      key: "status",
-      render: (_, { status }) =>
-        status ? <Tag color="green">YES</Tag> : <Tag color="orange">NO</Tag>,
+      title: "Total Notification Sent",
+      dataIndex: "sent_count",
+      key: "sent_count",
+      render: (_, { metrics }) => metrics?.sent_count,
     },
   ];
 
