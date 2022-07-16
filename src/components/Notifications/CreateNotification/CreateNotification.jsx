@@ -1,11 +1,13 @@
 import { Button, Form, Input, Modal, Select, Space } from "antd";
 import { useState } from "react";
-import { useMutation } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import { createNotification } from "../../../api/notifications";
+import { getUserGroups } from "../../../api/userGroups";
 import {
   NOTIFICATION_DESTINATION_TYPES,
   NOTIFICATION_TYPES,
 } from "../../../constants";
+import { GET_USER_GROUPS } from "../../../constants/queryKeys";
 import {
   openErrorNotification,
   openSuccessNotification,
@@ -13,6 +15,11 @@ import {
 
 const CreateNotification = ({ isOpen, onClose }) => {
   const [selectedNotificationType, setSelectedNotificationType] = useState();
+
+  const { data: userGroups, status: userGroupStatus } = useQuery(
+    GET_USER_GROUPS,
+    getUserGroups
+  );
 
   const onFormSubmit = useMutation(
     (formValues) => {
@@ -48,8 +55,8 @@ const CreateNotification = ({ isOpen, onClose }) => {
         <div
           className={`grid gap-2 grid-cols-${
             NOTIFICATION_DESTINATION_TYPES.includes(selectedNotificationType)
-              ? "2"
-              : "1"
+              ? "3"
+              : "2"
           }`}
         >
           <Form.Item label="Notification Type" name="type">
@@ -73,6 +80,21 @@ const CreateNotification = ({ isOpen, onClose }) => {
               <Input />
             </Form.Item>
           )}
+
+          <Form.Item label="User Groups" name="user_groups">
+            <Select
+              loading={userGroupStatus === "loading"}
+              mode="multiple"
+              placeholder="Select User Group"
+              allowClear
+            >
+              {userGroups?.map((group) => (
+                <Select.Option key={group.id} value={group.id}>
+                  {group.name}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
         </div>
 
         <Form.Item>

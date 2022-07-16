@@ -1,4 +1,4 @@
-import { Avatar, Card, Space } from "antd";
+import { Avatar, Card } from "antd";
 import React from "react";
 import { useQuery } from "react-query";
 import { colors } from "../../constants";
