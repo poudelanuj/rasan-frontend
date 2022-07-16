@@ -1,5 +1,9 @@
 const colors = {
   primary: "#00A0B0",
+  light: "#F6FAFF",
+  notification_sent: "#9EEAEC",
+  notification_clicked: "#A3C1FB",
+  notification_seen: "#FFEAAC",
 };
 const siteInformation = {
   base_url: "http://159.65.145.153:8000",
@@ -40,8 +44,9 @@ export const TICKET_TYPES = [
 export const NOTIFICATION_STATUS = ["pending", "seen", "clicked"];
 export const NOTIFICATION_TYPES = [
   "offer",
-  "info",
+  "general_info",
   "notice",
-  "order_received",
-  "order_fulfilled",
+  "user_business_intelligence",
+  "market_intelligence",
 ];
+export const NOTIFICATION_DESTINATION_TYPES = ["offer", "notice"];

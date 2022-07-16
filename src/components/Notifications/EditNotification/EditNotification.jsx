@@ -1,13 +1,23 @@
 import { Button, Form, Input, Modal, Select, Space } from "antd";
+import { useState, useEffect } from "react";
 import { useMutation } from "react-query";
 import { updateNotification } from "../../../api/notifications";
-import { NOTIFICATION_STATUS, NOTIFICATION_TYPES } from "../../../constants";
+import {
+  NOTIFICATION_DESTINATION_TYPES,
+  NOTIFICATION_TYPES,
+} from "../../../constants";
 import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../../utils/openNotification";
 
 const EditNotification = ({ notification, isOpen, onClose }) => {
+  const [selectedNotificationType, setSelectedNotificationType] = useState();
+
+  useEffect(() => {
+    setSelectedNotificationType(notification.type);
+  }, [notification]);
+
   const onFormSubmit = useMutation(
     (formValues) => {
       return updateNotification(notification?.id, formValues);
@@ -52,7 +62,13 @@ const EditNotification = ({ notification, isOpen, onClose }) => {
             <Input.TextArea defaultValue={notification.content} rows={3} />
           </Form.Item>
 
-          <div className="grid gap-2 grid-cols-2">
+          <div
+            className={`grid gap-2 grid-cols-${
+              NOTIFICATION_DESTINATION_TYPES.includes(selectedNotificationType)
+                ? "2"
+                : "1"
+            }`}
+          >
             <Form.Item
               initialValue={notification.type}
               label="Notification Type"
@@ -62,6 +78,7 @@ const EditNotification = ({ notification, isOpen, onClose }) => {
                 defaultValue={notification.type}
                 placeholder="Select Type"
                 allowClear
+                onChange={(value) => setSelectedNotificationType(value)}
               >
                 {NOTIFICATION_TYPES.map((type) => (
                   <Select.Option key={type} value={type}>
@@ -70,23 +87,17 @@ const EditNotification = ({ notification, isOpen, onClose }) => {
                 ))}
               </Select>
             </Form.Item>
-            <Form.Item
-              initialValue={notification.status}
-              label="Notification Status"
-              name="status"
-            >
-              <Select
-                defaultValue={notification.status}
-                placeholder="Select Status"
-                allowClear
+            {NOTIFICATION_DESTINATION_TYPES.includes(
+              selectedNotificationType
+            ) && (
+              <Form.Item
+                initialValue={notification.destination_id}
+                label="Destination"
+                name="destination_id"
               >
-                {NOTIFICATION_STATUS.map((status) => (
-                  <Select.Option key={status} value={status}>
-                    {status.replaceAll("_", " ")}
-                  </Select.Option>
-                ))}
-              </Select>
-            </Form.Item>
+                <Input defaultValue={notification.destination_id} />
+              </Form.Item>
+            )}
           </div>
 
           <Form.Item>
