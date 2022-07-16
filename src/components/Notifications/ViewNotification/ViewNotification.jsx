@@ -129,7 +129,12 @@ const ViewNotification = ({ notification, isOpen, onClose }) => {
             <Form.Item>
               <Space className="w-full flex justify-end">
                 <Button onClick={onClose}>Close</Button>
-                <Button htmlType="submit" size="medium" type="primary">
+                <Button
+                  disabled={notification.is_dispatched}
+                  htmlType="submit"
+                  size="medium"
+                  type="primary"
+                >
                   Dispatch
                 </Button>
               </Space>

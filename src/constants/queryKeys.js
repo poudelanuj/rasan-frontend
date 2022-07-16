@@ -29,6 +29,9 @@ export const GET_TICKET = "single-ticket";
 //* Users
 export const GET_USERS = "all-users";
 
+// * User Groups
+export const GET_USER_GROUPS = "all-user-groups";
+
 // * Orders
 export const GET_ORDERS = "all-orders";
 
