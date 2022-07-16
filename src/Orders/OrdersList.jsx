@@ -25,7 +25,13 @@ import {
 import { CANCELLED, DELIVERED, IN_PROCESS } from "../constants";
 import DeleteOrder from "./components/DeleteOrder";
 
-const OrdersList = ({ dataSource, status, refetchOrders }) => {
+const OrdersList = ({
+  dataSource,
+  status,
+  refetchOrders,
+  showHeaderButtons = true,
+  showActions = true,
+}) => {
   const searchInput = useRef(null);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [isCreateOrderOpen, setIsCreateOrderOpen] = useState(false);
@@ -270,41 +276,42 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
 
   return (
     <div className="">
-      <div className="mb-4 flex justify-between">
-        <Button
-          className="flex items-center"
-          type="primary"
-          ghost
-          onClick={() => {
-            setIsCreateOrderOpen((prev) => !prev);
-          }}
-        >
-          Create New Order
-        </Button>
-
-        <div>
-          <Dropdown overlay={bulkMenu}>
-            <Button className="bg-white" type="default">
-              <Space>Bulk Actions</Space>
-            </Button>
-          </Dropdown>
-
-          <Button className="ml-4 bg-cyan-500 text-white" type="default">
-            <Space>Export</Space>
+      {showHeaderButtons && (
+        <div className="mb-4 flex justify-between">
+          <Button
+            className="flex items-center"
+            type="primary"
+            ghost
+            onClick={() => {
+              setIsCreateOrderOpen((prev) => !prev);
+            }}
+          >
+            Create New Order
           </Button>
-        </div>
-      </div>
 
-      {status === "loading" && (
-        <div className="w-full py-10 bg-white flex justify-center">
-          <Spin />
+          <div>
+            <Dropdown overlay={bulkMenu}>
+              <Button className="bg-white" type="default">
+                <Space>Bulk Actions</Space>
+              </Button>
+            </Dropdown>
+
+            <Button className="ml-4 bg-cyan-500 text-white" type="default">
+              <Space>Export</Space>
+            </Button>
+          </div>
         </div>
       )}
 
       {status === "success" && (
         <Table
-          columns={columns}
+          columns={
+            showActions
+              ? columns
+              : columns.filter(({ dataIndex }) => dataIndex !== "action")
+          }
           dataSource={dataSource?.map((item) => ({ ...item, key: item.id }))}
+          loading={status === "loading"}
           rowClassName="cursor-pointer"
           rowSelection={{ ...rowSelection }}
           onRow={(record) => {

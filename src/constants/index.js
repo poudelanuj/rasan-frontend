@@ -1,5 +1,6 @@
 const colors = {
   primary: "#00A0B0",
+  light: "#F6FAFF",
   notification_sent: "#9EEAEC",
   notification_clicked: "#A3C1FB",
   notification_seen: "#FFEAAC",

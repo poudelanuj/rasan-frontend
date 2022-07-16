@@ -9,7 +9,7 @@ import { TICKET_TYPE_GENERAL, TICKET_TYPE_OTHER } from "../../constants";
 import Loader from "../../shared/Loader";
 import { getStatusColor } from "../shared/getTicketStatusColor";
 
-const SupportTicketList = () => {
+const SupportTicketList = ({ isForDashboard = false }) => {
   const navigate = useNavigate();
   const [tickets, setTickets] = useState([]);
 
@@ -82,7 +82,13 @@ const SupportTicketList = () => {
     },
   ];
 
-  return (
+  return isForDashboard ? (
+    <Table
+      columns={columns}
+      dataSource={tickets}
+      rowClassName="cursor-pointer"
+    />
+  ) : (
     <>
       {status === "loading" && <Loader isOpen />}
 

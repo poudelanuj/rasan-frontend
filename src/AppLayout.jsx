@@ -6,6 +6,7 @@ import {
   UsergroupAddOutlined,
   UserOutlined,
   BellOutlined,
+  AppstoreOutlined,
 } from "@ant-design/icons";
 import { Dropdown, Layout, Menu } from "antd";
 import React from "react";
@@ -29,11 +30,11 @@ const headerItem = (logout) => (
   />
 );
 const sidebarItems = [
-  // {
-  //   key: "/",
-  //   label: "Dashboard",
-  //   icon: <AppstoreOutlined />,
-  // },
+  {
+    key: "/",
+    label: "Dashboard",
+    icon: <AppstoreOutlined />,
+  },
   {
     key: "orders",
     label: "Orders",
