@@ -66,6 +66,7 @@ const EditNotification = ({
             initialValue={notification.title}
             label="Notification Title"
             name="title"
+            rules={[{ required: true, message: "notification title required" }]}
           >
             <Input defaultValue={notification.title} />
           </Form.Item>
@@ -89,6 +90,9 @@ const EditNotification = ({
               initialValue={notification?.type?.value}
               label="Notification Type"
               name="type"
+              rules={[
+                { required: true, message: "notification type required" },
+              ]}
             >
               <Select
                 defaultValue={selectedNotificationType}
@@ -119,6 +123,7 @@ const EditNotification = ({
               initialValue={notification?.user_groups}
               label="User Groups"
               name="user_groups"
+              rules={[{ required: true, message: "user groups required" }]}
             >
               <Select
                 defaultValue={notification?.user_groups}
