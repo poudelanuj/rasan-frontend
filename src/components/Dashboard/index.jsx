@@ -45,8 +45,6 @@ const Dashboard = () => {
     }
   );
 
-  console.log("userInfo", userInfo);
-
   return (
     <>
       {(orderMetricsStatus === "loading" ||
@@ -61,7 +59,10 @@ const Dashboard = () => {
           <WelcomeCard
             avatar={userInfo?.profile_picture?.thumbnail}
             contact={userInfo?.phone || userInfo?.alternate_phone}
-            group={userInfo?.group || "unknown"}
+            group={
+              JSON.parse(localStorage.getItem("groups") || "[]")?.[0]?.name ||
+              "unknown"
+            }
             title={`Welcome ${userInfo?.full_name?.split(" ")[0]}`}
           />
 

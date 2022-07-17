@@ -6,8 +6,10 @@ let AuthContext = createContext(null);
 
 export default function AuthProvider({ children }) {
   let [user, setUser] = useState(isLoggedIn());
-  const loginFinalise = (token, callback) => {
+  const loginFinalise = (token, profile, groups, callback) => {
     localStorage.setItem("auth_token", token);
+    localStorage.setItem("profile", JSON.stringify(profile || {}));
+    localStorage.setItem("groups", JSON.stringify(groups || []));
     setUser(isLoggedIn());
     callback();
   };
