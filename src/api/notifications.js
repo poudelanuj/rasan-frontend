@@ -5,16 +5,16 @@ export const getAllNotifications = async () => {
   return res.data.data.results;
 };
 
-export const updateNotification = async (notificationId, data) => {
+export const updateNotificationGroup = async (notificationId, data) => {
   const res = await axios.put(
-    `/api/notification/admin/notification/${notificationId}/`,
+    `/api/notification/admin/groups/${notificationId}/`,
     data
   );
   return res.data;
 };
 
-export const createNotification = async (data) => {
-  const res = await axios.post("/api/notification/admin/notifications/", data);
+export const createNotificationGroup = async (data) => {
+  const res = await axios.post("/api/notification/admin/groups/", data);
   return res.data;
 };
 
@@ -26,6 +26,20 @@ export const getNotificationGroups = async () => {
 export const dispatchNotification = async (notificationId) => {
   const res = await axios.post(
     `/api/notification/admin/groups/${notificationId}/dispatch/`
+  );
+  return res.data;
+};
+
+export const updateDispatchNotification = async (notificationId) => {
+  const res = await axios.post(
+    `/api/notification/admin/groups/${notificationId}/update_dispatched/`
+  );
+  return res.data;
+};
+
+export const deleteNotification = async (notificationId) => {
+  const res = await axios.delete(
+    `/api/notification/admin/groups/${notificationId}/`
   );
   return res.data;
 };

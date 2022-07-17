@@ -1,4 +1,5 @@
 import { Button, Table } from "antd";
+import moment from "moment";
 import { useState } from "react";
 import { useQuery } from "react-query";
 import { getNotificationGroups } from "../../api/notifications";
@@ -11,7 +12,12 @@ const Notifications = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedNotification, setSelected] = useState();
 
-  const { data: notifications, status } = useQuery({
+  const {
+    data: notifications,
+    status,
+    refetch: refetchNotifications,
+    isRefetching,
+  } = useQuery({
     queryFn: () => getNotificationGroups(),
     queryKey: GET_NOTIFICATION_GROUPS,
   });
@@ -40,6 +46,14 @@ const Notifications = () => {
       key: "sent_count",
       render: (_, { metrics }) => metrics?.sent_count,
     },
+    {
+      title: "Created At",
+      dataIndex: "created_at",
+      key: "created_at",
+      render: (_, { created_at }) => (
+        <>{moment(created_at).format("ll hh:mm a")}</>
+      ),
+    },
   ];
 
   return (
@@ -47,6 +61,7 @@ const Notifications = () => {
       <ViewNotification
         isOpen={isViewModalOpen}
         notification={selectedNotification}
+        refetchNotifications={refetchNotifications}
         onClose={() => {
           setIsViewModalOpen(false);
         }}
@@ -54,6 +69,7 @@ const Notifications = () => {
 
       <CreateNotification
         isOpen={isCreateModalOpen}
+        refetchNotifications={refetchNotifications}
         onClose={() => {
           setIsCreateModalOpen(false);
         }}
@@ -73,7 +89,7 @@ const Notifications = () => {
             key: item.id,
             sn: index + 1,
           }))}
-          loading={status === "loading"}
+          loading={status === "loading" || isRefetching}
           rowClassName="cursor-pointer"
           onRow={(record) => {
             return {

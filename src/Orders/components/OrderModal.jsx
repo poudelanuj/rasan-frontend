@@ -14,6 +14,9 @@ import {
   openSuccessNotification,
 } from "../../utils/openNotification";
 import { useState } from "react";
+import { getUsers } from "../../api/users";
+import { GET_USERS } from "../../constants/queryKeys";
+import { updateOrder } from "../../api/orders";
 
 const OrderModal = ({
   isOpen,
@@ -42,6 +45,11 @@ const OrderModal = ({
   const { data: productSkus, status: productsStatus } = useQuery({
     queryFn: () => getProductSkus(),
     queryKey: ["getProductSkus"],
+  });
+
+  const { data: usersList, status: usersStatus } = useQuery({
+    queryFn: () => getUsers(),
+    queryKey: [GET_USERS],
   });
 
   const handleAddItem = useMutation(
@@ -97,6 +105,23 @@ const OrderModal = ({
       },
       onSettled: () => {
         refetchOrderItems();
+        refetchOrders();
+      },
+      onError: (error) => {
+        openErrorNotification(error);
+      },
+    }
+  );
+
+  const onAssignedToUpdate = useMutation(
+    (formValues) =>
+      updateOrder(orderId, { assigned_to: formValues["assigned_to"] }),
+    {
+      onSuccess: (data) => {
+        openSuccessNotification(data.message || "Order Updated");
+        closeModal();
+      },
+      onSettled: () => {
         refetchOrders();
       },
       onError: (error) => {
@@ -175,7 +200,46 @@ const OrderModal = ({
       width={width}
       onCancel={closeModal}
     >
-      <div className="text-gray-500 mb-4">{moment(orderedAt).format("ll")}</div>
+      <div className="flex justify-between items-center">
+        <div className="text-gray-500 mb-4">
+          {moment(orderedAt).format("ll")}
+        </div>
+
+        <Form onFinish={(values) => onAssignedToUpdate.mutate(values)}>
+          <Space>
+            <Form.Item
+              initialValue={data?.assigned_to}
+              label="Assign To"
+              name="assigned_to"
+            >
+              <Select
+                defaultValue={data?.assigned_to}
+                loading={usersStatus === "loading"}
+                mode="multiple"
+                placeholder="Select Users"
+                style={{ width: 300 }}
+                showSearch
+              >
+                {usersList &&
+                  usersList.map((user) => (
+                    <Select.Option key={user.id} value={user.phone}>
+                      {user.full_name}
+                    </Select.Option>
+                  ))}
+              </Select>
+            </Form.Item>
+            <Form.Item>
+              <Button
+                htmlType="submit"
+                loading={onAssignedToUpdate.status === "loading"}
+                type="primary"
+              >
+                SAVE
+              </Button>
+            </Form.Item>
+          </Space>
+        </Form>
+      </div>
 
       {(isRefetching || status === "loading") && (
         <div className="py-8 flex justify-center">

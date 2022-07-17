@@ -1,6 +1,6 @@
 import axios from "../../axios";
 
-const getAllTickets = async () => {
+export const getAllTickets = async () => {
   const res = await axios.get("/api/crm/admin/tickets/");
   return res.data.data.results;
 };
@@ -18,6 +18,11 @@ export const createTicket = async (data) => {
 export const updateTicket = async (id, data) => {
   const res = await axios.put(`/api/crm/admin/ticket/${id}/`, data);
   return res.data;
+};
+
+export const getTicketMetrics = async () => {
+  const res = await axios.get("/api/crm/admin/tickets/metrics");
+  return res.data.data;
 };
 
 export default getAllTickets;
