@@ -48,7 +48,11 @@ const CreateNotification = ({ isOpen, onClose, refetchNotifications }) => {
         layout="vertical"
         onFinish={(values) => onFormSubmit.mutate(values)}
       >
-        <Form.Item label="Notification Title" name="title">
+        <Form.Item
+          label="Notification Title"
+          name="title"
+          rules={[{ required: true, message: "notification title required" }]}
+        >
           <Input />
         </Form.Item>
 
@@ -63,7 +67,11 @@ const CreateNotification = ({ isOpen, onClose, refetchNotifications }) => {
               : "2"
           }`}
         >
-          <Form.Item label="Notification Type" name="type">
+          <Form.Item
+            label="Notification Type"
+            name="type"
+            rules={[{ required: true, message: "notification type required" }]}
+          >
             <Select
               placeholder="Select Type"
               allowClear
@@ -85,7 +93,11 @@ const CreateNotification = ({ isOpen, onClose, refetchNotifications }) => {
             </Form.Item>
           )}
 
-          <Form.Item label="User Groups" name="user_groups">
+          <Form.Item
+            label="User Groups"
+            name="user_groups"
+            rules={[{ required: true, message: "user groups required" }]}
+          >
             <Select
               loading={userGroupStatus === "loading"}
               mode="multiple"
