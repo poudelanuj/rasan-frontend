@@ -3,6 +3,8 @@ import React from "react";
 import { useQuery } from "react-query";
 import { getTicketMetrics } from "../../api/crm/tickets";
 import { getOrderMetrics } from "../../api/orders";
+import { getEndUser } from "../../api/users";
+import { useAuth } from "../../AuthProvider";
 import {
   GET_ORDER_METRICS,
   GET_TICKET_METRICS,
@@ -15,6 +17,8 @@ import MetricsCard from "./shared/MetricsCard";
 import WelcomeCard from "./shared/WelcomeCard";
 
 const Dashboard = () => {
+  const { logout } = useAuth();
+
   const { data, status } = useQuery({
     queryFn: getOrders,
     queryKey: "getOrdersList",
@@ -30,6 +34,17 @@ const Dashboard = () => {
     queryKey: GET_TICKET_METRICS,
   });
 
+  const { data: userInfo, status: userStatus } = useQuery(
+    ["get-end-user"],
+    getEndUser,
+    {
+      retry: false,
+      onError: (err) => {
+        logout();
+      },
+    }
+  );
+
   return (
     <>
       {(orderMetricsStatus === "loading" ||
@@ -42,9 +57,13 @@ const Dashboard = () => {
 
         <div className="flex gap-3">
           <WelcomeCard
-            contact="+977 9867461150"
-            group="Customer Support"
-            title="Welcome Biplab"
+            avatar={userInfo?.profile_picture?.thumbnail}
+            contact={userInfo?.phone || userInfo?.alternate_phone}
+            group={
+              JSON.parse(localStorage.getItem("groups") || "[]")?.[0]?.name ||
+              "unknown"
+            }
+            title={`Welcome ${userInfo?.full_name?.split(" ")[0]}`}
           />
 
           <div className="grow flex flex-col gap-3">

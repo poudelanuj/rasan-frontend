@@ -1,7 +1,9 @@
 import { Avatar, Card } from "antd";
 import { colors } from "../../../constants";
 
-const WelcomeCard = ({ title, contact, group }) => {
+const WelcomeCard = ({ title, contact, group, avatar }) => {
+  const avatarFallback = "https://joeschmoe.io/api/v1/random";
+
   return (
     <Card
       bodyStyle={{ paddingBottom: 50 }}
@@ -11,7 +13,7 @@ const WelcomeCard = ({ title, contact, group }) => {
       title={<div className="text-gray-50 ml-20">{title}</div>}
     >
       <div className="absolute bottom-[180px] p-1 bg-gray-100 rounded-full w-fit">
-        <Avatar size={60} src="https://joeschmoe.io/api/v1/random" />
+        <Avatar size={60} src={avatar || avatarFallback} />
       </div>
 
       <div className="relative top-10 bg-gray-50 rounded p-2 px-4">

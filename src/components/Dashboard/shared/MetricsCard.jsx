@@ -14,7 +14,7 @@ const MetricsCard = ({ title, content }) => {
       className="grow"
     >
       <small className="text-gray-500">{title}</small>
-      <h4 className="text-xl">{content}</h4>
+      <h4 className="text-xl">{content || 0}</h4>
     </Card>
   );
 };
