@@ -43,10 +43,41 @@ export const TICKET_TYPES = [
 
 export const NOTIFICATION_STATUS = ["pending", "seen", "clicked"];
 export const NOTIFICATION_TYPES = [
-  "offer",
-  "general_info",
-  "notice",
-  "user_business_intelligence",
-  "market_intelligence",
+  {
+    name: "promotion",
+    value: "offer",
+  },
+  {
+    name: "tutorial",
+    value: "notice",
+  },
+  {
+    name: "general_info",
+    value: "general_info",
+  },
+  {
+    name: "user_business_intelligence",
+    value: "user_business_intelligence",
+  },
+  {
+    name: "market_intelligence",
+    value: "market_intelligence",
+  },
 ];
+
 export const NOTIFICATION_DESTINATION_TYPES = ["offer", "notice"];
+
+export const DASHBOARD_TIME_KEYS = [
+  {
+    name: "last 24 hours",
+    value: "last_24_hrs",
+  },
+  {
+    name: "last week",
+    value: "last_7_days",
+  },
+  {
+    name: "last month",
+    value: "last_30_days",
+  },
+];

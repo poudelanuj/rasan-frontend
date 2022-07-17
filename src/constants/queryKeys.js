@@ -26,6 +26,8 @@ export const GET_ALL_LOYALTIES = "all-loyalties";
 export const GET_ALL_TICKETS = "all-tickets";
 export const GET_TICKET = "single-ticket";
 
+export const GET_TICKET_METRICS = "ticket-metrics";
+
 //* Users
 export const GET_USERS = "all-users";
 
@@ -34,6 +36,7 @@ export const GET_USER_GROUPS = "all-user-groups";
 
 // * Orders
 export const GET_ORDERS = "all-orders";
+export const GET_ORDER_METRICS = "order-metrics";
 
 //* Baskets
 export const GET_BASKETS = "all-baskets";

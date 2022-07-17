@@ -10,7 +10,11 @@ import {
 } from "antd";
 import { useState } from "react";
 import { useMutation } from "react-query";
-import { dispatchNotification } from "../../../api/notifications";
+import {
+  deleteNotification,
+  dispatchNotification,
+  updateDispatchNotification,
+} from "../../../api/notifications";
 import { colors } from "../../../constants";
 import {
   openErrorNotification,
@@ -18,7 +22,12 @@ import {
 } from "../../../utils/openNotification";
 import EditNotification from "../EditNotification";
 
-const ViewNotification = ({ notification, isOpen, onClose }) => {
+const ViewNotification = ({
+  notification,
+  isOpen,
+  onClose,
+  refetchNotifications,
+}) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const onDispatch = useMutation(
@@ -29,6 +38,40 @@ const ViewNotification = ({ notification, isOpen, onClose }) => {
       onSuccess: (data) =>
         openSuccessNotification(data.message || "Notification Dispatched"),
       onError: (error) => openErrorNotification(error),
+      onSettled: () => {
+        refetchNotifications();
+        onClose();
+      },
+    }
+  );
+
+  const onUpdateDispatch = useMutation(
+    () => {
+      return updateDispatchNotification(notification.id);
+    },
+    {
+      onSuccess: (data) =>
+        openSuccessNotification(data.message || "Notification Dispatched"),
+      onError: (error) => openErrorNotification(error),
+      onSettled: () => {
+        refetchNotifications();
+        onClose();
+      },
+    }
+  );
+
+  const onDelete = useMutation(
+    () => {
+      return deleteNotification(notification.id);
+    },
+    {
+      onSuccess: (data) =>
+        openSuccessNotification(data.message || "Notification Deleted"),
+      onError: (error) => openErrorNotification(error),
+      onSettled: () => {
+        refetchNotifications();
+        onClose();
+      },
     }
   );
 
@@ -37,7 +80,11 @@ const ViewNotification = ({ notification, isOpen, onClose }) => {
       <EditNotification
         isOpen={isEditModalOpen}
         notification={notification}
-        onClose={() => setIsEditModalOpen(false)}
+        refetchNotifications={refetchNotifications}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          onClose();
+        }}
       />
 
       <Modal
@@ -96,9 +143,23 @@ const ViewNotification = ({ notification, isOpen, onClose }) => {
               <div className="flex justify-between items-center">
                 <h3>Notification Details</h3>
 
-                <Button type="primary" onClick={() => setIsEditModalOpen(true)}>
-                  Edit
-                </Button>
+                <Space>
+                  <Button
+                    type="primary"
+                    onClick={() => setIsEditModalOpen(true)}
+                  >
+                    Edit
+                  </Button>
+
+                  <Button
+                    disabled={notification.is_dispatched === true}
+                    loading={onDelete.status === "loading"}
+                    type="danger"
+                    onClick={() => onDelete.mutate()}
+                  >
+                    Delete
+                  </Button>
+                </Space>
               </div>
             }
           >
@@ -125,18 +186,31 @@ const ViewNotification = ({ notification, isOpen, onClose }) => {
         <Divider />
 
         {notification && (
-          <Form layout="vertical" onFinish={() => onDispatch.mutate()}>
+          <Form layout="vertical">
             <Form.Item>
               <Space className="w-full flex justify-end">
                 <Button onClick={onClose}>Close</Button>
-                <Button
-                  disabled={notification.is_dispatched}
-                  htmlType="submit"
-                  size="medium"
-                  type="primary"
-                >
-                  Dispatch
-                </Button>
+                {notification.is_dispatched ? (
+                  <Button
+                    htmlType="button"
+                    loading={onUpdateDispatch.status === "loading"}
+                    size="medium"
+                    type="primary"
+                    onClick={() => onUpdateDispatch.mutate()}
+                  >
+                    Update Dispatch
+                  </Button>
+                ) : (
+                  <Button
+                    htmlType="button"
+                    loading={onDispatch.status === "loading"}
+                    size="medium"
+                    type="primary"
+                    onClick={() => onDispatch.mutate()}
+                  >
+                    Dispatch
+                  </Button>
+                )}
               </Space>
             </Form.Item>
           </Form>

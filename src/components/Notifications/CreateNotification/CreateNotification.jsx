@@ -1,7 +1,7 @@
 import { Button, Form, Input, Modal, Select, Space } from "antd";
 import { useState } from "react";
 import { useMutation, useQuery } from "react-query";
-import { createNotification } from "../../../api/notifications";
+import { createNotificationGroup } from "../../../api/notifications";
 import { getUserGroups } from "../../../api/userGroups";
 import {
   NOTIFICATION_DESTINATION_TYPES,
@@ -13,7 +13,7 @@ import {
   openSuccessNotification,
 } from "../../../utils/openNotification";
 
-const CreateNotification = ({ isOpen, onClose }) => {
+const CreateNotification = ({ isOpen, onClose, refetchNotifications }) => {
   const [selectedNotificationType, setSelectedNotificationType] = useState();
 
   const { data: userGroups, status: userGroupStatus } = useQuery(
@@ -23,12 +23,16 @@ const CreateNotification = ({ isOpen, onClose }) => {
 
   const onFormSubmit = useMutation(
     (formValues) => {
-      return createNotification(formValues);
+      return createNotificationGroup(formValues);
     },
     {
       onSuccess: (data) =>
         openSuccessNotification(data.message || "Notification Created"),
       onError: (error) => openErrorNotification(error),
+      onSettled: () => {
+        onClose();
+        refetchNotifications();
+      },
     }
   );
 
@@ -63,11 +67,11 @@ const CreateNotification = ({ isOpen, onClose }) => {
             <Select
               placeholder="Select Type"
               allowClear
-              onChange={(value) => setSelectedNotificationType(value)}
+              onChange={(value) => setSelectedNotificationType(value.value)}
             >
               {NOTIFICATION_TYPES.map((type) => (
-                <Select.Option key={type} value={type}>
-                  {type.replaceAll("_", " ")}
+                <Select.Option key={type.name} value={type.value}>
+                  {type.name.replaceAll("_", " ")}
                 </Select.Option>
               ))}
             </Select>
@@ -100,7 +104,12 @@ const CreateNotification = ({ isOpen, onClose }) => {
         <Form.Item>
           <Space className="w-full flex justify-end">
             <Button onClick={onClose}>Cancel</Button>
-            <Button htmlType="submit" size="medium" type="primary">
+            <Button
+              htmlType="submit"
+              loading={onFormSubmit.status === "loading"}
+              size="medium"
+              type="primary"
+            >
               Create
             </Button>
           </Space>
