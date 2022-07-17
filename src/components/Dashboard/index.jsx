@@ -3,7 +3,6 @@ import React from "react";
 import { useQuery } from "react-query";
 import { getTicketMetrics } from "../../api/crm/tickets";
 import { getOrderMetrics } from "../../api/orders";
-import { colors } from "../../constants";
 import {
   GET_ORDER_METRICS,
   GET_TICKET_METRICS,
@@ -31,11 +30,10 @@ const Dashboard = () => {
     queryKey: GET_TICKET_METRICS,
   });
 
-  console.log(ticketMetrics);
-
   return (
     <>
-      {orderMetricsStatus === "loading" && <Loader isOpen />}
+      {(orderMetricsStatus === "loading" ||
+        ticketsMetricsStatus === "loading") && <Loader isOpen />}
 
       <div className="py-4">
         <div>
