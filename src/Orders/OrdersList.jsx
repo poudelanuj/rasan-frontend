@@ -336,8 +336,8 @@ const OrdersList = ({
         }
         refetchOrders={refetchOrders}
         title={
-          <>
-            Order #{activeOrder.orderId}
+          <Space>
+            <span>Order #{activeOrder.orderId}</span>
             <Select
               className="mx-5"
               disabled={handleUpdateStatus.status === "loading"}
@@ -351,7 +351,7 @@ const OrdersList = ({
               <Select.Option value={DELIVERED}>Delivered</Select.Option>
             </Select>
             {handleUpdateStatus.status === "loading" && <Spin size="small" />}
-          </>
+          </Space>
         }
         width={1000}
       />

@@ -36,7 +36,7 @@ const Dashboard = () => {
             </div>
             <div className="mt-4">
               <small className="text-gray-400">Group</small>
-              <div className="text-gray-700 font-medium">+977 9867461150</div>
+              <div className="text-gray-700 font-medium">Customer Support</div>
             </div>
           </div>
         </Card>
