@@ -10,20 +10,20 @@ import "./index.css";
 import LoginRasan from "./LoginRasan";
 
 // * Products
-import CategoryList from "./Products";
-import Brands from "./Products/Brands";
-import BrandsScreen from "./Products/BrandsScreen";
-import Category from "./Products/Category";
-import ViewProductGroup from "./Products/Product Groups/ViewProductGroup";
-import ProductGroupsScreen from "./Products/ProductGroupsScreen";
-import AddProduct from "./Products/ProductList/Add";
-import ProductList from "./Products/ProductList/ProductView";
-import ProductListScreen from "./Products/ProductListScreen";
-import ProductSKU from "./Products/ProductSKU";
-import ProductSkuScreen from "./Products/ProductSkuScreen";
-import EditProduct from "./Products/ProductList/Edit";
-import AddProductSku from "./Products/ProductSku/Add";
-import EditProductSku from "./Products/ProductSku/Edit";
+import CategoryList from "./pages/Products";
+import Brands from "./pages/Products/Brands";
+import BrandsScreen from "./pages/Products/BrandsScreen";
+import Category from "./pages/Products/Category";
+import ViewProductGroup from "./pages/Products/Product Groups/ViewProductGroup";
+import ProductGroupsScreen from "./pages/Products/ProductGroupsScreen";
+import AddProduct from "./pages/Products/ProductList/Add";
+import ProductList from "./pages/Products/ProductList/ProductView";
+import ProductListScreen from "./pages/Products/ProductListScreen";
+import ProductSKU from "./pages/Products/ProductSKU";
+import ProductSkuScreen from "./pages/Products/ProductSkuScreen";
+import EditProduct from "./pages/Products/ProductList/Edit";
+import AddProductSku from "./pages/Products/ProductSku/Add";
+import EditProductSku from "./pages/Products/ProductSku/Edit";
 
 import RequireAuth from "./RequireAuth";
 import "antd/dist/antd.min.css";
