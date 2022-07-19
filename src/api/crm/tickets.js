@@ -20,8 +20,10 @@ export const updateTicket = async (id, data) => {
   return res.data;
 };
 
-export const getTicketMetrics = async () => {
-  const res = await axios.get("/api/crm/admin/tickets/metrics");
+export const getTicketMetrics = async (timeKey) => {
+  const res = await axios.get(
+    `/api/crm/admin/tickets/metrics/?time_key=${timeKey}`
+  );
   return res.data.data;
 };
 

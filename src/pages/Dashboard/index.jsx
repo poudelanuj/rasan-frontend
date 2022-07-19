@@ -1,5 +1,5 @@
-import { Card } from "antd";
-import React from "react";
+import { Card, Select, Space } from "antd";
+import React, { useState } from "react";
 import { useQuery } from "react-query";
 import { getTicketMetrics } from "../../api/crm/tickets";
 import { getOrderMetrics } from "../../api/orders";
@@ -15,9 +15,16 @@ import OrdersList from "../Orders/OrdersList";
 import Loader from "../../shared/Loader";
 import MetricsCard from "./shared/MetricsCard";
 import WelcomeCard from "./shared/WelcomeCard";
+import { DASHBOARD_TIME_KEYS } from "../../constants";
 
 const Dashboard = () => {
   const { logout } = useAuth();
+  const [ticketTimeKey, setTicketTimeKey] = useState(
+    DASHBOARD_TIME_KEYS[0].value
+  );
+  const [orderTimeKey, setOrderTimeKey] = useState(
+    DASHBOARD_TIME_KEYS[0].value
+  );
 
   const { data, status } = useQuery({
     queryFn: getOrders,
@@ -25,13 +32,13 @@ const Dashboard = () => {
   });
 
   const { data: orderMetrics, status: orderMetricsStatus } = useQuery({
-    queryFn: getOrderMetrics,
-    queryKey: GET_ORDER_METRICS,
+    queryFn: () => getOrderMetrics(orderTimeKey),
+    queryKey: [GET_ORDER_METRICS, orderTimeKey],
   });
 
   const { data: ticketMetrics, status: ticketsMetricsStatus } = useQuery({
-    queryFn: getTicketMetrics,
-    queryKey: GET_TICKET_METRICS,
+    queryFn: () => getTicketMetrics(ticketTimeKey),
+    queryKey: [GET_TICKET_METRICS, ticketTimeKey],
   });
 
   const { data: userInfo } = useQuery(["get-end-user"], getEndUser, {
@@ -64,7 +71,24 @@ const Dashboard = () => {
 
           <div className="grow flex flex-col gap-3">
             <Card bodyStyle={{ padding: 10 }} className="grow">
-              <h4>Tickets</h4>
+              <div className="flex mb-2 justify-between items-center">
+                <h4 className="m-0">Tickets</h4>
+                <Space>
+                  <Select
+                    defaultValue={DASHBOARD_TIME_KEYS[0].value}
+                    loading={ticketsMetricsStatus === "loading"}
+                    size="small"
+                    style={{ width: 120 }}
+                    onChange={(value) => setTicketTimeKey(value)}
+                  >
+                    {DASHBOARD_TIME_KEYS.map((item) => (
+                      <Select.Option key={item.value} value={item.value}>
+                        {item.name}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </Space>
+              </div>
 
               <div className="flex gap-3 flex-wrap">
                 <MetricsCard
@@ -89,7 +113,24 @@ const Dashboard = () => {
               </div>
             </Card>
             <Card bodyStyle={{ padding: 10 }} className="grow">
-              <h4>Orders</h4>
+              <div className="flex mb-2 justify-between items-center">
+                <h4 className="m-0">Orders</h4>
+                <Space>
+                  <Select
+                    defaultValue={DASHBOARD_TIME_KEYS[0].value}
+                    loading={orderMetricsStatus === "loading"}
+                    size="small"
+                    style={{ width: 120 }}
+                    onChange={(value) => setOrderTimeKey(value)}
+                  >
+                    {DASHBOARD_TIME_KEYS.map((item) => (
+                      <Select.Option key={item.value} value={item.value}>
+                        {item.name}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </Space>
+              </div>
 
               <div className="flex gap-3 flex-wrap">
                 <MetricsCard

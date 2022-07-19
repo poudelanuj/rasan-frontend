@@ -10,7 +10,9 @@ export const updateOrder = async (orderId, data) => {
   return res.data;
 };
 
-export const getOrderMetrics = async () => {
-  const res = await axios.get("/api/order/admin/orders/metrics");
+export const getOrderMetrics = async (timeKey) => {
+  const res = await axios.get(
+    `/api/order/admin/orders/metrics/?time_key=${timeKey}`
+  );
   return res.data.data;
 };
