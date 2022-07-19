@@ -18,11 +18,11 @@ import SearchBox from "./subComponents/SearchBox";
 import SimpleAlert from "./alerts/SimpleAlert";
 import ClearSelection from "./subComponents/ClearSelection";
 import Loader from "./subComponents/Loader";
-import { noImageImage } from "./constants";
 import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../utils/openNotification";
+import { DEFAULT_CARD_IMAGE } from "../../constants";
 
 const { Option } = Select;
 
@@ -224,7 +224,7 @@ function BrandsScreen() {
                     brand.brand_image.medium_square_crop ||
                     brand.brand_image.small_square_crop ||
                     brand.brand_image.thumbnail ||
-                    noImageImage
+                    DEFAULT_CARD_IMAGE
                   }
                   is_published={brand.is_published}
                   selectedCategories={selectedBrands}

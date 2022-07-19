@@ -1,6 +1,6 @@
 import React from "react";
+import { DEFAULT_CARD_IMAGE } from "../../constants";
 import CategoryWidget from "./CategoryWidget";
-import { noImageImage } from "./constants";
 
 function ProductCategory({
   categories,
@@ -20,7 +20,7 @@ function ProductCategory({
             category.category_image.medium_square_crop ||
             category.category_image.small_square_crop ||
             category.category_image.thumbnail ||
-            noImageImage
+            DEFAULT_CARD_IMAGE
           }
           is_published={category.is_published}
           selectedCategories={selectedCategories}
