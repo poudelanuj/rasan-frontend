@@ -1,37 +1,55 @@
-import { Card } from "antd";
-import React from "react";
+import { Card, Select, Space } from "antd";
+import React, { useState } from "react";
 import { useQuery } from "react-query";
 import { getTicketMetrics } from "../../api/crm/tickets";
 import { getOrderMetrics } from "../../api/orders";
 import { getEndUser } from "../../api/users";
 import { useAuth } from "../../AuthProvider";
 import {
+  GET_ORDERS_ASSIGNED,
   GET_ORDER_METRICS,
+  GET_TICKETS_ASSIGNED,
   GET_TICKET_METRICS,
 } from "../../constants/queryKeys";
-import { getOrders } from "../../context/OrdersContext";
-import SupportTicketList from "../CRM/SupportTicket/SupportTicketList";
-import OrdersList from "../Orders/OrdersList";
 import Loader from "../../shared/Loader";
-import MetricsCard from "./shared/MetricsCard";
 import WelcomeCard from "./shared/WelcomeCard";
+import { DASHBOARD_TIME_KEYS } from "../../constants";
+import {
+  getOrdersAssignedToMe,
+  getTicketsAssignedToMe,
+} from "../../api/dashboard";
+import TicketsAssigned from "./shared/TicketsAssigned";
+import OrdersAssigned from "./shared/OrdersAssigned";
+import OrderMetrics from "./OrderMetrics";
+import TicketMetrics from "./TicketsMetrics";
 
 const Dashboard = () => {
   const { logout } = useAuth();
-
-  const { data, status } = useQuery({
-    queryFn: getOrders,
-    queryKey: "getOrdersList",
-  });
+  const [ticketTimeKey, setTicketTimeKey] = useState(
+    DASHBOARD_TIME_KEYS[0].value
+  );
+  const [orderTimeKey, setOrderTimeKey] = useState(
+    DASHBOARD_TIME_KEYS[0].value
+  );
 
   const { data: orderMetrics, status: orderMetricsStatus } = useQuery({
-    queryFn: getOrderMetrics,
-    queryKey: GET_ORDER_METRICS,
+    queryFn: () => getOrderMetrics(orderTimeKey),
+    queryKey: [GET_ORDER_METRICS, orderTimeKey],
   });
 
   const { data: ticketMetrics, status: ticketsMetricsStatus } = useQuery({
-    queryFn: getTicketMetrics,
-    queryKey: GET_TICKET_METRICS,
+    queryFn: () => getTicketMetrics(ticketTimeKey),
+    queryKey: [GET_TICKET_METRICS, ticketTimeKey],
+  });
+
+  const { data: ticketsAssigned, status: ticketsAssignedStatus } = useQuery({
+    queryFn: getTicketsAssignedToMe,
+    queryKey: GET_TICKETS_ASSIGNED,
+  });
+
+  const { data: ordersAssigned, status: ordersAssignedStatus } = useQuery({
+    queryFn: getOrdersAssignedToMe,
+    queryKey: GET_ORDERS_ASSIGNED,
   });
 
   const { data: userInfo } = useQuery(["get-end-user"], getEndUser, {
@@ -64,68 +82,60 @@ const Dashboard = () => {
 
           <div className="grow flex flex-col gap-3">
             <Card bodyStyle={{ padding: 10 }} className="grow">
-              <h4>Tickets</h4>
-
-              <div className="flex gap-3 flex-wrap">
-                <MetricsCard
-                  content={ticketMetrics?.total_tickets_created}
-                  title="Total Tickets Created"
-                />
-
-                <MetricsCard
-                  content={ticketMetrics?.tickets_assigned_to_me}
-                  title="Tickets assigned to me"
-                />
-
-                <MetricsCard
-                  content={ticketMetrics?.tickets_closed_by_me}
-                  title="Tickets closed by me"
-                />
-
-                <MetricsCard
-                  content={ticketMetrics?.total_tickets_closed}
-                  title="Total Tickets Closed"
-                />
+              <div className="flex mb-2 justify-between items-center">
+                <h4 className="m-0">Tickets</h4>
+                <Space>
+                  <Select
+                    defaultValue={DASHBOARD_TIME_KEYS[0].value}
+                    loading={ticketsMetricsStatus === "loading"}
+                    size="small"
+                    style={{ width: 120 }}
+                    onChange={(value) => setTicketTimeKey(value)}
+                  >
+                    {DASHBOARD_TIME_KEYS.map((item) => (
+                      <Select.Option key={item.value} value={item.value}>
+                        {item.name}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </Space>
               </div>
+
+              <TicketMetrics ticketMetrics={ticketMetrics} />
             </Card>
             <Card bodyStyle={{ padding: 10 }} className="grow">
-              <h4>Orders</h4>
-
-              <div className="flex gap-3 flex-wrap">
-                <MetricsCard
-                  content={orderMetrics?.total_orders_created}
-                  title="Total Orders Created"
-                />
-
-                <MetricsCard
-                  content={orderMetrics?.orders_assigned_to_me}
-                  title="Orders assigned to me"
-                />
-
-                <MetricsCard
-                  content={orderMetrics?.orders_completed_by_me}
-                  title="Orders completed by me"
-                />
-
-                <MetricsCard
-                  content={orderMetrics?.total_orders_completed}
-                  title="Total Orders Completed"
-                />
+              <div className="flex mb-2 justify-between items-center">
+                <h4 className="m-0">Orders</h4>
+                <Space>
+                  <Select
+                    defaultValue={DASHBOARD_TIME_KEYS[0].value}
+                    loading={orderMetricsStatus === "loading"}
+                    size="small"
+                    style={{ width: 120 }}
+                    onChange={(value) => setOrderTimeKey(value)}
+                  >
+                    {DASHBOARD_TIME_KEYS.map((item) => (
+                      <Select.Option key={item.value} value={item.value}>
+                        {item.name}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </Space>
               </div>
+
+              <OrderMetrics orderMetrics={orderMetrics} />
             </Card>
           </div>
         </div>
 
-        <h3 className="text-xl mt-8">Orders</h3>
-        <OrdersList
-          dataSource={data}
-          showActions={false}
-          showHeaderButtons={false}
-          status={status}
-        />
+        <h3 className="text-xl mt-8">My Orders</h3>
+        <OrdersAssigned orders={ordersAssigned} status={ordersAssignedStatus} />
 
-        <h3 className="text-xl">Tickets</h3>
-        <SupportTicketList isForDashboard />
+        <h3 className="text-xl mt-8">My Tickets</h3>
+        <TicketsAssigned
+          status={ticketsAssignedStatus}
+          tickets={ticketsAssigned}
+        />
       </div>
     </>
   );

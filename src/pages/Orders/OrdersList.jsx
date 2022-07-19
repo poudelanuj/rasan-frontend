@@ -28,13 +28,7 @@ import {
 import { CANCELLED, DELIVERED, IN_PROCESS } from "../../constants";
 import DeleteOrder from "./components/DeleteOrder";
 
-const OrdersList = ({
-  dataSource,
-  status,
-  refetchOrders,
-  showHeaderButtons = true,
-  showActions = true,
-}) => {
+const OrdersList = ({ dataSource, status, refetchOrders }) => {
   const searchInput = useRef(null);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [isCreateOrderOpen, setIsCreateOrderOpen] = useState(false);
@@ -279,40 +273,34 @@ const OrdersList = ({
 
   return (
     <div className="">
-      {showHeaderButtons && (
-        <div className="mb-4 flex justify-between">
-          <Button
-            className="flex items-center"
-            type="primary"
-            ghost
-            onClick={() => {
-              setIsCreateOrderOpen((prev) => !prev);
-            }}
-          >
-            Create New Order
-          </Button>
+      <div className="mb-4 flex justify-between">
+        <Button
+          className="flex items-center"
+          type="primary"
+          ghost
+          onClick={() => {
+            setIsCreateOrderOpen((prev) => !prev);
+          }}
+        >
+          Create New Order
+        </Button>
 
-          <div>
-            <Dropdown overlay={bulkMenu}>
-              <Button className="bg-white" type="default">
-                <Space>Bulk Actions</Space>
-              </Button>
-            </Dropdown>
-
-            <Button className="ml-4 bg-cyan-500 text-white" type="default">
-              <Space>Export</Space>
+        <div>
+          <Dropdown overlay={bulkMenu}>
+            <Button className="bg-white" type="default">
+              <Space>Bulk Actions</Space>
             </Button>
-          </div>
+          </Dropdown>
+
+          <Button className="ml-4 bg-cyan-500 text-white" type="default">
+            <Space>Export</Space>
+          </Button>
         </div>
-      )}
+      </div>
 
       {status === "success" && (
         <Table
-          columns={
-            showActions
-              ? columns
-              : columns.filter(({ dataIndex }) => dataIndex !== "action")
-          }
+          columns={columns}
           dataSource={dataSource?.map((item) => ({ ...item, key: item.id }))}
           loading={status === "loading"}
           rowClassName="cursor-pointer"
