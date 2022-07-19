@@ -7,7 +7,7 @@ import {
   getProductSku,
   publishProductSku,
   unpublishProductSku,
-} from "../../api/productSku";
+} from "../../api/products/productSku";
 import { GET_PRODUCT_SKU } from "../../constants/queryKeys";
 import Loader from "../../shared/Loader";
 import CustomPageHeader from "../../shared/PageHeader";

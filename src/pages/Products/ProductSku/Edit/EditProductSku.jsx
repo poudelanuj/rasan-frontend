@@ -6,9 +6,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getAllBrands } from "../../../../api/brands";
 import { getAllCategories } from "../../../../api/categories";
 import { getLoyaltyPolicies } from "../../../../api/loyalties";
-import { getAllProductGroups } from "../../../../api/productGroups";
+import { getAllProductGroups } from "../../../../api/products/productGroups";
 import { getAllProducts } from "../../../../api/products";
-import { getProductSku, updateProductSku } from "../../../../api/productSku";
+import {
+  getProductSku,
+  updateProductSku,
+} from "../../../../api/products/productSku";
 import Loader from "../../../../shared/Loader";
 import CustomPageHeader from "../../../../shared/PageHeader";
 import {

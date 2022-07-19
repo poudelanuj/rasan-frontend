@@ -7,7 +7,7 @@ import {
   deleteProductPack,
   publishProductPack,
   unpublishProductPack,
-} from "../../../api/productPack";
+} from "../../../api/products/productPack";
 import ConfirmDelete from "../../../shared/ConfirmDelete";
 import {
   openErrorNotification,

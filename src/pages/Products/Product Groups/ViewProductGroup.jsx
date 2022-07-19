@@ -15,7 +15,7 @@ import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../../utils/openNotification";
-import { getAllProductSkus } from "../../../api/productSku";
+import { getAllProductSkus } from "../../../api/products/productSku";
 import { GET_ALL_PRODUCT_SKUS } from "../../../constants/queryKeys";
 import { getDate, parseArray } from "../../../utils";
 

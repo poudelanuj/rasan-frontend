@@ -1,7 +1,7 @@
 import React from "react";
 import { useMutation, useQuery } from "react-query";
 import { Modal, Form, Select, Input, Space, Button, Spin } from "antd";
-import { getProductSku } from "../../../../../api/productSku";
+import { getProductSku } from "../../../../../api/products/productSku";
 import {
   GET_PRODUCT_PACK,
   GET_PRODUCT_SKU,
@@ -13,7 +13,7 @@ import {
 import {
   getProductPack,
   updateProductPack,
-} from "../../../../../api/productPack";
+} from "../../../../../api/products/productPack";
 
 function EditProductPack({
   productSkuSlug,

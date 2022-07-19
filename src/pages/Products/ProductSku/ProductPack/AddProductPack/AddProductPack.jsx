@@ -1,13 +1,13 @@
 import React from "react";
 import { useMutation, useQuery } from "react-query";
 import { Modal, Form, Select, Input, Space, Button, Spin } from "antd";
-import { getProductSku } from "../../../../../api/productSku";
+import { getProductSku } from "../../../../../api/products/productSku";
 import { GET_PRODUCT_SKU } from "../../../../../constants/queryKeys";
 import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../../../../utils/openNotification";
-import { createProductPack } from "../../../../../api/productPack";
+import { createProductPack } from "../../../../../api/products/productPack";
 
 function AddProductPack({
   productSkuSlug,
