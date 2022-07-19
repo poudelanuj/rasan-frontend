@@ -5,7 +5,7 @@ import { ReactQueryDevtools } from "react-query/devtools";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import App from "./App";
 import AuthProvider from "./AuthProvider";
-import CRM from "./CRM";
+import CRM from "./pages/CRM";
 import "./index.css";
 import LoginRasan from "./LoginRasan";
 import Orders from "./Orders";
@@ -27,21 +27,26 @@ import Users from "./Users";
 import OTPRequests from "./Users/OTPRequests";
 import User from "./Users/User";
 import "antd/dist/antd.min.css";
+
+// * Products
 import EditProduct from "./Products/ProductList/Edit";
 import AddProductSku from "./Products/ProductSku/Add";
 import EditProductSku from "./Products/ProductSku/Edit";
-import UserFeedbacks from "./CRM/UserFeedbacks";
-import StockEnquiry from "./CRM/StockEnquiry";
-import ViewReturnRequest from "./CRM/ReturnRequest/ViewReturnRequest";
-import ViewSupportTicket from "./CRM/SupportTicket/ViewSupportTicket";
-import CreateSupportTicket from "./CRM/SupportTicket/CreateSupportTicket";
-import EditSupportTicket from "./CRM/SupportTicket/EditSupportTicket";
-import SupportTicketList from "./CRM/SupportTicket/SupportTicketList";
-import ReturnRequestList from "./CRM/ReturnRequest/ReturnRequestList";
-import CreateReturnTicket from "./CRM/ReturnRequest/CreateReturnTicket";
-import Dashboard from "./components/Dashboard";
-import LiveUserBasket from "./components/LiveUserBasket";
-import Notifications from "./components/Notifications";
+
+// * CRM
+import UserFeedbacks from "./pages/CRM/UserFeedbacks";
+import StockEnquiry from "./pages/CRM/StockEnquiry";
+import ViewReturnRequest from "./pages/CRM/ReturnRequest/ViewReturnRequest";
+import ViewSupportTicket from "./pages/CRM/SupportTicket/ViewSupportTicket";
+import CreateSupportTicket from "./pages/CRM/SupportTicket/CreateSupportTicket";
+import EditSupportTicket from "./pages/CRM/SupportTicket/EditSupportTicket";
+import SupportTicketList from "./pages/CRM/SupportTicket/SupportTicketList";
+import ReturnRequestList from "./pages/CRM/ReturnRequest/ReturnRequestList";
+import CreateReturnTicket from "./pages/CRM/ReturnRequest/CreateReturnTicket";
+
+import Dashboard from "./pages/Dashboard";
+import LiveUserBasket from "./pages/LiveUserBasket";
+import Notifications from "./pages/Notifications";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const queryClient = new QueryClient();

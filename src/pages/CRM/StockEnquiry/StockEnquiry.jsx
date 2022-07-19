@@ -1,8 +1,8 @@
 import { Breadcrumb, Tabs, Table } from "antd";
 import { useQuery } from "react-query";
 import moment from "moment";
-import getAllStockEnquiries from "../../api/crm/stockEnquiry";
-import Loader from "../../shared/Loader";
+import getAllStockEnquiries from "../../../api/crm/stockEnquiry";
+import Loader from "../../../shared/Loader";
 
 const StockEnquiry = () => {
   const { data: enquiriesList, status } = useQuery({

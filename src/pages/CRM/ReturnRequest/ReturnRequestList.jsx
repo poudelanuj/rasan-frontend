@@ -3,10 +3,10 @@ import { useEffect, useState } from "react";
 import moment from "moment";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "react-query";
-import getAllTickets from "../../api/crm/tickets";
-import { TICKET_TYPE_RETURN } from "../../constants";
+import getAllTickets from "../../../api/crm/tickets";
+import { TICKET_TYPE_RETURN } from "../../../constants";
 
-import Loader from "../../shared/Loader";
+import Loader from "../../../shared/Loader";
 import { getStatusColor } from "../shared/getTicketStatusColor";
 
 const ReturnRequestList = () => {

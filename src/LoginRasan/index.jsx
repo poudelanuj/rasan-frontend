@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthProvider";
 import { login, otpRequest } from "../context/LoginContext";
 import Logo from "../svgs/Logo2";
+
 const LoginRasan = () => {
   const [form] = Form.useForm();
   const [form2] = Form.useForm();
@@ -63,6 +64,7 @@ const LoginRasan = () => {
         {onOTPReceived ? (
           <Form
             autoComplete="off"
+            className="flex flex-col items-center max-w-full"
             form={form2}
             initialValues={{
               remember: true,
@@ -73,12 +75,11 @@ const LoginRasan = () => {
             }}
             onFinish={onFinishLogin}
             onFinishFailed={onFinishFailed}
-            className="flex flex-col items-center max-w-full"
           >
             <Form.Item
+              className="flex justify-between mx-auto max-w-full"
               label={<div>OTP</div>}
               name="otp"
-              className="flex justify-between mx-auto max-w-full"
             >
               <InputNumber />
             </Form.Item>
@@ -94,6 +95,7 @@ const LoginRasan = () => {
         ) : (
           <Form
             autoComplete="off"
+            className="flex flex-col items-center justify-center max-w-full"
             form={form}
             initialValues={{
               remember: true,
@@ -104,12 +106,11 @@ const LoginRasan = () => {
             }}
             onFinish={onFinish}
             onFinishFailed={onFinishFailed}
-            className="flex flex-col items-center justify-center max-w-full"
           >
             <Form.Item
+              className="flex justify-between mx-auto max-w-full"
               label={<span className="w-fit">Phone Number</span>}
               name="phone"
-              className="flex justify-between mx-auto max-w-full"
             >
               <InputNumber addonBefore="+977" className="max-w-[13rem]" />
             </Form.Item>
