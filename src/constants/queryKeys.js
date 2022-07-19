@@ -44,3 +44,7 @@ export const GET_BASKETS = "all-baskets";
 // * Notifications
 export const GET_NOTIFICATIONS = "all-notifications";
 export const GET_NOTIFICATION_GROUPS = "notification-groups";
+
+// * Dashboard
+export const GET_TICKETS_ASSIGNED = "tickets-assigned-to-me";
+export const GET_ORDERS_ASSIGNED = "orders-assigned-to-me";
