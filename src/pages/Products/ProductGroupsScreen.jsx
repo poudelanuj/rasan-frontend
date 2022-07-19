@@ -10,7 +10,6 @@ import {
 } from "../../context/CategoryContext";
 import SimpleAlert from "./alerts/SimpleAlert";
 import CategoryWidget from "./CategoryWidget";
-import { noImageImage } from "./constants";
 import AddProductGroup from "./Product Groups/AddProductGroup";
 import AddCategoryButton from "./subComponents/AddCategoryButton";
 import ClearSelection from "./subComponents/ClearSelection";
@@ -21,6 +20,7 @@ import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../utils/openNotification";
+import { DEFAULT_CARD_IMAGE } from "../../constants";
 
 const { Option } = Select;
 
@@ -221,7 +221,7 @@ function ProductGroupsScreen() {
                     group.product_group_image.medium_square_crop ||
                     group.product_group_image.small_square_crop ||
                     group.product_group_image.thumbnail ||
-                    noImageImage
+                    DEFAULT_CARD_IMAGE
                   }
                   imgClassName=""
                   is_published={group.is_published}

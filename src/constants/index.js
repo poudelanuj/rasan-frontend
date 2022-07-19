@@ -10,6 +10,9 @@ const siteInformation = {
 };
 export { colors, siteInformation };
 
+export const DEFAULT_CARD_IMAGE =
+  "https://fisnikde.com/wp-content/uploads/2019/01/broken-image.png";
+
 export const COMING_SOON_IMAGE =
   "https://motoworldnepal.com/wp-content/uploads/2022/06/coming-soon-2579123_960_720.jpg";
 

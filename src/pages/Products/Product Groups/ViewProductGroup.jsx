@@ -8,7 +8,6 @@ import {
   updateProductSKU,
 } from "../../../context/CategoryContext";
 import SimpleAlert from "../alerts/SimpleAlert";
-import { noImageImage } from "../constants";
 import EditProductGroup from "./EditProductGroup";
 import Loader from "../subComponents/Loader";
 import {
@@ -18,6 +17,7 @@ import {
 import { getAllProductSkus } from "../../../api/products/productSku";
 import { GET_ALL_PRODUCT_SKUS } from "../../../constants/queryKeys";
 import { getDate, parseArray } from "../../../utils";
+import { DEFAULT_CARD_IMAGE } from "../../../constants";
 
 const { Option } = Select;
 
@@ -229,7 +229,7 @@ function ViewProductGroup() {
                       productGroup.product_group_image.medium_square_crop ||
                       productGroup.product_group_image.small_square_crop ||
                       productGroup.product_group_image.thumbnail ||
-                      noImageImage
+                      DEFAULT_CARD_IMAGE
                     }
                   />
                 </div>
