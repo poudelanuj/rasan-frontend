@@ -9,12 +9,13 @@ import {
   unVerifyUser,
   updateUser,
   verifyUser,
-} from "../context/UserContext";
+} from "../../context/UserContext";
 import AddressCreationForm from "./AddressCreationForm";
 import AddressForm from "./AddressForm";
 import DeleteUser from "./DeleteUser";
 import ProfilePicture from "./ProfilePicture";
 import Shop from "./Shop";
+
 const UserInformation = ({ user }) => {
   const [form] = Form.useForm();
 

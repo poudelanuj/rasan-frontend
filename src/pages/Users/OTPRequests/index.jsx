@@ -2,7 +2,8 @@ import { Table } from "antd";
 import moment from "moment";
 import React from "react";
 import { useQuery } from "react-query";
-import { getOtpRequests } from "../../context/UserContext";
+import { getOtpRequests } from "../../../context/UserContext";
+
 const columns = [
   {
     title: "Phone Name",

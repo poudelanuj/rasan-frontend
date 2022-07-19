@@ -1,7 +1,8 @@
 import React from "react";
 import { useQuery } from "react-query";
-import { getUsers } from "../context/UserContext";
+import { getUsers } from "../../context/UserContext";
 import UserList from "./UserList";
+
 const Users = () => {
   const { data: users, isLoading } = useQuery("get-users", getUsers);
   return (

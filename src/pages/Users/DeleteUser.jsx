@@ -2,20 +2,14 @@ import { Button, message, Modal, Space, Spin } from "antd";
 import { useState } from "react";
 import { useMutation } from "react-query";
 import { useNavigate } from "react-router-dom";
-import { ReactComponent as DeleteModal } from "../assets/images/DeleteModal.svg";
-// import { deleteOrder } from "../../context/OrdersContext";
-// import {
-//   openErrorNotification,
-//   openSuccessNotification,
-// } from "../../utils/openNotification";
-import { deleteUser } from "../context/UserContext";
+import { ReactComponent as DeleteModal } from "../../assets/images/DeleteModal.svg";
+import { deleteUser } from "../../context/UserContext";
 
 const DeleteUser = ({ title, phone }) => {
   let navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const { mutate: deleteUserMutation, isLoading } = useMutation(deleteUser, {
     onSuccess: (data) => {
-      // message.success(data.errors.detail);
       setIsOpen(false);
       navigate("/users");
     },

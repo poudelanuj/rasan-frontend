@@ -2,7 +2,7 @@ import { Button, Table } from "antd";
 import React, { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
-import { getGroupDetail } from "../context/UserGroupContext";
+import { getGroupDetail } from "../../context/UserGroupContext";
 import SetPermission from "./SetPermission";
 const columns = [
   {

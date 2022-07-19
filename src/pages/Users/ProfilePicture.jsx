@@ -2,7 +2,7 @@ import { PlusOutlined } from "@ant-design/icons";
 import { message, Modal, Upload } from "antd";
 import React, { useEffect, useState } from "react";
 import { useMutation } from "react-query";
-import { updateUser } from "../context/UserContext";
+import { updateUser } from "../../context/UserContext";
 
 const getBase64 = (file) =>
   new Promise((resolve, reject) => {

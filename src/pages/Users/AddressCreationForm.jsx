@@ -1,13 +1,9 @@
-import { Button, Divider, Form, Input, message, Select } from "antd";
+import { Form, Input, message, Modal, Select } from "antd";
 import React, { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import {
-  deleteAddress,
-  getAllProvinces,
-  updateAddress,
-} from "../context/UserContext";
+import { createAddress, getAllProvinces } from "../../context/UserContext";
 
-const AddressForm = ({ address, id }) => {
+const AddressCreationForm = ({ visible, onCancel, id }) => {
   const [form] = Form.useForm();
   const { data: provincesList } = useQuery("get-provinces", getAllProvinces);
   const [provinces, setProvinces] = useState([]);
@@ -15,13 +11,7 @@ const AddressForm = ({ address, id }) => {
   const [areas, setAreas] = useState([]);
   const queryClient = useQueryClient();
 
-  const { mutate: addressMutation } = useMutation(updateAddress, {
-    onSuccess: (data) => {
-      message.success(data.message);
-      queryClient.invalidateQueries(["get-user", `${id}`]);
-    },
-  });
-  const { mutate: addressDeletion } = useMutation(deleteAddress, {
+  const { mutate: addressMutation } = useMutation(createAddress, {
     onSuccess: (data) => {
       message.success(data);
       queryClient.invalidateQueries(["get-user", `${id}`]);
@@ -39,28 +29,6 @@ const AddressForm = ({ address, id }) => {
     );
   }, [provincesList]);
 
-  useEffect(() => {
-    setCities(
-      provincesList?.find((province) => province.id === address.province.id)
-        .cities
-    );
-  }, [provincesList, address.province]);
-  useEffect(() => {
-    setAreas(cities?.find((city) => city.id === address.city.id)?.areas);
-  }, [cities, address.city]);
-
-  useEffect(() => {
-    let data = {
-      province: address.province.id,
-      city: address.city.id,
-      area: address.area.id,
-      detail_address: address.detail_address,
-      map_longitude: address.map_longitude,
-      map_latitude: address.map_latitude,
-    };
-    form.setFieldsValue(data);
-  }, [address, form]);
-
   const onChangeProvince = (e) => {
     form.setFieldsValue({ city: null, area: null });
     setCities(provincesList.find((province) => province.id === e).cities);
@@ -76,11 +44,27 @@ const AddressForm = ({ address, id }) => {
     for (let key in values) {
       form_data.append(key, values[key]);
     }
-    addressMutation({ data: form_data, key: address.id });
+    addressMutation({ data: form_data, key: id });
   };
   const onFinishFailed = (errorInfo) => {};
   return (
-    <>
+    <Modal
+      cancelText="Cancel"
+      okButtonProps={{ className: "bg-primary" }}
+      okText="Create"
+      title="Create a new address"
+      visible={visible}
+      onCancel={onCancel}
+      onOk={() => {
+        form
+          .validateFields()
+          .then(() => {
+            form.submit();
+            onCancel();
+          })
+          .catch((info) => {});
+      }}
+    >
       <Form
         autoComplete="off"
         form={form}
@@ -169,27 +153,9 @@ const AddressForm = ({ address, id }) => {
         <Form.Item label="Latitude" name="map_latitude">
           <Input />
         </Form.Item>
-        <div className="flex justify-between">
-          <Form.Item>
-            <Button className="bg-primary" htmlType="submit" type="primary">
-              Submit
-            </Button>
-          </Form.Item>
-          <Form.Item>
-            <Button
-              danger
-              onClick={() => {
-                addressDeletion({ key: address.id });
-              }}
-            >
-              Delete
-            </Button>
-          </Form.Item>
-        </div>
       </Form>
-      <Divider />
-    </>
+    </Modal>
   );
 };
 
-export default AddressForm;
+export default AddressCreationForm;

@@ -1,7 +1,8 @@
 import { Button } from "antd";
 import { useQuery } from "react-query";
-import { getUserGroup } from "../context/UserGroupContext";
+import { getUserGroup } from "../../context/UserGroupContext";
 import UserGroup from "./UserGroup";
+
 const UserGroups = () => {
   const { data: userGroups, isSuccess } = useQuery(
     "get-user-groups",

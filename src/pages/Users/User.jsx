@@ -5,9 +5,9 @@ import Icon, {
 } from "@ant-design/icons";
 import { useQuery } from "react-query";
 import { useParams } from "react-router-dom";
-import { getLastLogin, getUser } from "../context/UserContext";
-import Loyalty from "../svgs/Loyalty";
-import Time from "../svgs/Time";
+import { getLastLogin, getUser } from "../../context/UserContext";
+import Loyalty from "../../svgs/Loyalty";
+import Time from "../../svgs/Time";
 import UserTab from "./UserTab";
 
 const User = () => {

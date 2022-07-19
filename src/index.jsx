@@ -9,9 +9,6 @@ import AuthProvider from "./AuthProvider";
 import "./index.css";
 import LoginRasan from "./LoginRasan";
 
-// * Orders
-import Orders from "./pages/Orders";
-
 // * Products
 import CategoryList from "./Products";
 import Brands from "./Products/Brands";
@@ -29,12 +26,14 @@ import AddProductSku from "./Products/ProductSku/Add";
 import EditProductSku from "./Products/ProductSku/Edit";
 
 import RequireAuth from "./RequireAuth";
-import UserGroups from "./UserGroups";
-import UserGroupPage from "./UserGroups/UserGroupPage";
-import Users from "./Users";
-import OTPRequests from "./Users/OTPRequests";
-import User from "./Users/User";
 import "antd/dist/antd.min.css";
+
+// * Users
+import Users from "./pages/Users";
+import User from "./pages/Users/User";
+import OTPRequests from "./pages/Users/OTPRequests";
+import UserGroups from "./pages/UserGroups";
+import UserGroupPage from "./pages/UserGroups/UserGroupPage";
 
 // * CRM
 import Crm from "./pages/CRM";
@@ -48,9 +47,11 @@ import SupportTicketList from "./pages/CRM/SupportTicket/SupportTicketList";
 import ReturnRequestList from "./pages/CRM/ReturnRequest/ReturnRequestList";
 import CreateReturnTicket from "./pages/CRM/ReturnRequest/CreateReturnTicket";
 
+// * Others
 import Dashboard from "./pages/Dashboard";
 import LiveUserBasket from "./pages/LiveUserBasket";
 import Notifications from "./pages/Notifications";
+import Orders from "./pages/Orders";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const queryClient = new QueryClient();

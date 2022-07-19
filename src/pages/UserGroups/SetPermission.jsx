@@ -1,7 +1,10 @@
 import { Form, Input, message, Modal, Select } from "antd";
 import { useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import { getPermission, updateGroupDetail } from "../context/UserGroupContext";
+import {
+  getPermission,
+  updateGroupDetail,
+} from "../../context/UserGroupContext";
 
 const SetPermission = ({ visible, onCancel, id, name, permissions }) => {
   const [form] = Form.useForm();
@@ -46,7 +49,6 @@ const SetPermission = ({ visible, onCancel, id, name, permissions }) => {
         form
           .validateFields()
           .then(() => {
-            console.log("Gone here");
             form.submit();
             onCancel();
           })
