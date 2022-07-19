@@ -3,37 +3,40 @@ import ReactDOM from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+
 import App from "./App";
 import AuthProvider from "./AuthProvider";
-import CRM from "./pages/CRM";
 import "./index.css";
 import LoginRasan from "./LoginRasan";
-import Orders from "./Orders";
-import CategoryList from "./Products";
-import Brands from "./Products/Brands";
-import BrandsScreen from "./Products/BrandsScreen";
-import Category from "./Products/Category";
-import ViewProductGroup from "./Products/Product Groups/ViewProductGroup";
-import ProductGroupsScreen from "./Products/ProductGroupsScreen";
-import AddProduct from "./Products/ProductList/Add";
-import ProductList from "./Products/ProductList/ProductView";
-import ProductListScreen from "./Products/ProductListScreen";
-import ProductSKU from "./Products/ProductSKU";
-import ProductSkuScreen from "./Products/ProductSkuScreen";
-import RequireAuth from "./RequireAuth";
-import UserGroups from "./UserGroups";
-import UserGroupPage from "./UserGroups/UserGroupPage";
-import Users from "./Users";
-import OTPRequests from "./Users/OTPRequests";
-import User from "./Users/User";
-import "antd/dist/antd.min.css";
 
 // * Products
-import EditProduct from "./Products/ProductList/Edit";
-import AddProductSku from "./Products/ProductSku/Add";
-import EditProductSku from "./Products/ProductSku/Edit";
+import CategoryList from "./pages/Products";
+import Brands from "./pages/Products/Brands";
+import BrandsScreen from "./pages/Products/BrandsScreen";
+import Category from "./pages/Products/Category";
+import ViewProductGroup from "./pages/Products/Product Groups/ViewProductGroup";
+import ProductGroupsScreen from "./pages/Products/ProductGroupsScreen";
+import AddProduct from "./pages/Products/ProductList/Add";
+import ProductList from "./pages/Products/ProductList/ProductView";
+import ProductListScreen from "./pages/Products/ProductListScreen";
+import ProductSKU from "./pages/Products/ProductSKU";
+import ProductSkuScreen from "./pages/Products/ProductSkuScreen";
+import EditProduct from "./pages/Products/ProductList/Edit";
+import AddProductSku from "./pages/Products/ProductSku/Add";
+import EditProductSku from "./pages/Products/ProductSku/Edit";
+
+import RequireAuth from "./RequireAuth";
+import "antd/dist/antd.min.css";
+
+// * Users
+import Users from "./pages/Users";
+import User from "./pages/Users/User";
+import OTPRequests from "./pages/Users/OTPRequests";
+import UserGroups from "./pages/UserGroups";
+import UserGroupPage from "./pages/UserGroups/UserGroupPage";
 
 // * CRM
+import Crm from "./pages/CRM";
 import UserFeedbacks from "./pages/CRM/UserFeedbacks";
 import StockEnquiry from "./pages/CRM/StockEnquiry";
 import ViewReturnRequest from "./pages/CRM/ReturnRequest/ViewReturnRequest";
@@ -44,9 +47,11 @@ import SupportTicketList from "./pages/CRM/SupportTicket/SupportTicketList";
 import ReturnRequestList from "./pages/CRM/ReturnRequest/ReturnRequestList";
 import CreateReturnTicket from "./pages/CRM/ReturnRequest/CreateReturnTicket";
 
+// * Others
 import Dashboard from "./pages/Dashboard";
 import LiveUserBasket from "./pages/LiveUserBasket";
 import Notifications from "./pages/Notifications";
+import Orders from "./pages/Orders";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const queryClient = new QueryClient();
@@ -129,7 +134,7 @@ root.render(
 
               <Route element={<LiveUserBasket />} path="live-user-basket" />
 
-              <Route element={<CRM />} path="crm">
+              <Route element={<Crm />} path="crm">
                 <Route path="support-ticket">
                   <Route element={<SupportTicketList />} index />
                   <Route element={<CreateSupportTicket />} path="create" />
