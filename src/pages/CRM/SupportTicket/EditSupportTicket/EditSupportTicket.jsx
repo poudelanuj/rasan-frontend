@@ -2,26 +2,26 @@ import { Upload, Form, Input, Select, Button, Space, Tag } from "antd";
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "react-query";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { getTicket, updateTicket } from "../../../api/crm/tickets";
-import { getOrders } from "../../../api/orders";
-import { getUsers } from "../../../api/users";
+import { getTicket, updateTicket } from "../../../../api/crm/tickets";
+import { getOrders } from "../../../../api/orders";
+import { getUsers } from "../../../../api/users";
 import {
   TICKET_STATUS,
   TICKET_TYPES,
   TICKET_TYPE_CANCEL,
   TICKET_TYPE_RETURN,
-} from "../../../constants";
+} from "../../../../constants";
 import {
   GET_ORDERS,
   GET_TICKET,
   GET_USERS,
-} from "../../../constants/queryKeys";
-import Loader from "../../../shared/Loader";
-import CustomPageHeader from "../../../shared/PageHeader";
+} from "../../../../constants/queryKeys";
+import Loader from "../../../../shared/Loader";
+import CustomPageHeader from "../../../../shared/PageHeader";
 import {
   openErrorNotification,
   openSuccessNotification,
-} from "../../../utils/openNotification";
+} from "../../../../utils/openNotification";
 
 const EditSupportTicket = () => {
   const [selectedImage, setSelectedImage] = useState([]);

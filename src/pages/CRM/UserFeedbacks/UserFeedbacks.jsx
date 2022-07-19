@@ -1,8 +1,8 @@
 import { Breadcrumb, Tabs, Table, Rate } from "antd";
 import moment from "moment";
 import { useQuery } from "react-query";
-import getAllUserFeedbacks from "../../api/crm/userFeedbacks";
-import Loader from "../../shared/Loader";
+import getAllUserFeedbacks from "../../../api/crm/userFeedbacks";
+import Loader from "../../../shared/Loader";
 
 const UserFeedbacks = () => {
   const { data: userFeedbacks, status } = useQuery({

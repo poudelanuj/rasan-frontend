@@ -3,7 +3,7 @@ import {
   TICKET_STATUS_NEW,
   TICKET_STATUS_ONHOLD,
   TICKET_STATUS_PROCESSING,
-} from "../../constants";
+} from "../../../constants";
 
 export const getStatusColor = (status) => {
   switch (status) {

@@ -2,28 +2,27 @@ import { Upload, Form, Input, Select, Button, Space, Tag } from "antd";
 import { useState } from "react";
 import { useQuery, useMutation } from "react-query";
 import { useNavigate } from "react-router-dom";
-import { createTicket } from "../../../api/crm/tickets";
-import { getOrders } from "../../../api/orders";
-import { getUsers } from "../../../api/users";
+import { createTicket } from "../../../../api/crm/tickets";
+import { getOrders } from "../../../../api/orders";
+import { getUsers } from "../../../../api/users";
 import {
   TICKET_STATUS,
   TICKET_STATUS_NEW,
   TICKET_TYPES,
   TICKET_TYPE_CANCEL,
-  TICKET_TYPE_GENERAL,
   TICKET_TYPE_RETURN,
-} from "../../../constants";
-import { GET_ORDERS, GET_USERS } from "../../../constants/queryKeys";
-import Loader from "../../../shared/Loader";
-import CustomPageHeader from "../../../shared/PageHeader";
+} from "../../../../constants";
+import { GET_ORDERS, GET_USERS } from "../../../../constants/queryKeys";
+import Loader from "../../../../shared/Loader";
+import CustomPageHeader from "../../../../shared/PageHeader";
 import {
   openErrorNotification,
   openSuccessNotification,
-} from "../../../utils/openNotification";
+} from "../../../../utils/openNotification";
 
-const CreateSupportTicket = () => {
+const CreateReturnTicket = () => {
   const [selectedImage, setSelectedImage] = useState([]);
-  const [selectedType, setSelectedType] = useState("");
+  const [selectedType, setSelectedType] = useState(TICKET_TYPE_RETURN);
   const { Dragger } = Upload;
   const navigate = useNavigate();
 
@@ -42,6 +41,7 @@ const CreateSupportTicket = () => {
     queryFn: () => getUsers(),
     queryKey: [GET_USERS],
   });
+
   const { data: orders, status: ordersStatus } = useQuery({
     queryFn: () => getOrders(),
     queryKey: [GET_ORDERS],
@@ -85,7 +85,7 @@ const CreateSupportTicket = () => {
       <Loader isOpen={onFormSubmit.status === "loading"} />
 
       <div className="py-5">
-        <CustomPageHeader title="Create Support Ticket" />
+        <CustomPageHeader title="Create Return Ticket" />
 
         <div>
           <Form
@@ -185,13 +185,13 @@ const CreateSupportTicket = () => {
               </Form.Item>
 
               <Form.Item
-                initialValue={TICKET_TYPE_GENERAL}
+                initialValue={TICKET_TYPE_RETURN}
                 label="Ticket Type"
                 name="type"
                 rules={[{ required: true, message: "ticket type required" }]}
               >
                 <Select
-                  defaultValue={TICKET_TYPE_GENERAL}
+                  defaultValue={TICKET_TYPE_RETURN}
                   placeholder="Select Type"
                   allowClear
                   onChange={(value) => setSelectedType(value)}
@@ -251,4 +251,4 @@ const CreateSupportTicket = () => {
   );
 };
 
-export default CreateSupportTicket;
+export default CreateReturnTicket;

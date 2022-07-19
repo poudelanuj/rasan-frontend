@@ -1,28 +1,28 @@
 import {
   Descriptions,
   Divider,
-  Tag,
   Image,
+  Tag,
   Button,
+  Select,
   Form,
   Space,
-  Select,
 } from "antd";
 import moment from "moment";
 import { useMutation, useQuery } from "react-query";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { getTicket, updateTicket } from "../../api/crm/tickets";
-import { TICKET_STATUS, TICKET_TYPE_RETURN } from "../../constants";
-import { GET_TICKET } from "../../constants/queryKeys";
-import Loader from "../../shared/Loader";
-import CustomPageHeader from "../../shared/PageHeader";
+import { getTicket, updateTicket } from "../../../api/crm/tickets";
+import { TICKET_STATUS } from "../../../constants";
+import { GET_TICKET } from "../../../constants/queryKeys";
+import Loader from "../../../shared/Loader";
+import CustomPageHeader from "../../../shared/PageHeader";
 import {
   openErrorNotification,
   openSuccessNotification,
-} from "../../utils/openNotification";
+} from "../../../utils/openNotification";
 import { getStatusColor } from "../shared/getTicketStatusColor";
 
-const ViewReturnRequest = () => {
+const ViewSupportTicket = () => {
   const navigate = useNavigate();
   const { ticketId } = useParams();
   const [searchParam] = useSearchParams();
@@ -56,29 +56,17 @@ const ViewReturnRequest = () => {
         <Loader isOpen />
       )}
 
-      <div className="mt-4 flex justify-between items-center">
+      <div className="mt-4 flex items-center justify-between">
         <CustomPageHeader
           path={pageHeaderPath || "../"}
-          title={`Return Ticket #${ticketId}`}
+          title={`Support Ticket #${ticketId}`}
         />
-        <Button
-          type="primary"
-          onClick={() => {
-            const id = ticketId;
-            const ticketType = TICKET_TYPE_RETURN;
-            const headerTitle = `Edit Return Ticket`;
-            const headerPath = `/crm/return-request/${ticketId}`;
-            navigate(
-              `/crm/support-ticket/edit/${ticketId}?headerTitle=${headerTitle}&&id=${id}&&headerPath=${headerPath}&&ticketType=${ticketType}`
-            );
-          }}
-        >
+        <Button type="primary" onClick={() => navigate(`../edit/${ticketId}`)}>
           Edit
         </Button>
       </div>
       <div className="flex mt-5 font-medium justify-between items-center">
         <span>{moment(ticket?.created_at).format("MMMM Do YYYY, h:mm a")}</span>
-        <span>Order Id: #{ticket?.order}</span>
       </div>
       <Divider />
 
@@ -107,8 +95,8 @@ const ViewReturnRequest = () => {
         <Descriptions.Item label="Description" span={2}>
           {ticket?.description}
         </Descriptions.Item>
-        <Descriptions.Item className="uppercase" label="Status" span={2}>
-          <Tag color={getStatusColor(ticket?.status)}>
+        <Descriptions.Item label="Status" span={2}>
+          <Tag className="uppercase" color={getStatusColor(ticket?.status)}>
             {ticket?.status?.replaceAll("_", " ")}
           </Tag>
         </Descriptions.Item>
@@ -161,4 +149,4 @@ const ViewReturnRequest = () => {
   );
 };
 
-export default ViewReturnRequest;
+export default ViewSupportTicket;

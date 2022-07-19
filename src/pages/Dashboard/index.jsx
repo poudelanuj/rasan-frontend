@@ -10,7 +10,7 @@ import {
   GET_TICKET_METRICS,
 } from "../../constants/queryKeys";
 import { getOrders } from "../../context/OrdersContext";
-import SupportTicketList from "../../CRM/SupportTicket/SupportTicketList";
+import SupportTicketList from "../CRM/SupportTicket/SupportTicketList";
 import OrdersList from "../../Orders/OrdersList";
 import Loader from "../../shared/Loader";
 import MetricsCard from "./shared/MetricsCard";
@@ -34,16 +34,12 @@ const Dashboard = () => {
     queryKey: GET_TICKET_METRICS,
   });
 
-  const { data: userInfo, status: userStatus } = useQuery(
-    ["get-end-user"],
-    getEndUser,
-    {
-      retry: false,
-      onError: (err) => {
-        logout();
-      },
-    }
-  );
+  const { data: userInfo } = useQuery(["get-end-user"], getEndUser, {
+    retry: false,
+    onError: (err) => {
+      logout();
+    },
+  });
 
   return (
     <>
