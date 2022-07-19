@@ -17,12 +17,15 @@ import { useRef } from "react";
 import { useState } from "react";
 import OrderModal from "./components/OrderModal";
 import CreateOrder from "./components/CreateOrder";
-import { deleteBulkOrders, updateOrderStatus } from "../context/OrdersContext";
+import {
+  deleteBulkOrders,
+  updateOrderStatus,
+} from "../../context/OrdersContext";
 import {
   openErrorNotification,
   openSuccessNotification,
-} from "../utils/openNotification";
-import { CANCELLED, DELIVERED, IN_PROCESS } from "../constants";
+} from "../../utils/openNotification";
+import { CANCELLED, DELIVERED, IN_PROCESS } from "../../constants";
 import DeleteOrder from "./components/DeleteOrder";
 
 const OrdersList = ({

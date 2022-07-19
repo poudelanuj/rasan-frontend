@@ -8,7 +8,7 @@ import {
   getBasketInfo,
   getProductSkus,
 } from "../../context/OrdersContext";
-import CreateOrder from "../../Orders/components/CreateOrder";
+import CreateOrder from "../Orders/components/CreateOrder";
 import {
   openErrorNotification,
   openSuccessNotification,

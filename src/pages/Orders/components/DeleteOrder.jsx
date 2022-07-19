@@ -1,11 +1,11 @@
 import { Button, Modal, Space, Spin } from "antd";
 import { useMutation } from "react-query";
-import { ReactComponent as DeleteModal } from "../../assets/images/DeleteModal.svg";
-import { deleteOrder } from "../../context/OrdersContext";
+import { ReactComponent as DeleteModal } from "../../../assets/images/DeleteModal.svg";
+import { deleteOrder } from "../../../context/OrdersContext";
 import {
   openErrorNotification,
   openSuccessNotification,
-} from "../../utils/openNotification";
+} from "../../../utils/openNotification";
 
 const DeleteOrder = ({ title, orderId, isOpen, closeModal, refetchOrders }) => {
   const handleDeleteOrder = useMutation(() => deleteOrder(orderId), {

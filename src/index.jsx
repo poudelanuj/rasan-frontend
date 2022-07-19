@@ -3,12 +3,16 @@ import ReactDOM from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+
 import App from "./App";
 import AuthProvider from "./AuthProvider";
-import CRM from "./pages/CRM";
 import "./index.css";
 import LoginRasan from "./LoginRasan";
-import Orders from "./Orders";
+
+// * Orders
+import Orders from "./pages/Orders";
+
+// * Products
 import CategoryList from "./Products";
 import Brands from "./Products/Brands";
 import BrandsScreen from "./Products/BrandsScreen";
@@ -20,6 +24,10 @@ import ProductList from "./Products/ProductList/ProductView";
 import ProductListScreen from "./Products/ProductListScreen";
 import ProductSKU from "./Products/ProductSKU";
 import ProductSkuScreen from "./Products/ProductSkuScreen";
+import EditProduct from "./Products/ProductList/Edit";
+import AddProductSku from "./Products/ProductSku/Add";
+import EditProductSku from "./Products/ProductSku/Edit";
+
 import RequireAuth from "./RequireAuth";
 import UserGroups from "./UserGroups";
 import UserGroupPage from "./UserGroups/UserGroupPage";
@@ -28,12 +36,8 @@ import OTPRequests from "./Users/OTPRequests";
 import User from "./Users/User";
 import "antd/dist/antd.min.css";
 
-// * Products
-import EditProduct from "./Products/ProductList/Edit";
-import AddProductSku from "./Products/ProductSku/Add";
-import EditProductSku from "./Products/ProductSku/Edit";
-
 // * CRM
+import Crm from "./pages/CRM";
 import UserFeedbacks from "./pages/CRM/UserFeedbacks";
 import StockEnquiry from "./pages/CRM/StockEnquiry";
 import ViewReturnRequest from "./pages/CRM/ReturnRequest/ViewReturnRequest";
@@ -129,7 +133,7 @@ root.render(
 
               <Route element={<LiveUserBasket />} path="live-user-basket" />
 
-              <Route element={<CRM />} path="crm">
+              <Route element={<Crm />} path="crm">
                 <Route path="support-ticket">
                   <Route element={<SupportTicketList />} index />
                   <Route element={<CreateSupportTicket />} path="create" />

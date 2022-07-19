@@ -8,15 +8,15 @@ import {
   deleteOrderItem,
   getOrder,
   getProductSkus,
-} from "../../context/OrdersContext";
+} from "../../../context/OrdersContext";
 import {
   openErrorNotification,
   openSuccessNotification,
-} from "../../utils/openNotification";
+} from "../../../utils/openNotification";
 import { useState } from "react";
-import { getUsers } from "../../api/users";
-import { GET_USERS } from "../../constants/queryKeys";
-import { updateOrder } from "../../api/orders";
+import { getUsers } from "../../../api/users";
+import { GET_USERS } from "../../../constants/queryKeys";
+import { updateOrder } from "../../../api/orders";
 
 const OrderModal = ({
   isOpen,

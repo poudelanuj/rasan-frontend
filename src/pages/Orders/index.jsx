@@ -1,8 +1,8 @@
 import { Tabs } from "antd";
 import React from "react";
 import { useQuery } from "react-query";
-import { CANCELLED, DELIVERED, IN_PROCESS } from "../constants";
-import { getOrders } from "../context/OrdersContext";
+import { CANCELLED, DELIVERED, IN_PROCESS } from "../../constants";
+import { getOrders } from "../../context/OrdersContext";
 import OrdersList from "./OrdersList";
 
 const Orders = () => {

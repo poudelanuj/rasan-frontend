@@ -1,12 +1,12 @@
 import { Button, Form, Modal, Select, Spin } from "antd";
 import { useState } from "react";
 import { useQuery, useMutation } from "react-query";
-import { CANCELLED, DELIVERED, IN_PROCESS } from "../../constants";
-import { createOrder, getUserList } from "../../context/OrdersContext";
+import { CANCELLED, DELIVERED, IN_PROCESS } from "../../../constants";
+import { createOrder, getUserList } from "../../../context/OrdersContext";
 import {
   openErrorNotification,
   openSuccessNotification,
-} from "../../utils/openNotification";
+} from "../../../utils/openNotification";
 
 const CreateOrder = ({
   isOpen,
