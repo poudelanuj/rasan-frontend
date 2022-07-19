@@ -39,9 +39,9 @@ import EditSupportTicket from "./CRM/SupportTicket/EditSupportTicket";
 import SupportTicketList from "./CRM/SupportTicket/SupportTicketList";
 import ReturnRequestList from "./CRM/ReturnRequest/ReturnRequestList";
 import CreateReturnTicket from "./CRM/ReturnRequest/CreateReturnTicket";
-import Dashboard from "./components/Dashboard";
-import LiveUserBasket from "./components/LiveUserBasket";
-import Notifications from "./components/Notifications";
+import Dashboard from "./pages/Dashboard";
+import LiveUserBasket from "./pages/LiveUserBasket";
+import Notifications from "./pages/Notifications";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const queryClient = new QueryClient();
