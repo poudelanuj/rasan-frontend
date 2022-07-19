@@ -8,7 +8,7 @@ import {
   BellOutlined,
   AppstoreOutlined,
 } from "@ant-design/icons";
-import { Dropdown, Layout, Menu } from "antd";
+import { Avatar, Dropdown, Layout, Menu } from "antd";
 import React from "react";
 import { useQuery } from "react-query";
 import { Outlet, useNavigate } from "react-router-dom";
@@ -110,9 +110,8 @@ const AppLayout = () => {
             <div className="cursor-pointer">
               {isSuccess &&
                 (userInfo?.profile_picture?.thumbnail ? (
-                  <img
-                    alt={userInfo?.full_name?.[0]}
-                    className="rounded-full w-12 h-12"
+                  <Avatar
+                    size={44}
                     src={userInfo?.profile_picture?.thumbnail}
                   />
                 ) : (
