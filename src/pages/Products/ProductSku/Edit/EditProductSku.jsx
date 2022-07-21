@@ -51,7 +51,7 @@ const EditProductSku = () => {
 
   const { data: productGroups, status: productGroupsStatus } = useQuery({
     queryFn: () => getAllProductGroups(),
-    queryKey: ["all-categories"],
+    queryKey: ["all-product-groups"],
   });
 
   const { data: brands, status: brandsStatus } = useQuery({
@@ -285,14 +285,14 @@ const EditProductSku = () => {
 
                 <Form.Item
                   initialValue={productSku.product_group}
-                  label="Product Group"
+                  label="Rasan Choice"
                   name="product_group"
                 >
                   <Select
                     defaultValue={productSku.product_group}
                     loading={productGroupsStatus === "loading"}
                     mode="multiple"
-                    placeholder="Select Product Group"
+                    placeholder="Select Rasan Choice"
                     allowClear
                   >
                     {productGroups &&

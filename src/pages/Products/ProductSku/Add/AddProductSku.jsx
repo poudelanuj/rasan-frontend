@@ -257,11 +257,11 @@ const AddProductSku = () => {
                 </Select>
               </Form.Item>
 
-              <Form.Item label="Product Group" name="product_group">
+              <Form.Item label="Rasan Choice" name="product_group">
                 <Select
                   loading={productGroupsStatus === "loading"}
                   mode="multiple"
-                  placeholder="Select Product Group"
+                  placeholder="Select Rasan Choice"
                   allowClear
                 >
                   {productGroups &&
