@@ -28,7 +28,7 @@ import {
 const { Option } = Select;
 
 const CategoryList = () => {
-  const [entriesPerPage, setEntriesPerPage] = useState(20);
+  const [entriesPerPage, setEntriesPerPage] = useState(10);
   const [alert, setAlert] = useState({
     show: false,
     title: "",

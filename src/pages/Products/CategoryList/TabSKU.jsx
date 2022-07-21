@@ -168,7 +168,7 @@ function TabSKU({ slug, publishCategory }) {
     onChange: onSelectChange,
     selectedRowKeys,
   };
-  const [entriesPerPage, setEntriesPerPage] = useState(4);
+  const [entriesPerPage, setEntriesPerPage] = useState(10);
   const { data, isLoading, isError, error } = useQuery(
     ["get-category", slug],
     () => getCategory({ slug }),

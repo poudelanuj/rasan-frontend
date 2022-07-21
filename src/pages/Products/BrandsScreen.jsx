@@ -235,7 +235,7 @@ function BrandsScreen() {
               ))}
           </div>
           <Pagination
-            pageSize={20}
+            pageSize={10}
             showTotal={(total) => `Total ${total} items`}
             style={{
               marginTop: "1rem",

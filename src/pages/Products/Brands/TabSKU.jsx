@@ -167,7 +167,7 @@ function TabSKU({ slug }) {
     onChange: onSelectChange,
     selectedRowKeys,
   };
-  const [entriesPerPage, setEntriesPerPage] = useState(4);
+  const [entriesPerPage, setEntriesPerPage] = useState(10);
   const { data, isLoading, isError, error } = useQuery(
     ["get-brand", slug],
     () => getBrand({ slug }),
