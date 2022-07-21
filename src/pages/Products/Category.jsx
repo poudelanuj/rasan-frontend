@@ -1,44 +1,79 @@
 import React from "react";
-import { useQuery } from "react-query";
-import { Tabs } from "antd";
+import { useMutation, useQuery } from "react-query";
+import { Button, Tabs } from "antd";
 import { useParams } from "react-router-dom";
 
 import TabAll from "./CategoryList/TabAll";
 import TabSKU from "./CategoryList/TabSKU";
-import { getCategory } from "../../context/CategoryContext";
-import { openErrorNotification } from "../../utils/openNotification";
-import Loader from "./subComponents/Loader";
+import CustomPageHeader from "../../shared/PageHeader";
+import { getCategory, publishCategory } from "../../api/categories";
+import { GET_SINGLE_CATEGORY } from "../../constants/queryKeys";
+import {
+  openErrorNotification,
+  openSuccessNotification,
+  parseSlug,
+} from "../../utils";
 
 const { TabPane } = Tabs;
 
 function Category() {
   const { slug } = useParams();
-  const { data, isLoading } = useQuery(
-    "get-category",
-    () => getCategory({ slug }),
+  const {
+    data: category,
+    status,
+    refetch: refetchCategory,
+  } = useQuery({
+    queryFn: () => getCategory(slug),
+    queryKey: [GET_SINGLE_CATEGORY, slug],
+  });
+
+  const onPublishCategory = useMutation(
+    ({ slug, shouldPublish }) => publishCategory({ slug, shouldPublish }),
     {
-      onError: (err) => {
-        openErrorNotification(err);
-      },
+      onSuccess: (data) =>
+        openSuccessNotification(data.message || "Category Updated"),
+      onError: (err) => openErrorNotification(err),
+      onSettled: () => refetchCategory(),
     }
   );
 
+  const PublishCategory = () => {
+    return (
+      <Button
+        disabled={status === "loading"}
+        loading={onPublishCategory.status === "loading"}
+        type={category?.is_published ? "danger" : "primary"}
+        onClick={() =>
+          onPublishCategory.mutate({
+            slug: category.slug,
+            shouldPublish: !category.is_published,
+          })
+        }
+      >
+        {category?.is_published ? "Unpublish" : "Publish"}
+      </Button>
+    );
+  };
+
   return (
     <>
-      {isLoading && <Loader loadingText={"Loading Category..."} />}
-      {data && (
-        <div>
-          <div className="text-3xl bg-white p-5">{data.data.data.name}</div>
-          <Tabs defaultActiveKey="1">
-            <TabPane key="1" tab="Products">
-              <TabAll slug={slug} />
-            </TabPane>
-            <TabPane key="2" tab="SKU">
-              <TabSKU slug={slug} />
-            </TabPane>
-          </Tabs>
-        </div>
-      )}
+      <div className="mt-4">
+        <CustomPageHeader
+          path="/category-list"
+          title={category?.name || parseSlug(slug)}
+        />
+      </div>
+
+      <div>
+        <Tabs defaultActiveKey="1">
+          <TabPane key="1" tab="Products">
+            <TabAll publishCategory={<PublishCategory />} slug={slug} />
+          </TabPane>
+          <TabPane key="2" tab="SKU">
+            <TabSKU publishCategory={<PublishCategory />} slug={slug} />
+          </TabPane>
+        </Tabs>
+      </div>
     </>
   );
 }

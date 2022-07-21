@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { Table, Select } from "antd";
+import { Table, Select, Space } from "antd";
 import AddCategoryButton from "../subComponents/AddCategoryButton";
 import {
   deleteProductSKU,
@@ -145,7 +145,7 @@ const columns = [
   },
 ];
 
-function TabSKU({ slug }) {
+function TabSKU({ slug, publishCategory }) {
   const queryClient = useQueryClient();
   // const { slug } = useParams();
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
@@ -313,10 +313,15 @@ function TabSKU({ slug }) {
                 <Option value="delete">Delete</Option>
               </Select>
             )}
-            <AddCategoryButton
-              linkText="Add Product SKU"
-              linkTo={`/product-sku/add?category=${slug}`}
-            />
+
+            <Space>
+              {publishCategory}
+
+              <AddCategoryButton
+                linkText="Add Product SKU"
+                linkTo={`/product-sku/add?category=${slug}`}
+              />
+            </Space>
           </div>
         </div>
 

@@ -164,7 +164,7 @@ const EditSupportTicket = () => {
                   {users &&
                     users.map((user) => (
                       <Select.Option key={user.id} value={user.phone}>
-                        {user.full_name} {user.phone}
+                        {user.full_name || user.phone}
                       </Select.Option>
                     ))}
                 </Select>
@@ -184,7 +184,7 @@ const EditSupportTicket = () => {
                   {users &&
                     users.map((user) => (
                       <Select.Option key={user.id} value={user.phone}>
-                        {user.full_name} {user.phone}
+                        {user.full_name || user.phone}
                       </Select.Option>
                     ))}
                 </Select>
