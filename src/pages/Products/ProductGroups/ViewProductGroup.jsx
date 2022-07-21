@@ -2,7 +2,7 @@ import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import React, { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import { Select, Table } from "antd";
+import { Button, Select, Table } from "antd";
 import {
   getProductGroup,
   updateProductSKU,
@@ -18,6 +18,8 @@ import { getAllProductSkus } from "../../../api/products/productSku";
 import { GET_ALL_PRODUCT_SKUS } from "../../../constants/queryKeys";
 import { getDate, parseArray } from "../../../utils";
 import { DEFAULT_CARD_IMAGE } from "../../../constants";
+import CustomPageHeader from "../../../shared/PageHeader";
+import { publishProductGroup } from "../../../api/products/productGroups";
 
 const { Option } = Select;
 
@@ -54,19 +56,22 @@ function ViewProductGroup() {
     product_group_image: "",
   });
   const [selectedProductSku, setSelectedProductSku] = useState(null);
-  const { data: productGroupData, isLoading: getProductGroupIsLoading } =
-    useQuery(["get-product-group", slug], () => getProductGroup({ slug }), {
-      onSuccess: (data) => {
-        let newData = data.data.data;
-        newData.product_skus.results.forEach((productSku) => {
-          productSku["key"] = productSku.slug;
-        });
-        setProductGroup(newData);
-      },
-      onError: (error) => {
-        openErrorNotification(error);
-      },
-    });
+  const {
+    data: productGroupData,
+    isLoading: getProductGroupIsLoading,
+    refetch: refetchProductGroup,
+  } = useQuery(["get-product-group", slug], () => getProductGroup({ slug }), {
+    onSuccess: (data) => {
+      let newData = data.data.data;
+      newData.product_skus.results.forEach((productSku) => {
+        productSku["key"] = productSku.slug;
+      });
+      setProductGroup(newData);
+    },
+    onError: (error) => {
+      openErrorNotification(error);
+    },
+  });
 
   const { mutate: productSKUGroupUpdate } = useMutation(updateProductSKU, {
     onSuccess: (data) => {
@@ -106,6 +111,16 @@ function ViewProductGroup() {
       form_data: { product_group: productGroups },
     });
   };
+
+  const onPublishProductGroup = useMutation(
+    ({ slug, shouldPublish }) => publishProductGroup({ slug, shouldPublish }),
+    {
+      onSuccess: (data) =>
+        openSuccessNotification(data.message || "Rasan Choices Updated"),
+      onError: (err) => openErrorNotification(err),
+      onSettled: () => refetchProductGroup(),
+    }
+  );
 
   const { data: productSkus } = useQuery({
     queryFn: () => getAllProductSkus(),
@@ -216,7 +231,12 @@ function ViewProductGroup() {
       )}
       {productGroupData && (
         <>
-          <div className="text-3xl bg-white p-5 mb-7">{productGroup.name}</div>
+          <div className="mt-4">
+            <CustomPageHeader
+              path="/product-groups"
+              title={productGroup.name}
+            />
+          </div>
           <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[70vh]">
             <div>
               <div className="flex justify-start relative">
@@ -242,6 +262,19 @@ function ViewProductGroup() {
                   </p>
                 </div>
                 <div className="absolute top-0 right-0">
+                  <Button
+                    loading={onPublishProductGroup.status === "loading"}
+                    type={productGroup.is_published ? "danger" : "primary"}
+                    onClick={() =>
+                      onPublishProductGroup.mutate({
+                        slug: productGroup.slug,
+                        shouldPublish: !productGroup.is_published,
+                      })
+                    }
+                  >
+                    {productGroup.is_published ? "Unpublish" : "Publish"}
+                  </Button>
+
                   <Link
                     className="text-[#00A0B0] hover:bg-[#d4e4e6] py-2 px-6"
                     to={"edit"}

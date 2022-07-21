@@ -7,9 +7,7 @@ import { UploadOutlined, LoadingOutlined } from "@ant-design/icons";
 import {
   updateCategory,
   getCategory,
-  publishCategory,
   deleteCategory,
-  unpublishCategory,
 } from "../../../context/CategoryContext";
 
 import {
@@ -72,31 +70,7 @@ function EditCategory({ slug, setAlert }) {
         openErrorNotification(error);
       },
     });
-  const { mutate: publishCategoryMutate, isLoading: publishCategoryIsLoading } =
-    useMutation(publishCategory, {
-      onSuccess: (data) => {
-        openSuccessNotification(
-          data.data.message || "Category published successfully"
-        );
-        queryClient.invalidateQueries("get-categories");
-        queryClient.invalidateQueries(["get-category", slug]);
-      },
-      onError: (error) => {
-        openErrorNotification(error);
-      },
-    });
-  const { mutate: unpublishCategoryMutate } = useMutation(unpublishCategory, {
-    onSuccess: (data) => {
-      openSuccessNotification(
-        data.data.message || "Category unpublished successfully"
-      );
-      queryClient.invalidateQueries("get-categories");
-      queryClient.invalidateQueries(["get-category", slug]);
-    },
-    onError: (error) => {
-      openErrorNotification(error);
-    },
-  });
+
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -144,12 +118,7 @@ function EditCategory({ slug, setAlert }) {
       });
     }
   };
-  const handlePublish = async ({ slug }) => {
-    publishCategoryMutate({ slug });
-  };
-  const handleUnpublish = async ({ slug }) => {
-    unpublishCategoryMutate({ slug });
-  };
+
   const handleDelete = async ({ slug }) => {
     deleteMutate({ slug });
     closeEditCategories();
@@ -184,14 +153,12 @@ function EditCategory({ slug, setAlert }) {
       ></div>
       {(getCategoryIsLoading ||
         updateCategoryIsLoading ||
-        publishCategoryIsLoading ||
         deleteCategoryIsLoading) && (
         <div className="absolute top-0 right-0 bg-black/25 w-full h-full flex flex-col items-center justify-center z-50 animate-popupopen">
           <LoadingOutlined style={{ color: "white", fontSize: "3rem" }} />
           <span className="p-2 text-white">
             {getCategoryIsLoading && "Getting category..."}
             {deleteCategoryIsLoading && "Deleting..."}
-            {publishCategoryIsLoading && "Publishing..."}
             {updateCategoryIsLoading && "Updating..."}
           </span>
         </div>
@@ -280,43 +247,7 @@ function EditCategory({ slug, setAlert }) {
               >
                 Delete
               </button>
-              {categoryData?.data?.data?.is_published ? (
-                <button
-                  className="bg-[#FFF8E1] text-[#FF8F00] p-[8px_12px] ml-5 min-w-[5rem] rounded-[4px] border-[1px]   border-[#FFF8E1] hover:bg-[#f4eaca] transition-colors"
-                  type="button"
-                  onClick={() =>
-                    showAlert({
-                      title: "Are you sure to Unpublish?",
-                      text: "Unpublishing this category would make it invisible to the public!",
-                      primaryButton: "Unpublish",
-                      secondaryButton: "Cancel",
-                      type: "warning",
-                      image: "/unpublish-icon.svg",
-                      action: async () => await handleUnpublish({ slug }),
-                    })
-                  }
-                >
-                  Unpublish Category
-                </button>
-              ) : (
-                <button
-                  className="bg-[#00B0C2] text-white p-[8px_12px] ml-5 min-w-[5rem] rounded-[4px] border-[1px]   border-[#00B0C2] hover:bg-[#12919f] transition-colors"
-                  type="button"
-                  onClick={() =>
-                    showAlert({
-                      title: "Are you sure to Publish?",
-                      text: "Publishing this category would make it visible to the public!",
-                      primaryButton: "Publish",
-                      secondaryButton: "Cancel",
-                      type: "info",
-                      image: "/publish-icon.svg",
-                      action: async () => await handlePublish({ slug }),
-                    })
-                  }
-                >
-                  Publish Category
-                </button>
-              )}
+
               <button
                 className={`${
                   categoryData?.data?.data?.is_published

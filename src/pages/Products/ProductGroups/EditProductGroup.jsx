@@ -7,8 +7,6 @@ import { useMutation, useQuery, useQueryClient } from "react-query";
 import {
   deleteProductGroup,
   getProductGroup,
-  publishProductGroup,
-  unpublishProductGroup,
   updateProductGroup,
 } from "../../../context/CategoryContext";
 
@@ -55,32 +53,6 @@ function EditProductGroup({ alert, setAlert }) {
       },
     }
   );
-
-  const {
-    mutate: publishProductGroupMutate,
-    isLoading: publishProductGroupIsLoading,
-  } = useMutation(publishProductGroup, {
-    onSuccess: (data) => {
-      openSuccessNotification(data.data.message || "Product Group Published");
-      queryClient.invalidateQueries(["get-product-group", slug]);
-    },
-    onError: (err) => {
-      openErrorNotification(err);
-    },
-  });
-
-  const {
-    mutate: unpublishProductGroupMutate,
-    isLoading: unpublishProductGroupIsLoading,
-  } = useMutation(unpublishProductGroup, {
-    onSuccess: (data) => {
-      openSuccessNotification(data.data.message || "Product Group Unpublished");
-      queryClient.invalidateQueries(["get-product-group", slug]);
-    },
-    onError: (err) => {
-      openErrorNotification(err);
-    },
-  });
 
   const {
     mutate: updateProductGroupMutate,
@@ -135,14 +107,9 @@ function EditProductGroup({ alert, setAlert }) {
       });
     }
   };
-  const handlePublish = async () => {
-    publishProductGroupMutate({ slug });
-  };
+
   const handleDelete = async () => {
     deleteProductGroupMutate({ slug });
-  };
-  const handleUnpublish = async () => {
-    unpublishProductGroupMutate({ slug });
   };
 
   const props = {
@@ -198,8 +165,6 @@ function EditProductGroup({ alert, setAlert }) {
           Edit Rasan Choice
         </h2>
         {(updateProductGroupIsLoading ||
-          publishProductGroupIsLoading ||
-          unpublishProductGroupIsLoading ||
           deleteProductGroupIsLoading ||
           productGroupIsLoading) && (
           <div className="absolute top-0 right-0 bg-black/25 w-full h-full flex flex-col items-center justify-center z-50 animate-popupopen">
@@ -301,48 +266,7 @@ function EditProductGroup({ alert, setAlert }) {
             >
               Delete
             </button>
-            {formState.is_published ? (
-              <button
-                className="bg-[#FFF8E1] text-[#FF8F00] p-[8px_12px] ml-5 min-w-[5rem] rounded-[4px] border-[1px]   border-[#FFF8E1] hover:bg-[#f4eaca] transition-colors"
-                type="button"
-                onClick={async () =>
-                  showAlert({
-                    title: "Are you sure to Unpublish?",
-                    text: "Unpublishing will make this Rasan Choice unavailable to users",
-                    primaryButton: "Unpublish",
-                    secondaryButton: "Cancel",
-                    type: "warning",
-                    image: "/unpublish-icon.svg",
-                    action: async () => {
-                      await handleUnpublish();
-                    },
-                  })
-                }
-              >
-                Unpublish Rasan Choice
-              </button>
-            ) : (
-              <button
-                className="text-[#00B0C2] p-[8px_12px] min-w-[5rem] rounded-[4px] border-[1px] border-[#00B0C2] hover:bg-[#effdff] transition-colors ml-[1rem]"
-                type="button"
-                onClick={async () =>
-                  showAlert({
-                    title: "Are you sure to Publish?",
-                    text: "Publishing this Rasan Choice would save it and make it visible to the public!",
-                    primaryButton: "Publish",
-                    secondaryButton: "Cancel",
-                    type: "info",
-                    image: "/publish-icon.svg",
-                    action: async () => {
-                      await handlePublish();
-                    },
-                  })
-                }
-              >
-                Publish Rasan Choice
-              </button>
-            )}
-            ;
+
             <button
               className="bg-[#00B0C2] text-white p-[8px_12px] ml-5 min-w-[5rem] rounded-[4px] border-[1px] border-[#00B0C2] hover:bg-[#12919f] transition-colors"
               type="button"

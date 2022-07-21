@@ -7,7 +7,7 @@ const CustomPageHeader = ({ title, path }) => {
   return (
     <PageHeader
       className="site-page-header m-0"
-      style={{ padding: 0, marginBottom: 16 }}
+      style={{ padding: 0, marginBottom: 16, textTransform: "capitalize" }}
       title={
         <div className="cursor-pointer" onClick={() => navigate(path || -1)}>
           {title || "Page Title"}

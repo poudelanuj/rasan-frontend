@@ -18,6 +18,7 @@ export const GET_ALL_BRANDS = "all-brands";
 
 //* Categories
 export const GET_ALL_CATEGORIES = "all-categories";
+export const GET_SINGLE_CATEGORY = "single-category";
 
 //* Loyalty Policies
 export const GET_ALL_LOYALTIES = "all-loyalties";
