@@ -169,7 +169,7 @@ function TabAll() {
               key: item.id || item.slug,
             }))}
             pagination={{
-              pageSize: 5,
+              pageSize: 10,
               total: data?.count,
 
               onChange: (page, pageSize) => {

@@ -174,7 +174,7 @@ const columns = [
 ];
 function TabAll({ slug }) {
   const queryClient = useQueryClient();
-  const [entriesPerPage, setEntriesPerPage] = useState(4);
+  const [entriesPerPage, setEntriesPerPage] = useState(10);
   const [alert, setAlert] = useState({
     show: false,
     title: "",

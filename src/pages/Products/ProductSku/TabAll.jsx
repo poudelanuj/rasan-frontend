@@ -115,7 +115,7 @@ function TabAll() {
   const { data, isLoading, isError, error } = useQuery("get-product-skus", () =>
     getProductSKUs()
   );
-  const entriesPerPage = 4;
+  const entriesPerPage = 10;
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const navigate = useNavigate();
 
