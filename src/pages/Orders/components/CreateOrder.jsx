@@ -160,7 +160,7 @@ const CreateOrder = ({
             {!isFromLiveUserBasket &&
               userList?.map((user) => (
                 <Option key={user.id} value={user.phone}>
-                  {user.full_name} {user.phone}
+                  {user.full_name || user.phone}
                 </Option>
               ))}
 

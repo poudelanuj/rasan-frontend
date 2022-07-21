@@ -10,7 +10,7 @@ import {
 } from "../../context/CategoryContext";
 import SimpleAlert from "./alerts/SimpleAlert";
 import CategoryWidget from "./CategoryWidget";
-import AddProductGroup from "./Product Groups/AddProductGroup";
+import AddProductGroup from "./ProductGroups/AddProductGroup";
 import AddCategoryButton from "./subComponents/AddCategoryButton";
 import ClearSelection from "./subComponents/ClearSelection";
 import Header from "./subComponents/Header";
