@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Spin, Table } from "antd";
+import { Table } from "antd";
 import { useQuery } from "react-query";
 import moment from "moment";
 import UserInfo from "./UserInfo";
@@ -54,27 +54,21 @@ const LiveUserBasket = () => {
     <div>
       <h2 className="text-2xl my-3">Live User Basket</h2>
 
-      {status === "loading" && (
-        <div className="my-8 flex justify-center">
-          <Spin />
-        </div>
-      )}
-      {status === "success" && (
-        <Table
-          columns={columns}
-          dataSource={basketsList.map((item) => ({ ...item, key: item.user }))}
-          rowClassName="cursor-pointer"
-          rowSelection={rowSelection}
-          onRow={(record) => {
-            return {
-              onClick: () => {
-                setModalBasket(record);
-                setIsModalOpen(true);
-              },
-            };
-          }}
-        />
-      )}
+      <Table
+        columns={columns}
+        dataSource={basketsList?.map((item) => ({ ...item, key: item.user }))}
+        loading={status === "loading"}
+        rowClassName="cursor-pointer"
+        rowSelection={rowSelection}
+        onRow={(record) => {
+          return {
+            onClick: () => {
+              setModalBasket(record);
+              setIsModalOpen(true);
+            },
+          };
+        }}
+      />
 
       {modalBasket && (
         <BasketModal

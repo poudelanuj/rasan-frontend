@@ -298,24 +298,22 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
         </div>
       </div>
 
-      {status === "success" && (
-        <Table
-          columns={columns}
-          dataSource={dataSource?.map((item) => ({ ...item, key: item.id }))}
-          loading={status === "loading"}
-          rowClassName="cursor-pointer"
-          rowSelection={{ ...rowSelection }}
-          onRow={(record) => {
-            const { id, status } = record;
-            return {
-              onClick: () => {
-                setIsOrderModalOpen((prev) => !prev);
-                setActiveOrder({ orderId: id, orderStatus: status });
-              },
-            };
-          }}
-        />
-      )}
+      <Table
+        columns={columns}
+        dataSource={dataSource?.map((item) => ({ ...item, key: item.id }))}
+        loading={status === "loading"}
+        rowClassName="cursor-pointer"
+        rowSelection={{ ...rowSelection }}
+        onRow={(record) => {
+          const { id, status } = record;
+          return {
+            onClick: () => {
+              setIsOrderModalOpen((prev) => !prev);
+              setActiveOrder({ orderId: id, orderStatus: status });
+            },
+          };
+        }}
+      />
 
       <OrderModal
         closeModal={() => setIsOrderModalOpen(false)}

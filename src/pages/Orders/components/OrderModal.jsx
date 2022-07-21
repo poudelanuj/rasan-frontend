@@ -223,7 +223,7 @@ const OrderModal = ({
                 {usersList &&
                   usersList.map((user) => (
                     <Select.Option key={user.id} value={user.phone}>
-                      {user.full_name}
+                      {user.full_name} {user.phone}
                     </Select.Option>
                   ))}
               </Select>
