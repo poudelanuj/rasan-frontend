@@ -15,11 +15,11 @@ export const publishCategory = async ({ slug, shouldPublish }) => {
     const res = await axios.post(
       `/api/product/admin/categories/publish/${slug}/`
     );
-    return res;
+    return res.data;
   } else {
     const res = await axios.delete(
       `/api/product/admin/categories/publish/${slug}/`
     );
-    return res;
+    return res.data;
   }
 };
