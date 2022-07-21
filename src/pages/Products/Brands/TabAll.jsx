@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { Table, Select } from "antd";
+import { Table, Select, Space } from "antd";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 
 import AddCategoryButton from "../subComponents/AddCategoryButton";
@@ -172,7 +172,7 @@ const columns = [
     },
   },
 ];
-function TabAll({ slug }) {
+function TabAll({ slug, publishBrand }) {
   const queryClient = useQueryClient();
   const [entriesPerPage, setEntriesPerPage] = useState(10);
   const [alert, setAlert] = useState({
@@ -342,10 +342,14 @@ function TabAll({ slug }) {
                 <Option value="delete">Delete</Option>
               </Select>
             )}
-            <AddCategoryButton
-              linkText="Add Products"
-              linkTo={`/product-list/add?brand=${slug}`}
-            />
+            <Space>
+              {publishBrand}
+
+              <AddCategoryButton
+                linkText="Add Products"
+                linkTo={`/product-list/add?brand=${slug}`}
+              />
+            </Space>
           </div>
         </div>
 

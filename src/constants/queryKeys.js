@@ -15,6 +15,7 @@ export const GET_ALL_PRODUCT_GROUPS = "all-product-groups";
 
 //* Brands
 export const GET_ALL_BRANDS = "all-brands";
+export const GET_SINGLE_BRAND = "single-brand";
 
 //* Categories
 export const GET_ALL_CATEGORIES = "all-categories";

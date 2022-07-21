@@ -1,37 +1,79 @@
 import React from "react";
 import TabAll from "./Brands/TabAll";
 import TabSKU from "./Brands/TabSKU";
-import { useQuery } from "react-query";
-import { getBrand } from "../../context/CategoryContext";
+import { useMutation, useQuery } from "react-query";
 
-import { Tabs } from "antd";
+import { Button, Tabs } from "antd";
 import { useParams } from "react-router-dom";
-import Loader from "./subComponents/Loader";
+import CustomPageHeader from "../../shared/PageHeader";
+import {
+  openErrorNotification,
+  openSuccessNotification,
+  parseSlug,
+} from "../../utils";
+import { getBrand, publishBrand } from "../../api/brands";
+import { GET_SINGLE_BRAND } from "../../constants/queryKeys";
 const { TabPane } = Tabs;
 
 function Brands() {
   const { slug } = useParams();
-  const { data, isLoading, isError, error } = useQuery("get-brand", () =>
-    getBrand({ slug })
+
+  const {
+    data: brand,
+    status,
+    refetch: refetchBrand,
+  } = useQuery({
+    queryFn: () => getBrand(slug),
+    queryKey: [GET_SINGLE_BRAND, slug],
+  });
+
+  const onPublishBrand = useMutation(
+    ({ slug, shouldPublish }) => publishBrand({ slug, shouldPublish }),
+    {
+      onSuccess: (data) =>
+        openSuccessNotification(data.message || "Category Updated"),
+      onError: (err) => openErrorNotification(err),
+      onSettled: () => refetchBrand(),
+    }
   );
+
+  const PublishBrand = () => {
+    return (
+      <Button
+        disabled={status === "loading"}
+        loading={onPublishBrand.status === "loading"}
+        type={brand?.is_published ? "danger" : "primary"}
+        onClick={() =>
+          onPublishBrand.mutate({
+            slug: brand.slug,
+            shouldPublish: !brand.is_published,
+          })
+        }
+      >
+        {brand?.is_published ? "Unpublish" : "Publish"}
+      </Button>
+    );
+  };
 
   return (
     <>
-      {isLoading && <Loader loadingText={"Loading Brand..."} />}
-      {isError && <div>Error: {error.message}</div>}
-      {data && (
-        <div>
-          <div className="text-3xl bg-white p-5">{data.data.data.name}</div>
-          <Tabs defaultActiveKey="1">
-            <TabPane key="1" tab="Products">
-              <TabAll slug={slug} />
-            </TabPane>
-            <TabPane key="2" tab="SKU">
-              <TabSKU slug={slug} />
-            </TabPane>
-          </Tabs>
-        </div>
-      )}
+      <div className="mt-4">
+        <CustomPageHeader
+          path="/category-list"
+          title={brand?.name || parseSlug(slug)}
+        />
+      </div>
+
+      <div>
+        <Tabs defaultActiveKey="1">
+          <TabPane key="1" tab="Products">
+            <TabAll publishBrand={<PublishBrand />} slug={slug} />
+          </TabPane>
+          <TabPane key="2" tab="SKU">
+            <TabSKU publishBrand={<PublishBrand />} slug={slug} />
+          </TabPane>
+        </Tabs>
+      </div>
     </>
   );
 }
