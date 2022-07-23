@@ -3,10 +3,10 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
 import { Table } from "antd";
-import AddCategoryButton from "../subComponents/AddCategoryButton";
+import { uniqBy } from "lodash";
 import { useQuery } from "react-query";
-
-import Loader from "../../../shared/Loader";
+import Header from "../subComponents/Header";
+import AddCategoryButton from "../subComponents/AddCategoryButton";
 import { GET_PAGINATED_PRODUCTS } from "../../../constants/queryKeys";
 import { getPaginatedProducts } from "../../../api/products";
 import { parseSlug } from "../../../utils";
@@ -83,8 +83,9 @@ const columns = [
   },
 ];
 
-function TabAll() {
-  const [nextPage, setNextPage] = useState(1); //* api
+function ProductListScreen() {
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
   const [products, setProducts] = useState([]);
 
   const {
@@ -92,16 +93,19 @@ function TabAll() {
     status: productsStatus,
     refetch: refetchProducts,
     isRefetching,
-  } = useQuery(GET_PAGINATED_PRODUCTS, () => getPaginatedProducts(nextPage));
+  } = useQuery(
+    [GET_PAGINATED_PRODUCTS, page.toString() + pageSize.toString()],
+    () => getPaginatedProducts(page, pageSize)
+  );
 
   useEffect(() => {
-    if (data) setProducts((prev) => [...prev, ...data.results]);
+    if (data) setProducts((prev) => uniqBy([...prev, ...data.results], "slug"));
   }, [data]);
 
   useEffect(() => {
     refetchProducts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nextPage]);
+  }, [page]);
 
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const navigate = useNavigate();
@@ -152,6 +156,7 @@ function TabAll() {
 
   return (
     <>
+      <Header title="Products List" />
       <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[70vh]">
         <div className="flex justify-end mb-3">
           <div>
@@ -160,25 +165,19 @@ function TabAll() {
         </div>
 
         <div className="flex-1">
-          {(productsStatus === "loading" || isRefetching) && <Loader />}
-
           <Table
             columns={columns}
             dataSource={products.map((item) => ({
               ...item,
               key: item.id || item.slug,
             }))}
+            loading={productsStatus === "loading" || isRefetching}
             pagination={{
               pageSize: 10,
               total: data?.count,
 
               onChange: (page, pageSize) => {
-                if (page * pageSize > data?.results?.length) {
-                  const next = parseInt(data?.next?.split("?page=")[1], 10);
-                  const prev = parseInt(data?.previous?.split("?page=")[1], 10);
-
-                  setNextPage(next || prev || nextPage);
-                }
+                setPage(page);
               },
             }}
             rowClassName="cursor-pointer"
@@ -192,11 +191,9 @@ function TabAll() {
             }}
           />
         </div>
-
-        <div></div>
       </div>
     </>
   );
 }
 
-export default TabAll;
+export default ProductListScreen;

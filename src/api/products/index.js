@@ -5,8 +5,10 @@ export const getAllProducts = async () => {
   return res.data.data.results;
 };
 
-export const getPaginatedProducts = async (page) => {
-  const res = await axios.get(`/api/product/admin/products/?page=${page || 1}`);
+export const getPaginatedProducts = async (page, pageSize) => {
+  const res = await axios.get(
+    `/api/product/admin/products/?page=${page || 1}&size=${pageSize || 1}`
+  );
   return res.data.data;
 };
 

@@ -1,34 +1,24 @@
 import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
-import { Upload, Form, Input, Select, Button, Switch, Space } from "antd";
+import { Upload, Form, Input, Select, Switch, Button, Space } from "antd";
 import { useState } from "react";
 import { useQuery, useMutation } from "react-query";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { getAllBrands } from "../../../../api/brands";
-import { getAllCategories } from "../../../../api/categories";
-import { getLoyaltyPolicies } from "../../../../api/loyalties";
-import { getAllProductGroups } from "../../../../api/products/productGroups";
-import { getAllProducts } from "../../../../api/products";
-import { createProductSku } from "../../../../api/products/productSku";
-import Loader from "../../../../shared/Loader";
-import CustomPageHeader from "../../../../shared/PageHeader";
+import { useNavigate } from "react-router-dom";
+import { getAllBrands } from "../../../api/brands";
+import { getAllCategories } from "../../../api/categories";
+import { getLoyaltyPolicies } from "../../../api/loyalties";
+import { createProduct, getAllProducts } from "../../../api/products";
+import Loader from "../../../shared/Loader";
+import CustomPageHeader from "../../../shared/PageHeader";
 import {
   openErrorNotification,
   openSuccessNotification,
-} from "../../../../utils/openNotification";
-import {
-  GET_ALL_BRANDS,
-  GET_ALL_CATEGORIES,
-  GET_ALL_LOYALTIES,
-  GET_ALL_PRODUCTS,
-  GET_ALL_PRODUCT_GROUPS,
-} from "../../../../constants/queryKeys";
+} from "../../../utils/openNotification";
 
-const AddProductSku = () => {
+const AddProduct = () => {
   const [selectedImage, setSelectedImage] = useState(null);
 
   const { Dragger } = Upload;
 
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
   const fileUploadOptions = {
@@ -44,27 +34,22 @@ const AddProductSku = () => {
 
   const { data: categories, status: categoriesStatus } = useQuery({
     queryFn: () => getAllCategories(),
-    queryKey: [GET_ALL_CATEGORIES],
-  });
-
-  const { data: productGroups, status: productGroupsStatus } = useQuery({
-    queryFn: () => getAllProductGroups(),
-    queryKey: [GET_ALL_PRODUCT_GROUPS],
+    queryKey: ["all-categories"],
   });
 
   const { data: brands, status: brandsStatus } = useQuery({
     queryFn: () => getAllBrands(),
-    queryKey: [GET_ALL_BRANDS],
+    queryKey: ["all-brands"],
   });
 
   const { data: products, status: productsStatus } = useQuery({
     queryFn: () => getAllProducts(),
-    queryKey: [GET_ALL_PRODUCTS],
+    queryKey: ["all-products"],
   });
 
   const { data: loyalties, status: loyaltiesStatus } = useQuery({
     queryFn: () => getLoyaltyPolicies(),
-    queryKey: [GET_ALL_LOYALTIES],
+    queryKey: ["loyalties"],
   });
 
   const onFormSubmit = useMutation(
@@ -82,9 +67,9 @@ const AddProductSku = () => {
         }
         if (formValues[key]) formData.append(key, formValues[key]);
       });
-      if (selectedImage) formData.append("product_sku_image", selectedImage);
+      if (selectedImage) formData.append("product_image", selectedImage);
 
-      return createProductSku(formData);
+      return createProduct(formData);
     },
     {
       onSuccess: (data) => {
@@ -102,7 +87,7 @@ const AddProductSku = () => {
       <Loader isOpen={onFormSubmit.status === "loading"} />
 
       <div className="py-5">
-        <CustomPageHeader title="Add Product SKU" />
+        <CustomPageHeader title="Add Product" />
 
         <div>
           <Form
@@ -130,70 +115,16 @@ const AddProductSku = () => {
               </Dragger>
             </Form.Item>
 
-            <div className="grid grid-cols-2 gap-2">
-              <Form.Item
-                label="Product Name"
-                name="name"
-                rules={[{ required: true, message: "product name required" }]}
-              >
-                <Input />
-              </Form.Item>
-
-              <Form.Item
-                label="Product Name (In Nepali)"
-                name="name_np"
-                rules={[{ required: true, message: "product name required" }]}
-              >
-                <Input />
-              </Form.Item>
-            </div>
-
-            <div className="grid grid-cols-4 gap-2">
-              <Form.Item
-                label="Quantity"
-                name="quantity"
-                rules={[{ required: true, message: "quantity required" }]}
-              >
-                <Input />
-              </Form.Item>
-
-              <Form.Item
-                label="Cost Price/Piece"
-                name="cost_price_per_piece"
-                rules={[
-                  { required: true, message: "cost price/piece required" },
-                ]}
-              >
-                <Input type="number" />
-              </Form.Item>
-
-              <Form.Item
-                label="Price/Piece"
-                name="price_per_piece"
-                rules={[{ required: true, message: "price/piece required" }]}
-              >
-                <Input />
-              </Form.Item>
-              <Form.Item
-                label="MRP/Piece"
-                name="mrp_per_piece"
-                rules={[{ required: true, message: "MRP/piece required" }]}
-              >
-                <Input type="number" />
-              </Form.Item>
-            </div>
-
             <Form.Item
-              label="Product SKU Description"
-              name="description"
+              label="Product Name"
+              name="name"
               rules={[{ required: true, message: "product name required" }]}
             >
-              <Input.TextArea placeholder="Description" rows={4} />
+              <Input />
             </Form.Item>
 
             <div className="grid grid-cols-2 gap-2">
               <Form.Item
-                initialValue={JSON.parse(searchParams.get("category") || "[]")}
                 label="Product Category"
                 name="category"
                 rules={[{ required: true, message: "category required" }]}
@@ -214,7 +145,6 @@ const AddProductSku = () => {
               </Form.Item>
 
               <Form.Item
-                initialValue={JSON.parse(searchParams.get("brand") || "[]")}
                 label="Product Brand"
                 name="brand"
                 rules={[{ required: true, message: "brand required" }]}
@@ -236,16 +166,11 @@ const AddProductSku = () => {
             </div>
 
             <div className="grid grid-cols-2 gap-2">
-              <Form.Item
-                initialValue={searchParams.get("product")}
-                label="Product"
-                name="product"
-                rules={[{ required: true, message: "product required" }]}
-              >
+              <Form.Item label="Alternate Products" name="alternate_products">
                 <Select
-                  defaultValue={searchParams.get("product")}
                   loading={productsStatus === "loading"}
-                  placeholder="Select Product"
+                  mode="multiple"
+                  placeholder="Select Products"
                   allowClear
                 >
                   {products &&
@@ -257,17 +182,20 @@ const AddProductSku = () => {
                 </Select>
               </Form.Item>
 
-              <Form.Item label="Rasan Choice" name="product_group">
+              <Form.Item
+                label="Supplement Products"
+                name="supplementary_products"
+              >
                 <Select
-                  loading={productGroupsStatus === "loading"}
+                  loading={productsStatus === "loading"}
                   mode="multiple"
-                  placeholder="Select Rasan Choice"
+                  placeholder="Select Products"
                   allowClear
                 >
-                  {productGroups &&
-                    productGroups.map((group) => (
-                      <Select.Option key={group.slug} value={group.slug}>
-                        {group.name}
+                  {products &&
+                    products.map((product) => (
+                      <Select.Option key={product.slug} value={product.slug}>
+                        {product.name}
                       </Select.Option>
                     ))}
                 </Select>
@@ -314,4 +242,4 @@ const AddProductSku = () => {
   );
 };
 
-export default AddProductSku;
+export default AddProduct;

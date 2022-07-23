@@ -1,34 +1,36 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { Pagination, Select } from "antd";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 
-import ProductCategory from "./ProductCategory";
-import AddCategory from "./CategoryList/AddCategory";
-import EditCategory from "./CategoryList/EditCategory";
-import SimpleAlert from "./alerts/SimpleAlert";
+import AddCategory from "./AddCategory";
+import EditCategory from "./EditCategory";
+import SimpleAlert from "../alerts/SimpleAlert";
 
 import {
   deleteCategory,
-  getCategories,
   publishCategory,
   unpublishCategory,
-} from "../../context/CategoryContext";
-import AddCategoryButton from "./subComponents/AddCategoryButton";
-import SearchBox from "./subComponents/SearchBox";
-import Header from "./subComponents/Header";
+} from "../../../context/CategoryContext";
+import AddCategoryButton from "../subComponents/AddCategoryButton";
+import SearchBox from "../subComponents/SearchBox";
+import Header from "../subComponents/Header";
 
-import ClearSelection from "./subComponents/ClearSelection";
-import Loader from "./subComponents/Loader";
+import ClearSelection from "../subComponents/ClearSelection";
 import {
   openErrorNotification,
   openSuccessNotification,
-} from "../../utils/openNotification";
+} from "../../../utils/openNotification";
+import CategoryWidget from "./shared/CategoryWidget";
+import { DEFAULT_CARD_IMAGE } from "../../../constants";
+import Loader from "../../../shared/Loader";
+import { getPaginatedCategories } from "../../../api/categories";
+import { GET_PAGINATED_CATEGORIES } from "../../../constants/queryKeys";
+import { uniqBy } from "lodash";
 
 const { Option } = Select;
 
 const CategoryList = () => {
-  const [entriesPerPage, setEntriesPerPage] = useState(10);
   const [alert, setAlert] = useState({
     show: false,
     title: "",
@@ -42,21 +44,36 @@ const CategoryList = () => {
     icon: "",
   });
   const queryClient = useQueryClient();
-  const [selectedCategories, setSelectedCategories] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
   const { slug } = useParams();
-  const { data, isLoading } = useQuery(
-    ["get-categories", currentPage],
-    () => getCategories({ currentPage }),
-    {
-      onError: (err) => {
-        openErrorNotification(err);
-      },
-    }
+
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
+  const [categories, setCategories] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState([]);
+
+  const {
+    data,
+    status,
+    refetch: refetchCategories,
+    isRefetching,
+  } = useQuery(
+    [GET_PAGINATED_CATEGORIES, page.toString() + pageSize.toString()],
+    () => getPaginatedCategories(page, pageSize)
   );
+
+  useEffect(() => {
+    if (data)
+      setCategories((prev) => uniqBy([...prev, ...data.results], "slug"));
+  }, [data]);
+
+  useEffect(() => {
+    refetchCategories();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
+
   const { mutate: publishCategoryMutate } = useMutation(publishCategory, {
     onSuccess: (data) => {
-      queryClient.invalidateQueries("get-categories");
+      queryClient.invalidateQueries(GET_PAGINATED_CATEGORIES);
       openSuccessNotification(
         data?.data?.message || "Category published successfully"
       );
@@ -67,7 +84,7 @@ const CategoryList = () => {
   });
   const { mutate: unpublishCategoryMutate } = useMutation(unpublishCategory, {
     onSuccess: (data) => {
-      queryClient.invalidateQueries("get-categories");
+      queryClient.invalidateQueries(GET_PAGINATED_CATEGORIES);
       openSuccessNotification(
         data?.data?.message || "Category unpublished successfully"
       );
@@ -78,7 +95,7 @@ const CategoryList = () => {
   });
   const { mutate: deleteMutate } = useMutation(deleteCategory, {
     onSuccess: (data) => {
-      queryClient.invalidateQueries("get-categories");
+      queryClient.invalidateQueries(GET_PAGINATED_CATEGORIES);
       openSuccessNotification(
         data?.data?.message || "Category deleted successfully"
       );
@@ -94,11 +111,7 @@ const CategoryList = () => {
   } catch (error) {
     categorySlug = null;
   }
-  const categories = data?.data?.data?.results;
 
-  const paginate = async (page) => {
-    setCurrentPage(page);
-  };
   const handleBulkPublish = () => {
     selectedCategories.forEach(async (category) => {
       publishCategoryMutate({ slug: category.slug });
@@ -163,6 +176,8 @@ const CategoryList = () => {
   };
   return (
     <>
+      {(status === "loading" || isRefetching) && <Loader isOpen />}
+
       {alert.show && (
         <SimpleAlert
           action={alert.action}
@@ -204,43 +219,35 @@ const CategoryList = () => {
               <AddCategoryButton linkText="Add Category" linkTo="add" />
             </div>
           </div>
-          {isLoading && <Loader loadingText={"Loading Categories..."} />}
           {categories && (
             <>
               <div className="grid gap-8 grid-cols-[repeat(auto-fill,_minmax(200px,_1fr))]">
-                <ProductCategory
-                  categories={categories}
-                  selectedCategories={selectedCategories}
-                  setSelectedCategories={setSelectedCategories}
-                />
+                {categories.map((category, index) => (
+                  <CategoryWidget
+                    key={category.slug}
+                    completeLink={`/category-list/${category.slug}`}
+                    editLink={`/category-list/edit/${category.slug}`}
+                    id={index + 1}
+                    image={
+                      category.category_image.thumbnail || DEFAULT_CARD_IMAGE
+                    }
+                    is_published={category.is_published}
+                    selectedCategories={selectedCategories}
+                    setSelectedCategories={setSelectedCategories}
+                    slug={category.slug}
+                    title={category.name}
+                  />
+                ))}
               </div>
-              <div className="flex justify-between bg-white w-[100%] mt-10">
-                <div className="">
-                  <span className="text-sm text-gray-600">
-                    Entries per page :{" "}
-                  </span>
-                  <Select
-                    defaultValue="20"
-                    style={{
-                      width: 120,
-                    }}
-                    onChange={(value) => setEntriesPerPage(value)}
-                  >
-                    <Option value={20}>20</Option>
-                    <Option value={50}>50</Option>
-                    <Option value={100}>100</Option>
-                  </Select>
-                </div>
+              <div className="flex justify-end bg-white w-[100%] mt-10">
                 <Pagination
-                  pageSize={entriesPerPage}
+                  current={page}
+                  pageSize={pageSize}
                   showTotal={(total) => `Total ${total} items`}
-                  style={{
-                    alignSelf: "end",
+                  total={data?.count}
+                  onChange={(page, pageSize) => {
+                    setPage(page);
                   }}
-                  total={data.data.data.count}
-                  hideOnSinglePage
-                  showQuickJumper
-                  onChange={async (page) => await paginate(page)}
                 />
               </div>
             </>

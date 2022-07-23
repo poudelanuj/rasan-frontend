@@ -19,7 +19,9 @@ export const GET_SINGLE_BRAND = "single-brand";
 
 //* Categories
 export const GET_ALL_CATEGORIES = "all-categories";
+export const GET_PAGINATED_CATEGORIES = "paginated-categories";
 export const GET_SINGLE_CATEGORY = "single-category";
+export const GET_CATEGORY_PRODUCTS = "category-products";
 
 //* Loyalty Policies
 export const GET_ALL_LOYALTIES = "all-loyalties";
@@ -27,7 +29,6 @@ export const GET_ALL_LOYALTIES = "all-loyalties";
 //* tickets
 export const GET_ALL_TICKETS = "all-tickets";
 export const GET_TICKET = "single-ticket";
-
 export const GET_TICKET_METRICS = "ticket-metrics";
 
 //* Users

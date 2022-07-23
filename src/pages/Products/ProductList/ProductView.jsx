@@ -17,7 +17,7 @@ import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../../utils/openNotification";
-import ProductSkuList from "./ProductSkuList";
+import ProductSkuList from "./shared/ProductSkuList";
 
 function ViewProduct() {
   const { slug } = useParams();
