@@ -3,21 +3,21 @@ import { Upload, Form, Input, Select, Button, Space, Switch } from "antd";
 import { useState } from "react";
 import { useQuery, useMutation } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
-import { getAllBrands } from "../../../../api/brands";
-import { getAllCategories } from "../../../../api/categories";
-import { getLoyaltyPolicies } from "../../../../api/loyalties";
-import { getAllProductGroups } from "../../../../api/products/productGroups";
-import { getAllProducts } from "../../../../api/products";
+import { getAllBrands } from "../../../api/brands";
+import { getAllCategories } from "../../../api/categories";
+import { getLoyaltyPolicies } from "../../../api/loyalties";
+import { getAllProductGroups } from "../../../api/products/productGroups";
+import { getAllProducts } from "../../../api/products";
 import {
   getProductSku,
   updateProductSku,
-} from "../../../../api/products/productSku";
-import Loader from "../../../../shared/Loader";
-import CustomPageHeader from "../../../../shared/PageHeader";
+} from "../../../api/products/productSku";
+import Loader from "../../../shared/Loader";
+import CustomPageHeader from "../../../shared/PageHeader";
 import {
   openErrorNotification,
   openSuccessNotification,
-} from "../../../../utils/openNotification";
+} from "../../../utils/openNotification";
 
 const EditProductSku = () => {
   const [selectedImage, setSelectedImage] = useState(null);

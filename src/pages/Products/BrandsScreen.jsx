@@ -10,7 +10,7 @@ import {
 } from "../../context/CategoryContext";
 import AddBrand from "./Brands/AddBrand";
 import EditBrand from "./Brands/EditBrand";
-import CategoryWidget from "./CategoryWidget";
+import CategoryWidget from "./categories/shared/CategoryWidget";
 import AddCategoryButton from "./subComponents/AddCategoryButton";
 import Header from "./subComponents/Header";
 import SearchBox from "./subComponents/SearchBox";

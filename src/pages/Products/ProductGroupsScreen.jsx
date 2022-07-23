@@ -9,7 +9,7 @@ import {
   unpublishProductGroup,
 } from "../../context/CategoryContext";
 import SimpleAlert from "./alerts/SimpleAlert";
-import CategoryWidget from "./CategoryWidget";
+import CategoryWidget from "./categories/shared/CategoryWidget";
 import AddProductGroup from "./ProductGroups/AddProductGroup";
 import AddCategoryButton from "./subComponents/AddCategoryButton";
 import ClearSelection from "./subComponents/ClearSelection";

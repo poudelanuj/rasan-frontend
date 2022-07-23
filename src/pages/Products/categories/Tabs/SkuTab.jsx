@@ -1,23 +1,25 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 import { Table, Select, Space } from "antd";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-
-import AddCategoryButton from "../subComponents/AddCategoryButton";
+import AddCategoryButton from "../../subComponents/AddCategoryButton";
 import {
-  deleteProduct,
-  getProductsFromCategory,
-  publishProduct,
-  unpublishProduct,
-} from "../../../context/CategoryContext";
+  deleteProductSKU,
+  publishProductSKU,
+  unpublishProductSKU,
+} from "../../../../context/CategoryContext";
 
-import SimpleAlert from "../alerts/SimpleAlert";
 import {
   openErrorNotification,
   openSuccessNotification,
-} from "../../../utils/openNotification";
-import Loader from "../subComponents/Loader";
-import { getDate, parseArray, parseSlug } from "../../../utils";
+  parseArray,
+  parseSlug,
+} from "../../../../utils";
+import SimpleAlert from "../../alerts/SimpleAlert";
+import { getCategory } from "../../../../api/categories";
+import { GET_SINGLE_CATEGORY } from "../../../../constants/queryKeys";
+import { uniqBy } from "lodash";
 
 const { Option } = Select;
 
@@ -33,11 +35,11 @@ const columns = [
     render: (text, record) => {
       return (
         <div className="h-[80px]">
-          {record.product_image.full_size && (
+          {record.product_sku_image.full_size && (
             <img
               alt={"text"}
               className="inline pr-4 h-[100%]"
-              src={record.product_image.full_size}
+              src={record.product_sku_image.full_size}
             />
           )}
         </div>
@@ -50,15 +52,42 @@ const columns = [
     defaultSortOrder: "descend",
   },
   {
+    title: "Quantity",
+    dataIndex: "quantity",
+  },
+  {
+    title: "Cost Price / Piece (रु)",
+    dataIndex: "cost_price_per_piece",
+    sorter: (a, b) => a.cost_price_per_piece - b.cost_price_per_piece,
+  },
+  {
+    title: "MRP / piece (रु)",
+    dataIndex: "mrp_per_piece",
+    sorter: (a, b) => a.mrp_per_piece - b.mrp_per_piece,
+  },
+  {
+    title: "Price / piece (रु)",
+    dataIndex: "price_per_piece",
+    sorter: (a, b) => a.price_per_piece - b.price_per_piece,
+  },
+  {
     title: "Category",
     render: (text, record) => {
       return (
         <div className="capitalize">
-          {record.category.length > 0 ? (
-            parseArray(record.category)
-          ) : (
-            <div className="text-center">-</div>
-          )}
+          {record.category.map((category, index) => {
+            return parseSlug(category);
+          })}
+        </div>
+      );
+    },
+  },
+  {
+    title: "Product",
+    render: (text, record) => {
+      return (
+        <div className="flex items-center capitalize">
+          {parseSlug(record.product)}
         </div>
       );
     },
@@ -66,68 +95,28 @@ const columns = [
   {
     title: "Brand",
     render: (text, record) => {
-      return record.brand.length > 0 ? (
-        <div className="capitalize">{parseSlug(record.brand)}</div>
-      ) : (
-        <div className="text-center">-</div>
-      );
+      return <div className="capitalize">{parseSlug(record.brand)}</div>;
     },
   },
   {
-    title: "Alternate Products",
+    title: "Rasan Choices",
     render: (text, record) => {
       return (
-        <div className="capitalize">
-          {record.alternate_products.length > 0 ? (
-            parseArray(record.alternate_products)
-          ) : (
-            <div className="text-center">-</div>
-          )}
+        <div className="flex items-center capitalize">
+          {parseArray(record.product_group)}
         </div>
       );
     },
   },
   {
-    title: "Supplementary Products",
+    title: "Loyalty Policy",
     render: (text, record) => {
-      return (
-        <div className="capitalize">
-          {record.supplementary_products.length > 0 ? (
-            parseArray(record.supplementary_products)
-          ) : (
-            <div className="text-center">-</div>
-          )}
-        </div>
-      );
+      if (record.loyalty_policy) {
+        return <div className="capitalize">{record.loyalty_policy}</div>;
+      } else {
+        return <div className="text-center">-</div>;
+      }
     },
-  },
-  {
-    title: "Includes VAT",
-    dataIndex: "includes_vat",
-    render: (text, record) => {
-      return (
-        <div
-          className={`text-center rounded-[36px] text-[14px] p-[2px_14px] ${
-            record.includes_vat
-              ? "bg-[#E4FEEF] text-[#0E9E49]"
-              : "bg-[#FFF8E1] text-[#FF8F00]"
-          }`}
-        >
-          {record.includes_vat ? "Yes" : "No"}
-        </div>
-      );
-    },
-    filters: [
-      {
-        text: "Includes VAT",
-        value: true,
-      },
-      {
-        text: "Doesn't Include VAT",
-        value: false,
-      },
-    ],
-    onFilter: (value, record) => record.includes_vat === value,
   },
   {
     title: "Status",
@@ -156,26 +145,17 @@ const columns = [
     ],
     onFilter: (value, record) => record.is_published === value,
   },
-  {
-    title: "Published At",
-    render: (text, record) => {
-      return (
-        <div className="text-center">
-          {record.published_at?.length > 0 ? (
-            getDate(record.published_at)
-          ) : (
-            <div className="text-center">-</div>
-          )}
-        </div>
-      );
-    },
-  },
 ];
 
-function TabAll({ slug, publishCategory }) {
+function TabSKU({ slug, publishCategory }) {
   const queryClient = useQueryClient();
   // const { slug } = useParams();
-  const [entriesPerPage, setEntriesPerPage] = useState(10);
+
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
+  const [productSkus, setProductSkus] = useState([]);
+
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [alert, setAlert] = useState({
     show: false,
     title: "",
@@ -188,57 +168,65 @@ function TabAll({ slug, publishCategory }) {
     actionOn: "",
     icon: "",
   });
-  const { data, isLoading, isError, error } = useQuery(
-    ["get-products-from-category", slug],
-    () => getProductsFromCategory({ slug }),
-    {
-      onError: (err) => {
-        openErrorNotification(err);
-      },
-    }
-  );
-
-  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const navigate = useNavigate();
-
-  const onSelectChange = (newSelectedRowKeys) => {
-    setSelectedRowKeys(newSelectedRowKeys);
+  const onSelectChange = (selectedRowKeys) => {
+    setSelectedRowKeys(selectedRowKeys);
   };
-
   const rowSelection = {
     onChange: onSelectChange,
     selectedRowKeys,
   };
-  const { mutate: publishMutate } = useMutation(
-    (slug) => publishProduct({ slug }),
+
+  const {
+    data,
+    status: skuStatus,
+    refetch: refetchProductSkus,
+    isRefetching,
+  } = useQuery([GET_SINGLE_CATEGORY, slug], () => getCategory(slug));
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (data)
+      setProductSkus((prev) =>
+        uniqBy([...prev, ...data.product_skus.results], "slug")
+      );
+  }, [data]);
+
+  useEffect(() => {
+    refetchProductSkus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
+
+  const { mutate: publishSKUMutate } = useMutation(
+    (slug) => publishProductSKU({ slug }),
     {
       onSuccess: (data) => {
-        openSuccessNotification(data.data.message || "Product published");
-        queryClient.invalidateQueries(["get-products-from-category", slug]);
+        openSuccessNotification(data.data.message || "Product SKU published");
+        queryClient.invalidateQueries(["get-category", slug]);
       },
       onError: (err) => {
         openErrorNotification(err);
       },
     }
   );
-  const { mutate: unpublishProductMutate } = useMutation(
-    (slug) => unpublishProduct({ slug }),
+  const { mutate: unpublishProductSKUMutate } = useMutation(
+    (slug) => unpublishProductSKU({ slug }),
     {
       onSuccess: (data) => {
-        openSuccessNotification(data.data.message || "Product unpublished");
-        queryClient.invalidateQueries(["get-products-from-category", slug]);
+        openSuccessNotification(data.data.message || "Product SKU unpublished");
+        queryClient.invalidateQueries(["get-category", slug]);
       },
       onError: (err) => {
         openErrorNotification(err);
       },
     }
   );
-  const { mutate: deleteProductMutate } = useMutation(
-    (slug) => deleteProduct({ slug }),
+  const { mutate: deleteProductSKUMutate } = useMutation(
+    (slug) => deleteProductSKU({ slug }),
     {
       onSuccess: (data) => {
-        openSuccessNotification(data.data.message || "Product deleted");
-        queryClient.invalidateQueries(["get-products-from-category", slug]);
+        openSuccessNotification(data.data.message || "Product SKU deleted");
+        queryClient.invalidateQueries(["get-category", slug]);
       },
       onError: (err) => {
         openErrorNotification(err);
@@ -248,19 +236,19 @@ function TabAll({ slug, publishCategory }) {
 
   const handleBulkPublish = () => {
     selectedRowKeys.forEach(async (slug) => {
-      publishMutate(slug);
+      publishSKUMutate(slug);
     });
     setSelectedRowKeys([]);
   };
   const handleBulkUnpublish = () => {
     selectedRowKeys.forEach(async (slug) => {
-      unpublishProductMutate(slug);
+      unpublishProductSKUMutate(slug);
     });
     setSelectedRowKeys([]);
   };
   const handleBulkDelete = () => {
     selectedRowKeys.forEach((slug) => {
-      deleteProductMutate(slug);
+      deleteProductSKUMutate(slug);
     });
     setSelectedRowKeys([]);
   };
@@ -271,8 +259,8 @@ function TabAll({ slug, publishCategory }) {
       case "publish":
         setAlert({
           show: true,
-          title: "Publish Selected Product?",
-          text: "Are you sure you want to publish selected Product?",
+          title: "Publish Selected Product SKUs?",
+          text: "Are you sure you want to publish selected Product SKUs?",
           type: "info",
           primaryButton: "Publish Selected",
           secondaryButton: "Cancel",
@@ -283,8 +271,8 @@ function TabAll({ slug, publishCategory }) {
       case "unpublish":
         setAlert({
           show: true,
-          title: "Unpublish Selected Product?",
-          text: "Are you sure you want to unpublish selected Product?",
+          title: "Unpublish Selected Product SKUs?",
+          text: "Are you sure you want to unpublish selected Product SKUs?",
           type: "warning",
           primaryButton: "Unpublish Selected",
           secondaryButton: "Cancel",
@@ -295,8 +283,8 @@ function TabAll({ slug, publishCategory }) {
       case "delete":
         setAlert({
           show: true,
-          title: "Delete Selected Product?",
-          text: "Are you sure you want to delete selected Product?",
+          title: "Delete Selected Product SKUs?",
+          text: "Are you sure you want to delete selected Product SKUs?",
           type: "danger",
           primaryButton: "Delete Selected",
           secondaryButton: "Cancel",
@@ -324,7 +312,6 @@ function TabAll({ slug, publishCategory }) {
           type={alert.type}
         />
       )}
-      {isLoading && <Loader loadingText={"Loading Products..."} />}
       <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[70vh]">
         <div className="flex justify-end mb-3">
           <div className="flex">
@@ -347,50 +334,36 @@ function TabAll({ slug, publishCategory }) {
               {publishCategory}
 
               <AddCategoryButton
-                linkText="Add Products"
-                linkTo={`/product-list/add?category=${slug}`}
+                linkText="Add Product SKU"
+                linkTo={`/product-sku/add?category=${slug}`}
               />
             </Space>
           </div>
         </div>
 
         <div className="flex-1">
-          {isLoading ? "Loading..." : null}
-          {isError ? error.message : null}
           <Table
             columns={columns}
-            dataSource={data?.data?.data?.products.results}
-            footer={() => (
-              <div className="absolute bottom-0 left-0 flex justify-start bg-white w-[100%]">
-                <div className="mt-5">
-                  <span className="text-sm text-gray-600">
-                    Entries per page:{" "}
-                  </span>
-                  <Select
-                    defaultValue={4}
-                    style={{
-                      width: 120,
-                    }}
-                    // loading
-                    onChange={(value) => setEntriesPerPage(value)}
-                  >
-                    <Option value={4}>4</Option>
-                    <Option value={10}>10</Option>
-                    <Option value={20}>20</Option>
-                    <Option value={50}>50</Option>
-                    <Option value={100}>100</Option>
-                  </Select>
-                </div>
-              </div>
-            )}
-            pagination={{ pageSize: entriesPerPage }}
+            dataSource={productSkus.map((item) => ({
+              ...item,
+              key: item.id || item.slug,
+            }))}
+            loading={skuStatus === "loading" || isRefetching}
+            pagination={{
+              pageSize,
+              total: data?.count,
+
+              onChange: (page, pageSize) => {
+                setPage(page);
+              },
+            }}
             rowClassName="cursor-pointer"
             rowKey="slug"
             rowSelection={rowSelection}
             onRow={(record) => {
               return {
                 onClick: (_) => {
-                  navigate("/product-list/" + record.slug);
+                  navigate("/product-sku/" + record.slug);
                 },
               };
             }}
@@ -403,4 +376,4 @@ function TabAll({ slug, publishCategory }) {
   );
 }
 
-export default TabAll;
+export default TabSKU;

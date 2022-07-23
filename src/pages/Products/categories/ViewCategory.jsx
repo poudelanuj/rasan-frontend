@@ -3,16 +3,16 @@ import { useMutation, useQuery } from "react-query";
 import { Button, Tabs } from "antd";
 import { useParams } from "react-router-dom";
 
-import TabAll from "./CategoryList/TabAll";
-import TabSKU from "./CategoryList/TabSKU";
-import CustomPageHeader from "../../shared/PageHeader";
-import { getCategory, publishCategory } from "../../api/categories";
-import { GET_SINGLE_CATEGORY } from "../../constants/queryKeys";
+import ProductsTab from "./Tabs/ProductsTab";
+import SkuTab from "./Tabs/SkuTab";
+import CustomPageHeader from "../../../shared/PageHeader";
+import { getCategory, publishCategory } from "../../../api/categories";
+import { GET_SINGLE_CATEGORY } from "../../../constants/queryKeys";
 import {
   openErrorNotification,
   openSuccessNotification,
   parseSlug,
-} from "../../utils";
+} from "../../../utils";
 
 const { TabPane } = Tabs;
 
@@ -67,10 +67,10 @@ function Category() {
       <div>
         <Tabs defaultActiveKey="1">
           <TabPane key="1" tab="Products">
-            <TabAll publishCategory={<PublishCategory />} slug={slug} />
+            <ProductsTab publishCategory={<PublishCategory />} slug={slug} />
           </TabPane>
           <TabPane key="2" tab="SKU">
-            <TabSKU publishCategory={<PublishCategory />} slug={slug} />
+            <SkuTab publishCategory={<PublishCategory />} slug={slug} />
           </TabPane>
         </Tabs>
       </div>

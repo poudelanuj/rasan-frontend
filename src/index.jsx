@@ -10,20 +10,20 @@ import "./index.css";
 import LoginRasan from "./LoginRasan";
 
 // * Products
-import CategoryList from "./pages/Products";
+import CategoryList from "./pages/Products/categories";
 import Brands from "./pages/Products/Brands";
 import BrandsScreen from "./pages/Products/BrandsScreen";
-import Category from "./pages/Products/Category";
+import Category from "./pages/Products/categories/ViewCategory";
 import ViewProductGroup from "./pages/Products/ProductGroups/ViewProductGroup";
 import ProductGroupsScreen from "./pages/Products/ProductGroupsScreen";
-import AddProduct from "./pages/Products/ProductList/Add";
 import ProductList from "./pages/Products/ProductList/ProductView";
-import ProductListScreen from "./pages/Products/ProductListScreen";
+import ProductListScreen from "./pages/Products/ProductList";
 import ProductSKU from "./pages/Products/ProductSKU";
 import ProductSkuScreen from "./pages/Products/ProductSkuScreen";
-import EditProduct from "./pages/Products/ProductList/Edit";
-import AddProductSku from "./pages/Products/ProductSku/Add";
-import EditProductSku from "./pages/Products/ProductSku/Edit";
+import AddProduct from "./pages/Products/ProductList/AddProduct";
+import EditProduct from "./pages/Products/ProductList/EditProduct";
+import AddProductSku from "./pages/Products/ProductSku/AddProductSku";
+import EditProductSku from "./pages/Products/ProductSku/EditProductSku";
 
 import RequireAuth from "./RequireAuth";
 import "antd/dist/antd.min.css";
