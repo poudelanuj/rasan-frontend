@@ -47,11 +47,15 @@ import SupportTicketList from "./pages/CRM/SupportTicket/SupportTicketList";
 import ReturnRequestList from "./pages/CRM/ReturnRequest/ReturnRequestList";
 import CreateReturnTicket from "./pages/CRM/ReturnRequest/CreateReturnTicket";
 
+// * Orders
+import Orders from "./pages/Orders";
+import CreateOrder from "./pages/Orders/components/CreateOrder";
+import ViewOrder from "./pages/Orders/components/ViewOrder";
+
 // * Others
 import Dashboard from "./pages/Dashboard";
 import LiveUserBasket from "./pages/LiveUserBasket";
 import Notifications from "./pages/Notifications";
-import Orders from "./pages/Orders";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const queryClient = new QueryClient();
@@ -72,7 +76,12 @@ root.render(
               path="/"
             >
               <Route element={<Dashboard />} index />
-              <Route element={<Orders />} path="orders" />
+
+              <Route path="orders">
+                <Route element={<Orders />} index />
+                <Route element={<CreateOrder />} path="create-order" />
+                <Route element={<ViewOrder />} path="view-order/:id" />
+              </Route>
 
               {/* product part */}
               <Route element={<CategoryList />} path="category-list" />
