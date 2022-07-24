@@ -7,22 +7,22 @@ import {
   getBrands,
   publishBrand,
   unpublishBrand,
-} from "../../context/CategoryContext";
-import AddBrand from "./Brands/AddBrand";
-import EditBrand from "./Brands/EditBrand";
-import CategoryWidget from "./categories/shared/CategoryWidget";
-import AddCategoryButton from "./subComponents/AddCategoryButton";
-import Header from "./subComponents/Header";
-import SearchBox from "./subComponents/SearchBox";
+} from "../../../context/CategoryContext";
+import AddBrand from "./AddBrand";
+import EditBrand from "./EditBrand";
+import CategoryWidget from "../categories/shared/CategoryWidget";
+import AddCategoryButton from "../subComponents/AddCategoryButton";
+import Header from "../subComponents/Header";
+import SearchBox from "../subComponents/SearchBox";
 
-import SimpleAlert from "./alerts/SimpleAlert";
-import ClearSelection from "./subComponents/ClearSelection";
-import Loader from "./subComponents/Loader";
+import SimpleAlert from "../alerts/SimpleAlert";
+import ClearSelection from "../subComponents/ClearSelection";
+import Loader from "../subComponents/Loader";
 import {
   openErrorNotification,
   openSuccessNotification,
-} from "../../utils/openNotification";
-import { DEFAULT_CARD_IMAGE } from "../../constants";
+} from "../../../utils/openNotification";
+import { DEFAULT_CARD_IMAGE } from "../../../constants";
 
 const { Option } = Select;
 

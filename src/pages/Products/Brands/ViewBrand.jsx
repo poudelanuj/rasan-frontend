@@ -1,18 +1,18 @@
 import React from "react";
-import TabAll from "./Brands/TabAll";
-import TabSKU from "./Brands/TabSKU";
+import TabAll from "./Tabs/TabAll";
+import TabSKU from "./Tabs/TabSKU";
 import { useMutation, useQuery } from "react-query";
 
 import { Button, Tabs } from "antd";
 import { useParams } from "react-router-dom";
-import CustomPageHeader from "../../shared/PageHeader";
+import CustomPageHeader from "../../../shared/PageHeader";
 import {
   openErrorNotification,
   openSuccessNotification,
   parseSlug,
-} from "../../utils";
-import { getBrand, publishBrand } from "../../api/brands";
-import { GET_SINGLE_BRAND } from "../../constants/queryKeys";
+} from "../../../utils";
+import { getBrand, publishBrand } from "../../../api/brands";
+import { GET_SINGLE_BRAND } from "../../../constants/queryKeys";
 const { TabPane } = Tabs;
 
 function Brands() {

@@ -7,14 +7,14 @@ import {
   deleteProductPack,
   publishProductPack,
   unpublishProductPack,
-} from "../../../api/products/productPack";
-import ConfirmDelete from "../../../shared/ConfirmDelete";
+} from "../../../../api/products/productPack";
+import ConfirmDelete from "../../../../shared/ConfirmDelete";
 import {
   openErrorNotification,
   openSuccessNotification,
-} from "../../../utils/openNotification";
-import AddProductPack from "./ProductPack/AddProductPack";
-import EditProductPack from "./ProductPack/EditProductPack";
+} from "../../../../utils/openNotification";
+import AddProductPack from "./AddProductPack";
+import EditProductPack from "./EditProductPack";
 
 function ProductPackList({ productSkuSlug, productPacks, refetchProductSku }) {
   const [openAddPack, setOpenAddPack] = useState(false);
