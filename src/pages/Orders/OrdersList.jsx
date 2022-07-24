@@ -15,7 +15,9 @@ import { SearchOutlined, EyeOutlined, DeleteOutlined } from "@ant-design/icons";
 import moment from "moment";
 import { useRef } from "react";
 import { useState } from "react";
-import OrderModal from "./components/OrderModal";
+import { useNavigate } from "react-router-dom";
+
+import OrderModal from "./components/ViewOrder";
 import CreateOrder from "./components/CreateOrder";
 import {
   deleteBulkOrders,
@@ -36,6 +38,7 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
   const [deleteOrderId, setDeleteOrderId] = useState(0);
 
   const [checkedRows, setCheckedRows] = useState([]);
+  const navigate = useNavigate();
 
   const [activeOrder, setActiveOrder] = useState({
     orderId: null,
@@ -279,7 +282,7 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
           type="primary"
           ghost
           onClick={() => {
-            setIsCreateOrderOpen((prev) => !prev);
+            navigate("create-order");
           }}
         >
           Create New Order
