@@ -20,6 +20,21 @@ export const IN_PROCESS = "in_process";
 export const CANCELLED = "cancelled";
 export const DELIVERED = "completed";
 
+export const BANK_DEPOSIT = "bank_deposit";
+export const REDEEM = "redeem";
+export const PAYMENT_STATUS = ["unverified", "unpaid", "paid"];
+export const PAYMENT_METHODS = [
+  "cips",
+  "esewa",
+  "khalti",
+  "bank_deposit",
+  "redeem",
+  "cash_on_delivery",
+];
+
+export const ORDER_TYPE_LOYALTY_REDEEM = "loyalty_redeem";
+export const ORDER_TYPES = ["loyalty_redeem", "general"];
+
 export const TICKET_STATUS_NEW = "new";
 export const TICKET_STATUS_PROCESSING = "processing";
 export const TICKET_STATUS_CLOSED = "closed";

@@ -30,6 +30,19 @@ import {
 import { CANCELLED, DELIVERED, IN_PROCESS } from "../../constants";
 import DeleteOrder from "./components/DeleteOrder";
 
+export const getOrderStatusColor = (status) => {
+  switch (status) {
+    case IN_PROCESS:
+      return "orange";
+    case CANCELLED:
+      return "red";
+    case DELIVERED:
+      return "green";
+    default:
+      return "green";
+  }
+};
+
 const OrdersList = ({ dataSource, status, refetchOrders }) => {
   const searchInput = useRef(null);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
@@ -44,19 +57,6 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
     orderId: null,
     orderStatus: null,
   });
-
-  const getTagColor = (status) => {
-    switch (status) {
-      case IN_PROCESS:
-        return "orange";
-      case CANCELLED:
-        return "red";
-      case DELIVERED:
-        return "green";
-      default:
-        return "green";
-    }
-  };
 
   const getColumnSearchProps = (dataIndex) => ({
     filterDropdown: ({
@@ -149,7 +149,7 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
       render: (_, { status }) => {
         return (
           <>
-            <Tag color={getTagColor(status)}>
+            <Tag color={getOrderStatusColor(status)}>
               {status.toUpperCase().replaceAll("_", " ")}
             </Tag>
           </>
@@ -211,6 +211,7 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
         setActiveOrder((prev) => ({ ...prev, orderStatus: data.status }));
         refetchOrders();
       },
+
       onError: (error) => {
         notification.open({
           className: "bg-red-500 text-white",
@@ -345,7 +346,7 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
             {handleUpdateStatus.status === "loading" && <Spin size="small" />}
           </Space>
         }
-        width={1000}
+        width={1200}
       />
 
       <CreateOrder
