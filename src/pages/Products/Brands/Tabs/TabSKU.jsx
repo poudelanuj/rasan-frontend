@@ -3,21 +3,21 @@ import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { Table, Select, Space } from "antd";
 
-import AddCategoryButton from "../subComponents/AddCategoryButton";
+import AddCategoryButton from "../../subComponents/AddCategoryButton";
 import {
   deleteProductSKU,
   getBrand,
   publishProductSKU,
   unpublishProductSKU,
-} from "../../../context/CategoryContext";
+} from "../../../../context/CategoryContext";
 
-import SimpleAlert from "../alerts/SimpleAlert";
+import SimpleAlert from "../../alerts/SimpleAlert";
 import {
   openErrorNotification,
   openSuccessNotification,
-} from "../../../utils/openNotification";
-import Loader from "../subComponents/Loader";
-import { parseArray, parseSlug } from "../../../utils";
+} from "../../../../utils/openNotification";
+import Loader from "../../subComponents/Loader";
+import { parseArray, parseSlug } from "../../../../utils";
 
 const { Option } = Select;
 

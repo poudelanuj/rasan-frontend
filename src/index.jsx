@@ -11,15 +11,15 @@ import LoginRasan from "./LoginRasan";
 
 // * Products
 import CategoryList from "./pages/Products/categories";
-import Brands from "./pages/Products/Brands";
-import BrandsScreen from "./pages/Products/BrandsScreen";
+import ViewBrand from "./pages/Products/Brands/ViewBrand";
+import BrandsScreen from "./pages/Products/Brands";
 import Category from "./pages/Products/categories/ViewCategory";
 import ViewProductGroup from "./pages/Products/ProductGroups/ViewProductGroup";
 import ProductGroupsScreen from "./pages/Products/ProductGroupsScreen";
 import ProductList from "./pages/Products/ProductList/ProductView";
 import ProductListScreen from "./pages/Products/ProductList";
-import ProductSKU from "./pages/Products/ProductSKU";
-import ProductSkuScreen from "./pages/Products/ProductSkuScreen";
+import ProductSKU from "./pages/Products/ProductSku/ViewProductSKU";
+import ProductSkuScreen from "./pages/Products/ProductSku/index";
 import AddProduct from "./pages/Products/ProductList/AddProduct";
 import EditProduct from "./pages/Products/ProductList/EditProduct";
 import AddProductSku from "./pages/Products/ProductSku/AddProductSku";
@@ -83,24 +83,19 @@ root.render(
                 path="category-list/edit/:slug"
               />
 
-              <Route element={<BrandsScreen />} path="brands" />
-              <Route element={<BrandsScreen />} path="brands/add" />
-              <Route element={<BrandsScreen />} path="brands/edit/:slug" />
-              <Route element={<Brands />} path="brands/:slug" />
+              <Route path="brands">
+                <Route element={<BrandsScreen />} index />
+                <Route element={<BrandsScreen />} path="add" />
+                <Route element={<BrandsScreen />} path="edit/:slug" />
+                <Route element={<ViewBrand />} path=":slug" />
+              </Route>
 
-              <Route element={<ProductGroupsScreen />} path="product-groups" />
-              <Route
-                element={<ProductGroupsScreen />}
-                path="product-groups/add"
-              />
-              <Route
-                element={<ViewProductGroup />}
-                path="product-groups/:slug"
-              />
-              <Route
-                element={<ViewProductGroup />}
-                path="product-groups/:slug/edit"
-              />
+              <Route path="product-groups">
+                <Route element={<ProductGroupsScreen />} index />
+                <Route element={<ProductGroupsScreen />} path="add" />
+                <Route element={<ViewProductGroup />} path=":slug" />
+                <Route element={<ViewProductGroup />} path=":slug/edit" />
+              </Route>
 
               <Route path="product-list">
                 <Route element={<ProductListScreen />} index />
@@ -115,15 +110,6 @@ root.render(
                 <Route element={<ProductSKU />} path=":slug" />
                 <Route element={<EditProductSku />} path=":slug/edit" />
               </Route>
-
-              <Route
-                element={<ProductSKU />}
-                path="product-sku/:slug/add-product-pack"
-              />
-              <Route
-                element={<ProductSKU />}
-                path="product-sku/:slug/edit-product-pack/:id"
-              />
 
               {/* ends */}
               <Route element={<Users />} path="users" />

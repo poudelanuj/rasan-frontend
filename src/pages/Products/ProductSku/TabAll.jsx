@@ -112,7 +112,7 @@ function TabAll() {
     icon: "",
   });
 
-  const { data, isLoading, isError, error } = useQuery("get-product-skus", () =>
+  const { data, isLoading } = useQuery("get-product-skus", () =>
     getProductSKUs()
   );
   const entriesPerPage = 10;
@@ -187,14 +187,13 @@ function TabAll() {
         </div>
 
         <div className="flex-1">
-          {isLoading ? "Loading..." : null}
-          {isError ? error.message : null}
           <Table
             columns={columns}
             dataSource={data?.data?.data?.results.map((item) => ({
               ...item,
               key: item.id || item.slug,
             }))}
+            loading={isLoading}
             pagination={{ pageSize: entriesPerPage }}
             rowClassName="cursor-pointer"
             rowSelection={rowSelection}

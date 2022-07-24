@@ -7,16 +7,16 @@ import {
   getProductSku,
   publishProductSku,
   unpublishProductSku,
-} from "../../api/products/productSku";
-import { GET_PRODUCT_SKU } from "../../constants/queryKeys";
-import Loader from "../../shared/Loader";
-import CustomPageHeader from "../../shared/PageHeader";
-import { parseSlug } from "../../utils";
+} from "../../../api/products/productSku";
+import { GET_PRODUCT_SKU } from "../../../constants/queryKeys";
+import Loader from "../../../shared/Loader";
+import CustomPageHeader from "../../../shared/PageHeader";
+import { parseSlug } from "../../../utils";
 import {
   openErrorNotification,
   openSuccessNotification,
-} from "../../utils/openNotification";
-import ProductPackList from "./ProductSku/ProductPackList";
+} from "../../../utils/openNotification";
+import ProductPackList from "./ProductPack/ProductPackList";
 
 function ProductSKU() {
   const { slug } = useParams();
