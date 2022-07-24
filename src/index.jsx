@@ -83,14 +83,12 @@ root.render(
                 <Route element={<ViewOrder />} path="view-order/:id" />
               </Route>
 
-              {/* product part */}
-              <Route element={<CategoryList />} path="category-list" />
-              <Route element={<CategoryList />} path="category-list/add" />
-              <Route element={<Category />} path="category-list/:slug" />
-              <Route
-                element={<CategoryList />}
-                path="category-list/edit/:slug"
-              />
+              <Route path="category-list">
+                <Route element={<CategoryList />} index />
+                <Route element={<CategoryList />} path="add" />
+                <Route element={<Category />} path=":slug" />
+                <Route element={<CategoryList />} path="edit/:slug" />
+              </Route>
 
               <Route path="brands">
                 <Route element={<BrandsScreen />} index />

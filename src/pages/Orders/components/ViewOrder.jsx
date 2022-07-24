@@ -1,4 +1,16 @@
-import { Button, Form, Input, Modal, Select, Space, Spin, Table } from "antd";
+import {
+  Button,
+  Descriptions,
+  Form,
+  Image,
+  Input,
+  Modal,
+  Select,
+  Space,
+  Spin,
+  Table,
+  Tag,
+} from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 import { useMutation } from "react-query";
 import { useQuery } from "react-query";
@@ -17,6 +29,8 @@ import { useState } from "react";
 import { getUsers } from "../../../api/users";
 import { GET_USERS } from "../../../constants/queryKeys";
 import { updateOrder } from "../../../api/orders";
+import { DEFAULT_CARD_IMAGE, PAYMENT_STATUS } from "../../../constants";
+import ChangePayment from "./shared/ChangePayment";
 
 const OrderModal = ({
   isOpen,
@@ -30,6 +44,7 @@ const OrderModal = ({
   const [selectedProductSku, setSelectedSku] = useState();
   const [selectedProductPack, setSelectedPack] = useState();
   const [quantity, setQuantity] = useState(1);
+  const [openChangePayment, setOpenChangePayment] = useState(false);
 
   const {
     data,
@@ -130,6 +145,17 @@ const OrderModal = ({
     }
   );
 
+  const getPaymentStatusColor = (status) => {
+    switch (status) {
+      case PAYMENT_STATUS[0]:
+        return "red";
+      case PAYMENT_STATUS[1]:
+        return "orange";
+      default:
+        return "green";
+    }
+  };
+
   const columns = [
     {
       title: "Product Name",
@@ -193,192 +219,260 @@ const OrderModal = ({
   };
 
   return (
-    <Modal
-      footer={false}
-      title={title}
-      visible={isOpen}
-      width={width}
-      onCancel={closeModal}
-    >
-      <div className="flex justify-between items-center">
-        <div className="text-gray-500 mb-4">
-          {moment(orderedAt).format("ll")}
-        </div>
+    <>
+      <ChangePayment
+        closeViewOrder={closeModal}
+        isOpen={openChangePayment}
+        orderType={data?.type}
+        payment={data?.payment}
+        onClose={() => setOpenChangePayment(false)}
+      />
+      <Modal
+        footer={false}
+        title={title}
+        visible={isOpen}
+        width={width}
+        onCancel={closeModal}
+      >
+        <div className="flex justify-between items-center">
+          <Space className="mb-4">
+            <span className="text-gray-500 ">
+              {moment(orderedAt).format("ll")}
+            </span>
 
-        <Form onFinish={(values) => onAssignedToUpdate.mutate(values)}>
-          <Space>
-            <Form.Item
-              initialValue={data?.assigned_to}
-              label="Assign To"
-              name="assigned_to"
-            >
-              <Select
-                defaultValue={data?.assigned_to}
-                loading={usersStatus === "loading"}
-                mode="multiple"
-                placeholder="Select Users"
-                style={{ width: 300 }}
-                showSearch
-              >
-                {usersList &&
-                  usersList.map((user) => (
-                    <Select.Option key={user.id} value={user.phone}>
-                      {user.full_name || user.phone}
-                    </Select.Option>
-                  ))}
-              </Select>
-            </Form.Item>
-            <Form.Item>
-              <Button
-                htmlType="submit"
-                loading={onAssignedToUpdate.status === "loading"}
-                type="primary"
-              >
-                SAVE
-              </Button>
-            </Form.Item>
+            {/* <Tag color={getOrderStatusColor(data?.status)}>
+            {data?.status?.replaceAll("_", " ")?.toUpperCase()}
+          </Tag> */}
           </Space>
-        </Form>
-      </div>
 
-      {(isRefetching || status === "loading") && (
-        <div className="py-8 flex justify-center">
-          <Spin />
-        </div>
-      )}
-
-      {!isRefetching && status === "success" && (
-        <Table columns={columns} dataSource={dataSource || []} />
-      )}
-
-      <hr className="my-5" />
-      <h2 className="font-medium text-base mb-5">Add Item</h2>
-
-      {(handleAddItem.status === "loading" || productsStatus === "loading") && (
-        <Spin className="mb-5 flex justify-center" />
-      )}
-
-      {handleAddItem.status !== "loading" && productsStatus === "success" && (
-        <Form layout="horizontal">
-          <Space>
-            <Form.Item>
-              <span>Product Sku</span>
-              <Select
-                placeholder="Select Product SKU"
-                style={{ width: 200 }}
-                showSearch
-                onSelect={(value) => setSelectedSku(value)}
+          <Form onFinish={(values) => onAssignedToUpdate.mutate(values)}>
+            <Space>
+              <Form.Item
+                initialValue={data?.assigned_to}
+                label="Assign To"
+                name="assigned_to"
               >
-                {productSkus &&
-                  productSkus.map((item) => (
-                    <Select.Option key={item.slug} value={item.slug}>
-                      {item.name}
-                    </Select.Option>
-                  ))}
-              </Select>
-            </Form.Item>
-            <Form.Item tooltip="Select Pack Size">
-              <span>Pack Size</span>
-              <Select
-                placeholder="Select Pack Size"
-                showSearch
-                onSelect={(value) =>
-                  setSelectedPack(
-                    productSkus &&
-                      productSkus
-                        .find((item) => item.slug === selectedProductSku)
-                        ?.product_packs?.find((pack) => pack.id === value)
-                  )
-                }
-              >
-                {productSkus &&
-                  productSkus
-                    .find((item) => item.slug === selectedProductSku)
-                    ?.product_packs?.map((pack) => (
-                      <Select.Option key={pack.id} value={pack.id}>
-                        {pack.number_of_items}
+                <Select
+                  defaultValue={data?.assigned_to}
+                  loading={usersStatus === "loading"}
+                  mode="multiple"
+                  placeholder="Select Users"
+                  style={{ width: 300 }}
+                  showSearch
+                >
+                  {usersList &&
+                    usersList.map((user) => (
+                      <Select.Option key={user.id} value={user.phone}>
+                        {user.full_name || user.phone}
                       </Select.Option>
                     ))}
-              </Select>
-            </Form.Item>
+                </Select>
+              </Form.Item>
+              <Form.Item>
+                <Button
+                  htmlType="submit"
+                  loading={onAssignedToUpdate.status === "loading"}
+                  type="primary"
+                >
+                  SAVE
+                </Button>
+              </Form.Item>
+            </Space>
+          </Form>
+        </div>
 
-            <Form.Item name="quantity">
-              <span>Quantity</span>
-              <Input
-                placeholder="quantity"
-                type="number"
-                onChange={(e) => {
-                  setQuantity(e.target.value);
-                }}
-              />
-            </Form.Item>
+        {(isRefetching || status === "loading") && (
+          <div className="py-8 flex justify-center">
+            <Spin />
+          </div>
+        )}
 
-            <Form.Item>
-              <span>Price Per Piece</span>
-              <Input
-                placeholder="price"
-                type="number"
-                value={selectedProductPack?.price_per_piece}
-                disabled
-              />
-            </Form.Item>
+        {data && data.payment && (
+          <Descriptions
+            column={3}
+            title={
+              <Space>
+                <span>Order Payment</span>
+                <Button
+                  type="ghost"
+                  onClick={() => setOpenChangePayment((prev) => !prev)}
+                >
+                  Change Payment
+                </Button>
+              </Space>
+            }
+            bordered
+          >
+            <Descriptions.Item label="Payment Amount" span={1}>
+              {data.payment.payment_amount}
+            </Descriptions.Item>
+            <Descriptions.Item label="Payment Status" span={1}>
+              <Tag color={getPaymentStatusColor(data.payment.status)}>
+                {data.payment.status.replaceAll("_", " ").toUpperCase()}
+              </Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label="Completed At" span={1}>
+              {data.payment.completed_at
+                ? moment(data.payment.completed_at).format("ll hh:mm a")
+                : "-"}
+            </Descriptions.Item>
+            <Descriptions.Item label="PID" span={3}>
+              {data.payment.pid || "-"}
+            </Descriptions.Item>
+            <Descriptions.Item label="REF ID" span={3}>
+              {data.payment.refId || "-"}
+            </Descriptions.Item>
 
-            <Form.Item>
-              <span>Total Amount</span>
-              <Input
-                placeholder="total amount"
-                type="number"
-                value={getTotalAmount()}
-                disabled
-              />
-            </Form.Item>
+            <Descriptions.Item label="Voucher Image" span={2}>
+              {data.voucher_image ? (
+                <Image
+                  src={data.voucher_image || DEFAULT_CARD_IMAGE}
+                  width={200}
+                />
+              ) : (
+                "-"
+              )}
+            </Descriptions.Item>
+          </Descriptions>
+        )}
+        <br />
+        <br />
 
-            <Form.Item>
-              <span>Loyalty</span>
-              <Input
-                placeholder="loyalty points"
-                type="number"
-                value={
-                  parseInt(
-                    selectedProductPack?.loyalty_cashback
-                      ?.loyalty_points_per_pack,
-                    10
-                  ) * quantity
-                }
-                disabled
-              />
-            </Form.Item>
+        <h2 className="font-medium text-base mb-5">Order Items</h2>
+        {!isRefetching && status === "success" && (
+          <Table columns={columns} dataSource={dataSource || []} />
+        )}
 
-            <Form.Item>
-              <span>Cashback</span>
-              <Input
-                placeholder="cashback"
-                type="number"
-                value={
-                  parseInt(
-                    selectedProductPack?.loyalty_cashback
-                      ?.cashback_amount_per_pack,
-                    10
-                  ) * quantity
-                }
-                disabled
-              />
-            </Form.Item>
+        <hr className="my-5" />
+        <h2 className="font-medium text-base mb-5">Add Item</h2>
 
-            <Form.Item>
-              <div style={{ height: 20 }} />
-              <Button
-                className="bg-blue-500"
-                type="primary"
-                onClick={() => handleAddItem.mutate()}
-              >
-                Add Item
-              </Button>
-            </Form.Item>
-          </Space>
-        </Form>
-      )}
-    </Modal>
+        {(handleAddItem.status === "loading" ||
+          productsStatus === "loading") && (
+          <Spin className="mb-5 flex justify-center" />
+        )}
+
+        {handleAddItem.status !== "loading" && productsStatus === "success" && (
+          <Form layout="horizontal">
+            <Space>
+              <Form.Item>
+                <span>Product Sku</span>
+                <Select
+                  placeholder="Select Product SKU"
+                  style={{ width: 200 }}
+                  showSearch
+                  onSelect={(value) => setSelectedSku(value)}
+                >
+                  {productSkus &&
+                    productSkus.map((item) => (
+                      <Select.Option key={item.slug} value={item.slug}>
+                        {item.name}
+                      </Select.Option>
+                    ))}
+                </Select>
+              </Form.Item>
+              <Form.Item tooltip="Select Pack Size">
+                <span>Pack Size</span>
+                <Select
+                  placeholder="Select Pack Size"
+                  showSearch
+                  onSelect={(value) =>
+                    setSelectedPack(
+                      productSkus &&
+                        productSkus
+                          .find((item) => item.slug === selectedProductSku)
+                          ?.product_packs?.find((pack) => pack.id === value)
+                    )
+                  }
+                >
+                  {productSkus &&
+                    productSkus
+                      .find((item) => item.slug === selectedProductSku)
+                      ?.product_packs?.map((pack) => (
+                        <Select.Option key={pack.id} value={pack.id}>
+                          {pack.number_of_items}
+                        </Select.Option>
+                      ))}
+                </Select>
+              </Form.Item>
+
+              <Form.Item name="quantity">
+                <span>Quantity</span>
+                <Input
+                  placeholder="quantity"
+                  type="number"
+                  onChange={(e) => {
+                    setQuantity(e.target.value);
+                  }}
+                />
+              </Form.Item>
+
+              <Form.Item>
+                <span>Price Per Piece</span>
+                <Input
+                  placeholder="price"
+                  type="number"
+                  value={selectedProductPack?.price_per_piece}
+                  disabled
+                />
+              </Form.Item>
+
+              <Form.Item>
+                <span>Total Amount</span>
+                <Input
+                  placeholder="total amount"
+                  type="number"
+                  value={getTotalAmount()}
+                  disabled
+                />
+              </Form.Item>
+
+              <Form.Item>
+                <span>Loyalty</span>
+                <Input
+                  placeholder="loyalty points"
+                  type="number"
+                  value={
+                    parseInt(
+                      selectedProductPack?.loyalty_cashback
+                        ?.loyalty_points_per_pack,
+                      10
+                    ) * quantity
+                  }
+                  disabled
+                />
+              </Form.Item>
+
+              <Form.Item>
+                <span>Cashback</span>
+                <Input
+                  placeholder="cashback"
+                  type="number"
+                  value={
+                    parseInt(
+                      selectedProductPack?.loyalty_cashback
+                        ?.cashback_amount_per_pack,
+                      10
+                    ) * quantity
+                  }
+                  disabled
+                />
+              </Form.Item>
+
+              <Form.Item>
+                <div style={{ height: 20 }} />
+                <Button
+                  className="bg-blue-500"
+                  type="primary"
+                  onClick={() => handleAddItem.mutate()}
+                >
+                  Add Item
+                </Button>
+              </Form.Item>
+            </Space>
+          </Form>
+        )}
+      </Modal>
+    </>
   );
 };
 
