@@ -1,5 +1,5 @@
 import { Button, Form, Modal, Select, Upload } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation } from "react-query";
 import { updateOrderPayment } from "../../../../api/orders";
 import {
@@ -26,6 +26,10 @@ const ChangePayment = ({
   const [selectedMethod, setSelectedMethod] = useState(""); //* Payment Method
 
   const { Dragger } = Upload;
+
+  useEffect(() => {
+    setSelectedImage(payment?.voucher_image);
+  }, [payment]);
 
   const onFormSubmit = useMutation(
     (formValues) => {
@@ -74,6 +78,7 @@ const ChangePayment = ({
       >
         <div className="grid grid-cols-2 gap-3">
           <Form.Item
+            initialValue={payment?.payment_method}
             label="Payment Method"
             name="payment_method"
             rules={[
@@ -85,6 +90,7 @@ const ChangePayment = ({
           >
             <Select
               className="w-full"
+              defaultValue={payment?.payment_method}
               placeholder="Select Payment Method"
               onChange={(value) => setSelectedMethod(value)}
             >
@@ -102,6 +108,7 @@ const ChangePayment = ({
           </Form.Item>
 
           <Form.Item
+            initialValue={payment?.status}
             label="Payment Status"
             name="status"
             rules={[
@@ -111,7 +118,11 @@ const ChangePayment = ({
               },
             ]}
           >
-            <Select className="w-full" placeholder="Select Payment Status">
+            <Select
+              className="w-full"
+              defaultValue={payment?.status}
+              placeholder="Select Payment Status"
+            >
               {PAYMENT_STATUS.map((item) => (
                 <Select.Option key={item} value={item}>
                   {item.replaceAll("_", " ")}
