@@ -8,6 +8,9 @@ const colors = {
 const siteInformation = {
   base_url: "http://159.65.145.153:8000",
 };
+export const ORDER_INVOICE_URL =
+  siteInformation.base_url + "/api/order/admin/order/invoice/{ORDER_ID}/";
+
 export { colors, siteInformation };
 
 export const DEFAULT_CARD_IMAGE =

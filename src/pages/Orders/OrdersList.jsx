@@ -18,7 +18,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import OrderModal from "./components/ViewOrder";
-import CreateOrder from "./components/CreateOrder";
 import {
   deleteBulkOrders,
   updateOrderStatus,
@@ -46,7 +45,6 @@ export const getOrderStatusColor = (status) => {
 const OrdersList = ({ dataSource, status, refetchOrders }) => {
   const searchInput = useRef(null);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
-  const [isCreateOrderOpen, setIsCreateOrderOpen] = useState(false);
   const [isDeleteOrderOpen, setIsDeleteOrderOpen] = useState(false);
   const [deleteOrderId, setDeleteOrderId] = useState(0);
 
@@ -347,12 +345,6 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
           </Space>
         }
         width={1200}
-      />
-
-      <CreateOrder
-        closeModal={() => setIsCreateOrderOpen(false)}
-        isOpen={isCreateOrderOpen}
-        title="Create Order"
       />
 
       <DeleteOrder
