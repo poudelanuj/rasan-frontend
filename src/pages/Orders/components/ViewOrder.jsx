@@ -29,7 +29,11 @@ import { useState } from "react";
 import { getUsers } from "../../../api/users";
 import { GET_USERS } from "../../../constants/queryKeys";
 import { updateOrder } from "../../../api/orders";
-import { DEFAULT_CARD_IMAGE, PAYMENT_STATUS } from "../../../constants";
+import {
+  DEFAULT_CARD_IMAGE,
+  ORDER_INVOICE_URL,
+  PAYMENT_STATUS,
+} from "../../../constants";
 import ChangePayment from "./shared/ChangePayment";
 
 const OrderModal = ({
@@ -235,7 +239,7 @@ const OrderModal = ({
         onCancel={closeModal}
       >
         <div className="flex justify-between items-center">
-          <Space className="mb-4">
+          <Space className="mb-4" size="middle">
             <span className="text-gray-500 ">
               {moment(orderedAt).format("ll")}
             </span>
@@ -243,6 +247,16 @@ const OrderModal = ({
             {/* <Tag color={getOrderStatusColor(data?.status)}>
             {data?.status?.replaceAll("_", " ")?.toUpperCase()}
           </Tag> */}
+
+            <Button type="danger">
+              <a
+                href={ORDER_INVOICE_URL.replace("{ORDER_ID}", orderId)}
+                target="__blank"
+                download
+              >
+                Invoice
+              </a>
+            </Button>
           </Space>
 
           <Form onFinish={(values) => onAssignedToUpdate.mutate(values)}>
