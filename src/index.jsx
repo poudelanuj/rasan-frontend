@@ -50,12 +50,12 @@ import CreateReturnTicket from "./pages/CRM/ReturnRequest/CreateReturnTicket";
 // * Orders
 import Orders from "./pages/Orders";
 import CreateOrder from "./pages/Orders/components/CreateOrder";
-import ViewOrder from "./pages/Orders/components/ViewOrder";
 
 // * Others
 import Dashboard from "./pages/Dashboard";
 import LiveUserBasket from "./pages/LiveUserBasket";
 import Notifications from "./pages/Notifications";
+import ViewOrderPage from "./pages/Orders/components/ViewOrderPage";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const queryClient = new QueryClient();
@@ -80,7 +80,7 @@ root.render(
               <Route path="orders">
                 <Route element={<Orders />} index />
                 <Route element={<CreateOrder />} path="create-order" />
-                <Route element={<ViewOrder />} path="view-order/:id" />
+                <Route element={<ViewOrderPage />} path="view-order/:orderId" />
               </Route>
 
               <Route path="category-list">
