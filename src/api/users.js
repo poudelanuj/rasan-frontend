@@ -9,3 +9,8 @@ export const getEndUser = async () => {
   const response = await axios.get("/api/profile/");
   return response.data.data;
 };
+
+export const createUser = async (data) => {
+  const res = await axios.post("/api/auth/create-user/admin/", data);
+  return res.data;
+};
