@@ -11,6 +11,6 @@ export const getEndUser = async () => {
 };
 
 export const createUser = async (data) => {
-  const res = await axios.post("/api/auth/create-user/admin/", data);
-  return res.data;
+  const response = await axios.post("/api/auth/create-user/admin/", data);
+  return response.data;
 };
