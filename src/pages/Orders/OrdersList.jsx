@@ -310,8 +310,7 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
           const { id, status } = record;
           return {
             onClick: () => {
-              setIsOrderModalOpen((prev) => !prev);
-              setActiveOrder({ orderId: id, orderStatus: status });
+              navigate(`view-order/${id}`);
             },
           };
         }}
