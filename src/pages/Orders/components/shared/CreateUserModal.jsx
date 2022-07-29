@@ -12,7 +12,6 @@ const CreateUserModal = ({ isCreateUserOpen, setIsCreateUserOpen }) => {
   const handleUserCreate = useMutation((data) => createUser(data), {
     onSuccess: (data) => {
       openSuccessNotification(data.message);
-      form.resetFields();
       setIsCreateUserOpen(false);
     },
     onError: (error) => {
@@ -22,27 +21,23 @@ const CreateUserModal = ({ isCreateUserOpen, setIsCreateUserOpen }) => {
 
   return (
     <Modal
-      cancelText="Cancel"
-      okText={
+      footer={
         <Button
+          htmlType="submit"
           loading={handleUserCreate.status === "loading"}
-          size="small"
           type="primary"
+          onClick={() =>
+            form.validateFields().then((values) => {
+              handleUserCreate.mutate(values);
+            })
+          }
         >
           Create
         </Button>
       }
       title="Create a User"
       visible={isCreateUserOpen}
-      onCancel={() => {
-        setIsCreateUserOpen(false);
-        form.resetFields();
-      }}
-      onOk={() => {
-        form.validateFields().then((values) => {
-          handleUserCreate.mutate(values);
-        });
-      }}
+      onCancel={() => setIsCreateUserOpen(false)}
     >
       <Form
         form={form}
