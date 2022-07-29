@@ -8,12 +8,15 @@ import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../../utils/openNotification";
+import CreateUserModal from "./shared/CreateUserModal";
+import UserBasket from "./shared/UserBasket";
 
 const CreateOrder = ({
   // * From Live User Basket
   isFromLiveUserBasket,
   userId,
 }) => {
+  const [isCreateUserOpen, setIsCreateUserOpen] = useState(false);
   const { Option } = Select;
   const [form] = Form.useForm();
   const [selectedUserPhone, setSelectedUserPhone] = useState(0);
@@ -46,15 +49,29 @@ const CreateOrder = ({
 
   return (
     <>
-      <div className="mt-4">
-        <CustomPageHeader title="Create New Order" />
-      </div>
       <Form
         form={form}
         layout="vertical"
         onFinish={(values) => onFinish.mutate(values)}
       >
-        <div className="grid grid-cols-3 gap-3">
+        <div className="mt-4 w-full flex justify-between items-center">
+          <CustomPageHeader title={"Create New Order"} />
+
+          <Form.Item className="">
+            <Button
+              className="bg-blue-400"
+              disabled={onFinish.status === "loading"}
+              htmlType="submit"
+              size="large"
+              type="primary"
+            >
+              {onFinish.status !== "loading" && <span>Create Order</span>}
+              {onFinish.status === "loading" && <Spin size="small" />}
+            </Button>
+          </Form.Item>
+        </div>
+
+        <div className="grid grid-cols-3 gap-3 mt-4">
           <Form.Item
             label="Order Status"
             name="status"
@@ -134,12 +151,19 @@ const CreateOrder = ({
         <div className="grid grid-cols-2 gap-3">
           <Form.Item
             label={
-              <>
+              <div className="flex gap-3 items-center">
                 <span>User</span>
                 {userListStatus === "loading" && (
                   <Spin className="mx-3" size="small" />
                 )}
-              </>
+                <Button
+                  className="p-0 m-0 bg-white"
+                  size="small"
+                  onClick={() => setIsCreateUserOpen(true)}
+                >
+                  + Add New User
+                </Button>
+              </div>
             }
             name="user"
             rules={[
@@ -179,7 +203,14 @@ const CreateOrder = ({
           </Form.Item>
 
           <Form.Item
-            label="Shipping Address"
+            label={
+              <div className="flex gap-3 items-center">
+                <span>Shipping Address</span>
+                <Button className="p-0 m-0 bg-white" size="small">
+                  + Add Shipping Address
+                </Button>
+              </div>
+            }
             name="shipping_address"
             rules={[
               {
@@ -213,20 +244,18 @@ const CreateOrder = ({
           </Form.Item>
         </div>
 
-        <div className="flex items-end w-full justify-end">
-          <Form.Item className="">
-            <Button
-              className="bg-blue-400"
-              disabled={onFinish.status === "loading"}
-              htmlType="submit"
-              size="large"
-              type="primary"
-            >
-              {onFinish.status !== "loading" && <span>Create</span>}
-              {onFinish.status === "loading" && <Spin size="small" />}
-            </Button>
-          </Form.Item>
-        </div>
+        {!!selectedUserPhone && (
+          <UserBasket
+            user={userList?.find((el) => el.phone === selectedUserPhone)}
+          />
+        )}
+
+        {
+          <CreateUserModal
+            isCreateUserOpen={isCreateUserOpen}
+            setIsCreateUserOpen={setIsCreateUserOpen}
+          />
+        }
       </Form>
     </>
   );
