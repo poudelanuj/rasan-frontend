@@ -16,7 +16,7 @@ const CreateOrder = ({
   isFromLiveUserBasket,
   userId,
 }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCreateUserOpen, setIsCreateUserOpen] = useState(false);
   const { Option } = Select;
   const [form] = Form.useForm();
   const [selectedUserPhone, setSelectedUserPhone] = useState(0);
@@ -159,7 +159,7 @@ const CreateOrder = ({
                 <Button
                   className="p-0 m-0 bg-white"
                   size="small"
-                  onClick={() => setIsModalOpen(true)}
+                  onClick={() => setIsCreateUserOpen(true)}
                 >
                   + New
                 </Button>
@@ -252,8 +252,8 @@ const CreateOrder = ({
 
         {
           <CreateUserModal
-            isModalOpen={isModalOpen}
-            setIsModalOpen={setIsModalOpen}
+            isCreateUserOpen={isCreateUserOpen}
+            setIsCreateUserOpen={setIsCreateUserOpen}
           />
         }
       </Form>

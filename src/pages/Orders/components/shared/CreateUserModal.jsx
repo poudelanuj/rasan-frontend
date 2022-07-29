@@ -1,4 +1,4 @@
-import { Modal, Form, Input } from "antd";
+import { Modal, Form, Input, Button } from "antd";
 import { useMutation } from "react-query";
 import { createUser } from "../../../../api/users";
 import {
@@ -6,14 +6,14 @@ import {
   openErrorNotification,
 } from "../../../../utils/openNotification";
 
-const CreateUserModal = ({ isModalOpen, setIsModalOpen }) => {
+const CreateUserModal = ({ isCreateUserOpen, setIsCreateUserOpen }) => {
   const [form] = Form.useForm();
 
   const handleUserCreate = useMutation((data) => createUser(data), {
     onSuccess: (data) => {
       openSuccessNotification(data.message);
       form.resetFields();
-      setIsModalOpen(false);
+      setIsCreateUserOpen(false);
     },
     onError: (error) => {
       openErrorNotification(error);
@@ -23,11 +23,19 @@ const CreateUserModal = ({ isModalOpen, setIsModalOpen }) => {
   return (
     <Modal
       cancelText="Cancel"
-      okText="Create"
+      okText={
+        <Button
+          loading={handleUserCreate.status === "loading"}
+          size="small"
+          type="primary"
+        >
+          Create
+        </Button>
+      }
       title="Create a User"
-      visible={isModalOpen}
+      visible={isCreateUserOpen}
       onCancel={() => {
-        setIsModalOpen(false);
+        setIsCreateUserOpen(false);
         form.resetFields();
       }}
       onOk={() => {
