@@ -161,7 +161,7 @@ const CreateOrder = ({
                   size="small"
                   onClick={() => setIsCreateUserOpen(true)}
                 >
-                  + New
+                  + Add New User
                 </Button>
               </div>
             }
@@ -207,7 +207,7 @@ const CreateOrder = ({
               <div className="flex gap-3 items-center">
                 <span>Shipping Address</span>
                 <Button className="p-0 m-0 bg-white" size="small">
-                  + New
+                  + Add Shipping Address
                 </Button>
               </div>
             }
