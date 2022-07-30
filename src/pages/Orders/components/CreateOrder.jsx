@@ -14,7 +14,6 @@ import UserBasket from "./shared/UserBasket";
 
 const CreateOrder = ({
   // * From Live User Basket
-  isFromLiveUserBasket,
   userId,
 }) => {
   const [isCreateUserOpen, setIsCreateUserOpen] = useState(false);
@@ -36,7 +35,7 @@ const CreateOrder = ({
           payment_method: formValues.payment_method,
           status: formValues.payment_status,
         },
-        user: isFromLiveUserBasket ? userId : formValues.user,
+        user: formValues.user,
         shipping_address: formValues.shipping_address,
       }),
     {
@@ -161,6 +160,7 @@ const CreateOrder = ({
                 <Button
                   className="p-0 m-0 bg-white"
                   size="small"
+                  type="primary"
                   onClick={() => setIsCreateUserOpen(true)}
                 >
                   + Add New User
@@ -186,21 +186,11 @@ const CreateOrder = ({
               showSearch
               onSelect={(value) => setSelectedUserPhone(value)}
             >
-              {!isFromLiveUserBasket &&
-                userList?.map((user) => (
-                  <Option key={user.id} value={user.phone}>
-                    {user.full_name || user.phone}
-                  </Option>
-                ))}
-
-              {isFromLiveUserBasket && (
-                <Option
-                  key={userId}
-                  value={userList?.find((item) => item.id === userId)?.phone}
-                >
-                  {userList?.find((item) => item.id === userId)?.full_name}
+              {userList?.map((user) => (
+                <Option key={user.id} value={user.phone}>
+                  {user.full_name || user.phone}
                 </Option>
-              )}
+              ))}
             </Select>
           </Form.Item>
 
@@ -212,6 +202,7 @@ const CreateOrder = ({
                   className="p-0 m-0 bg-white"
                   disabled={!selectedUserPhone}
                   size="small"
+                  type="primary"
                   onClick={() => setIsCreateShippingOpen(true)}
                 >
                   + Add Shipping Address
@@ -236,11 +227,7 @@ const CreateOrder = ({
               showSearch
             >
               {userList
-                ?.find((user) =>
-                  !isFromLiveUserBasket
-                    ? user.phone === selectedUserPhone
-                    : user.id.toString() === userId.toString()
-                )
+                ?.find((user) => user.phone === selectedUserPhone)
                 ?.addresses?.map((address) => (
                   <Option
                     key={address.id}

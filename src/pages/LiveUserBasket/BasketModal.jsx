@@ -2,27 +2,27 @@ import { DeleteOutlined } from "@ant-design/icons";
 import { Button, Form, Input, Modal, Select, Space, Spin, Table } from "antd";
 import { useState } from "react";
 import { useMutation, useQuery } from "react-query";
+import { useNavigate } from "react-router-dom";
 import {
   addBasketItem,
   deleteBasketItem,
   getBasketInfo,
   getProductSkus,
 } from "../../context/OrdersContext";
-import CreateOrder from "../Orders/components/CreateOrder";
 import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../utils/openNotification";
 
 const BasketModal = ({ isModalOpen, onClose, basket }) => {
-  const { user, basket_id } = basket;
-
-  const [openCreateOrder, setOpenCreateOrder] = useState(false);
+  const { basket_id } = basket;
 
   // *********** FORM ************ //
   const [selectedProductSku, setSelectedSku] = useState();
   const [selectedProductPack, setSelectedPack] = useState();
   const [quantity, setQuantity] = useState(1);
+
+  const navigate = useNavigate();
 
   const {
     data: basketData,
@@ -174,7 +174,7 @@ const BasketModal = ({ isModalOpen, onClose, basket }) => {
           className="bg-blue-500"
           size="large"
           type="primary"
-          onClick={() => setOpenCreateOrder((prev) => !prev)}
+          onClick={() => navigate("/orders/create-order")}
         >
           Create Order From Basket
         </Button>,
@@ -321,16 +321,6 @@ const BasketModal = ({ isModalOpen, onClose, basket }) => {
             </Form.Item>
           </Space>
         </Form>
-      )}
-
-      {openCreateOrder && (
-        <CreateOrder
-          closeModal={() => setOpenCreateOrder(false)}
-          isFromLiveUserBasket={true}
-          isOpen={openCreateOrder}
-          title="Create Order"
-          userId={user}
-        />
       )}
     </Modal>
   );
