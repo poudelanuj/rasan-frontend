@@ -14,7 +14,7 @@ const CreateShippingModal = ({
   const [form] = Form.useForm();
 
   const handleShippingCreate = useMutation(
-    (id, data) => createShippingAddress(id, data),
+    ({ id, data }) => createShippingAddress({ id, data }),
     {
       onSuccess: (data) => {
         openSuccessNotification(data.message);
@@ -35,8 +35,7 @@ const CreateShippingModal = ({
           type="primary"
           onClick={() =>
             form.validateFields().then((values) => {
-              console.log(userId, values);
-              handleShippingCreate.mutate(userId, values);
+              handleShippingCreate.mutate({ id: userId, data: values });
             })
           }
         >
