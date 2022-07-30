@@ -53,7 +53,7 @@ const CreateUserModal = ({ isCreateUserOpen, setIsCreateUserOpen }) => {
           rules={[
             {
               required: true,
-              message: "Please input fullname!",
+              message: "Please input Fullname",
             },
           ]}
         >

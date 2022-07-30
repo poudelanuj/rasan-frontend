@@ -8,6 +8,7 @@ import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../../utils/openNotification";
+import CreateShippingModal from "./shared/CreateShippingModal";
 import CreateUserModal from "./shared/CreateUserModal";
 import UserBasket from "./shared/UserBasket";
 
@@ -17,6 +18,7 @@ const CreateOrder = ({
   userId,
 }) => {
   const [isCreateUserOpen, setIsCreateUserOpen] = useState(false);
+  const [isCreateShippingOpen, setIsCreateShippingOpen] = useState(false);
   const { Option } = Select;
   const [form] = Form.useForm();
   const [selectedUserPhone, setSelectedUserPhone] = useState(0);
@@ -206,7 +208,12 @@ const CreateOrder = ({
             label={
               <div className="flex gap-3 items-center">
                 <span>Shipping Address</span>
-                <Button className="p-0 m-0 bg-white" size="small">
+                <Button
+                  className="p-0 m-0 bg-white"
+                  disabled={!selectedUserPhone}
+                  size="small"
+                  onClick={() => setIsCreateShippingOpen(true)}
+                >
                   + Add Shipping Address
                 </Button>
               </div>
@@ -250,12 +257,18 @@ const CreateOrder = ({
           />
         )}
 
-        {
-          <CreateUserModal
-            isCreateUserOpen={isCreateUserOpen}
-            setIsCreateUserOpen={setIsCreateUserOpen}
+        <CreateUserModal
+          isCreateUserOpen={isCreateUserOpen}
+          setIsCreateUserOpen={setIsCreateUserOpen}
+        />
+
+        {!!selectedUserPhone && (
+          <CreateShippingModal
+            isCreateShippingOpen={isCreateShippingOpen}
+            setIsCreateShippingOpen={setIsCreateShippingOpen}
+            userId={userList?.find((el) => el.phone === selectedUserPhone)?.id}
           />
-        }
+        )}
       </Form>
     </>
   );
