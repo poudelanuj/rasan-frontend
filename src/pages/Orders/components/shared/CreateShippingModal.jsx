@@ -10,6 +10,7 @@ const CreateShippingModal = ({
   isCreateShippingOpen,
   setIsCreateShippingOpen,
   userId,
+  refetchUserList,
 }) => {
   const [form] = Form.useForm();
 
@@ -19,6 +20,7 @@ const CreateShippingModal = ({
       onSuccess: (data) => {
         openSuccessNotification(data.message);
         setIsCreateShippingOpen(false);
+        refetchUserList();
       },
       onError: (error) => {
         openErrorNotification(error);
