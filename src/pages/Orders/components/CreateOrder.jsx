@@ -1,7 +1,12 @@
-import { Button, Form, Select, Spin } from "antd";
+import { Button, Form, Input, Select, Spin } from "antd";
 import { useState } from "react";
 import { useQuery, useMutation } from "react-query";
-import { CANCELLED, DELIVERED, IN_PROCESS } from "../../../constants";
+import {
+  CANCELLED,
+  DELIVERED,
+  IN_PROCESS,
+  PAYMENT_METHODS,
+} from "../../../constants";
 import { createOrder, getUserList } from "../../../context/OrdersContext";
 import CustomPageHeader from "../../../shared/PageHeader";
 import {
@@ -12,31 +17,41 @@ import CreateShippingModal from "./shared/CreateShippingModal";
 import CreateUserModal from "./shared/CreateUserModal";
 import UserBasket from "./shared/UserBasket";
 
-const CreateOrder = ({
-  // * From Live User Basket
-  userId,
-}) => {
+const CreateOrder = () => {
   const [isCreateUserOpen, setIsCreateUserOpen] = useState(false);
   const [isCreateShippingOpen, setIsCreateShippingOpen] = useState(false);
   const { Option } = Select;
   const [form] = Form.useForm();
   const [selectedUserPhone, setSelectedUserPhone] = useState(0);
 
-  const { data: userList, status: userListStatus } = useQuery({
+  const {
+    data: userList,
+    status: userListStatus,
+    refetch: refetchUserList,
+    isRefetching: refetchingUserList,
+  } = useQuery({
     queryFn: () => getUserList(),
     queryKey: ["getUserList"],
   });
 
   const onFinish = useMutation(
-    (formValues) =>
+    ({
+      status: orderStatus,
+      payment_method,
+      payment_status,
+      shipping_address,
+      payment_amount,
+      user,
+    }) =>
       createOrder({
-        status: formValues.status,
+        status: orderStatus,
         payment: {
-          payment_method: formValues.payment_method,
-          status: formValues.payment_status,
+          payment_method,
+          payment_amount,
+          status: payment_status,
         },
-        user: formValues.user,
-        shipping_address: formValues.shipping_address,
+        user,
+        shipping_address,
       }),
     {
       onSuccess: (data) => {
@@ -72,7 +87,7 @@ const CreateOrder = ({
           </Form.Item>
         </div>
 
-        <div className="grid grid-cols-3 gap-3 mt-4">
+        <div className="grid grid-cols-4 gap-3 mt-4">
           <Form.Item
             label="Order Status"
             name="status"
@@ -117,10 +132,11 @@ const CreateOrder = ({
               placeholder="Select Payment Method"
               showSearch
             >
-              <Option value="cash_on_delivery">Cash On Delivery</Option>
-              <Option value="esewa">Esewa</Option>
-              <Option value="Khalti">Khalti</Option>
-              <Option value="bank_transfer">Bank Transfer</Option>
+              {PAYMENT_METHODS.map((item) => (
+                <Option key={item} value={item}>
+                  {item.replaceAll("_", " ")}
+                </Option>
+              ))}
             </Select>
           </Form.Item>
 
@@ -147,6 +163,19 @@ const CreateOrder = ({
               <Option value="paid">Paid</Option>
             </Select>
           </Form.Item>
+
+          <Form.Item
+            label="Payment Amount"
+            name="payment_amount"
+            rules={[
+              {
+                required: true,
+                message: "Please input amount",
+              },
+            ]}
+          >
+            <Input type="number" />
+          </Form.Item>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
@@ -154,9 +183,6 @@ const CreateOrder = ({
             label={
               <div className="flex gap-3 items-center">
                 <span>User</span>
-                {userListStatus === "loading" && (
-                  <Spin className="mx-3" size="small" />
-                )}
                 <Button
                   className="p-0 m-0 bg-white"
                   size="small"
@@ -181,6 +207,7 @@ const CreateOrder = ({
               filterOption={(input, option) =>
                 option.children.toLowerCase().includes(input.toLowerCase())
               }
+              loading={userListStatus === "loading" || refetchingUserList}
               optionFilterProp="children"
               placeholder="Select User"
               showSearch
@@ -246,12 +273,14 @@ const CreateOrder = ({
 
         <CreateUserModal
           isCreateUserOpen={isCreateUserOpen}
+          refetchUserList={refetchUserList}
           setIsCreateUserOpen={setIsCreateUserOpen}
         />
 
         {!!selectedUserPhone && (
           <CreateShippingModal
             isCreateShippingOpen={isCreateShippingOpen}
+            refetchUserList={refetchUserList}
             setIsCreateShippingOpen={setIsCreateShippingOpen}
             userId={userList?.find((el) => el.phone === selectedUserPhone)?.id}
           />

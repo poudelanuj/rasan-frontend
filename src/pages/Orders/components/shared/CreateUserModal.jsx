@@ -6,13 +6,18 @@ import {
   openErrorNotification,
 } from "../../../../utils/openNotification";
 
-const CreateUserModal = ({ isCreateUserOpen, setIsCreateUserOpen }) => {
+const CreateUserModal = ({
+  isCreateUserOpen,
+  setIsCreateUserOpen,
+  refetchUserList,
+}) => {
   const [form] = Form.useForm();
 
   const handleUserCreate = useMutation((data) => createUser(data), {
     onSuccess: (data) => {
       openSuccessNotification(data.message);
       setIsCreateUserOpen(false);
+      refetchUserList();
     },
     onError: (error) => {
       openErrorNotification(error);

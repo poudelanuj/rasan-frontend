@@ -165,7 +165,7 @@ const UserBasket = ({ user }) => {
 
   return (
     <div>
-      <p className="font-semibold mt-2">
+      <p className="font-semibold mt-6">
         {user?.full_name || ""} {user?.phone || ""}
       </p>
 
