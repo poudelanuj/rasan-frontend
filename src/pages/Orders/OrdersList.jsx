@@ -307,7 +307,7 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
         rowClassName="cursor-pointer"
         rowSelection={{ ...rowSelection }}
         onRow={(record) => {
-          const { id, status } = record;
+          const { id } = record;
           return {
             onClick: () => {
               navigate(`view-order/${id}`);
