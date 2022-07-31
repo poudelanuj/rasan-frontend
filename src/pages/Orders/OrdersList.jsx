@@ -84,11 +84,7 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
       dataIndex: "id",
       key: "orderId",
       render: (_, { id, status }) => {
-        return (
-          <div className="text-blue-500 cursor-pointer" onClick={() => {}}>
-            #{id}
-          </div>
-        );
+        return <div className="text-blue-500 cursor-pointer">#{id}</div>;
       },
       ...getColumnSearchProps("order Id"),
       sorter: (a, b) => a.id - b.id,
