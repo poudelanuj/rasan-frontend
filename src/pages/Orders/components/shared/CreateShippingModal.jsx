@@ -1,6 +1,11 @@
-import { Modal, Form, Input, Button } from "antd";
-import { useMutation } from "react-query";
-import { createShippingAddress } from "../../../../api/userAddresses";
+import { Modal, Form, Input, Button, Select } from "antd";
+import { useState } from "react";
+import { useMutation, useQuery } from "react-query";
+import {
+  createShippingAddress,
+  getAddresses,
+} from "../../../../api/userAddresses";
+import { GET_ADDRESSES } from "../../../../constants/queryKeys";
 import {
   openSuccessNotification,
   openErrorNotification,
@@ -9,10 +14,18 @@ import {
 const CreateShippingModal = ({
   isCreateShippingOpen,
   setIsCreateShippingOpen,
+  setSelectedShippingAddress,
   userId,
   refetchUserList,
 }) => {
   const [form] = Form.useForm();
+  const [selectedProvince, setSelectedProvince] = useState(null);
+  const [selectedCity, setSelectedCity] = useState(null);
+
+  const { data: addressList, status: addressListStatus } = useQuery({
+    queryFn: getAddresses,
+    queryKey: [GET_ADDRESSES],
+  });
 
   const handleShippingCreate = useMutation(
     ({ id, data }) => createShippingAddress({ id, data }),
@@ -21,6 +34,8 @@ const CreateShippingModal = ({
         openSuccessNotification(data.message);
         setIsCreateShippingOpen(false);
         refetchUserList();
+
+        setSelectedShippingAddress(data.data.id);
       },
       onError: (error) => {
         openErrorNotification(error);
@@ -48,38 +63,30 @@ const CreateShippingModal = ({
       visible={isCreateShippingOpen}
       onCancel={() => setIsCreateShippingOpen(false)}
     >
-      <Form
-        form={form}
-        initialValues={{
-          modifier: "public",
-        }}
-        layout="vertical"
-        name="form_in_modal"
-      >
-        <Form.Item
-          label="Detail Address"
-          name="detail_address"
-          rules={[
-            {
-              required: true,
-              message: "Please input Detail Address",
-            },
-          ]}
-        >
-          <Input />
-        </Form.Item>
-
+      <Form form={form} layout="vertical" name="form_in_modal">
         <Form.Item
           label="Province"
           name="province"
           rules={[
             {
               required: true,
-              message: "Please input Province",
+              message: "Please select a province",
             },
           ]}
         >
-          <Input type="number" />
+          <Select
+            filterOption={(input, option) =>
+              option.children.toLowerCase().includes(input.toLowerCase())
+            }
+            loading={addressListStatus === "loading"}
+            showSearch
+            onSelect={(value) => setSelectedProvince(value)}
+          >
+            {addressList &&
+              addressList.map((address) => (
+                <Select.Option key={address.id}>{address.name}</Select.Option>
+              ))}
+          </Select>
         </Form.Item>
         <Form.Item
           label="City"
@@ -87,11 +94,26 @@ const CreateShippingModal = ({
           rules={[
             {
               required: true,
-              message: "Please input City",
+              message: "Please select a city",
             },
           ]}
         >
-          <Input type="number" />
+          <Select
+            filterOption={(input, option) =>
+              option.children.toLowerCase().includes(input.toLowerCase())
+            }
+            loading={addressListStatus === "loading"}
+            onSelect={(value) => setSelectedCity(value)}
+          >
+            {addressList &&
+              addressList
+                .find(
+                  (item) => item.id?.toString() === selectedProvince?.toString()
+                )
+                ?.cities?.map((city) => (
+                  <Select.Option key={city.id}>{city.name}</Select.Option>
+                ))}
+          </Select>
         </Form.Item>
 
         <Form.Item
@@ -104,7 +126,29 @@ const CreateShippingModal = ({
             },
           ]}
         >
-          <Input type="number" />
+          <Select
+            filterOption={(input, option) =>
+              option.children.toLowerCase().includes(input.toLowerCase())
+            }
+            loading={addressListStatus === "loading"}
+            onSelect={(value) => setSelectedCity(value)}
+          >
+            {addressList &&
+              addressList
+                .find(
+                  (item) => item.id?.toString() === selectedProvince?.toString()
+                )
+                ?.cities?.find(
+                  (item) => item.id?.toString() === selectedCity?.toString()
+                )
+                ?.areas?.map((area) => (
+                  <Select.Option key={area.id}>{area.name}</Select.Option>
+                ))}
+          </Select>
+        </Form.Item>
+
+        <Form.Item label="Detail Address" name="detail_address">
+          <Input />
         </Form.Item>
       </Form>
     </Modal>

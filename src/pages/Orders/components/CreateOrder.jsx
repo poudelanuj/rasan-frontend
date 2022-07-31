@@ -1,13 +1,19 @@
-import { Button, Form, Input, Select, Spin } from "antd";
+import { Button, Form, Select } from "antd";
 import { useState } from "react";
 import { useQuery, useMutation } from "react-query";
+import { useNavigate } from "react-router-dom";
+import { getUsers } from "../../../api/users";
 import {
   CANCELLED,
+  CASH_ON_DELIVERY,
   DELIVERED,
   IN_PROCESS,
+  PAID,
   PAYMENT_METHODS,
+  STATUS,
+  UNPAID,
 } from "../../../constants";
-import { createOrder, getUserList } from "../../../context/OrdersContext";
+import { createOrder } from "../../../context/OrdersContext";
 import CustomPageHeader from "../../../shared/PageHeader";
 import {
   openErrorNotification,
@@ -23,6 +29,10 @@ const CreateOrder = () => {
   const { Option } = Select;
   const [form] = Form.useForm();
   const [selectedUserPhone, setSelectedUserPhone] = useState(0);
+  const [basketItemsStatus, setBasketItemsStatus] = useState(STATUS.idle);
+  const [selectedShippingAddress, setSelectedShippingAddress] = useState(null);
+
+  const navigate = useNavigate();
 
   const {
     data: userList,
@@ -30,7 +40,7 @@ const CreateOrder = () => {
     refetch: refetchUserList,
     isRefetching: refetchingUserList,
   } = useQuery({
-    queryFn: () => getUserList(),
+    queryFn: () => getUsers(),
     queryKey: ["getUserList"],
   });
 
@@ -56,6 +66,7 @@ const CreateOrder = () => {
     {
       onSuccess: (data) => {
         openSuccessNotification(data.message || "Order Created");
+        navigate(`/orders/view-order/${data.data.id}`);
       },
       onError: (error) => {
         openErrorNotification(error);
@@ -72,110 +83,6 @@ const CreateOrder = () => {
       >
         <div className="mt-4 w-full flex justify-between items-center">
           <CustomPageHeader title={"Create New Order"} />
-
-          <Form.Item className="">
-            <Button
-              className="bg-blue-400"
-              disabled={onFinish.status === "loading"}
-              htmlType="submit"
-              size="large"
-              type="primary"
-            >
-              {onFinish.status !== "loading" && <span>Create Order</span>}
-              {onFinish.status === "loading" && <Spin size="small" />}
-            </Button>
-          </Form.Item>
-        </div>
-
-        <div className="grid grid-cols-4 gap-3 mt-4">
-          <Form.Item
-            label="Order Status"
-            name="status"
-            rules={[
-              {
-                required: true,
-                message: "order status is required",
-              },
-            ]}
-          >
-            <Select
-              className="w-full"
-              filterOption={(input, option) =>
-                option.children.toLowerCase().includes(input.toLowerCase())
-              }
-              optionFilterProp="children"
-              placeholder="Select Order Status"
-              showSearch
-            >
-              <Option value={IN_PROCESS}>In Process</Option>
-              <Option value={CANCELLED}>Cancelled</Option>
-              <Option value={DELIVERED}>Delivered</Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            label="Payment Method"
-            name="payment_method"
-            rules={[
-              {
-                required: true,
-                message: "payment method is required",
-              },
-            ]}
-          >
-            <Select
-              className="w-full"
-              filterOption={(input, option) =>
-                option.children.toLowerCase().includes(input.toLowerCase())
-              }
-              optionFilterProp="children"
-              placeholder="Select Payment Method"
-              showSearch
-            >
-              {PAYMENT_METHODS.map((item) => (
-                <Option key={item} value={item}>
-                  {item.replaceAll("_", " ")}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            label="Payment Status"
-            name="payment_status"
-            rules={[
-              {
-                required: true,
-                message: "payment status is required",
-              },
-            ]}
-          >
-            <Select
-              className="w-full"
-              filterOption={(input, option) =>
-                option.children.toLowerCase().includes(input.toLowerCase())
-              }
-              optionFilterProp="children"
-              placeholder="Select Payment Status"
-              showSearch
-            >
-              <Option value="unpaid">Unpaid</Option>
-              <Option value="paid">Paid</Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            label="Payment Amount"
-            name="payment_amount"
-            rules={[
-              {
-                required: true,
-                message: "Please input amount",
-              },
-            ]}
-          >
-            <Input type="number" />
-          </Form.Item>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
@@ -249,17 +156,21 @@ const CreateOrder = () => {
               filterOption={(input, option) =>
                 option.children.toLowerCase().includes(input.toLowerCase())
               }
+              loading={userListStatus === "loading" || refetchingUserList}
               optionFilterProp="children"
               placeholder="Select Shipping Address"
+              value={selectedShippingAddress}
               showSearch
+              onSelect={(value) => setSelectedShippingAddress(value)}
             >
               {userList
                 ?.find((user) => user.phone === selectedUserPhone)
                 ?.addresses?.map((address) => (
-                  <Option
-                    key={address.id}
-                    value={address.id}
-                  >{`${address.detail_address}, ${address.area.name} - ${address.city.name}, ${address.province.name}`}</Option>
+                  <Option key={address.id} value={address.id}>{`${
+                    address.detail_address || ""
+                  } ${address.area.name} - ${address.city.name}, ${
+                    address.province.name
+                  }`}</Option>
                 ))}
             </Select>
           </Form.Item>
@@ -267,9 +178,111 @@ const CreateOrder = () => {
 
         {!!selectedUserPhone && (
           <UserBasket
+            setBasketItemsStatus={setBasketItemsStatus}
             user={userList?.find((el) => el.phone === selectedUserPhone)}
           />
         )}
+
+        <div className="grid grid-cols-3 gap-3 mt-4">
+          <Form.Item
+            initialValue={IN_PROCESS}
+            label="Order Status"
+            name="status"
+            rules={[
+              {
+                required: true,
+                message: "order status is required",
+              },
+            ]}
+          >
+            <Select
+              className="w-full"
+              defaultValue={IN_PROCESS}
+              filterOption={(input, option) =>
+                option.children.toLowerCase().includes(input.toLowerCase())
+              }
+              optionFilterProp="children"
+              placeholder="Select Order Status"
+              showSearch
+            >
+              <Option value={IN_PROCESS}>In Process</Option>
+              <Option value={CANCELLED}>Cancelled</Option>
+              <Option value={DELIVERED}>Delivered</Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            initialValue={CASH_ON_DELIVERY}
+            label="Payment Method"
+            name="payment_method"
+            rules={[
+              {
+                required: true,
+                message: "payment method is required",
+              },
+            ]}
+          >
+            <Select
+              className="w-full"
+              defaultValue={CASH_ON_DELIVERY}
+              filterOption={(input, option) =>
+                option.children.toLowerCase().includes(input.toLowerCase())
+              }
+              optionFilterProp="children"
+              placeholder="Select Payment Method"
+              showSearch
+            >
+              {PAYMENT_METHODS.map((item) => (
+                <Option key={item} value={item}>
+                  {item.replaceAll("_", " ")}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            initialValue={UNPAID}
+            label="Payment Status"
+            name="payment_status"
+            rules={[
+              {
+                required: true,
+                message: "payment status is required",
+              },
+            ]}
+          >
+            <Select
+              className="w-full"
+              defaultValue={UNPAID}
+              filterOption={(input, option) =>
+                option.children.toLowerCase().includes(input.toLowerCase())
+              }
+              optionFilterProp="children"
+              placeholder="Select Payment Status"
+              showSearch
+            >
+              <Option value={UNPAID}>Unpaid</Option>
+              <Option value={PAID}>Paid</Option>
+            </Select>
+          </Form.Item>
+        </div>
+
+        <div className="w-full flex justify-end">
+          <Button
+            disabled={
+              onFinish.status === "loading" ||
+              basketItemsStatus === STATUS.processing
+            }
+            htmlType="submit"
+            loading={onFinish.status === "loading"}
+            size="large"
+            type="primary"
+          >
+            {basketItemsStatus === STATUS.processing
+              ? "Please save basket items to create order"
+              : "Create Order"}
+          </Button>
+        </div>
 
         <CreateUserModal
           isCreateUserOpen={isCreateUserOpen}
@@ -282,6 +295,7 @@ const CreateOrder = () => {
             isCreateShippingOpen={isCreateShippingOpen}
             refetchUserList={refetchUserList}
             setIsCreateShippingOpen={setIsCreateShippingOpen}
+            setSelectedShippingAddress={setSelectedShippingAddress}
             userId={userList?.find((el) => el.phone === selectedUserPhone)?.id}
           />
         )}

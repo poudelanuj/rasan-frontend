@@ -25,15 +25,26 @@ export const DELIVERED = "completed";
 
 export const BANK_DEPOSIT = "bank_deposit";
 export const REDEEM = "redeem";
-export const PAYMENT_STATUS = ["unverified", "unpaid", "paid"];
+
+export const UNPAID = "unpaid";
+export const PAID = "paid";
+export const PAYMENT_STATUS = ["unverified", UNPAID, PAID];
+
+export const CASH_ON_DELIVERY = "cash_on_delivery";
 export const PAYMENT_METHODS = [
   "cips",
   "esewa",
   "khalti",
   "bank_deposit",
   "redeem",
-  "cash_on_delivery",
+  CASH_ON_DELIVERY,
 ];
+
+export const STATUS = {
+  idle: "idle",
+  processing: "processing",
+  success: "success",
+};
 
 export const ORDER_TYPE_LOYALTY_REDEEM = "loyalty_redeem";
 export const ORDER_TYPES = ["loyalty_redeem", "general"];

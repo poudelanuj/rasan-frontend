@@ -1,28 +1,38 @@
-import { DeleteOutlined } from "@ant-design/icons";
-import { Button, Form, Input, Select, Space, Spin, Table } from "antd";
-import { useState } from "react";
+import { nanoid } from "nanoid";
+import { DeleteOutlined, MinusOutlined, PlusOutlined } from "@ant-design/icons";
+import { Button, Form, Input, Select, Space, Table } from "antd";
+import { useState, useEffect } from "react";
 import { useMutation, useQuery } from "react-query";
 import {
   addBasketItem,
   deleteBasketItem,
   getBasketInfo,
-  getProductSkus,
 } from "../../../../context/OrdersContext";
 import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../../../utils/openNotification";
+import { getDropdownProductSkus } from "../../../../api/products/productSku";
+import { GET_DROPDOWN_PRODUCT_SKUS } from "../../../../constants/queryKeys";
+import { STATUS } from "../../../../constants";
 
-const UserBasket = ({ user }) => {
+const UserBasket = ({ user, setBasketItemsStatus }) => {
   const { basket_id } = user;
 
   // *********** FORM ************ //
   const [selectedProductSku, setSelectedSku] = useState();
-  const [selectedProductPack, setSelectedPack] = useState();
-  const [quantity, setQuantity] = useState(1);
+
+  const [forms, setForms] = useState([
+    {
+      id: nanoid(),
+      product_pack: null,
+      quantity: 1,
+    },
+  ]);
 
   const {
     data: basketData,
+    status: basketDataStatus,
     refetch: refetchBasketItems,
     isRefetching: isBasketItemsRefetching,
   } = useQuery({
@@ -128,40 +138,71 @@ const UserBasket = ({ user }) => {
 
   // *********** FORM ************ //
   const { data: productSkus, status: productsStatus } = useQuery({
-    queryFn: () => getProductSkus(),
-    queryKey: ["getProductSkus"],
+    queryFn: () => getDropdownProductSkus(),
+    queryKey: [GET_DROPDOWN_PRODUCT_SKUS],
   });
 
   // *********** FORM ************ //
-  const handleAddItem = useMutation(
+  const handleBasketSubmit = useMutation(
     () =>
-      addBasketItem({
-        product_pack: selectedProductPack.id,
-        number_of_packs: quantity,
-        basket: basket_id,
-      }),
+      Promise.all(
+        forms
+          .filter((item) => item.product_pack !== null)
+          .map((form) =>
+            addBasketItem({
+              product_pack: form.product_pack?.id,
+              number_of_packs: form.quantity,
+              basket: basket_id,
+            })
+          )
+      ),
     {
       onSuccess: (data) => {
         openSuccessNotification(data.message || "Item Added");
+        setForms([
+          {
+            id: nanoid(),
+            product_pack: null,
+            quantity: 1,
+          },
+        ]);
+        setBasketItemsStatus(STATUS.success);
       },
       onError: (error) => {
         openErrorNotification(error);
       },
       onSettled: () => {
         refetchBasketItems();
-        setSelectedPack(null);
       },
     }
   );
 
   // *********** FORM ************ //
-  const getTotalAmount = () => {
+  const getTotalAmount = (formId) => {
+    const basketForm = forms.find((item) => item.id === formId);
+    const productPack = basketForm?.product_pack;
+
     return (
-      selectedProductPack?.price_per_piece *
-      selectedProductPack?.number_of_items *
-      quantity
+      productPack?.price_per_piece *
+      productPack?.number_of_items *
+      basketForm?.quantity
     );
   };
+
+  const handleAddForm = () => {
+    const newId = nanoid();
+    setForms((prev) => [
+      ...prev,
+      { id: newId, product_pack: null, quantity: 1 },
+    ]);
+  };
+
+  useEffect(() => {
+    if (forms[0]?.product_pack !== null)
+      setBasketItemsStatus(STATUS.processing);
+    else setBasketItemsStatus(STATUS.idle);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [forms]);
 
   return (
     <div>
@@ -169,21 +210,22 @@ const UserBasket = ({ user }) => {
         {user?.full_name || ""} {user?.phone || ""}
       </p>
 
-      {isBasketItemsRefetching && <Spin className="mb-8 flex justify-center" />}
-      {!isBasketItemsRefetching && (
-        <Table columns={columns} dataSource={dataSource || []} />
-      )}
+      <Table
+        columns={columns}
+        dataSource={dataSource || []}
+        loading={isBasketItemsRefetching || basketDataStatus === "loading"}
+      />
+
       <hr className="my-5" />
       <h2 className="font-medium text-base mb-5">Add Item</h2>
-      {(handleAddItem.status === "loading" || productsStatus === "loading") && (
-        <Spin className="mb-5 flex justify-center" />
-      )}
-      {handleAddItem.status !== "loading" && productsStatus === "success" && (
-        <Form layout="horizontal">
+
+      {forms?.map((basketForm, index) => (
+        <Form key={basketForm.id} layout="horizontal">
           <Space>
             <Form.Item>
               <span>Product Sku</span>
               <Select
+                loading={productsStatus === "loading"}
                 placeholder="Select Product SKU"
                 style={{ width: 200 }}
                 showSearch
@@ -202,14 +244,20 @@ const UserBasket = ({ user }) => {
               <Select
                 placeholder="Select Pack Size"
                 showSearch
-                onSelect={(value) =>
-                  setSelectedPack(
-                    productSkus &&
-                      productSkus
-                        .find((item) => item.slug === selectedProductSku)
-                        ?.product_packs?.find((pack) => pack.id === value)
-                  )
-                }
+                onSelect={(value) => {
+                  setForms((prev) => {
+                    const productPack = productSkus
+                      .find((item) => item.slug === selectedProductSku)
+                      ?.product_packs?.find((pack) => pack.id === value);
+
+                    const temp = [...prev];
+                    const index = prev.findIndex(
+                      (item) => item.id === basketForm.id
+                    );
+                    temp[index]["product_pack"] = productPack;
+                    return temp;
+                  });
+                }}
               >
                 {productSkus &&
                   productSkus
@@ -227,8 +275,18 @@ const UserBasket = ({ user }) => {
               <Input
                 placeholder="quantity"
                 type="number"
+                value={
+                  forms.find((item) => item.id === basketForm.id)?.quantity
+                }
                 onChange={(e) => {
-                  setQuantity(e.target.value);
+                  setForms((prev) => {
+                    const temp = [...prev];
+                    const index = prev.findIndex(
+                      (item) => item.id === basketForm.id
+                    );
+                    temp[index]["quantity"] = e.target.value;
+                    return temp;
+                  });
                 }}
               />
             </Form.Item>
@@ -238,7 +296,10 @@ const UserBasket = ({ user }) => {
               <Input
                 placeholder="price"
                 type="number"
-                value={selectedProductPack?.price_per_piece}
+                value={
+                  forms.find((item) => item.id === basketForm.id)?.product_pack
+                    ?.price_per_piece
+                }
                 disabled
               />
             </Form.Item>
@@ -248,7 +309,7 @@ const UserBasket = ({ user }) => {
               <Input
                 placeholder="total amount"
                 type="number"
-                value={getTotalAmount()}
+                value={getTotalAmount(basketForm.id)}
                 disabled
               />
             </Form.Item>
@@ -260,10 +321,10 @@ const UserBasket = ({ user }) => {
                 type="number"
                 value={
                   parseInt(
-                    selectedProductPack?.loyalty_cashback
-                      ?.loyalty_points_per_pack,
+                    forms.find((item) => item.id === basketForm.id)
+                      ?.product_pack?.loyalty_cashback?.loyalty_points_per_pack,
                     10
-                  ) * quantity
+                  ) * forms.find((item) => item.id === basketForm.id)?.quantity
                 }
                 disabled
               />
@@ -276,10 +337,11 @@ const UserBasket = ({ user }) => {
                 type="number"
                 value={
                   parseInt(
-                    selectedProductPack?.loyalty_cashback
+                    forms.find((item) => item.id === basketForm.id)
+                      ?.product_pack?.loyalty_cashback
                       ?.cashback_amount_per_pack,
                     10
-                  ) * quantity
+                  ) * forms.find((item) => item.id === basketForm.id)?.quantity
                 }
                 disabled
               />
@@ -287,17 +349,59 @@ const UserBasket = ({ user }) => {
 
             <Form.Item>
               <div style={{ height: 20 }} />
-              <Button
-                className="bg-blue-500"
-                type="primary"
-                onClick={() => handleAddItem.mutate()}
-              >
-                Add Item
-              </Button>
+              {index + 1 === forms.length ? (
+                <Button
+                  icon={<PlusOutlined />}
+                  type="primary"
+                  onClick={handleAddForm}
+                />
+              ) : (
+                <Button
+                  icon={<MinusOutlined />}
+                  type="ghost"
+                  onClick={() =>
+                    setForms((prev) => {
+                      let temp = [...prev];
+                      temp = temp.filter((item) => item.id !== basketForm.id);
+                      return temp;
+                    })
+                  }
+                />
+              )}
             </Form.Item>
           </Space>
         </Form>
-      )}
+      ))}
+
+      <div className="w-full flex justify-end">
+        <Space>
+          <Button
+            size="middle"
+            type="danger"
+            onClick={() => {
+              setForms([
+                {
+                  id: nanoid(),
+                  product_pack: null,
+                  quantity: 1,
+                },
+              ]);
+            }}
+          >
+            Clear
+          </Button>
+
+          <Button
+            disabled={forms[0]?.product_pack === null}
+            loading={handleBasketSubmit.status === "loading"}
+            size="middle"
+            type="primary"
+            onClick={() => handleBasketSubmit.mutate()}
+          >
+            Save Items To Basket
+          </Button>
+        </Space>
+      </div>
     </div>
   );
 };

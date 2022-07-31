@@ -6,6 +6,7 @@ export const GET_PAGINATED_PRODUCTS = "paginated-products";
 //* Product SKUs
 export const GET_PRODUCT_SKU = "product-sku";
 export const GET_ALL_PRODUCT_SKUS = "all-product-skus";
+export const GET_DROPDOWN_PRODUCT_SKUS = "dropdown-product-skus";
 
 //* Product Packs
 export const GET_PRODUCT_PACK = "product-pack";
@@ -51,3 +52,6 @@ export const GET_NOTIFICATION_GROUPS = "notification-groups";
 // * Dashboard
 export const GET_TICKETS_ASSIGNED = "tickets-assigned-to-me";
 export const GET_ORDERS_ASSIGNED = "orders-assigned-to-me";
+
+// * Addresses
+export const GET_ADDRESSES = "get-addresses";
