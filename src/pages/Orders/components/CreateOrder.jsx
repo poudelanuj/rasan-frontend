@@ -156,6 +156,7 @@ const CreateOrder = () => {
               filterOption={(input, option) =>
                 option.children.toLowerCase().includes(input.toLowerCase())
               }
+              loading={userListStatus === "loading" || refetchingUserList}
               optionFilterProp="children"
               placeholder="Select Shipping Address"
               value={selectedShippingAddress}

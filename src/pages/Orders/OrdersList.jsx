@@ -1,27 +1,12 @@
-import {
-  Table,
-  Tag,
-  Button,
-  Menu,
-  Dropdown,
-  Space,
-  Input,
-  Spin,
-  Select,
-  notification,
-} from "antd";
+import { Table, Tag, Button, Menu, Dropdown, Space, Input } from "antd";
 import { useMutation } from "react-query";
-import { SearchOutlined, EyeOutlined, DeleteOutlined } from "@ant-design/icons";
+import { SearchOutlined, DeleteOutlined } from "@ant-design/icons";
 import moment from "moment";
 import { useRef } from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import OrderModal from "./components/ViewOrder";
-import {
-  deleteBulkOrders,
-  updateOrderStatus,
-} from "../../context/OrdersContext";
+import { deleteBulkOrders } from "../../context/OrdersContext";
 import {
   openErrorNotification,
   openSuccessNotification,
@@ -44,17 +29,11 @@ export const getOrderStatusColor = (status) => {
 
 const OrdersList = ({ dataSource, status, refetchOrders }) => {
   const searchInput = useRef(null);
-  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [isDeleteOrderOpen, setIsDeleteOrderOpen] = useState(false);
   const [deleteOrderId, setDeleteOrderId] = useState(0);
 
   const [checkedRows, setCheckedRows] = useState([]);
   const navigate = useNavigate();
-
-  const [activeOrder, setActiveOrder] = useState({
-    orderId: null,
-    orderStatus: null,
-  });
 
   const getColumnSearchProps = (dataIndex) => ({
     filterDropdown: ({
@@ -106,13 +85,7 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
       key: "orderId",
       render: (_, { id, status }) => {
         return (
-          <div
-            className="text-blue-500 cursor-pointer"
-            onClick={() => {
-              setIsOrderModalOpen(true);
-              setActiveOrder({ orderId: id, orderStatus: status });
-            }}
-          >
+          <div className="text-blue-500 cursor-pointer" onClick={() => {}}>
             #{id}
           </div>
         );
@@ -181,13 +154,6 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
       render: (_, { id, status }) => {
         return (
           <>
-            <EyeOutlined
-              onClick={() => {
-                setIsOrderModalOpen((prev) => !prev);
-                setActiveOrder({ orderId: id, orderStatus: status });
-              }}
-            />
-
             <DeleteOutlined
               className="ml-5"
               onClick={() => {
@@ -200,29 +166,6 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
       },
     },
   ];
-
-  const handleUpdateStatus = useMutation(
-    (value) =>
-      updateOrderStatus({ orderId: activeOrder.orderId, status: value }),
-    {
-      onSuccess: (data) => {
-        setActiveOrder((prev) => ({ ...prev, orderStatus: data.status }));
-        refetchOrders();
-      },
-
-      onError: (error) => {
-        notification.open({
-          className: "bg-red-500 text-white",
-          message: (
-            <div className="text-white">{error?.response?.data?.message}</div>
-          ),
-          description: error?.response?.data?.errors?.status
-            ?.join(". ")
-            ?.toString(),
-        });
-      },
-    }
-  );
 
   const rowSelection = {
     selectedRowKeys: checkedRows,
@@ -314,36 +257,6 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
             },
           };
         }}
-      />
-
-      <OrderModal
-        closeModal={() => setIsOrderModalOpen(false)}
-        isOpen={isOrderModalOpen}
-        orderId={activeOrder.orderId}
-        orderedAt={
-          dataSource?.find((order) => order.id === activeOrder.orderId)
-            ?.created_at
-        }
-        refetchOrders={refetchOrders}
-        title={
-          <Space>
-            <span>Order #{activeOrder.orderId}</span>
-            <Select
-              className="mx-5"
-              disabled={handleUpdateStatus.status === "loading"}
-              placeholder="Select Order Status"
-              value={activeOrder.orderStatus}
-              showSearch
-              onChange={(value) => handleUpdateStatus.mutate(value)}
-            >
-              <Select.Option value={IN_PROCESS}>In Process</Select.Option>
-              <Select.Option value={CANCELLED}>Cancelled</Select.Option>
-              <Select.Option value={DELIVERED}>Delivered</Select.Option>
-            </Select>
-            {handleUpdateStatus.status === "loading" && <Spin size="small" />}
-          </Space>
-        }
-        width={1200}
       />
 
       <DeleteOrder
