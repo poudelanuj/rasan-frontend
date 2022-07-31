@@ -26,7 +26,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
     {
       id: nanoid(),
       product_pack: null,
-      quantity: null,
+      quantity: 1,
     },
   ]);
 
@@ -146,13 +146,15 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
   const handleBasketSubmit = useMutation(
     () =>
       Promise.all(
-        forms.map((form) =>
-          addBasketItem({
-            product_pack: form.product_pack?.id,
-            number_of_packs: form.quantity,
-            basket: basket_id,
-          })
-        )
+        forms
+          .filter((item) => item.product_pack !== null)
+          .map((form) =>
+            addBasketItem({
+              product_pack: form.product_pack?.id,
+              number_of_packs: form.quantity,
+              basket: basket_id,
+            })
+          )
       ),
     {
       onSuccess: (data) => {
@@ -161,7 +163,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
           {
             id: nanoid(),
             product_pack: null,
-            quantity: null,
+            quantity: 1,
           },
         ]);
         setBasketItemsStatus(STATUS.success);
@@ -192,7 +194,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
     setBasketItemsStatus(STATUS.processing);
     setForms((prev) => [
       ...prev,
-      { id: newId, product_pack: null, number_of_packs: null, basket: null },
+      { id: newId, product_pack: null, quantity: 1 },
     ]);
   };
 
@@ -274,6 +276,9 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
               <Input
                 placeholder="quantity"
                 type="number"
+                value={
+                  forms.find((item) => item.id === basketForm.id)?.quantity
+                }
                 onChange={(e) => {
                   setForms((prev) => {
                     const temp = [...prev];
@@ -379,7 +384,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
                 {
                   id: nanoid(),
                   product_pack: null,
-                  quantity: null,
+                  quantity: 1,
                 },
               ]);
             }}
@@ -388,6 +393,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
           </Button>
 
           <Button
+            disabled={forms[0]?.product_pack === null}
             loading={handleBasketSubmit.status === "loading"}
             size="middle"
             type="primary"

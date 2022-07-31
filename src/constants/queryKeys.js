@@ -52,3 +52,6 @@ export const GET_NOTIFICATION_GROUPS = "notification-groups";
 // * Dashboard
 export const GET_TICKETS_ASSIGNED = "tickets-assigned-to-me";
 export const GET_ORDERS_ASSIGNED = "orders-assigned-to-me";
+
+// * Addresses
+export const GET_ADDRESSES = "get-addresses";

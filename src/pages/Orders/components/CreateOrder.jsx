@@ -1,13 +1,17 @@
-import { Button, Form, Input, Select } from "antd";
+import { Button, Form, Select } from "antd";
 import { useState } from "react";
 import { useQuery, useMutation } from "react-query";
+import { useNavigate } from "react-router-dom";
 import { getUsers } from "../../../api/users";
 import {
   CANCELLED,
+  CASH_ON_DELIVERY,
   DELIVERED,
   IN_PROCESS,
+  PAID,
   PAYMENT_METHODS,
   STATUS,
+  UNPAID,
 } from "../../../constants";
 import { createOrder } from "../../../context/OrdersContext";
 import CustomPageHeader from "../../../shared/PageHeader";
@@ -26,6 +30,9 @@ const CreateOrder = () => {
   const [form] = Form.useForm();
   const [selectedUserPhone, setSelectedUserPhone] = useState(0);
   const [basketItemsStatus, setBasketItemsStatus] = useState(STATUS.idle);
+  const [selectedShippingAddress, setSelectedShippingAddress] = useState(null);
+
+  const navigate = useNavigate();
 
   const {
     data: userList,
@@ -59,6 +66,7 @@ const CreateOrder = () => {
     {
       onSuccess: (data) => {
         openSuccessNotification(data.message || "Order Created");
+        navigate(`/orders/view-order/${data.data.id}`);
       },
       onError: (error) => {
         openErrorNotification(error);
@@ -150,15 +158,18 @@ const CreateOrder = () => {
               }
               optionFilterProp="children"
               placeholder="Select Shipping Address"
+              value={selectedShippingAddress}
               showSearch
+              onSelect={(value) => setSelectedShippingAddress(value)}
             >
               {userList
                 ?.find((user) => user.phone === selectedUserPhone)
                 ?.addresses?.map((address) => (
-                  <Option
-                    key={address.id}
-                    value={address.id}
-                  >{`${address.detail_address}, ${address.area.name} - ${address.city.name}, ${address.province.name}`}</Option>
+                  <Option key={address.id} value={address.id}>{`${
+                    address.detail_address || ""
+                  } ${address.area.name} - ${address.city.name}, ${
+                    address.province.name
+                  }`}</Option>
                 ))}
             </Select>
           </Form.Item>
@@ -171,8 +182,9 @@ const CreateOrder = () => {
           />
         )}
 
-        <div className="grid grid-cols-4 gap-3 mt-4">
+        <div className="grid grid-cols-3 gap-3 mt-4">
           <Form.Item
+            initialValue={IN_PROCESS}
             label="Order Status"
             name="status"
             rules={[
@@ -184,6 +196,7 @@ const CreateOrder = () => {
           >
             <Select
               className="w-full"
+              defaultValue={IN_PROCESS}
               filterOption={(input, option) =>
                 option.children.toLowerCase().includes(input.toLowerCase())
               }
@@ -198,6 +211,7 @@ const CreateOrder = () => {
           </Form.Item>
 
           <Form.Item
+            initialValue={CASH_ON_DELIVERY}
             label="Payment Method"
             name="payment_method"
             rules={[
@@ -209,6 +223,7 @@ const CreateOrder = () => {
           >
             <Select
               className="w-full"
+              defaultValue={CASH_ON_DELIVERY}
               filterOption={(input, option) =>
                 option.children.toLowerCase().includes(input.toLowerCase())
               }
@@ -225,6 +240,7 @@ const CreateOrder = () => {
           </Form.Item>
 
           <Form.Item
+            initialValue={UNPAID}
             label="Payment Status"
             name="payment_status"
             rules={[
@@ -236,6 +252,7 @@ const CreateOrder = () => {
           >
             <Select
               className="w-full"
+              defaultValue={UNPAID}
               filterOption={(input, option) =>
                 option.children.toLowerCase().includes(input.toLowerCase())
               }
@@ -243,22 +260,9 @@ const CreateOrder = () => {
               placeholder="Select Payment Status"
               showSearch
             >
-              <Option value="unpaid">Unpaid</Option>
-              <Option value="paid">Paid</Option>
+              <Option value={UNPAID}>Unpaid</Option>
+              <Option value={PAID}>Paid</Option>
             </Select>
-          </Form.Item>
-
-          <Form.Item
-            label="Payment Amount"
-            name="payment_amount"
-            rules={[
-              {
-                required: true,
-                message: "Please input amount",
-              },
-            ]}
-          >
-            <Input type="number" />
           </Form.Item>
         </div>
 
@@ -268,6 +272,7 @@ const CreateOrder = () => {
               onFinish.status === "loading" ||
               basketItemsStatus === STATUS.processing
             }
+            htmlType="submit"
             loading={onFinish.status === "loading"}
             size="large"
             type="primary"
@@ -289,6 +294,7 @@ const CreateOrder = () => {
             isCreateShippingOpen={isCreateShippingOpen}
             refetchUserList={refetchUserList}
             setIsCreateShippingOpen={setIsCreateShippingOpen}
+            setSelectedShippingAddress={setSelectedShippingAddress}
             userId={userList?.find((el) => el.phone === selectedUserPhone)?.id}
           />
         )}
