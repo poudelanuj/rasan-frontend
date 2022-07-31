@@ -80,7 +80,11 @@ const CreateShippingModal = ({
             }
             loading={addressListStatus === "loading"}
             showSearch
-            onSelect={(value) => setSelectedProvince(value)}
+            onSelect={(value) => {
+              setSelectedProvince(value);
+              form.resetFields(["city"]);
+              form.resetFields(["area"]);
+            }}
           >
             {addressList &&
               addressList.map((address) => (
@@ -103,7 +107,10 @@ const CreateShippingModal = ({
               option.children.toLowerCase().includes(input.toLowerCase())
             }
             loading={addressListStatus === "loading"}
-            onSelect={(value) => setSelectedCity(value)}
+            onSelect={(value) => {
+              setSelectedCity(value);
+              form.resetFields(["area"]);
+            }}
           >
             {addressList &&
               addressList
@@ -131,7 +138,6 @@ const CreateShippingModal = ({
               option.children.toLowerCase().includes(input.toLowerCase())
             }
             loading={addressListStatus === "loading"}
-            onSelect={(value) => setSelectedCity(value)}
           >
             {addressList &&
               addressList
