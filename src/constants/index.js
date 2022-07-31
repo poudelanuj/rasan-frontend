@@ -35,6 +35,12 @@ export const PAYMENT_METHODS = [
   "cash_on_delivery",
 ];
 
+export const STATUS = {
+  idle: "idle",
+  processing: "processing",
+  success: "success",
+};
+
 export const ORDER_TYPE_LOYALTY_REDEEM = "loyalty_redeem";
 export const ORDER_TYPES = ["loyalty_redeem", "general"];
 

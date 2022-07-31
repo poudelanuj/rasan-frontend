@@ -1,13 +1,15 @@
-import { Button, Form, Input, Select, Spin } from "antd";
+import { Button, Form, Input, Select } from "antd";
 import { useState } from "react";
 import { useQuery, useMutation } from "react-query";
+import { getUsers } from "../../../api/users";
 import {
   CANCELLED,
   DELIVERED,
   IN_PROCESS,
   PAYMENT_METHODS,
+  STATUS,
 } from "../../../constants";
-import { createOrder, getUserList } from "../../../context/OrdersContext";
+import { createOrder } from "../../../context/OrdersContext";
 import CustomPageHeader from "../../../shared/PageHeader";
 import {
   openErrorNotification,
@@ -23,6 +25,7 @@ const CreateOrder = () => {
   const { Option } = Select;
   const [form] = Form.useForm();
   const [selectedUserPhone, setSelectedUserPhone] = useState(0);
+  const [basketItemsStatus, setBasketItemsStatus] = useState(STATUS.idle);
 
   const {
     data: userList,
@@ -30,7 +33,7 @@ const CreateOrder = () => {
     refetch: refetchUserList,
     isRefetching: refetchingUserList,
   } = useQuery({
-    queryFn: () => getUserList(),
+    queryFn: () => getUsers(),
     queryKey: ["getUserList"],
   });
 
@@ -72,20 +75,101 @@ const CreateOrder = () => {
       >
         <div className="mt-4 w-full flex justify-between items-center">
           <CustomPageHeader title={"Create New Order"} />
+        </div>
 
-          <Form.Item className="">
-            <Button
-              className="bg-blue-400"
-              disabled={onFinish.status === "loading"}
-              htmlType="submit"
-              size="large"
-              type="primary"
+        <div className="grid grid-cols-2 gap-3">
+          <Form.Item
+            label={
+              <div className="flex gap-3 items-center">
+                <span>User</span>
+                <Button
+                  className="p-0 m-0 bg-white"
+                  size="small"
+                  type="primary"
+                  onClick={() => setIsCreateUserOpen(true)}
+                >
+                  + Add New User
+                </Button>
+              </div>
+            }
+            name="user"
+            rules={[
+              {
+                required: true,
+                message: "user is required",
+              },
+            ]}
+          >
+            <Select
+              className="w-full"
+              disabled={userListStatus === "loading"}
+              filterOption={(input, option) =>
+                option.children.toLowerCase().includes(input.toLowerCase())
+              }
+              loading={userListStatus === "loading" || refetchingUserList}
+              optionFilterProp="children"
+              placeholder="Select User"
+              showSearch
+              onSelect={(value) => setSelectedUserPhone(value)}
             >
-              {onFinish.status !== "loading" && <span>Create Order</span>}
-              {onFinish.status === "loading" && <Spin size="small" />}
-            </Button>
+              {userList?.map((user) => (
+                <Option key={user.id} value={user.phone}>
+                  {user.full_name || user.phone}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            label={
+              <div className="flex gap-3 items-center">
+                <span>Shipping Address</span>
+                <Button
+                  className="p-0 m-0 bg-white"
+                  disabled={!selectedUserPhone}
+                  size="small"
+                  type="primary"
+                  onClick={() => setIsCreateShippingOpen(true)}
+                >
+                  + Add Shipping Address
+                </Button>
+              </div>
+            }
+            name="shipping_address"
+            rules={[
+              {
+                required: true,
+                message: "shipping address is required",
+              },
+            ]}
+          >
+            <Select
+              className="w-full"
+              filterOption={(input, option) =>
+                option.children.toLowerCase().includes(input.toLowerCase())
+              }
+              optionFilterProp="children"
+              placeholder="Select Shipping Address"
+              showSearch
+            >
+              {userList
+                ?.find((user) => user.phone === selectedUserPhone)
+                ?.addresses?.map((address) => (
+                  <Option
+                    key={address.id}
+                    value={address.id}
+                  >{`${address.detail_address}, ${address.area.name} - ${address.city.name}, ${address.province.name}`}</Option>
+                ))}
+            </Select>
           </Form.Item>
         </div>
+
+        {!!selectedUserPhone && (
+          <UserBasket
+            setBasketItemsStatus={setBasketItemsStatus}
+            user={userList?.find((el) => el.phone === selectedUserPhone)}
+          />
+        )}
 
         <div className="grid grid-cols-4 gap-3 mt-4">
           <Form.Item
@@ -178,98 +262,21 @@ const CreateOrder = () => {
           </Form.Item>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <Form.Item
-            label={
-              <div className="flex gap-3 items-center">
-                <span>User</span>
-                <Button
-                  className="p-0 m-0 bg-white"
-                  size="small"
-                  type="primary"
-                  onClick={() => setIsCreateUserOpen(true)}
-                >
-                  + Add New User
-                </Button>
-              </div>
+        <div className="w-full flex justify-end">
+          <Button
+            disabled={
+              onFinish.status === "loading" ||
+              basketItemsStatus === STATUS.processing
             }
-            name="user"
-            rules={[
-              {
-                required: true,
-                message: "user is required",
-              },
-            ]}
+            loading={onFinish.status === "loading"}
+            size="large"
+            type="primary"
           >
-            <Select
-              className="w-full"
-              disabled={userListStatus === "loading"}
-              filterOption={(input, option) =>
-                option.children.toLowerCase().includes(input.toLowerCase())
-              }
-              loading={userListStatus === "loading" || refetchingUserList}
-              optionFilterProp="children"
-              placeholder="Select User"
-              showSearch
-              onSelect={(value) => setSelectedUserPhone(value)}
-            >
-              {userList?.map((user) => (
-                <Option key={user.id} value={user.phone}>
-                  {user.full_name || user.phone}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            label={
-              <div className="flex gap-3 items-center">
-                <span>Shipping Address</span>
-                <Button
-                  className="p-0 m-0 bg-white"
-                  disabled={!selectedUserPhone}
-                  size="small"
-                  type="primary"
-                  onClick={() => setIsCreateShippingOpen(true)}
-                >
-                  + Add Shipping Address
-                </Button>
-              </div>
-            }
-            name="shipping_address"
-            rules={[
-              {
-                required: true,
-                message: "shipping address is required",
-              },
-            ]}
-          >
-            <Select
-              className="w-full"
-              filterOption={(input, option) =>
-                option.children.toLowerCase().includes(input.toLowerCase())
-              }
-              optionFilterProp="children"
-              placeholder="Select Shipping Address"
-              showSearch
-            >
-              {userList
-                ?.find((user) => user.phone === selectedUserPhone)
-                ?.addresses?.map((address) => (
-                  <Option
-                    key={address.id}
-                    value={address.id}
-                  >{`${address.detail_address}, ${address.area.name} - ${address.city.name}, ${address.province.name}`}</Option>
-                ))}
-            </Select>
-          </Form.Item>
+            {basketItemsStatus === STATUS.processing
+              ? "Please save basket items to create order"
+              : "Create Order"}
+          </Button>
         </div>
-
-        {!!selectedUserPhone && (
-          <UserBasket
-            user={userList?.find((el) => el.phone === selectedUserPhone)}
-          />
-        )}
 
         <CreateUserModal
           isCreateUserOpen={isCreateUserOpen}

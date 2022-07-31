@@ -1,8 +1,14 @@
 import axios from "../axios";
 
 export const getUsers = async () => {
-  const res = await axios.get("/api/profile/admin/user-list/");
-  return res.data.data.results;
+  const res1 = await axios.get("/api/profile/admin/user-list/?page=1&size=100");
+  const res2 = await axios.get(
+    `/api/profile/admin/user-list/?page=2&size=${
+      res1.data.data.count - res1.data.data.results.length
+    }`
+  );
+
+  return [...res1.data.data.results, ...res2.data.data.results];
 };
 
 export const getEndUser = async () => {
