@@ -191,7 +191,6 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
 
   const handleAddForm = () => {
     const newId = nanoid();
-    setBasketItemsStatus(STATUS.processing);
     setForms((prev) => [
       ...prev,
       { id: newId, product_pack: null, quantity: 1 },
