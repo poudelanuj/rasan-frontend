@@ -14,6 +14,7 @@ import { DeleteOutlined } from "@ant-design/icons";
 import { useMutation } from "react-query";
 import { useQuery } from "react-query";
 import moment from "moment";
+import { saveAs } from "file-saver";
 import {
   addOrderItem,
   deleteOrderItem,
@@ -38,6 +39,7 @@ import ChangePayment from "./shared/ChangePayment";
 import { useParams } from "react-router-dom";
 import { CANCELLED, DELIVERED, IN_PROCESS } from "../../../constants";
 import { updateOrderStatus } from "../../../context/OrdersContext";
+import axios from "../../../axios";
 
 export const getOrderStatusColor = (status) => {
   switch (status) {
@@ -249,6 +251,16 @@ const ViewOrderPage = () => {
       },
     }
   );
+
+  const handleInvoiceDownload = () => {
+    axios
+      .get(ORDER_INVOICE_URL.replace("{ORDER_ID}", orderId), {
+        responseType: "blob",
+      })
+      .then((res) => {
+        saveAs(res.data, `invoice_order_${orderId}`);
+      });
+  };
 
   return (
     <div className="p-5 bg-[#FFFFFF]">

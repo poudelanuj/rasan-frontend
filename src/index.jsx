@@ -63,7 +63,16 @@ import Tutorial from "./pages/cms/Tutorial";
 import CreateTutorial from "./pages/cms/Tutorial/components/CreateTutorial";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: true,
+      staleTime: 5 * 1000 * 60,
+    },
+  },
+});
 
 root.render(
   <QueryClientProvider client={queryClient}>

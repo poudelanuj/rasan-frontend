@@ -1,13 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { Table } from "antd";
 import { useQuery } from "react-query";
-import { getProductSKUs } from "../../../context/CategoryContext";
 import AddCategoryButton from "../subComponents/AddCategoryButton";
 
 import SimpleAlert from "../alerts/SimpleAlert";
 import { parseSlug } from "../../../utils";
+import { uniqBy } from "lodash";
+import { GET_PAGINATED_PRODUCT_SKUS } from "../../../constants/queryKeys";
+import { getPaginatedProdctSkus } from "../../../api/products/productSku";
 
 const columns = [
   {
@@ -112,12 +114,31 @@ function TabAll() {
     icon: "",
   });
 
-  const { data, isLoading } = useQuery("get-product-skus", () =>
-    getProductSKUs()
+  const [page, setPage] = useState(1);
+  const pageSize = 20;
+  const [productSkus, setProductSkus] = useState([]);
+
+  const {
+    data,
+    isLoading,
+    refetch: refetchProductSkus,
+    isRefetching,
+  } = useQuery(
+    [GET_PAGINATED_PRODUCT_SKUS, page.toString() + pageSize.toString()],
+    () => getPaginatedProdctSkus(page, pageSize)
   );
-  const entriesPerPage = 10;
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (data)
+      setProductSkus((prev) => uniqBy([...prev, ...data.results], "slug"));
+  }, [data]);
+
+  useEffect(() => {
+    refetchProductSkus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   const onSelectChange = (newSelectedRowKeys) => {
     setSelectedRowKeys(newSelectedRowKeys);
@@ -189,12 +210,21 @@ function TabAll() {
         <div className="flex-1">
           <Table
             columns={columns}
-            dataSource={data?.data?.data?.results.map((item) => ({
-              ...item,
-              key: item.id || item.slug,
-            }))}
-            loading={isLoading}
-            pagination={{ pageSize: entriesPerPage }}
+            dataSource={
+              productSkus?.map((item) => ({
+                ...item,
+                key: item.slug,
+              })) || []
+            }
+            loading={isLoading || isRefetching}
+            pagination={{
+              pageSize,
+              total: data?.count,
+
+              onChange: (page, pageSize) => {
+                setPage(page);
+              },
+            }}
             rowClassName="cursor-pointer"
             rowSelection={rowSelection}
             onRow={(record) => {
