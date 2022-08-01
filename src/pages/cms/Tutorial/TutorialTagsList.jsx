@@ -10,7 +10,12 @@ import {
   openErrorNotification,
 } from "../../../utils/openNotification";
 
-const TutorialTagsList = ({ dataSource, status, refetchTags }) => {
+const TutorialTagsList = ({
+  dataSource,
+  status,
+  refetchTags,
+  refetchingTags,
+}) => {
   const [isCreateTagsModalOpen, setIsCreateTagsModalOpen] = useState(false);
 
   const [isDeleteTagsModalOpen, setIsDeleteTagsModalOpen] = useState(false);
@@ -115,7 +120,7 @@ const TutorialTagsList = ({ dataSource, status, refetchTags }) => {
         dataSource={dataSource?.map((el, index) => {
           return { key: index + 1, title: el.tag, id: el.id };
         })}
-        loading={status === "loading"}
+        loading={status === "loading" || refetchingTags}
         rowClassName="cursor-pointer"
         rowSelection={{ ...rowSelection }}
       />

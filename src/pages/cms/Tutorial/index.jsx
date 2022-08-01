@@ -13,6 +13,7 @@ const Tutorial = () => {
     data: tagList,
     status: tagStatus,
     refetch: refetchTags,
+    isRefetching: refetchingTags,
   } = useQuery({
     queryFn: () => getTutorialTags(),
     queryKey: GET_TAGLISTS,
@@ -22,6 +23,7 @@ const Tutorial = () => {
     data: tutorialList,
     status: tutorialStatus,
     refetch: refetchTutorials,
+    isRefetching: refetchingTutorials,
   } = useQuery({
     queryFn: () => getAllTutorials(),
     queryKey: GET_TUTORIALS,
@@ -29,12 +31,13 @@ const Tutorial = () => {
 
   return (
     <div className="py-5 px-4 bg-[#FFFFFF]">
-      <CustomPageHeader title="Tutorial" />
+      <CustomPageHeader title="Tutorial" isBasicHeader />
       <Tabs defaultActiveKey="all">
         <TabPane key="tutorials" tab="Tutorials">
           <TutorialList
             dataSource={tutorialList}
             refetchTutorials={refetchTutorials}
+            refetchingTutorials={refetchingTutorials}
             status={tutorialStatus}
           />
         </TabPane>
@@ -42,6 +45,7 @@ const Tutorial = () => {
           <TutorialTagsList
             dataSource={tagList}
             refetchTags={refetchTags}
+            refetchingTags={refetchingTags}
             status={tagStatus}
           />
         </TabPane>

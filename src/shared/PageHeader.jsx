@@ -1,8 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "antd";
 
-const CustomPageHeader = ({ title, path }) => {
+const CustomPageHeader = ({ title, path, isBasicHeader }) => {
   const navigate = useNavigate();
+
+  if (isBasicHeader) {
+    return <h2 className="text-2xl">{title}</h2>;
+  }
 
   return (
     <PageHeader
