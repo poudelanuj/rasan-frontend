@@ -6,8 +6,9 @@ const colors = {
   notification_seen: "#FFEAAC",
 };
 const siteInformation = {
-  base_url: "http://159.65.145.153:8000",
+  base_url: process.env.REACT_APP_BASE_URL || "http://159.65.145.153:8000",
 };
+
 export const ORDER_INVOICE_URL =
   siteInformation.base_url + "/api/order/admin/order/invoice/{ORDER_ID}/";
 

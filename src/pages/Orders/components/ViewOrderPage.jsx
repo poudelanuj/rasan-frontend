@@ -38,6 +38,7 @@ import ChangePayment from "./shared/ChangePayment";
 import { useParams } from "react-router-dom";
 import { CANCELLED, DELIVERED, IN_PROCESS } from "../../../constants";
 import { updateOrderStatus } from "../../../context/OrdersContext";
+import axios from "../../../axios";
 
 export const getOrderStatusColor = (status) => {
   switch (status) {
@@ -250,6 +251,10 @@ const ViewOrderPage = () => {
     }
   );
 
+  const handleInvoiceDownload = (orderId) => {
+    axios.get(ORDER_INVOICE_URL.replace("ORDER_ID", orderId));
+  };
+
   return (
     <div className="p-5 bg-[#FFFFFF]">
       <ChangePayment
@@ -267,14 +272,8 @@ const ViewOrderPage = () => {
               {data?.status?.replaceAll("_", " ")?.toUpperCase()}
             </Tag> */}
 
-          <Button type="danger">
-            <a
-              href={ORDER_INVOICE_URL.replace("{ORDER_ID}", orderId)}
-              target="__blank"
-              download
-            >
-              Invoice
-            </a>
+          <Button type="danger" onClick={handleInvoiceDownload}>
+            Invoice
           </Button>
 
           {data && (

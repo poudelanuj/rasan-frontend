@@ -85,7 +85,7 @@ const columns = [
 
 function ProductListScreen() {
   const [page, setPage] = useState(1);
-  const pageSize = 10;
+  const pageSize = 20;
   const [products, setProducts] = useState([]);
 
   const {
@@ -173,7 +173,7 @@ function ProductListScreen() {
             }))}
             loading={productsStatus === "loading" || isRefetching}
             pagination={{
-              pageSize: 10,
+              pageSize,
               total: data?.count,
 
               onChange: (page, pageSize) => {

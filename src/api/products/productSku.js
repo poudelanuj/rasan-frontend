@@ -20,7 +20,7 @@ export const getDropdownProductSkus = async () => {
 
 export const getPaginatedProdctSkus = async (page, pageSize) => {
   const res = await axios.get(
-    `/api/product/admin/products/?page=${page || 1}&size=${pageSize || 20}`
+    `/api/product/admin/product-skus/?page=${page || 1}&size=${pageSize || 20}`
   );
   return res.data.data;
 };
