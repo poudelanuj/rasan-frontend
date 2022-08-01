@@ -186,7 +186,7 @@ const CreateTutorial = () => {
                 className="col-span-full mb-5"
                 height="330"
                 src={iframeLink.replace("watch?v=", "embed/")}
-                title="W3Schools Free Online Web Tutorials"
+                title="Thumbnail Video"
                 width="604"
               ></iframe>
             )}

@@ -4,6 +4,7 @@ import CustomPageHeader from "../../../shared/PageHeader";
 import TutorialList from "./TutorialList";
 import TutorialTagsList from "./TutorialTagsList";
 import { getTutorialTags, getAllTutorials } from "../../../api/tutorial";
+import { GET_TAGLISTS, GET_TUTORIALS } from "../../../constants/queryKeys";
 
 const Tutorial = () => {
   const { TabPane } = Tabs;
@@ -14,7 +15,7 @@ const Tutorial = () => {
     refetch: refetchTags,
   } = useQuery({
     queryFn: () => getTutorialTags(),
-    queryKey: "taglist",
+    queryKey: GET_TAGLISTS,
   });
 
   const {
@@ -23,7 +24,7 @@ const Tutorial = () => {
     refetch: refetchTutorials,
   } = useQuery({
     queryFn: () => getAllTutorials(),
-    queryKey: "tutorial",
+    queryKey: GET_TUTORIALS,
   });
 
   return (

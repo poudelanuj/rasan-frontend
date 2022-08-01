@@ -114,3 +114,6 @@ export const DASHBOARD_TIME_KEYS = [
     value: "last_30_days",
   },
 ];
+
+export const PUBLISHED = "Published";
+export const UNPUBLISHED = "Unpublished";

@@ -1,14 +1,21 @@
 import { Button, Dropdown, Space, Table, Menu, Tag } from "antd";
 import { useNavigate } from "react-router-dom";
+import { useMutation } from "react-query";
 import { useState } from "react";
 import { DeleteOutlined } from "@ant-design/icons";
-import DeleteTutorialsModal from "./components/DeleteTutorialsModal";
+import ConfirmDelete from "../../../shared/ConfirmDelete";
+import {
+  openSuccessNotification,
+  openErrorNotification,
+} from "../../../utils/openNotification";
+import { deleteTutorials } from "../../../api/tutorial";
+import { PUBLISHED, UNPUBLISHED } from "../../../constants";
 
 export const getStatusColor = (status) => {
   switch (status) {
-    case "Published":
+    case PUBLISHED:
       return "green";
-    case "Unpublished":
+    case UNPUBLISHED:
       return "orange";
     default:
       return "green";
@@ -25,6 +32,15 @@ const TutorialList = ({ dataSource, status, refetchTutorials }) => {
     useState("");
 
   const [slugs, setSlugs] = useState([]);
+
+  const handleDeleteTutorial = useMutation(() => deleteTutorials(slugs), {
+    onSuccess: (res) => {
+      openSuccessNotification(res[0].data.message);
+      refetchTutorials();
+      setIsDeleteTutorialsModalOpen(false);
+    },
+    onError: (err) => openErrorNotification(err),
+  });
 
   const columns = [
     {
@@ -156,11 +172,11 @@ const TutorialList = ({ dataSource, status, refetchTutorials }) => {
         rowSelection={{ ...rowSelection }}
       />
 
-      <DeleteTutorialsModal
-        isDeleteTutorialsModalOpen={isDeleteTutorialsModalOpen}
-        refetchTutorials={refetchTutorials}
-        setIsDeleteTutorialsModalOpen={setIsDeleteTutorialsModalOpen}
-        slugs={slugs}
+      <ConfirmDelete
+        closeModal={() => setIsDeleteTutorialsModalOpen(false)}
+        deleteMutation={() => handleDeleteTutorial.mutate()}
+        isOpen={isDeleteTutorialsModalOpen}
+        status={handleDeleteTutorial.status}
         title={deleteTutorialsModalTitle}
       />
     </div>

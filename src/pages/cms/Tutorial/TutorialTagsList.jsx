@@ -1,9 +1,14 @@
 import { Button, Dropdown, Space, Table, Menu } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
+import { useMutation } from "react-query";
 import { useState } from "react";
-
+import ConfirmDelete from "../../../shared/ConfirmDelete";
 import CreateTutorialTagsModal from "./components/CreateTutorialTagsModal";
-import DeleteTagsModal from "./components/DeleteTagsModal";
+import { deleteTutorialTags } from "../../../api/tutorial";
+import {
+  openSuccessNotification,
+  openErrorNotification,
+} from "../../../utils/openNotification";
 
 const TutorialTagsList = ({ dataSource, status, refetchTags }) => {
   const [isCreateTagsModalOpen, setIsCreateTagsModalOpen] = useState(false);
@@ -13,6 +18,18 @@ const TutorialTagsList = ({ dataSource, status, refetchTags }) => {
   const [deleteTagsModalTitle, setDeleteTagsModalTitle] = useState("");
 
   const [tagIds, setTagsIds] = useState([]);
+
+  const handleDeleteTutorialTags = useMutation(
+    () => deleteTutorialTags(tagIds),
+    {
+      onSuccess: (res) => {
+        openSuccessNotification(res[0].data.message);
+        refetchTags();
+        setIsDeleteTagsModalOpen(false);
+      },
+      onError: (err) => openErrorNotification(err),
+    }
+  );
 
   const columns = [
     {
@@ -109,11 +126,11 @@ const TutorialTagsList = ({ dataSource, status, refetchTags }) => {
         setIsCreateTagsModalOpen={setIsCreateTagsModalOpen}
       />
 
-      <DeleteTagsModal
-        ids={tagIds}
-        isDeleteTagsModalOpen={isDeleteTagsModalOpen}
-        refetchTags={refetchTags}
-        setIsDeleteTagsModalOpen={setIsDeleteTagsModalOpen}
+      <ConfirmDelete
+        closeModal={() => setIsDeleteTagsModalOpen(false)}
+        deleteMutation={() => handleDeleteTutorialTags.mutate()}
+        isOpen={isDeleteTagsModalOpen}
+        status={handleDeleteTutorialTags.status}
         title={deleteTagsModalTitle}
       />
     </div>
