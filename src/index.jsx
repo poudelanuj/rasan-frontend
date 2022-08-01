@@ -58,7 +58,16 @@ import Notifications from "./pages/Notifications";
 import ViewOrderPage from "./pages/Orders/components/ViewOrderPage";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: true,
+      staleTime: 5 * 1000 * 60,
+    },
+  },
+});
 
 root.render(
   <QueryClientProvider client={queryClient}>
