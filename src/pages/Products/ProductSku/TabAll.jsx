@@ -135,8 +135,6 @@ function TabAll() {
       setProductSkus((prev) => uniqBy([...prev, ...data.results], "slug"));
   }, [data]);
 
-  console.log("productSkus", productSkus);
-
   useEffect(() => {
     refetchProductSkus();
     // eslint-disable-next-line react-hooks/exhaustive-deps

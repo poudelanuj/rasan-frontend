@@ -14,6 +14,7 @@ import { DeleteOutlined } from "@ant-design/icons";
 import { useMutation } from "react-query";
 import { useQuery } from "react-query";
 import moment from "moment";
+import { saveAs } from "file-saver";
 import {
   addOrderItem,
   deleteOrderItem,
@@ -251,8 +252,14 @@ const ViewOrderPage = () => {
     }
   );
 
-  const handleInvoiceDownload = (orderId) => {
-    axios.get(ORDER_INVOICE_URL.replace("ORDER_ID", orderId));
+  const handleInvoiceDownload = () => {
+    axios
+      .get(ORDER_INVOICE_URL.replace("{ORDER_ID}", orderId), {
+        responseType: "blob",
+      })
+      .then((res) => {
+        saveAs(res.data, `invoice_order_${orderId}`);
+      });
   };
 
   return (
