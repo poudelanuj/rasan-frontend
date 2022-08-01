@@ -7,7 +7,7 @@ export const getAllProducts = async () => {
 
 export const getPaginatedProducts = async (page, pageSize) => {
   const res = await axios.get(
-    `/api/product/admin/products/?page=${page || 1}&size=${pageSize || 1}`
+    `/api/product/admin/products/?page=${page || 1}&size=${pageSize || 20}`
   );
   return res.data.data;
 };

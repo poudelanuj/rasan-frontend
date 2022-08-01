@@ -169,7 +169,7 @@ function ProductListScreen() {
             columns={columns}
             dataSource={products.map((item) => ({
               ...item,
-              key: item.id || item.slug,
+              key: item.slug,
             }))}
             loading={productsStatus === "loading" || isRefetching}
             pagination={{

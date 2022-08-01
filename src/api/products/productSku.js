@@ -6,16 +6,23 @@ export const getAllProductSkus = async () => {
 };
 
 export const getDropdownProductSkus = async () => {
-  const res1 = await axios.get(
-    "/api/product/admin/product-skus/?page=1&size=100"
-  );
-  const res2 = await axios.get(
-    `/api/product/admin/product-skus/?page=2&size=${
-      res1.data.data.count - res1.data.data.results.length
-    }`
-  );
+  const res1 = await axios.get("/api/product/product-skus/");
 
-  return [...res1.data.data.results, ...res2.data.data.results];
+  if (res1.data.data.next !== null) {
+    const res2 = await axios.get(
+      `/api/product/product-skus/?page=1&size=${res1.data.data.count}`
+    );
+    return res2.data.data.results;
+  }
+
+  return res1.data.data.results;
+};
+
+export const getPaginatedProdctSkus = async (page, pageSize) => {
+  const res = await axios.get(
+    `/api/product/admin/products/?page=${page || 1}&size=${pageSize || 20}`
+  );
+  return res.data.data;
 };
 
 export const getProductSku = async (slug) => {
