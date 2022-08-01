@@ -7,6 +7,7 @@ import {
   UserOutlined,
   BellOutlined,
   AppstoreOutlined,
+  FolderOutlined,
 } from "@ant-design/icons";
 import { Avatar, Dropdown, Layout, Menu } from "antd";
 import React from "react";
@@ -86,6 +87,15 @@ const sidebarItems = [
     key: "notifications",
     label: "Notifications",
     icon: <BellOutlined />,
+  },
+  {
+    key: "cms",
+    label: "CMS",
+    icon: <FolderOutlined />,
+    children: [
+      { label: "About Us", key: "cms" },
+      { label: "Tutorial", key: "cms/tutorial" },
+    ],
   },
 ];
 const AppLayout = () => {

@@ -57,6 +57,11 @@ import LiveUserBasket from "./pages/LiveUserBasket";
 import Notifications from "./pages/Notifications";
 import ViewOrderPage from "./pages/Orders/components/ViewOrderPage";
 
+// *CMS
+import About from "./pages/cms/About";
+import Tutorial from "./pages/cms/Tutorial";
+import CreateTutorial from "./pages/cms/Tutorial/components/CreateTutorial";
+
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -125,6 +130,12 @@ root.render(
                 <Route element={<AddProductSku />} path="add" />
                 <Route element={<ProductSKU />} path=":slug" />
                 <Route element={<EditProductSku />} path=":slug/edit" />
+              </Route>
+
+              <Route path="cms">
+                <Route element={<About />} index />
+                <Route element={<Tutorial />} path="tutorial" />
+                <Route element={<CreateTutorial />} path="tutorial/create" />
               </Route>
 
               {/* ends */}
