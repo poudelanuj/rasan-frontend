@@ -22,7 +22,12 @@ export const getStatusColor = (status) => {
   }
 };
 
-const TutorialList = ({ dataSource, status, refetchTutorials }) => {
+const TutorialList = ({
+  dataSource,
+  status,
+  refetchTutorials,
+  refetchingTutorials,
+}) => {
   const navigate = useNavigate();
 
   const [isDeleteTutorialsModalOpen, setIsDeleteTutorialsModalOpen] =
@@ -168,6 +173,7 @@ const TutorialList = ({ dataSource, status, refetchTutorials }) => {
       <Table
         columns={columns}
         dataSource={dataSourceTutorials}
+        loading={status === "loading" || refetchingTutorials}
         rowClassName="cursor-pointer"
         rowSelection={{ ...rowSelection }}
       />

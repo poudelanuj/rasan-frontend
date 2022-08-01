@@ -1,5 +1,5 @@
 import { Form, Input, Button, Select, Upload } from "antd";
-import { useQuery, useMutation } from "react-query";
+import { useQuery, useMutation, useQueryClient } from "react-query";
 import { Editor } from "react-draft-wysiwyg";
 import { EditorState, convertToRaw } from "draft-js";
 import draftToMarkdown from "draftjs-to-markdown";
@@ -13,10 +13,13 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createTutorial, getTutorialTags } from "../../../../api/tutorial";
 import CustomPageHeader from "../../../../shared/PageHeader";
+import { GET_TUTORIALS } from "../../../../constants/queryKeys";
 
 const CreateTutorial = () => {
   const { Dragger } = Upload;
   const { Option } = Select;
+
+  const queryClient = useQueryClient();
 
   const [form] = Form.useForm();
 
@@ -72,6 +75,7 @@ const CreateTutorial = () => {
         openSuccessNotification(data.message);
         form.resetFields();
         navigate(-1);
+        queryClient.refetchQueries([GET_TUTORIALS]);
       },
       onError: (error) => {
         openErrorNotification(error);
