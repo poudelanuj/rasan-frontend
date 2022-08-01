@@ -7,6 +7,7 @@ export const GET_PAGINATED_PRODUCTS = "paginated-products";
 export const GET_PRODUCT_SKU = "product-sku";
 export const GET_ALL_PRODUCT_SKUS = "all-product-skus";
 export const GET_DROPDOWN_PRODUCT_SKUS = "dropdown-product-skus";
+export const GET_PAGINATED_PRODUCT_SKUS = "paginated-product-skus";
 
 //* Product Packs
 export const GET_PRODUCT_PACK = "product-pack";
