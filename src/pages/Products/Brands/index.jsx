@@ -224,26 +224,33 @@ function BrandsScreen() {
             </div>
           </div>
           <div className="grid gap-8 grid-cols-[repeat(auto-fill,_minmax(200px,_1fr))]">
-            {paginatedBrands.map((brand, index) => (
-              <CategoryWidget
-                key={brand.slug}
-                completeLink={`/brands/${brand.slug}`}
-                editLink={`/brands/edit/${brand.slug}`}
-                id={brand.sn}
-                image={
-                  brand.brand_image.full_size ||
-                  brand.brand_image.medium_square_crop ||
-                  brand.brand_image.small_square_crop ||
-                  brand.brand_image.thumbnail ||
-                  DEFAULT_CARD_IMAGE
-                }
-                is_published={brand.is_published}
-                selectedCategories={selectedBrands}
-                setSelectedCategories={setSelectedBrands}
-                slug={brand.slug}
-                title={brand.name}
-              />
-            ))}
+            {paginatedBrands
+              .filter((item, index) => {
+                const initPage = (page - 1) * pageSize;
+                const endPage = page * pageSize;
+                if (index >= initPage && index < endPage) return true;
+                return false;
+              })
+              .map((brand, index) => (
+                <CategoryWidget
+                  key={brand.slug}
+                  completeLink={`/brands/${brand.slug}`}
+                  editLink={`/brands/edit/${brand.slug}`}
+                  id={brand.sn}
+                  image={
+                    brand.brand_image.full_size ||
+                    brand.brand_image.medium_square_crop ||
+                    brand.brand_image.small_square_crop ||
+                    brand.brand_image.thumbnail ||
+                    DEFAULT_CARD_IMAGE
+                  }
+                  is_published={brand.is_published}
+                  selectedCategories={selectedBrands}
+                  setSelectedCategories={setSelectedBrands}
+                  slug={brand.slug}
+                  title={brand.name}
+                />
+              ))}
           </div>
           <div className="flex justify-end bg-white w-full mt-10">
             <Pagination
