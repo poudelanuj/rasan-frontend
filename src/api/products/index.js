@@ -38,3 +38,36 @@ export const unpublishProduct = async (slug) => {
   );
   return res.data;
 };
+
+// * Bulk Publish/Unpublish Products
+export const bulkPublish = async ({ slugs = [], isPublish }) => {
+  if (isPublish) {
+    // * Publish
+    const res = await Promise.all(
+      slugs.map(
+        async (slug) =>
+          await axios.post(`/api/product/admin/products/publish/${slug}/`)
+      )
+    );
+    return res;
+  } else {
+    // * Unpublish
+    const res = await Promise.all(
+      slugs.map(
+        async (slug) =>
+          await axios.delete(`/api/product/admin/products/publish/${slug}/`)
+      )
+    );
+    return res;
+  }
+};
+
+// * Bulk Products Delete
+export const bulkDelete = async (slugs = []) => {
+  const res = await Promise.all(
+    slugs.map(async (slug) => {
+      return await axios.delete(`/api/product/admin/products/${slug}/`);
+    })
+  );
+  return res.data;
+};

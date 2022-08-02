@@ -12,6 +12,24 @@ export const getPaginatedBrands = async (page, pageSize) => {
   return res.data.data;
 };
 
+export const getProductsFromBrand = async (brandSlug, page, pageSize) => {
+  const res = await axios.get(
+    `/api/product/admin/brands/products/${brandSlug}/?page=${page || 1}&size=${
+      pageSize || 20
+    }`
+  );
+  return res.data.data;
+};
+
+export const getProductSkusFromBrand = async (brandSlug, page, pageSize) => {
+  const res = await axios.get(
+    `/api/product/admin/brands/product-skus/${brandSlug}/?page=${
+      page || 1
+    }&size=${pageSize || 20}`
+  );
+  return res.data.data;
+};
+
 export const getBrand = async (slug) => {
   const res = await axios.get(`/api/product/admin/brands/${slug}/`);
   return res.data.data;
