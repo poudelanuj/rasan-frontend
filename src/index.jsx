@@ -15,7 +15,7 @@ import ViewBrand from "./pages/Products/Brands/ViewBrand";
 import BrandsScreen from "./pages/Products/Brands";
 import Category from "./pages/Products/categories/ViewCategory";
 import ViewProductGroup from "./pages/Products/ProductGroups/ViewProductGroup";
-import ProductGroupsScreen from "./pages/Products/ProductGroupsScreen";
+import ProductGroupsScreen from "./pages/Products/ProductGroups";
 import ProductList from "./pages/Products/ProductList/ProductView";
 import ProductListScreen from "./pages/Products/ProductList";
 import ProductSKU from "./pages/Products/ProductSku/ViewProductSKU";

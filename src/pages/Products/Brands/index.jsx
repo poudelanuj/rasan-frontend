@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "react-query";
+import { uniqBy } from "lodash";
 import { useLocation, useParams } from "react-router-dom";
 import { Pagination, Select } from "antd";
 import {
@@ -22,7 +23,6 @@ import {
 import { DEFAULT_CARD_IMAGE } from "../../../constants";
 import { GET_PAGINATED_BRANDS } from "../../../constants/queryKeys";
 import { getPaginatedBrands } from "../../../api/brands";
-import { uniqBy } from "lodash";
 import Loader from "../../../shared/Loader";
 import CustomPageHeader from "../../../shared/PageHeader";
 

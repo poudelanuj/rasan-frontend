@@ -1,26 +1,28 @@
-import { Select } from "antd";
-import React, { useState } from "react";
+import { Pagination, Select } from "antd";
+import React, { useEffect, useState } from "react";
+import { uniqBy } from "lodash";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useLocation } from "react-router-dom";
 import {
   deleteProductGroup,
-  getProductGroups,
   publishProductGroup,
   unpublishProductGroup,
-} from "../../context/CategoryContext";
-import SimpleAlert from "./alerts/SimpleAlert";
-import CategoryWidget from "./categories/shared/CategoryWidget";
-import AddProductGroup from "./ProductGroups/AddProductGroup";
-import AddCategoryButton from "./subComponents/AddCategoryButton";
-import ClearSelection from "./subComponents/ClearSelection";
-import Header from "./subComponents/Header";
-import Loader from "./subComponents/Loader";
-import SearchBox from "./subComponents/SearchBox";
+} from "../../../context/CategoryContext";
+import SimpleAlert from "../alerts/SimpleAlert";
+import CategoryWidget from "../categories/shared/CategoryWidget";
+import AddProductGroup from "./AddProductGroup";
+import AddCategoryButton from "../subComponents/AddCategoryButton";
+import ClearSelection from "../subComponents/ClearSelection";
+import Header from "../subComponents/Header";
+import SearchBox from "../subComponents/SearchBox";
 import {
   openErrorNotification,
   openSuccessNotification,
-} from "../../utils/openNotification";
-import { DEFAULT_CARD_IMAGE } from "../../constants";
+} from "../../../utils/openNotification";
+import { DEFAULT_RASAN_IMAGE } from "../../../constants";
+import { getPaginatedProductGroups } from "../../../api/products/productGroups";
+import { GET_PAGINATED_PRODUCT_GROUPS } from "../../../constants/queryKeys";
+import Loader from "../../../shared/Loader";
 
 const { Option } = Select;
 
@@ -38,17 +40,34 @@ function ProductGroupsScreen() {
     icon: "",
   });
   const queryClient = useQueryClient();
+
+  const [page, setPage] = useState(1);
+  const pageSize = 20;
+  const [paginatedProductGroups, setPaginatedProductGroups] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([]);
-  const currentPage = 1;
-  const { data, isLoading } = useQuery(
-    ["get-product-groups", currentPage],
-    () => getProductGroups({ currentPage }),
-    {
-      onError: (err) => {
-        openErrorNotification(err);
-      },
-    }
+
+  const {
+    data,
+    status,
+    refetch: refetchProductGroups,
+    isRefetching,
+  } = useQuery(
+    [GET_PAGINATED_PRODUCT_GROUPS, page.toString() + pageSize.toString()],
+    () => getPaginatedProductGroups(page, pageSize)
   );
+
+  useEffect(() => {
+    if (data)
+      setPaginatedProductGroups((prev) =>
+        uniqBy([...prev, ...data.results], "slug")
+      );
+  }, [data]);
+
+  useEffect(() => {
+    refetchProductGroups();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
+
   const location = useLocation();
   let extraSlug;
   try {
@@ -95,8 +114,6 @@ function ProductGroupsScreen() {
       openErrorNotification(err);
     },
   });
-
-  const groups = data?.data?.data?.results;
 
   const handleBulkPublish = () => {
     selectedProducts.forEach(async (product) => {
@@ -179,7 +196,7 @@ function ProductGroupsScreen() {
       {extraSlug === "add" && (
         <AddProductGroup alert={alert} setAlert={setAlert} />
       )}
-      {isLoading && <Loader loadingText={"Loading Rasan Choices..."} />}
+      {(status === "loading" || isRefetching) && <Loader isOpen />}
       <div>
         <Header title="Rasan Choices" />
         <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[75vh]">
@@ -207,21 +224,22 @@ function ProductGroupsScreen() {
               <AddCategoryButton linkText="Add Rasan Choice" linkTo="add" />
             </div>
           </div>
-          {isLoading && <Loader loadingText={"Loading Rasan Choices..."} />}
           <div className="grid gap-8 grid-cols-[repeat(auto-fill,_minmax(200px,_1fr))]">
-            {groups &&
-              groups.map((group) => (
+            {paginatedProductGroups
+              .filter((item, index) => {
+                const initPage = (page - 1) * pageSize;
+                const endPage = page * pageSize;
+                if (index >= initPage && index < endPage) return true;
+                return false;
+              })
+              .map((group) => (
                 <CategoryWidget
                   key={group.slug}
                   completeLink={`/product-groups/${group.slug}`}
                   editLink={`/product-groups/${group.slug}/edit`}
                   id={group.slug}
                   image={
-                    group.product_group_image.full_size ||
-                    group.product_group_image.medium_square_crop ||
-                    group.product_group_image.small_square_crop ||
-                    group.product_group_image.thumbnail ||
-                    DEFAULT_CARD_IMAGE
+                    group.product_group_image.thumbnail || DEFAULT_RASAN_IMAGE
                   }
                   imgClassName=""
                   is_published={group.is_published}
@@ -231,6 +249,18 @@ function ProductGroupsScreen() {
                   title={group.name}
                 />
               ))}
+          </div>
+
+          <div className="flex justify-end bg-white w-full mt-10">
+            <Pagination
+              current={page}
+              pageSize={pageSize}
+              showTotal={(total) => `Total ${total} items`}
+              total={data?.count}
+              onChange={(page, pageSize) => {
+                setPage(page);
+              }}
+            />
           </div>
         </div>
       </div>
