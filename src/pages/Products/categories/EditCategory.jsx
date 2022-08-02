@@ -79,6 +79,7 @@ function EditCategory({
         );
         setPaginatedCategoriesList([]);
         queryClient.invalidateQueries([GET_PAGINATED_CATEGORIES]);
+        queryClient.invalidateQueries([[GET_SINGLE_CATEGORY, slug]]);
         queryClient.refetchQueries([GET_PAGINATED_CATEGORIES]);
         closeModal();
       },

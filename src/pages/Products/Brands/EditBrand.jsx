@@ -74,6 +74,7 @@ function EditBrand({ slug, isOpen, closeModal, setPaginatedBrandsList }) {
         );
         setPaginatedBrandsList([]);
         queryClient.invalidateQueries([GET_PAGINATED_BRANDS]);
+        queryClient.invalidateQueries([[GET_SINGLE_BRAND, slug]]);
         queryClient.refetchQueries([GET_PAGINATED_BRANDS]);
         closeModal();
       },
