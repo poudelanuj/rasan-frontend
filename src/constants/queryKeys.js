@@ -14,6 +14,7 @@ export const GET_PRODUCT_PACK = "product-pack";
 
 //* Product Groups
 export const GET_ALL_PRODUCT_GROUPS = "all-product-groups";
+export const GET_PAGINATED_PRODUCT_GROUPS = "paginated-product-groups";
 
 //* Brands
 export const GET_ALL_BRANDS = "all-brands";
