@@ -1,25 +1,29 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import { Upload } from "antd";
-import { UploadOutlined, LoadingOutlined } from "@ant-design/icons";
+import { Modal, Spin, Upload } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
 
 import {
   updateBrand,
   getBrand,
-  publishBrand,
   deleteBrand,
-  unpublishBrand,
 } from "../../../context/CategoryContext";
 import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../../utils/openNotification";
-import { parseSlug } from "../../../utils";
+import Alert from "../../../shared/Alert";
+import { ALERT_TYPE } from "../../../constants";
+import {
+  GET_PAGINATED_BRANDS,
+  GET_SINGLE_BRAND,
+} from "../../../constants/queryKeys";
 
 const { Dragger } = Upload;
 
-function EditBrand({ slug, setAlert }) {
+function EditBrand({ slug, isOpen, closeModal, setPaginatedBrandsList }) {
+  const [openDeleteAlert, setOpenDeleteAlert] = useState(false);
+
   const [formState, setFormState] = useState({
     name: "",
     name_np: "",
@@ -27,8 +31,8 @@ function EditBrand({ slug, setAlert }) {
     is_published: false,
     imageFile: null,
   });
-  const { data, isLoading: getBrandIsLoading } = useQuery(
-    ["get-brand", slug],
+  const { data, status: brandStatus } = useQuery(
+    [GET_SINGLE_BRAND, slug],
     () => getBrand({ slug }),
     {
       onSuccess: (data) => {
@@ -44,63 +48,41 @@ function EditBrand({ slug, setAlert }) {
       },
     }
   );
-  const { mutate: deleteMutate, isLoading: deleteBrandIsLoading } = useMutation(
-    () => deleteBrand({ slug }),
-    {
-      onSuccess: (data) => {
-        openSuccessNotification(
-          data.data.message || "Brand deleted successfully"
-        );
-        queryClient.invalidateQueries("get-brands");
-        navigate("/brands");
-      },
-      onError: (data) => {
-        openErrorNotification(data);
-      },
-    }
-  );
-  const { mutate: updateMutate, isLoading: updateBrandIsLoading } = useMutation(
+
+  const handleBrandDelete = useMutation(() => deleteBrand({ slug }), {
+    onSuccess: (data) => {
+      openSuccessNotification(
+        data.data.message || "Brand deleted successfully"
+      );
+      setPaginatedBrandsList([]);
+      queryClient.invalidateQueries([GET_PAGINATED_BRANDS]);
+      queryClient.invalidateQueries([[GET_SINGLE_BRAND, slug]]);
+      queryClient.refetchQueries([GET_PAGINATED_BRANDS]);
+      closeModal();
+    },
+    onError: (data) => {
+      openErrorNotification(data);
+    },
+  });
+
+  const handleBrandUpdate = useMutation(
     ({ slug, form_data }) => updateBrand({ slug, form_data }),
     {
       onSuccess: (data) => {
         openSuccessNotification(
           data.data.message || "Brand updated successfully"
         );
-        queryClient.invalidateQueries("get-brands");
-        queryClient.invalidateQueries(["get-brand", slug]);
-        navigate(`/brands/edit/` + data.data.data.slug);
+        setPaginatedBrandsList([]);
+        queryClient.invalidateQueries([GET_PAGINATED_BRANDS]);
+        queryClient.refetchQueries([GET_PAGINATED_BRANDS]);
+        closeModal();
       },
       onError: (error) => {
         openErrorNotification(error);
       },
     }
   );
-  const { mutate: publishBrandMutate, isLoading: publishBrandIsLoading } =
-    useMutation(publishBrand, {
-      onSuccess: (data) => {
-        openSuccessNotification(
-          data.data.message || "Brand published successfully"
-        );
-        queryClient.invalidateQueries("get-brands");
-        queryClient.invalidateQueries(["get-brand", slug]);
-      },
-      onError: (error) => {
-        openErrorNotification(error);
-      },
-    });
-  const { mutate: unpublishBrandMutate } = useMutation(unpublishBrand, {
-    onSuccess: (data) => {
-      openSuccessNotification(
-        data.data.message || "Brand unpublished successfully"
-      );
-      queryClient.invalidateQueries("get-brands");
-      queryClient.invalidateQueries(["get-brand", slug]);
-    },
-    onError: (error) => {
-      openErrorNotification(error);
-    },
-  });
-  const navigate = useNavigate();
+
   const queryClient = useQueryClient();
 
   const props = {
@@ -124,10 +106,6 @@ function EditBrand({ slug, setAlert }) {
     },
   };
 
-  const closeEditCategories = () => {
-    navigate("/brands");
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
     handleSave();
@@ -140,69 +118,39 @@ function EditBrand({ slug, setAlert }) {
       if (formState.imageFile) {
         form_data.append("brand_image", formState.imageFile);
       }
-      updateMutate({ slug, form_data });
+      handleBrandUpdate.mutate({ slug, form_data });
     } else {
       openErrorNotification({
         response: { data: { message: "Please fill all the fields" } },
       });
     }
   };
-  const handlePublish = async ({ slug }) => {
-    publishBrandMutate({ slug });
-  };
-  const handleUnpublish = async ({ slug }) => {
-    unpublishBrandMutate({ slug });
-  };
-  const handleDelete = async ({ slug }) => {
-    deleteMutate({ slug });
-    closeEditCategories();
-  };
-  const showAlert = ({
-    title,
-    text,
-    primaryButton,
-    secondaryButton,
-    type,
-    image,
-    action,
-  }) => {
-    setAlert({
-      show: true,
-      title,
-      text,
-      primaryButton,
-      secondaryButton,
-      type,
-      image,
-      action,
-    });
-  };
 
   return (
     <>
-      <div
-        className="fixed top-0 left-0 h-screen w-full bg-[#03022920] animate-popupopen"
-        onClick={() => closeEditCategories()}
-      ></div>
-      {(getBrandIsLoading ||
-        updateBrandIsLoading ||
-        publishBrandIsLoading ||
-        deleteBrandIsLoading) && (
-        <div className="absolute top-0 right-0 bg-black/25 w-full h-full flex flex-col items-center justify-center z-50 animate-popupopen">
-          <LoadingOutlined style={{ color: "white", fontSize: "3rem" }} />
-          <span className="p-2 text-white">
-            {getBrandIsLoading && "Loading brand..."}
-            {deleteBrandIsLoading && "Deleting..."}
-            {publishBrandIsLoading && "Publishing..."}
-            {updateBrandIsLoading && "Updating..."}
-          </span>
-        </div>
-      )}
-      {data?.data?.data && (
-        <div className="min-w-[36.25rem] min-h-[33.5rem] fixed z-[1] top-[50%] right-[50%] translate-x-[50%] translate-y-[-50%] bg-white rounded-[10px] flex flex-col p-8 shadow-[-14px_30px_20px_rgba(0,0,0,0.05)] overflow-hidden">
-          <h2 className="text-3xl mb-3 text-[#192638] text-[2rem] font-medium capitalize">
-            {"Edit " + parseSlug(slug) + " - Brand"}
-          </h2>
+      <Alert
+        action={() => handleBrandDelete.mutate()}
+        alertType={ALERT_TYPE.delete}
+        closeModal={() => setOpenDeleteAlert(false)}
+        isOpen={openDeleteAlert}
+        status={handleBrandDelete.status}
+        text="Are you sure you want to delete this category?"
+        title="Delete Category"
+      />
+
+      <Modal
+        footer={false}
+        title="Edit Brand"
+        visible={isOpen}
+        onCancel={closeModal}
+      >
+        {brandStatus === "loading" && (
+          <div className="my-4 mb-8 flex justify-center">
+            <Spin size="large" />
+          </div>
+        )}
+
+        {data?.data?.data && (
           <form
             className="flex flex-col justify-between flex-1"
             onSubmit={handleSubmit}
@@ -263,61 +211,15 @@ function EditBrand({ slug, setAlert }) {
                 />
               </div>
             </div>
-            <div className="flex justify-end">
+            <div className="flex justify-end mt-4">
               <button
                 className="text-white bg-[#C63617] p-[8px_12px] min-w-[5rem] rounded-[4px] border-[1px] border-  [#C63617] hover:bg-[#ad2f13] transition-colors"
                 type="button"
-                onClick={() =>
-                  showAlert({
-                    title: "Are you sure to delete?",
-                    text: "Remeber, this action cannot be undone!",
-                    primaryButton: "Delete",
-                    secondaryButton: "Cancel",
-                    type: "danger",
-                    image: "/delete-icon.svg",
-                    action: async () => await handleDelete({ slug }),
-                  })
-                }
+                onClick={() => setOpenDeleteAlert(true)}
               >
-                Delete
+                Delete Brand
               </button>
-              {data?.data?.data?.is_published ? (
-                <button
-                  className="bg-[#FFF8E1] text-[#FF8F00] p-[8px_12px] ml-5 min-w-[5rem] rounded-[4px] border-[1px]   border-[#FFF8E1] hover:bg-[#f4eaca] transition-colors"
-                  type="button"
-                  onClick={() =>
-                    showAlert({
-                      title: "Are you sure to Unpublish?",
-                      text: "Unpublishing this brand would make it invisible to the public!",
-                      primaryButton: "Unpublish",
-                      secondaryButton: "Cancel",
-                      type: "warning",
-                      image: "/unpublish-icon.svg",
-                      action: async () => await handleUnpublish({ slug }),
-                    })
-                  }
-                >
-                  Unpublish Brand
-                </button>
-              ) : (
-                <button
-                  className="bg-[#00B0C2] text-white p-[8px_12px] ml-5 min-w-[5rem] rounded-[4px] border-[1px]   border-[#00B0C2] hover:bg-[#12919f] transition-colors"
-                  type="button"
-                  onClick={() =>
-                    showAlert({
-                      title: "Are you sure to Publish?",
-                      text: "Publishing this brand would make it visible to the public!",
-                      primaryButton: "Publish",
-                      secondaryButton: "Cancel",
-                      type: "info",
-                      image: "/publish-icon.svg",
-                      action: async () => await handlePublish({ slug }),
-                    })
-                  }
-                >
-                  Publish Brand
-                </button>
-              )}
+
               <button
                 className={`${
                   data?.data?.data?.is_published
@@ -325,17 +227,18 @@ function EditBrand({ slug, setAlert }) {
                     : "text-[#00B0C2] bg-white border-[#00B0C2] hover:bg-[#effdff] "
                 }
                     p-[8px_12px] min-w-[5rem] rounded-[4px] border-[1px] transition-colors ml-5`}
+                disabled={handleBrandUpdate.status === "loading"}
                 type="button"
                 onClick={async (e) => {
                   await handleSave(e);
                 }}
               >
-                Save
+                {handleBrandUpdate.status === "loading" ? "Saving..." : "Save"}
               </button>
             </div>
           </form>
-        </div>
-      )}
+        )}
+      </Modal>
     </>
   );
 }

@@ -5,7 +5,7 @@ import { Table } from "antd";
 import { useQuery } from "react-query";
 import AddCategoryButton from "../subComponents/AddCategoryButton";
 
-import SimpleAlert from "../alerts/SimpleAlert";
+import SimpleAlert from "../../../shared/Alert";
 import { parseSlug } from "../../../utils";
 import { uniqBy } from "lodash";
 import { GET_PAGINATED_PRODUCT_SKUS } from "../../../constants/queryKeys";
