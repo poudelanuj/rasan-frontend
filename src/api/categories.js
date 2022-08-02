@@ -35,6 +35,7 @@ export const publishCategory = async ({ slug, shouldPublish }) => {
 
 export const bulkPublish = async ({ slugs = [], isPublish }) => {
   if (isPublish) {
+    // * Publish
     const res = await Promise.all(
       slugs.map(
         async (slug) =>
@@ -43,6 +44,7 @@ export const bulkPublish = async ({ slugs = [], isPublish }) => {
     );
     return res;
   } else {
+    // * Unpublish
     const res = await Promise.all(
       slugs.map(
         async (slug) =>
