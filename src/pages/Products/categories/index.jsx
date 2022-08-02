@@ -246,7 +246,7 @@ const CategoryList = () => {
                     />
                   ))}
               </div>
-              <div className="flex justify-end bg-white w-[100%] mt-10">
+              <div className="flex justify-end bg-white w-full mt-10">
                 <Pagination
                   current={page}
                   pageSize={pageSize}
