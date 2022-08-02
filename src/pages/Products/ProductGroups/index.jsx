@@ -1,5 +1,6 @@
 import { Pagination, Select } from "antd";
 import React, { useEffect, useState } from "react";
+import { uniqBy } from "lodash";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useLocation } from "react-router-dom";
 import {
@@ -21,7 +22,6 @@ import {
 import { DEFAULT_RASAN_IMAGE } from "../../../constants";
 import { getPaginatedProductGroups } from "../../../api/products/productGroups";
 import { GET_PAGINATED_PRODUCT_GROUPS } from "../../../constants/queryKeys";
-import { uniqBy } from "lodash";
 import Loader from "../../../shared/Loader";
 
 const { Option } = Select;
