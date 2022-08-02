@@ -13,7 +13,6 @@ import CategoryWidget from "../categories/shared/CategoryWidget";
 import AddProductGroup from "./AddProductGroup";
 import AddCategoryButton from "../subComponents/AddCategoryButton";
 import ClearSelection from "../subComponents/ClearSelection";
-import Header from "../subComponents/Header";
 import SearchBox from "../subComponents/SearchBox";
 import {
   openErrorNotification,
@@ -23,6 +22,7 @@ import { DEFAULT_RASAN_IMAGE } from "../../../constants";
 import { getPaginatedProductGroups } from "../../../api/products/productGroups";
 import { GET_PAGINATED_PRODUCT_GROUPS } from "../../../constants/queryKeys";
 import Loader from "../../../shared/Loader";
+import CustomPageHeader from "../../../shared/PageHeader";
 
 const { Option } = Select;
 
@@ -197,8 +197,10 @@ function ProductGroupsScreen() {
         <AddProductGroup alert={alert} setAlert={setAlert} />
       )}
       {(status === "loading" || isRefetching) && <Loader isOpen />}
+
       <div>
-        <Header title="Rasan Choices" />
+        <CustomPageHeader title="Rasan Choices" isBasicHeader />
+
         <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[75vh]">
           <div className="flex justify-between mb-3">
             <SearchBox placeholder="Search Brands..." />
