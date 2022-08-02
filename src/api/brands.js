@@ -31,6 +31,7 @@ export const publishBrand = async ({ slug, shouldPublish }) => {
 
 export const bulkPublish = async ({ slugs = [], isPublish }) => {
   if (isPublish) {
+    // * Publish Brand
     const res = await Promise.all(
       slugs.map(
         async (slug) =>
@@ -39,6 +40,7 @@ export const bulkPublish = async ({ slugs = [], isPublish }) => {
     );
     return res;
   } else {
+    // * Unpublish Brand
     const res = await Promise.all(
       slugs.map(
         async (slug) =>
