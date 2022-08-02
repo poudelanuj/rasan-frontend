@@ -5,11 +5,11 @@ import moment from "moment";
 import { Table } from "antd";
 import { uniqBy } from "lodash";
 import { useQuery } from "react-query";
-import Header from "../subComponents/Header";
 import AddCategoryButton from "../subComponents/AddCategoryButton";
 import { GET_PAGINATED_PRODUCTS } from "../../../constants/queryKeys";
 import { getPaginatedProducts } from "../../../api/products";
 import { parseSlug } from "../../../utils";
+import CustomPageHeader from "../../../shared/PageHeader";
 
 const columns = [
   {
@@ -156,7 +156,8 @@ function ProductListScreen() {
 
   return (
     <>
-      <Header title="Products List" />
+      <CustomPageHeader title="Products" isBasicHeader />
+
       <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[70vh]">
         <div className="flex justify-end mb-3">
           <div>

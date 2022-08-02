@@ -1,14 +1,12 @@
-import Header from "../subComponents/Header";
+import CustomPageHeader from "../../../shared/PageHeader";
 
 import TabAll from "./TabAll";
 
 function ProductSkuScreen() {
   return (
     <>
-      <div>
-        <Header title="Products SKUs" />
-        <TabAll />
-      </div>
+      <CustomPageHeader title="Product Skus" isBasicHeader />
+      <TabAll />
     </>
   );
 }
