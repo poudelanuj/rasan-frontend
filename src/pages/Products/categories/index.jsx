@@ -47,7 +47,7 @@ const CategoryList = () => {
   const { slug } = useParams();
 
   const [page, setPage] = useState(1);
-  const pageSize = 10;
+  const pageSize = 20;
   const [categories, setCategories] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
 
@@ -222,24 +222,31 @@ const CategoryList = () => {
           {categories && (
             <>
               <div className="grid gap-8 grid-cols-[repeat(auto-fill,_minmax(200px,_1fr))]">
-                {categories.map((category, index) => (
-                  <CategoryWidget
-                    key={category.slug}
-                    completeLink={`/category-list/${category.slug}`}
-                    editLink={`/category-list/edit/${category.slug}`}
-                    id={index + 1}
-                    image={
-                      category.category_image.thumbnail || DEFAULT_CARD_IMAGE
-                    }
-                    is_published={category.is_published}
-                    selectedCategories={selectedCategories}
-                    setSelectedCategories={setSelectedCategories}
-                    slug={category.slug}
-                    title={category.name}
-                  />
-                ))}
+                {categories
+                  .filter((item, index) => {
+                    const initPage = (page - 1) * pageSize;
+                    const endPage = page * pageSize;
+                    if (index >= initPage && index < endPage) return true;
+                    return false;
+                  })
+                  .map((category, index) => (
+                    <CategoryWidget
+                      key={category.slug}
+                      completeLink={`/category-list/${category.slug}`}
+                      editLink={`/category-list/edit/${category.slug}`}
+                      id={index + 1}
+                      image={
+                        category.category_image.thumbnail || DEFAULT_CARD_IMAGE
+                      }
+                      is_published={category.is_published}
+                      selectedCategories={selectedCategories}
+                      setSelectedCategories={setSelectedCategories}
+                      slug={category.slug}
+                      title={category.name}
+                    />
+                  ))}
               </div>
-              <div className="flex justify-end bg-white w-[100%] mt-10">
+              <div className="flex justify-end bg-white w-full mt-10">
                 <Pagination
                   current={page}
                   pageSize={pageSize}

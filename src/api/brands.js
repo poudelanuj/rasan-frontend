@@ -5,6 +5,13 @@ export const getAllBrands = async () => {
   return res.data.data.results;
 };
 
+export const getPaginatedBrands = async (page, pageSize) => {
+  const res = await axios.get(
+    `/api/product/admin/brands/?page=${page || 1}&size=${pageSize || 20}`
+  );
+  return res.data.data;
+};
+
 export const getBrand = async (slug) => {
   const res = await axios.get(`/api/product/admin/brands/${slug}/`);
   return res.data.data;

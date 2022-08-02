@@ -7,7 +7,7 @@ export const getAllCategories = async () => {
 
 export const getPaginatedCategories = async (page, pageSize) => {
   const res = await axios.get(
-    `/api/product/admin/categories/?page=${page}&size=${pageSize}`
+    `/api/product/admin/categories/?page=${page || 1}&size=${pageSize || 20}`
   );
   return res.data.data;
 };
