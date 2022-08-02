@@ -53,3 +53,36 @@ export const unpublishProductSku = async (slug) => {
   );
   return res.data;
 };
+
+// * Bulk Publish/Unpublish Product Skus
+export const bulkPublish = async ({ slugs = [], isPublish }) => {
+  if (isPublish) {
+    // * Publish
+    const res = await Promise.all(
+      slugs.map(
+        async (slug) =>
+          await axios.post(`/api/product/admin/product-skus/publish/${slug}/`)
+      )
+    );
+    return res;
+  } else {
+    // * Unpublish
+    const res = await Promise.all(
+      slugs.map(
+        async (slug) =>
+          await axios.delete(`/api/product/admin/product-skus/publish/${slug}/`)
+      )
+    );
+    return res;
+  }
+};
+
+// * Bulk Product Sku Delete
+export const bulkDelete = async (slugs = []) => {
+  const res = await Promise.all(
+    slugs.map(async (slug) => {
+      return await axios.delete(`/api/product/admin/product-skus/${slug}/`);
+    })
+  );
+  return res.data;
+};

@@ -1,14 +1,12 @@
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { DeleteOutlined } from "@ant-design/icons";
 import React, { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import { Button, Select, Table } from "antd";
+import { useNavigate, useParams } from "react-router-dom";
+import { Button, Select, Space, Table } from "antd";
 import {
   getProductGroup,
   updateProductSKU,
 } from "../../../context/CategoryContext";
-import SimpleAlert from "../../../shared/Alert";
-import EditProductGroup from "./EditProductGroup";
 import {
   openErrorNotification,
   openSuccessNotification,
@@ -16,36 +14,20 @@ import {
 import { getAllProductSkus } from "../../../api/products/productSku";
 import { GET_ALL_PRODUCT_SKUS } from "../../../constants/queryKeys";
 import { getDate, parseArray } from "../../../utils";
-import { DEFAULT_CARD_IMAGE } from "../../../constants";
+import { DEFAULT_RASAN_IMAGE } from "../../../constants";
 import CustomPageHeader from "../../../shared/PageHeader";
 import { publishProductGroup } from "../../../api/products/productGroups";
 import Loader from "../../../shared/Loader";
+import EditProductGroup from "./EditProductGroup";
 
 const { Option } = Select;
 
 function ViewProductGroup() {
   const queryClient = useQueryClient();
 
-  const [alert, setAlert] = useState({
-    show: false,
-    title: "",
-    text: "",
-    type: "",
-    primaryButton: "",
-    secondaryButton: "",
-    image: "",
-    action: "",
-    actionOn: "",
-    icon: "",
-  });
+  const [isEditGroupOpen, setIsEditGroupOpen] = useState(false);
   const { slug } = useParams();
-  const location = useLocation();
-  let categorySlug;
-  try {
-    categorySlug = location.pathname.split("/")[3];
-  } catch (error) {
-    categorySlug = null;
-  }
+
   const [productGroup, setProductGroup] = useState({
     sn: "",
     name: "",
@@ -60,7 +42,6 @@ function ViewProductGroup() {
     data: productGroupData,
     status: productGroupStatus,
     refetch: refetchProductGroup,
-    isRefetching: productGroupRefetching,
   } = useQuery(["get-product-group", slug], () => getProductGroup({ slug }), {
     onSuccess: (data) => {
       let newData = data.data.data;
@@ -85,21 +66,6 @@ function ViewProductGroup() {
       openErrorNotification(error);
     },
   });
-
-  const handleDeleteProductSKUFromGroup = (value) => {
-    let productGroups = productSkus?.find(
-      (productSKU) => productSKU.slug === value
-    )?.product_group;
-    productGroups.forEach((productGroup, index) => {
-      if (productGroup === slug) {
-        productGroups.splice(index, 1);
-      }
-    });
-    productSKUGroupUpdate({
-      slug: value,
-      form_data: { product_group: productGroups },
-    });
-  };
 
   const addProductSKUToGroup = (value) => {
     setSelectedProductSku(value);
@@ -187,19 +153,7 @@ function ViewProductGroup() {
             <button
               className="text-red-500 text-xl p-4 flex items-center justify-center"
               type="button"
-              onClick={() => {
-                return setAlert({
-                  show: true,
-                  title: "Delete Selected Product SKU from product group?",
-                  text: "Product SKU would be deleted from product group only!",
-                  type: "danger",
-                  primaryButton: "Delete",
-                  secondaryButton: "Cancel",
-                  image: "/delete-icon.svg",
-                  action: async () =>
-                    handleDeleteProductSKUFromGroup(record.slug),
-                });
-              }}
+              onClick={() => {}}
             >
               <DeleteOutlined />
             </button>
@@ -210,34 +164,20 @@ function ViewProductGroup() {
   ];
   return (
     <>
-      {alert.show && (
-        <SimpleAlert
-          action={alert.action}
-          alert={alert}
-          icon={alert.icon}
-          image={alert.image}
-          primaryButton={alert.primaryButton}
-          secondaryButton={alert.secondaryButton}
-          setAlert={setAlert}
-          text={alert.text}
-          title={alert.title}
-          type={alert.type}
+      {productGroupStatus === "loading" && <Loader isOpen />}
+
+      {isEditGroupOpen && (
+        <EditProductGroup
+          closeModal={() => setIsEditGroupOpen(false)}
+          isOpen={isEditGroupOpen}
+          slug={slug}
         />
       )}
-      {categorySlug === "edit" && (
-        <EditProductGroup alert={alert} setAlert={setAlert} />
-      )}
-      {(productGroupStatus === "loading" || productGroupRefetching) && (
-        <Loader isOpen />
-      )}
+
       {productGroupData && (
         <>
-          <div className="mt-4">
-            <CustomPageHeader
-              path="/product-groups"
-              title={productGroup.name}
-            />
-          </div>
+          <CustomPageHeader path="/product-groups" title={productGroup.name} />
+
           <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[70vh]">
             <div>
               <div className="flex justify-start relative">
@@ -246,11 +186,8 @@ function ViewProductGroup() {
                     alt="product"
                     className="w-[100%] h-[100%] object-cover"
                     src={
-                      productGroup.product_group_image.full_size ||
-                      productGroup.product_group_image.medium_square_crop ||
-                      productGroup.product_group_image.small_square_crop ||
                       productGroup.product_group_image.thumbnail ||
-                      DEFAULT_CARD_IMAGE
+                      DEFAULT_RASAN_IMAGE
                     }
                   />
                 </div>
@@ -263,26 +200,27 @@ function ViewProductGroup() {
                   </p>
                 </div>
                 <div className="absolute top-0 right-0">
-                  <Button
-                    loading={onPublishProductGroup.status === "loading"}
-                    type={productGroup.is_published ? "danger" : "primary"}
-                    onClick={() =>
-                      onPublishProductGroup.mutate({
-                        slug: productGroup.slug,
-                        shouldPublish: !productGroup.is_published,
-                      })
-                    }
-                  >
-                    {productGroup.is_published ? "Unpublish" : "Publish"}
-                  </Button>
+                  <Space>
+                    <Button
+                      loading={onPublishProductGroup.status === "loading"}
+                      type={productGroup.is_published ? "danger" : "primary"}
+                      onClick={() =>
+                        onPublishProductGroup.mutate({
+                          slug: productGroup.slug,
+                          shouldPublish: !productGroup.is_published,
+                        })
+                      }
+                    >
+                      {productGroup.is_published ? "Unpublish" : "Publish"}
+                    </Button>
 
-                  <Link
-                    className="text-[#00A0B0] hover:bg-[#d4e4e6] py-2 px-6"
-                    to={"edit"}
-                  >
-                    <EditOutlined style={{ verticalAlign: "middle" }} /> Edit
-                    Details
-                  </Link>
+                    <Button
+                      type="ghost"
+                      onClick={() => setIsEditGroupOpen(true)}
+                    >
+                      Edit Details
+                    </Button>
+                  </Space>
                 </div>
               </div>
               <div className="mt-[1rem]">

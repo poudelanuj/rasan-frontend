@@ -1,53 +1,45 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import { Table, Select, Space } from "antd";
 
 import AddCategoryButton from "../../subComponents/AddCategoryButton";
-import {
-  deleteProductSKU,
-  getBrand,
-  publishProductSKU,
-  unpublishProductSKU,
-} from "../../../../context/CategoryContext";
 
-import SimpleAlert from "../../../../shared/Alert";
 import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../../../utils/openNotification";
 import { parseArray, parseSlug } from "../../../../utils";
-import Loader from "../../../../shared/Loader";
+import { getProductSkusFromBrand } from "../../../../api/brands";
+import { GET_PRODUCT_SKUS_FROM_BRAND } from "../../../../constants/queryKeys";
+import { uniqBy } from "lodash";
+import { ALERT_TYPE } from "../../../../constants";
+import Alert from "../../../../shared/Alert";
+import { bulkDelete, bulkPublish } from "../../../../api/products/productSku";
 
 const { Option } = Select;
 
 const columns = [
   {
     title: "S.N.",
-    dataIndex: "sn",
+    dataIndex: "index",
     defaultSortOrder: "ascend",
     sorter: (a, b) => a.sn - b.sn,
-  },
-  {
-    title: "Product Image",
-    render: (text, record) => {
-      return (
-        <div className="h-[80px]">
-          {record.product_sku_image.full_size && (
-            <img
-              alt={"text"}
-              className="inline pr-4 h-[100%]"
-              src={record.product_sku_image.full_size}
-            />
-          )}
-        </div>
-      );
-    },
   },
   {
     title: "Product Name",
     dataIndex: "name",
     defaultSortOrder: "descend",
+    render: (_, { name, product_image }) => (
+      <div className="flex items-center gap-3">
+        <img
+          alt=""
+          className="h-[40px] w-[40px] object-cover rounded"
+          src={product_image?.thumbnail || "/rasan-default.png"}
+        />
+        <span>{name}</span>
+      </div>
+    ),
   },
   {
     title: "Quantity",
@@ -146,20 +138,37 @@ const columns = [
 ];
 
 function TabSKU({ slug, publishBrand }) {
-  const queryClient = useQueryClient();
+  const [openAlert, setOpenAlert] = useState(false);
+  const [alertType, setAlertType] = useState("");
+
+  const [page, setPage] = useState(1);
+  const pageSize = 20;
+  const [paginatedProductSkus, setPaginatedProductSkus] = useState([]);
+
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const [alert, setAlert] = useState({
-    show: false,
-    title: "",
-    text: "",
-    type: "",
-    primaryButton: "",
-    secondaryButton: "",
-    image: "",
-    action: "",
-    actionOn: "",
-    icon: "",
-  });
+
+  const {
+    data,
+    status: productSkuStatus,
+    refetch: refetchProductSkus,
+    isRefetching: refetchingProductSkus,
+  } = useQuery(
+    [GET_PRODUCT_SKUS_FROM_BRAND, page.toString() + pageSize.toString()],
+    () => getProductSkusFromBrand(slug, page, pageSize)
+  );
+
+  useEffect(() => {
+    if (data)
+      setPaginatedProductSkus((prev) =>
+        uniqBy([...prev, ...data.products.results], "slug")
+      );
+  }, [data]);
+
+  useEffect(() => {
+    refetchProductSkus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
+
   const onSelectChange = (selectedRowKeys) => {
     setSelectedRowKeys(selectedRowKeys);
   };
@@ -167,134 +176,94 @@ function TabSKU({ slug, publishBrand }) {
     onChange: onSelectChange,
     selectedRowKeys,
   };
-  const [entriesPerPage, setEntriesPerPage] = useState(10);
-  const { data, status: brandStatus } = useQuery(
-    ["get-brand", slug],
-    () => getBrand({ slug }),
-    {
-      onError: (err) => {
-        openErrorNotification(err);
-      },
-    }
-  );
+
   const navigate = useNavigate();
 
-  const { mutate: publishSKUMutate } = useMutation(
-    (slug) => publishProductSKU({ slug }),
+  const handleBulkPublish = useMutation(
+    ({ slugs, isPublish }) => bulkPublish({ slugs, isPublish }),
     {
       onSuccess: (data) => {
-        openSuccessNotification(data.data.message || "Product SKU published");
-        queryClient.invalidateQueries(["get-brand", slug]);
+        openSuccessNotification(data.message || "Products Updated");
+        setOpenAlert(false);
+        setSelectedRowKeys([]);
+        setPaginatedProductSkus([]);
+        refetchProductSkus();
       },
-      onError: (err) => {
-        openErrorNotification(err);
-      },
-    }
-  );
-  const { mutate: unpublishProductSKUMutate } = useMutation(
-    (slug) => unpublishProductSKU({ slug }),
-    {
-      onSuccess: (data) => {
-        openSuccessNotification(data.data.message || "Product SKU unpublished");
-        queryClient.invalidateQueries(["get-brand", slug]);
-      },
-      onError: (err) => {
-        openErrorNotification(err);
-      },
-    }
-  );
-  const { mutate: deleteProductSKUMutate } = useMutation(
-    (slug) => deleteProductSKU({ slug }),
-    {
-      onSuccess: (data) => {
-        openSuccessNotification(data.data.message || "Product SKU deleted");
-        queryClient.invalidateQueries(["get-brand", slug]);
-      },
-      onError: (err) => {
-        openErrorNotification(err);
-      },
+      onError: (error) => openErrorNotification(error),
     }
   );
 
-  const handleBulkPublish = () => {
-    selectedRowKeys.forEach(async (slug) => {
-      publishSKUMutate(slug);
-    });
-    setSelectedRowKeys([]);
-  };
-  const handleBulkUnpublish = () => {
-    selectedRowKeys.forEach(async (slug) => {
-      unpublishProductSKUMutate(slug);
-    });
-    setSelectedRowKeys([]);
-  };
-  const handleBulkDelete = () => {
-    selectedRowKeys.forEach((slug) => {
-      deleteProductSKUMutate(slug);
-    });
-    setSelectedRowKeys([]);
-  };
+  const handleBulkDelete = useMutation((slugs) => bulkDelete(slugs), {
+    onSuccess: (data) => {
+      openSuccessNotification(data.message || "Products Deleted");
+      setOpenAlert(false);
+      setSelectedRowKeys([]);
+      setPaginatedProductSkus([]);
+      refetchProductSkus();
+    },
+    onError: (error) => openErrorNotification(error),
+  });
 
-  const handleBulkAction = (event) => {
-    const action = event;
-    switch (action) {
+  const renderAlert = () => {
+    switch (alertType) {
       case "publish":
-        setAlert({
-          show: true,
-          title: "Publish Selected Product SKUs?",
-          text: "Are you sure you want to publish selected Product SKUs?",
-          type: "info",
-          primaryButton: "Publish Selected",
-          secondaryButton: "Cancel",
-          image: "/publish-icon.svg",
-          action: async () => handleBulkPublish(),
-        });
-        break;
+        return (
+          <Alert
+            action={() =>
+              handleBulkPublish.mutate({
+                isPublish: true,
+                slugs: selectedRowKeys.map((slug) => slug),
+              })
+            }
+            alertType={ALERT_TYPE.publish}
+            closeModal={() => setOpenAlert(false)}
+            isOpen={openAlert}
+            status={handleBulkPublish.status}
+            text="Are you sure you want to publish selected products?"
+            title="Publish Selected Products"
+          />
+        );
+
       case "unpublish":
-        setAlert({
-          show: true,
-          title: "Unpublish Selected Product SKUs?",
-          text: "Are you sure you want to unpublish selected Product SKUs?",
-          type: "warning",
-          primaryButton: "Unpublish Selected",
-          secondaryButton: "Cancel",
-          image: "/unpublish-icon.svg",
-          action: async () => handleBulkUnpublish(),
-        });
-        break;
+        return (
+          <Alert
+            action={() =>
+              handleBulkPublish.mutate({
+                isPublish: false,
+                slugs: selectedRowKeys.map((slug) => slug),
+              })
+            }
+            alertType={ALERT_TYPE.unpublish}
+            closeModal={() => setOpenAlert(false)}
+            isOpen={openAlert}
+            status={handleBulkPublish.status}
+            text="Are you sure you want to unpublish selected products?"
+            title="Unpublish Selected Products"
+          />
+        );
       case "delete":
-        setAlert({
-          show: true,
-          title: "Delete Selected Product SKUs?",
-          text: "Are you sure you want to delete selected Product SKUs?",
-          type: "danger",
-          primaryButton: "Delete Selected",
-          secondaryButton: "Cancel",
-          image: "/delete-icon.svg",
-          action: async () => handleBulkDelete(),
-        });
-        break;
+        return (
+          <Alert
+            action={() =>
+              handleBulkDelete.mutate(selectedRowKeys.map((slug) => slug))
+            }
+            alertType={ALERT_TYPE.delete}
+            closeModal={() => setOpenAlert(false)}
+            isOpen={openAlert}
+            status={handleBulkDelete.status}
+            text="Are you sure you want to delete selected products?"
+            title="Delete Selected Products"
+          />
+        );
       default:
         break;
     }
   };
+
   return (
     <>
-      {alert.show && (
-        <SimpleAlert
-          action={alert.action}
-          alert={alert}
-          icon={alert.icon}
-          image={alert.image}
-          primaryButton={alert.primaryButton}
-          secondaryButton={alert.secondaryButton}
-          setAlert={setAlert}
-          text={alert.text}
-          title={alert.title}
-          type={alert.type}
-        />
-      )}
-      {brandStatus === "loading" && <Loader isOpen />}
+      {openAlert && renderAlert()}
+
       <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[70vh]">
         <div className="flex justify-end mb-3">
           <div className="flex">
@@ -305,11 +274,14 @@ function TabSKU({ slug, publishBrand }) {
                   marginRight: "1rem",
                 }}
                 value={"Bulk Actions"}
-                onChange={handleBulkAction}
+                onSelect={(value) => {
+                  setOpenAlert(true);
+                  setAlertType(value);
+                }}
               >
-                <Option value="publish">Publish</Option>
-                <Option value="unpublish">Unpublish</Option>
-                <Option value="delete">Delete</Option>
+                <Option value={ALERT_TYPE.publish}>Publish</Option>
+                <Option value={ALERT_TYPE.unpublish}>Unpublish</Option>
+                <Option value={ALERT_TYPE.delete}>Delete</Option>
               </Select>
             )}
             <Space>
@@ -325,32 +297,22 @@ function TabSKU({ slug, publishBrand }) {
         <div className="flex-1">
           <Table
             columns={columns}
-            dataSource={data?.data?.data?.product_skus.results}
-            footer={() => (
-              <div className="absolute bottom-0 left-0 flex justify-start bg-white w-[100%]">
-                <div className="mt-5">
-                  <span className="text-sm text-gray-600">
-                    Entries per page:{" "}
-                  </span>
-                  <Select
-                    defaultValue={4}
-                    style={{
-                      width: 120,
-                    }}
-                    // loading
-                    onChange={(value) => setEntriesPerPage(value)}
-                  >
-                    <Option value={4}>4</Option>
-                    <Option value={10}>10</Option>
-                    <Option value={15}>15</Option>
-                    <Option value={20}>20</Option>
-                    <Option value={25}>25</Option>
-                    <Option value={50}>50</Option>
-                  </Select>
-                </div>
-              </div>
-            )}
-            pagination={{ pageSize: entriesPerPage }}
+            dataSource={
+              paginatedProductSkus?.map((item, index) => ({
+                ...item,
+                index: index + 1,
+                key: item.slug,
+              })) || []
+            }
+            loading={productSkuStatus === "loading" || refetchingProductSkus}
+            pagination={{
+              pageSize,
+              total: data?.products?.count,
+
+              onChange: (page, pageSize) => {
+                setPage(page);
+              },
+            }}
             rowClassName="cursor-pointer"
             rowKey="slug"
             rowSelection={rowSelection}
