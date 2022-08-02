@@ -17,8 +17,8 @@ import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../../../utils/openNotification";
-import Loader from "../../subComponents/Loader";
 import { getDate, parseArray, parseSlug } from "../../../../utils";
+import Loader from "../../../../shared/Loader";
 
 const { Option } = Select;
 
@@ -187,7 +187,7 @@ function TabAll({ slug, publishBrand }) {
     actionOn: "",
     icon: "",
   });
-  const { data, isLoading } = useQuery(
+  const { data, status: getProductsStatus } = useQuery(
     ["get-products-from-brand", slug],
     () => getProductsFromBrand({ slug }),
     {
@@ -324,7 +324,9 @@ function TabAll({ slug, publishBrand }) {
           type={alert.type}
         />
       )}
-      {isLoading && <Loader loadingText={"Loading Products..."} />}
+
+      {getProductsStatus === "loading" && <Loader isOpen />}
+
       <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[70vh]">
         <div className="flex justify-end mb-3">
           <div className="flex">

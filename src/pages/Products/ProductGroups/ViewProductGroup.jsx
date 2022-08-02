@@ -9,7 +9,6 @@ import {
 } from "../../../context/CategoryContext";
 import SimpleAlert from "../alerts/SimpleAlert";
 import EditProductGroup from "./EditProductGroup";
-import Loader from "../subComponents/Loader";
 import {
   openErrorNotification,
   openSuccessNotification,
@@ -20,6 +19,7 @@ import { getDate, parseArray } from "../../../utils";
 import { DEFAULT_CARD_IMAGE } from "../../../constants";
 import CustomPageHeader from "../../../shared/PageHeader";
 import { publishProductGroup } from "../../../api/products/productGroups";
+import Loader from "../../../shared/Loader";
 
 const { Option } = Select;
 
@@ -58,8 +58,9 @@ function ViewProductGroup() {
   const [selectedProductSku, setSelectedProductSku] = useState(null);
   const {
     data: productGroupData,
-    isLoading: getProductGroupIsLoading,
+    status: productGroupStatus,
     refetch: refetchProductGroup,
+    isRefetching: productGroupRefetching,
   } = useQuery(["get-product-group", slug], () => getProductGroup({ slug }), {
     onSuccess: (data) => {
       let newData = data.data.data;
@@ -226,8 +227,8 @@ function ViewProductGroup() {
       {categorySlug === "edit" && (
         <EditProductGroup alert={alert} setAlert={setAlert} />
       )}
-      {getProductGroupIsLoading && (
-        <Loader loadingText={"Loading Rasan Choice..."} />
+      {(productGroupStatus === "loading" || productGroupRefetching) && (
+        <Loader isOpen />
       )}
       {productGroupData && (
         <>

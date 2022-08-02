@@ -16,8 +16,8 @@ import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../../../utils/openNotification";
-import Loader from "../../subComponents/Loader";
 import { parseArray, parseSlug } from "../../../../utils";
+import Loader from "../../../../shared/Loader";
 
 const { Option } = Select;
 
@@ -168,7 +168,7 @@ function TabSKU({ slug, publishBrand }) {
     selectedRowKeys,
   };
   const [entriesPerPage, setEntriesPerPage] = useState(10);
-  const { data, isLoading, isError, error } = useQuery(
+  const { data, status: brandStatus } = useQuery(
     ["get-brand", slug],
     () => getBrand({ slug }),
     {
@@ -294,7 +294,7 @@ function TabSKU({ slug, publishBrand }) {
           type={alert.type}
         />
       )}
-      {isLoading && <Loader loadingText={"Loading Product SKUs..."} />}
+      {brandStatus === "loading" && <Loader isOpen />}
       <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[70vh]">
         <div className="flex justify-end mb-3">
           <div className="flex">
@@ -323,8 +323,6 @@ function TabSKU({ slug, publishBrand }) {
         </div>
 
         <div className="flex-1">
-          {isLoading ? "Loading..." : null}
-          {isError ? error.message : null}
           <Table
             columns={columns}
             dataSource={data?.data?.data?.product_skus.results}
