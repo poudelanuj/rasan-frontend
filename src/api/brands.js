@@ -28,3 +28,34 @@ export const publishBrand = async ({ slug, shouldPublish }) => {
     return res;
   }
 };
+
+export const bulkPublish = async ({ slugs = [], isPublish }) => {
+  if (isPublish) {
+    // * Publish Brand
+    const res = await Promise.all(
+      slugs.map(
+        async (slug) =>
+          await axios.post(`/api/product/admin/brands/publish/${slug}/`)
+      )
+    );
+    return res;
+  } else {
+    // * Unpublish Brand
+    const res = await Promise.all(
+      slugs.map(
+        async (slug) =>
+          await axios.delete(`/api/product/admin/brands/publish/${slug}/`)
+      )
+    );
+    return res;
+  }
+};
+
+export const bulkDelete = async (slugs = []) => {
+  const res = await Promise.all(
+    slugs.map(async (slug) => {
+      return await axios.delete(`/api/product/admin/brands/${slug}/`);
+    })
+  );
+  return res.data;
+};

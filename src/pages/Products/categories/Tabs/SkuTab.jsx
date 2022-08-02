@@ -16,7 +16,7 @@ import {
   parseArray,
   parseSlug,
 } from "../../../../utils";
-import SimpleAlert from "../../alerts/SimpleAlert";
+import SimpleAlert from "../../../../shared/Alert";
 import { getCategory } from "../../../../api/categories";
 import { GET_SINGLE_CATEGORY } from "../../../../constants/queryKeys";
 import { uniqBy } from "lodash";

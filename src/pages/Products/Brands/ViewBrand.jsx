@@ -57,12 +57,10 @@ function Brands() {
 
   return (
     <>
-      <div className="mt-4">
-        <CustomPageHeader
-          path="/category-list"
-          title={brand?.name || parseSlug(slug)}
-        />
-      </div>
+      <CustomPageHeader
+        path="/category-list"
+        title={brand?.name || parseSlug(slug)}
+      />
 
       <div>
         <Tabs defaultActiveKey="1">

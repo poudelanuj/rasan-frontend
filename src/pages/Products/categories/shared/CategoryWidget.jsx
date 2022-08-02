@@ -7,7 +7,7 @@ function CategoryWidget({
   title,
   slug,
   completeLink,
-  editLink,
+  editClick,
   imgClassName,
   selectedCategories,
   setSelectedCategories,
@@ -91,12 +91,12 @@ function CategoryWidget({
             )}
           </span>
           <div className="absolute top-[0px] right-[0px] animate-categoryEditButton">
-            <Link
-              className="flex justify-between absolute top-0 right-0 w-fit p-2 rounded-full"
-              to={`${editLink}`}
+            <div
+              className="flex cursor-pointer hover:text-blue-600 justify-between absolute top-0 right-0 w-fit p-2 rounded-full"
+              onClick={editClick}
             >
               <EditOutlined />
-            </Link>
+            </div>
           </div>
         </>
       )}

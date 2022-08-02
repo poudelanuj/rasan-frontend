@@ -7,7 +7,7 @@ import {
   getProductGroup,
   updateProductSKU,
 } from "../../../context/CategoryContext";
-import SimpleAlert from "../alerts/SimpleAlert";
+import SimpleAlert from "../../../shared/Alert";
 import EditProductGroup from "./EditProductGroup";
 import {
   openErrorNotification,

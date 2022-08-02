@@ -12,7 +12,7 @@ import {
   unpublishProduct,
 } from "../../../../context/CategoryContext";
 
-import SimpleAlert from "../../alerts/SimpleAlert";
+import SimpleAlert from "../../../../shared/Alert";
 import {
   openErrorNotification,
   openSuccessNotification,
