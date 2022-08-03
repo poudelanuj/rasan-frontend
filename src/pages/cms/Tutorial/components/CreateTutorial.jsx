@@ -80,7 +80,7 @@ const CreateTutorial = () => {
   );
 
   return (
-    <div className="py-5 px-4 bg-[#FFFFFF]">
+    <div className="px-4 bg-[#FFFFFF]">
       <CustomPageHeader title="Create Tutorial" />
       <p className="font-semibold text-lg">Details</p>
 

@@ -142,7 +142,7 @@ const UpdateTutorial = () => {
       {status === "loading" ? (
         <Loader isOpen={true} />
       ) : (
-        <div className="py-5 px-4 bg-[#FFFFFF]">
+        <div className="px-4 bg-[#FFFFFF]">
           <div className="flex items-center justify-between">
             <CustomPageHeader title={slug} />
             <Button
