@@ -83,7 +83,7 @@ const UpdateTutorial = () => {
   });
 
   const handlePublishTutorial = useMutation(
-    ({ slug, is_published }) => publishTutorial({ slug, is_published }),
+    ({ slug, shouldPublish }) => publishTutorial({ slug, shouldPublish }),
     {
       onSuccess: (res) => {
         openSuccessNotification(res.message);
@@ -152,7 +152,7 @@ const UpdateTutorial = () => {
               onClick={() =>
                 handlePublishTutorial.mutate({
                   slug,
-                  is_published: dataSource.is_published,
+                  shouldPublish: !dataSource.is_published,
                 })
               }
             >

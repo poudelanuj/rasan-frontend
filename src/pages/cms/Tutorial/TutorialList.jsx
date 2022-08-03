@@ -47,13 +47,16 @@ const TutorialList = ({
     onError: (err) => openErrorNotification(err),
   });
 
-  const handlePublishTutorial = useMutation((slug) => publishTutorial(slug), {
-    onSuccess: (res) => {
-      openSuccessNotification(res.message);
-      refetchTutorials();
-    },
-    onError: (err) => openErrorNotification(err),
-  });
+  const handlePublishTutorial = useMutation(
+    ({ slug, shouldPublish }) => publishTutorial({ slug, shouldPublish }),
+    {
+      onSuccess: (res) => {
+        openSuccessNotification(res.message);
+        refetchTutorials();
+      },
+      onError: (err) => openErrorNotification(err),
+    }
+  );
 
   const columns = [
     {
@@ -112,7 +115,12 @@ const TutorialList = ({
               loading={handlePublishTutorial.isLoading}
               size="small"
               type="primary"
-              onClick={() => handlePublishTutorial.mutate(slug)}
+              onClick={() =>
+                handlePublishTutorial.mutate({
+                  slug: slug,
+                  shouldPublish: published_at ? false : true,
+                })
+              }
             >
               {published_at ? "Unpublish" : "Publish"}
             </Button>

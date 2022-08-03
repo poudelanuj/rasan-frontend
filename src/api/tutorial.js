@@ -61,14 +61,14 @@ export const getTagListById = async (ids = []) => {
   return res;
 };
 
-export const publishTutorial = async ({ slug, is_published }) => {
-  if (is_published) {
-    const res = await axios.delete(
+export const publishTutorial = async ({ slug, shouldPublish }) => {
+  if (shouldPublish) {
+    const res = await axios.post(
       `/api/tutorial/admin/tutorials/${slug}/publish/`
     );
     return res.data;
   } else {
-    const res = await axios.post(
+    const res = await axios.delete(
       `/api/tutorial/admin/tutorials/${slug}/publish/`
     );
     return res.data;
