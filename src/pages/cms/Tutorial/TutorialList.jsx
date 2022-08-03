@@ -169,7 +169,7 @@ const TutorialList = ({
     return {
       key: index + 1,
       title: el.title,
-      page_location: capitalize(el.page_location).replace("_", " "),
+      page_location: capitalize(el.page_location).replaceAll("_", " "),
       type: capitalize(el.type),
       status: el.published_at ? "Published" : "Unpublished", //* TODO
       slug: el.slug,
