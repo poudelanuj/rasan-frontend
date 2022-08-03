@@ -35,6 +35,11 @@ export const createProductSku = async (data) => {
   return res.data;
 };
 
+export const deleteProductSku = async (slug) => {
+  const res = await axios.delete(`/api/product/admin/product-skus/${slug}/`);
+  return res.data;
+};
+
 export const updateProductSku = async (slug, data) => {
   const res = await axios.put(`/api/product/admin/product-skus/${slug}/`, data);
   return res.data;

@@ -49,11 +49,11 @@ function ProductGroupsScreen() {
   );
 
   useEffect(() => {
-    if (data || isRefetching === "success")
+    if (data && status === "success" && !isRefetching)
       setPaginatedProductGroups((prev) =>
         uniqBy([...prev, ...data.results], "slug")
       );
-  }, [data, isRefetching]);
+  }, [data, isRefetching, status]);
 
   useEffect(() => {
     refetchProductGroups();

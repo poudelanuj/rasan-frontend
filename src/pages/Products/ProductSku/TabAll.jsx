@@ -1,108 +1,30 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { Table } from "antd";
-import { useQuery } from "react-query";
+import { Button, Space, Table } from "antd";
+import { useMutation, useQuery } from "react-query";
 import AddCategoryButton from "../subComponents/AddCategoryButton";
 
-import { parseSlug } from "../../../utils";
+import {
+  openErrorNotification,
+  openSuccessNotification,
+  parseSlug,
+} from "../../../utils";
 import { uniqBy } from "lodash";
 import { GET_PAGINATED_PRODUCT_SKUS } from "../../../constants/queryKeys";
-import { getPaginatedProdctSkus } from "../../../api/products/productSku";
-
-const columns = [
-  {
-    title: "Product Name",
-    dataIndex: "name",
-    defaultSortOrder: "descend",
-    render: (_, { name, product_sku_image }) => (
-      <div className="flex items-center gap-3">
-        <img
-          alt=""
-          className="h-[40px] w-[40px] object-cover rounded"
-          src={product_sku_image?.thumbnail || "/rasan-default.png"}
-        />
-        <span>{name}</span>
-      </div>
-    ),
-  },
-  {
-    title: "Quantity",
-    dataIndex: "quantity",
-  },
-  {
-    title: "CP Per Piece",
-    dataIndex: "cost_price_per_piece",
-    defaultSortOrder: "descend",
-    // sorter: (a, b) => a.address.length - b.address.length,
-  },
-  {
-    title: "MRP Per Piece",
-    dataIndex: "mrp_per_piece",
-    defaultSortOrder: "descend",
-    // sorter: (a, b) => a.address.length - b.address.length,
-  },
-  {
-    title: "SP Per Piece",
-    dataIndex: "price_per_piece",
-    defaultSortOrder: "descend",
-    // sorter: (a, b) => a.address.length - b.address.length,
-  },
-  {
-    title: "Category",
-    render: (text, record) => {
-      return (
-        <div className="flex items-center capitalize">
-          {record.category.map((cat, index) => {
-            return parseSlug(cat);
-          })}
-        </div>
-      );
-    },
-  },
-  {
-    title: "Product",
-    render: (text, record) => {
-      return (
-        <div className="flex items-center capitalize">
-          {parseSlug(record.product)}
-        </div>
-      );
-    },
-  },
-  {
-    title: "Brand",
-    render: (text, record) => {
-      return (
-        <div className="flex items-center capitalize">
-          {parseSlug(record.brand)}
-        </div>
-      );
-    },
-  },
-  {
-    title: "Status",
-    // render jsx
-    render: (text, record) => {
-      return (
-        <div
-          className={`text-center rounded-[36px] text-[14px] p-[2px_14px] ${
-            record.is_published
-              ? "bg-[#E4FEEF] text-[#0E9E49]"
-              : "bg-[#FFF8E1] text-[#FF8F00]"
-          }`}
-        >
-          {record.is_published ? "Published" : "Unpublished"}
-        </div>
-      );
-    },
-  },
-];
+import {
+  deleteProductSku,
+  getPaginatedProdctSkus,
+} from "../../../api/products/productSku";
+import ConfirmDelete from "../../../shared/ConfirmDelete";
 
 function TabAll() {
   const [page, setPage] = useState(1);
   const pageSize = 20;
   const [productSkus, setProductSkus] = useState([]);
+
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [selectedSkuSlug, setSelectedSkuSlug] = useState(""); // * For Delete
 
   const {
     data,
@@ -125,6 +47,138 @@ function TabAll() {
     refetchProductSkus();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
+
+  const handleDeleteSku = useMutation((slug) => deleteProductSku(slug), {
+    onSuccess: (data) => {
+      openSuccessNotification(data.message || "Product Deleted");
+      setConfirmDelete(false);
+      setProductSkus([]);
+      refetchProductSkus();
+      setPage(1);
+    },
+    onError: (error) => {
+      openErrorNotification(error);
+    },
+  });
+
+  const columns = [
+    {
+      title: "Product Name",
+      dataIndex: "name",
+      defaultSortOrder: "descend",
+      render: (_, { name, product_sku_image, slug }) => (
+        <div
+          className="flex items-center gap-3 cursor-pointer text-blue-500 hover:underline"
+          onClick={() => {
+            navigate("/product-sku/" + slug);
+          }}
+        >
+          <img
+            alt=""
+            className="h-[40px] w-[40px] object-cover rounded"
+            src={product_sku_image?.thumbnail || "/rasan-default.png"}
+          />
+          <span>{name}</span>
+        </div>
+      ),
+    },
+    {
+      title: "Quantity",
+      dataIndex: "quantity",
+    },
+    {
+      title: "CP Per Piece",
+      dataIndex: "cost_price_per_piece",
+      defaultSortOrder: "descend",
+      // sorter: (a, b) => a.address.length - b.address.length,
+    },
+    {
+      title: "MRP Per Piece",
+      dataIndex: "mrp_per_piece",
+      defaultSortOrder: "descend",
+      // sorter: (a, b) => a.address.length - b.address.length,
+    },
+    {
+      title: "SP Per Piece",
+      dataIndex: "price_per_piece",
+      defaultSortOrder: "descend",
+      // sorter: (a, b) => a.address.length - b.address.length,
+    },
+    {
+      title: "Category",
+      render: (text, record) => {
+        return (
+          <div className="flex items-center capitalize">
+            {record.category.map((cat, index) => {
+              return parseSlug(cat);
+            })}
+          </div>
+        );
+      },
+    },
+    {
+      title: "Product",
+      render: (text, record) => {
+        return (
+          <div className="flex items-center capitalize">
+            {parseSlug(record.product)}
+          </div>
+        );
+      },
+    },
+    {
+      title: "Brand",
+      render: (text, record) => {
+        return (
+          <div className="flex items-center capitalize">
+            {parseSlug(record.brand)}
+          </div>
+        );
+      },
+    },
+    {
+      title: "Status",
+      // render jsx
+      render: (text, record) => {
+        return (
+          <div
+            className={`text-center rounded-[36px] text-[14px] p-[2px_14px] ${
+              record.is_published
+                ? "bg-[#E4FEEF] text-[#0E9E49]"
+                : "bg-[#FFF8E1] text-[#FF8F00]"
+            }`}
+          >
+            {record.is_published ? "Published" : "Unpublished"}
+          </div>
+        );
+      },
+    },
+    {
+      title: "Actions",
+      render: (_, { slug }) => {
+        return (
+          <Space>
+            <Button size="small" onClick={() => navigate(`${slug}/edit`)}>
+              Edit
+            </Button>
+            <Button
+              loading={
+                handleDeleteSku.status === "loading" && selectedSkuSlug === slug
+              }
+              size="small"
+              type="danger"
+              onClick={() => {
+                setSelectedSkuSlug(slug);
+                setConfirmDelete(true);
+              }}
+            >
+              Delete
+            </Button>
+          </Space>
+        );
+      },
+    },
+  ];
 
   const onSelectChange = (newSelectedRowKeys) => {
     setSelectedRowKeys(newSelectedRowKeys);
@@ -196,18 +250,18 @@ function TabAll() {
                 setPage(page);
               },
             }}
-            rowClassName="cursor-pointer"
             rowSelection={rowSelection}
-            onRow={(record) => {
-              return {
-                onClick: (_) => {
-                  navigate("/product-sku/" + record.slug);
-                },
-              };
-            }}
           />
         </div>
       </div>
+
+      <ConfirmDelete
+        closeModal={() => setConfirmDelete(false)}
+        deleteMutation={() => handleDeleteSku.mutate(selectedSkuSlug)}
+        isOpen={confirmDelete}
+        status={handleDeleteSku.status}
+        title={`Delete Product Sku #${parseSlug(selectedSkuSlug)}`}
+      />
     </>
   );
 }

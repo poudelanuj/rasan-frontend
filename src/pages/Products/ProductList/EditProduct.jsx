@@ -103,10 +103,9 @@ const EditProduct = () => {
           !product?.name
         }
       />
+      <CustomPageHeader title={`Edit ${product?.name}`} />
 
       <div className="py-5">
-        <CustomPageHeader title={`Edit ${product?.name}`} />
-
         {productStatus === "success" && product && product.name && (
           <div>
             <Form
