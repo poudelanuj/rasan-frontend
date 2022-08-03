@@ -30,27 +30,29 @@ const Tutorial = () => {
   });
 
   return (
-    <div className="py-5 px-4 bg-[#FFFFFF]">
+    <>
       <CustomPageHeader title="Tutorial" isBasicHeader />
-      <Tabs defaultActiveKey="all">
-        <TabPane key="tutorials" tab="Tutorials">
-          <TutorialList
-            dataSource={tutorialList}
-            refetchTutorials={refetchTutorials}
-            refetchingTutorials={refetchingTutorials}
-            status={tutorialStatus}
-          />
-        </TabPane>
-        <TabPane key="tutorial_tags" tab="Tutorial Tags">
-          <TutorialTagsList
-            dataSource={tagList}
-            refetchTags={refetchTags}
-            refetchingTags={refetchingTags}
-            status={tagStatus}
-          />
-        </TabPane>
-      </Tabs>
-    </div>
+      <div className="py-5 px-4 bg-[#FFFFFF]">
+        <Tabs defaultActiveKey="all">
+          <TabPane key="tutorials" tab="Tutorials">
+            <TutorialList
+              dataSource={tutorialList}
+              refetchTutorials={refetchTutorials}
+              refetchingTutorials={refetchingTutorials}
+              status={tutorialStatus}
+            />
+          </TabPane>
+          <TabPane key="tutorial_tags" tab="Tutorial Tags">
+            <TutorialTagsList
+              dataSource={tagList}
+              refetchTags={refetchTags}
+              refetchingTags={refetchingTags}
+              status={tagStatus}
+            />
+          </TabPane>
+        </Tabs>
+      </div>
+    </>
   );
 };
 

@@ -121,7 +121,6 @@ const TutorialTagsList = ({
           return { key: index + 1, title: el.tag, id: el.id };
         })}
         loading={status === "loading" || refetchingTags}
-        rowClassName="cursor-pointer"
         rowSelection={{ ...rowSelection }}
       />
 
