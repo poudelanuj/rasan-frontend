@@ -112,14 +112,14 @@ const TutorialList = ({
           <div className="flex items-center justify-between">
             <Button
               className="w-20 text-center"
-              danger={published_at ? true : false}
+              danger={published_at ? true : false} //* TODO
               loading={handlePublishTutorial.isLoading}
               size="small"
               type="primary"
               onClick={() =>
                 handlePublishTutorial.mutate({
                   slug: slug,
-                  shouldPublish: published_at ? false : true,
+                  shouldPublish: published_at ? false : true, //* TODO
                 })
               }
             >
@@ -170,11 +170,10 @@ const TutorialList = ({
       key: index + 1,
       title: el.title,
       page_location: capitalize(el.page_location).replace("_", " "),
-      tags: el.tags === [] ? el.tags[0] : el.tags,
-      type: el.type.charAt(0).toUpperCase() + el.type.slice(1),
-      status: el.published_at ? "Published" : "Unpublished",
+      type: capitalize(el.type),
+      status: el.published_at ? "Published" : "Unpublished", //* TODO
       slug: el.slug,
-      published_at: el.published_at,
+      published_at: el.published_at, // *TODO
     };
   });
 
