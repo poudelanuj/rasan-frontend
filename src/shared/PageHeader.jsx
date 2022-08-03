@@ -13,7 +13,7 @@ const CustomPageHeader = ({ title, path, isBasicHeader }) => {
   }
 
   return (
-    <div className="bg-white px-6 pt-4 pb-1 mb-6">
+    <div className="bg-white pt-4 mt-2 pb-1 mb-6">
       <PageHeader
         className="site-page-header m-0"
         style={{ padding: 0, marginBottom: 16, textTransform: "capitalize" }}
