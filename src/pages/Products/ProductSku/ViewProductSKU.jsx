@@ -43,12 +43,10 @@ function ProductSKU() {
       {productSkustatus === "loading" && <Loader isOpen />}
       {productSkustatus === "success" && productSku && (
         <>
-          <div className="mt-4">
-            <CustomPageHeader
-              path={pageHeaderPath || "../"}
-              title={productSku.name}
-            />
-          </div>
+          <CustomPageHeader
+            path={pageHeaderPath || "../"}
+            title={productSku.name}
+          />
 
           <div className="flex flex-col bg-white p-6 rounded ">
             <div>

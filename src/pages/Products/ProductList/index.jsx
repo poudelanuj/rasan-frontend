@@ -2,91 +2,30 @@ import React, { useState } from "react";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
-import { Table } from "antd";
+import { Button, Space, Table } from "antd";
 import { uniqBy } from "lodash";
-import { useQuery } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import AddCategoryButton from "../subComponents/AddCategoryButton";
 import { GET_PAGINATED_PRODUCTS } from "../../../constants/queryKeys";
-import { getPaginatedProducts } from "../../../api/products";
-import { parseSlug } from "../../../utils";
+import { deleteProduct, getPaginatedProducts } from "../../../api/products";
+import {
+  openErrorNotification,
+  openSuccessNotification,
+  parseSlug,
+} from "../../../utils";
 import CustomPageHeader from "../../../shared/PageHeader";
-
-const columns = [
-  {
-    title: "Product Name",
-    dataIndex: "name",
-    defaultSortOrder: "descend",
-    render: (_, { name, product_image }) => (
-      <div className="flex items-center gap-3">
-        <img
-          alt=""
-          className="h-[40px] w-[40px] object-cover rounded"
-          src={product_image?.thumbnail || "/rasan-default.png"}
-        />
-        <span>{name}</span>
-      </div>
-    ),
-  },
-  {
-    title: "Brand",
-    render: (text, record) => {
-      return (
-        <div className="flex items-center capitalize">
-          {parseSlug(record.brand)}
-        </div>
-      );
-    },
-  },
-  {
-    title: "Category",
-    render: (text, record) => {
-      return (
-        <div className="flex items-center capitalize">
-          {record.category.map((item, index) => {
-            if (index === 0) {
-              return <div>{parseSlug(item)}</div>;
-            } else {
-              return <div>, {parseSlug(item)}</div>;
-            }
-          })}
-        </div>
-      );
-    },
-  },
-  {
-    title: "Status",
-    // render jsx
-    render: (text, record) => {
-      return (
-        <div
-          className={`text-center rounded-[36px] text-[14px] p-[2px_14px] ${
-            record.is_published
-              ? "bg-[#E4FEEF] text-[#0E9E49]"
-              : "bg-[#FFF8E1] text-[#FF8F00]"
-          }`}
-        >
-          {record.is_published ? "Published" : "Unpublished"}
-        </div>
-      );
-    },
-  },
-
-  {
-    title: "Published Date",
-    render: (_, { published_at }) => {
-      return (
-        <div className="text-center text-[14px] p-[2px_5px]">
-          {moment(published_at).format("ll")}
-        </div>
-      );
-    },
-  },
-];
+import ConfirmDelete from "../../../shared/ConfirmDelete";
 
 function ProductListScreen() {
   const [page, setPage] = useState(1);
   const pageSize = 20;
   const [products, setProducts] = useState([]);
+
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [selectedProductSlug, setSelectedProductSlug] = useState(""); // * For Delete
+
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const navigate = useNavigate();
 
   const {
     data,
@@ -99,16 +38,130 @@ function ProductListScreen() {
   );
 
   useEffect(() => {
-    if (data) setProducts((prev) => uniqBy([...prev, ...data.results], "slug"));
-  }, [data]);
+    if (!isRefetching && productsStatus === "success" && data)
+      setProducts((prev) => uniqBy([...prev, ...data.results], "slug"));
+  }, [data, isRefetching, productsStatus]);
 
   useEffect(() => {
     refetchProducts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
-  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const navigate = useNavigate();
+  const handleDeleteProduct = useMutation((slug) => deleteProduct(slug), {
+    onSuccess: (data) => {
+      openSuccessNotification(data.message || "Product Deleted");
+      setConfirmDelete(false);
+      setProducts([]);
+      refetchProducts();
+      setPage(1);
+    },
+    onError: (error) => {
+      openErrorNotification(error);
+    },
+  });
+
+  const columns = [
+    {
+      title: "Product Name",
+      dataIndex: "name",
+      defaultSortOrder: "descend",
+      render: (_, { name, product_image, slug }) => (
+        <div
+          className="flex items-center gap-3 cursor-pointer text-blue-500 hover:underline"
+          onClick={() => {
+            navigate("/product-list/" + slug);
+          }}
+        >
+          <img
+            alt=""
+            className="h-[40px] w-[40px] object-cover rounded"
+            src={product_image?.thumbnail || "/rasan-default.png"}
+          />
+          <span>{name}</span>
+        </div>
+      ),
+    },
+    {
+      title: "Brand",
+      render: (text, record) => {
+        return (
+          <div className="flex items-center capitalize">
+            {parseSlug(record.brand)}
+          </div>
+        );
+      },
+    },
+    {
+      title: "Category",
+      render: (text, record) => {
+        return (
+          <div className="flex items-center capitalize">
+            {record.category.map((item, index) => {
+              if (index === 0) {
+                return <div>{parseSlug(item)}</div>;
+              } else {
+                return <div>, {parseSlug(item)}</div>;
+              }
+            })}
+          </div>
+        );
+      },
+    },
+    {
+      title: "Status",
+      // render jsx
+      render: (text, record) => {
+        return (
+          <div
+            className={`text-center rounded-[36px] text-[14px] p-[2px_14px] ${
+              record.is_published
+                ? "bg-[#E4FEEF] text-[#0E9E49]"
+                : "bg-[#FFF8E1] text-[#FF8F00]"
+            }`}
+          >
+            {record.is_published ? "Published" : "Unpublished"}
+          </div>
+        );
+      },
+    },
+
+    {
+      title: "Published Date",
+      render: (_, { published_at }) => {
+        return (
+          <div className="text-center text-[14px] p-[2px_5px]">
+            {moment(published_at).format("ll")}
+          </div>
+        );
+      },
+    },
+    {
+      title: "Actions",
+      render: (_, { slug }) => {
+        return (
+          <Space>
+            <Button size="small" onClick={() => navigate(`${slug}/edit`)}>
+              Edit
+            </Button>
+            <Button
+              loading={
+                handleDeleteProduct.status === "loading" &&
+                selectedProductSlug === slug
+              }
+              size="small"
+              type="danger"
+              onClick={() => {
+                setSelectedProductSlug(slug);
+                setConfirmDelete(true);
+              }}
+            >
+              Delete
+            </Button>
+          </Space>
+        );
+      },
+    },
+  ];
 
   const onSelectChange = (newSelectedRowKeys) => {
     setSelectedRowKeys(newSelectedRowKeys);
@@ -181,18 +234,18 @@ function ProductListScreen() {
                 setPage(page);
               },
             }}
-            rowClassName="cursor-pointer"
             rowSelection={rowSelection}
-            onRow={(record) => {
-              return {
-                onClick: (_) => {
-                  navigate("/product-list/" + record.slug);
-                },
-              };
-            }}
           />
         </div>
       </div>
+
+      <ConfirmDelete
+        closeModal={() => setConfirmDelete(false)}
+        deleteMutation={() => handleDeleteProduct.mutate(selectedProductSlug)}
+        isOpen={confirmDelete}
+        status={handleDeleteProduct.status}
+        title={`Delete Product #${parseSlug(selectedProductSlug)}`}
+      />
     </>
   );
 }

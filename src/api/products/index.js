@@ -17,6 +17,11 @@ export const createProduct = async (data) => {
   return res.data;
 };
 
+export const deleteProduct = async (slug) => {
+  const res = await axios.delete(`/api/product/admin/products/${slug}/`);
+  return res.data;
+};
+
 export const getProduct = async (slug) => {
   const res = await axios.get(`/api/product/admin/products/${slug}`);
   return res.data.data;

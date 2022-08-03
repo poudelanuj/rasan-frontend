@@ -101,11 +101,14 @@ const EditProductSku = () => {
 
   return (
     <>
-      <Loader isOpen={onFormSubmit.status === "loading"} />
+      <Loader
+        isOpen={
+          onFormSubmit.status === "loading" || productSkuStatus === "loading"
+        }
+      />
+      <CustomPageHeader title={`Edit ${productSku?.name}`} />
 
-      <div className="py-5">
-        <CustomPageHeader title={`Edit ${productSku?.name}`} />
-
+      <div className="py-1">
         {productSkuStatus === "success" && productSku && (
           <div>
             <Form

@@ -40,11 +40,10 @@ function ViewProduct() {
   return (
     <>
       {productStatus === "loading" && <Loader isOpen />}
+
       {product && (
         <>
-          <div className="mt-4">
-            <CustomPageHeader path="../" title={product.name} />
-          </div>
+          <CustomPageHeader path="../" title={product.name} />
 
           <div className="flex flex-col bg-white p-6 rounded">
             <div>
