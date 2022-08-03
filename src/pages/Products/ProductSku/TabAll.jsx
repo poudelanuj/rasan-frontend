@@ -5,7 +5,6 @@ import { Table } from "antd";
 import { useQuery } from "react-query";
 import AddCategoryButton from "../subComponents/AddCategoryButton";
 
-import SimpleAlert from "../alerts/SimpleAlert";
 import { parseSlug } from "../../../utils";
 import { uniqBy } from "lodash";
 import { GET_PAGINATED_PRODUCT_SKUS } from "../../../constants/queryKeys";
@@ -101,19 +100,6 @@ const columns = [
 ];
 
 function TabAll() {
-  const [alert, setAlert] = useState({
-    show: false,
-    title: "",
-    text: "",
-    type: "",
-    primaryButton: "",
-    secondaryButton: "",
-    image: "",
-    action: "",
-    actionOn: "",
-    icon: "",
-  });
-
   const [page, setPage] = useState(1);
   const pageSize = 20;
   const [productSkus, setProductSkus] = useState([]);
@@ -185,21 +171,6 @@ function TabAll() {
   };
   return (
     <>
-      {alert.show && (
-        <SimpleAlert
-          action={alert.action}
-          alert={alert}
-          icon={alert.icon}
-          image={alert.image}
-          primaryButton={alert.primaryButton}
-          secondaryButton={alert.secondaryButton}
-          setAlert={setAlert}
-          text={alert.text}
-          title={alert.title}
-          type={alert.type}
-        />
-      )}
-
       <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[70vh]">
         <div className="flex justify-end mb-3">
           <div>

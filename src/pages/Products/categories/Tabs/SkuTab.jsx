@@ -2,13 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { Table, Select, Space } from "antd";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import AddCategoryButton from "../../subComponents/AddCategoryButton";
-import {
-  deleteProductSKU,
-  publishProductSKU,
-  unpublishProductSKU,
-} from "../../../../context/CategoryContext";
 
 import {
   openErrorNotification,
@@ -16,10 +11,12 @@ import {
   parseArray,
   parseSlug,
 } from "../../../../utils";
-import SimpleAlert from "../../alerts/SimpleAlert";
 import { getCategory } from "../../../../api/categories";
 import { GET_SINGLE_CATEGORY } from "../../../../constants/queryKeys";
 import { uniqBy } from "lodash";
+import Alert from "../../../../shared/Alert";
+import { ALERT_TYPE } from "../../../../constants";
+import { bulkDelete, bulkPublish } from "../../../../api/products/productSku";
 
 const { Option } = Select;
 
@@ -148,26 +145,15 @@ const columns = [
 ];
 
 function TabSKU({ slug, publishCategory }) {
-  const queryClient = useQueryClient();
-  // const { slug } = useParams();
+  const [openAlert, setOpenAlert] = useState(false);
+  const [alertType, setAlertType] = useState("");
 
   const [page, setPage] = useState(1);
   const pageSize = 10;
   const [productSkus, setProductSkus] = useState([]);
 
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const [alert, setAlert] = useState({
-    show: false,
-    title: "",
-    text: "",
-    type: "",
-    primaryButton: "",
-    secondaryButton: "",
-    image: "",
-    action: "",
-    actionOn: "",
-    icon: "",
-  });
+
   const onSelectChange = (selectedRowKeys) => {
     setSelectedRowKeys(selectedRowKeys);
   };
@@ -197,121 +183,91 @@ function TabSKU({ slug, publishCategory }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
-  const { mutate: publishSKUMutate } = useMutation(
-    (slug) => publishProductSKU({ slug }),
+  const handleBulkPublish = useMutation(
+    ({ slugs, isPublish }) => bulkPublish({ slugs, isPublish }),
     {
       onSuccess: (data) => {
-        openSuccessNotification(data.data.message || "Product SKU published");
-        queryClient.invalidateQueries(["get-category", slug]);
+        openSuccessNotification(data.message || "Products Updated");
+        setOpenAlert(false);
+        setSelectedRowKeys([]);
+        setProductSkus([]);
+        refetchProductSkus();
       },
-      onError: (err) => {
-        openErrorNotification(err);
-      },
-    }
-  );
-  const { mutate: unpublishProductSKUMutate } = useMutation(
-    (slug) => unpublishProductSKU({ slug }),
-    {
-      onSuccess: (data) => {
-        openSuccessNotification(data.data.message || "Product SKU unpublished");
-        queryClient.invalidateQueries(["get-category", slug]);
-      },
-      onError: (err) => {
-        openErrorNotification(err);
-      },
-    }
-  );
-  const { mutate: deleteProductSKUMutate } = useMutation(
-    (slug) => deleteProductSKU({ slug }),
-    {
-      onSuccess: (data) => {
-        openSuccessNotification(data.data.message || "Product SKU deleted");
-        queryClient.invalidateQueries(["get-category", slug]);
-      },
-      onError: (err) => {
-        openErrorNotification(err);
-      },
+      onError: (error) => openErrorNotification(error),
     }
   );
 
-  const handleBulkPublish = () => {
-    selectedRowKeys.forEach(async (slug) => {
-      publishSKUMutate(slug);
-    });
-    setSelectedRowKeys([]);
-  };
-  const handleBulkUnpublish = () => {
-    selectedRowKeys.forEach(async (slug) => {
-      unpublishProductSKUMutate(slug);
-    });
-    setSelectedRowKeys([]);
-  };
-  const handleBulkDelete = () => {
-    selectedRowKeys.forEach((slug) => {
-      deleteProductSKUMutate(slug);
-    });
-    setSelectedRowKeys([]);
-  };
+  const handleBulkDelete = useMutation((slugs) => bulkDelete(slugs), {
+    onSuccess: (data) => {
+      openSuccessNotification(data.message || "Products Deleted");
+      setOpenAlert(false);
+      setSelectedRowKeys([]);
+      setProductSkus([]);
+      refetchProductSkus();
+    },
+    onError: (error) => openErrorNotification(error),
+  });
 
-  const handleBulkAction = (event) => {
-    const action = event;
-    switch (action) {
+  const renderAlert = () => {
+    switch (alertType) {
       case "publish":
-        setAlert({
-          show: true,
-          title: "Publish Selected Product SKUs?",
-          text: "Are you sure you want to publish selected Product SKUs?",
-          type: "info",
-          primaryButton: "Publish Selected",
-          secondaryButton: "Cancel",
-          image: "/publish-icon.svg",
-          action: async () => handleBulkPublish(),
-        });
-        break;
+        return (
+          <Alert
+            action={() =>
+              handleBulkPublish.mutate({
+                isPublish: true,
+                slugs: selectedRowKeys.map((slug) => slug),
+              })
+            }
+            alertType={ALERT_TYPE.publish}
+            closeModal={() => setOpenAlert(false)}
+            isOpen={openAlert}
+            status={handleBulkPublish.status}
+            text="Are you sure you want to publish selected products?"
+            title="Publish Selected Products"
+          />
+        );
+
       case "unpublish":
-        setAlert({
-          show: true,
-          title: "Unpublish Selected Product SKUs?",
-          text: "Are you sure you want to unpublish selected Product SKUs?",
-          type: "warning",
-          primaryButton: "Unpublish Selected",
-          secondaryButton: "Cancel",
-          image: "/unpublish-icon.svg",
-          action: async () => handleBulkUnpublish(),
-        });
-        break;
+        return (
+          <Alert
+            action={() =>
+              handleBulkPublish.mutate({
+                isPublish: false,
+                slugs: selectedRowKeys.map((slug) => slug),
+              })
+            }
+            alertType={ALERT_TYPE.unpublish}
+            closeModal={() => setOpenAlert(false)}
+            isOpen={openAlert}
+            status={handleBulkPublish.status}
+            text="Are you sure you want to unpublish selected products?"
+            title="Unpublish Selected Products"
+          />
+        );
       case "delete":
-        setAlert({
-          show: true,
-          title: "Delete Selected Product SKUs?",
-          text: "Are you sure you want to delete selected Product SKUs?",
-          type: "danger",
-          primaryButton: "Delete Selected",
-          secondaryButton: "Cancel",
-          image: "/delete-icon.svg",
-          action: async () => handleBulkDelete(),
-        });
-        break;
+        return (
+          <Alert
+            action={() =>
+              handleBulkDelete.mutate(selectedRowKeys.map((slug) => slug))
+            }
+            alertType={ALERT_TYPE.delete}
+            closeModal={() => setOpenAlert(false)}
+            isOpen={openAlert}
+            status={handleBulkDelete.status}
+            text="Are you sure you want to delete selected products?"
+            title="Delete Selected Products"
+          />
+        );
       default:
         break;
     }
   };
+
   return (
     <>
-      {alert.show && (
-        <SimpleAlert
-          action={alert.action}
-          alert={alert}
-          icon={alert.icon}
-          image={alert.image}
-          primaryButton={alert.primaryButton}
-          secondaryButton={alert.secondaryButton}
-          setAlert={setAlert}
-          text={alert.text}
-          title={alert.title}
-          type={alert.type}
-        />
-      )}
+      {openAlert && renderAlert()}
+
       <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[70vh]">
         <div className="flex justify-end mb-3">
           <div className="flex">
@@ -322,11 +278,14 @@ function TabSKU({ slug, publishCategory }) {
                   marginRight: "1rem",
                 }}
                 value={"Bulk Actions"}
-                onChange={handleBulkAction}
+                onSelect={(value) => {
+                  setOpenAlert(true);
+                  setAlertType(value);
+                }}
               >
-                <Option value="publish">Publish</Option>
-                <Option value="unpublish">Unpublish</Option>
-                <Option value="delete">Delete</Option>
+                <Option value={ALERT_TYPE.publish}>Publish</Option>
+                <Option value={ALERT_TYPE.unpublish}>Unpublish</Option>
+                <Option value={ALERT_TYPE.delete}>Delete</Option>
               </Select>
             )}
 

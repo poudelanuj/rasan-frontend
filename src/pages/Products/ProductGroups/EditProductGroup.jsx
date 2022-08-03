@@ -1,31 +1,29 @@
-import { LoadingOutlined, UploadOutlined } from "@ant-design/icons";
+import { UploadOutlined } from "@ant-design/icons";
 import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { Switch, Upload } from "antd";
+import { Modal, Spin, Switch, Upload } from "antd";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-
-import {
-  deleteProductGroup,
-  getProductGroup,
-  updateProductGroup,
-} from "../../../context/CategoryContext";
 
 import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../../utils/openNotification";
+import Alert from "../../../shared/Alert";
+import {
+  GET_PAGINATED_PRODUCT_GROUPS,
+  GET_SINGLE_PRODUCT_GROUP,
+} from "../../../constants/queryKeys";
+import { ALERT_TYPE } from "../../../constants";
+import {
+  deleteProductGroup,
+  getProductGroup,
+  updateProductGroup,
+} from "../../../api/products/productGroups";
 
 const { Dragger } = Upload;
 
-function EditProductGroup({ alert, setAlert }) {
-  const location = useLocation();
-  let slug;
-  try {
-    slug = location.pathname.split("/")[2];
-  } catch (error) {
-    slug = null;
-  }
-  const navigate = useNavigate();
+function EditProductGroup({ slug, isOpen, closeModal, setProductGroupsList }) {
+  const [openDeleteAlert, setOpenDeleteAlert] = useState(false);
+
   const [formState, setFormState] = useState({
     name: "",
     name_np: "",
@@ -35,17 +33,17 @@ function EditProductGroup({ alert, setAlert }) {
   });
   const queryClient = useQueryClient();
 
-  const { data: productGroupData, isLoading: productGroupIsLoading } = useQuery(
-    ["get-product-group", slug],
-    () => getProductGroup({ slug }),
+  const { data: productGroupData, status: productGroupStatus } = useQuery(
+    [GET_SINGLE_PRODUCT_GROUP, slug],
+    () => getProductGroup(slug),
     {
       onSuccess: (data) => {
         setFormState({
           ...formState,
-          name: data.data.data.name,
-          name_np: data.data.data.name_np,
-          is_published: data.data.data.is_published,
-          is_featured: data.data.data.is_featured,
+          name: data.name,
+          name_np: data.name_np,
+          is_published: data.is_published,
+          is_featured: data.is_featured,
         });
       },
       onError: (err) => {
@@ -54,38 +52,43 @@ function EditProductGroup({ alert, setAlert }) {
     }
   );
 
-  const {
-    mutate: updateProductGroupMutate,
-    isLoading: updateProductGroupIsLoading,
-  } = useMutation(updateProductGroup, {
-    onSuccess: (data) => {
-      openSuccessNotification(
-        data.data.message || "Product Group Updated Successfully"
-      );
-      queryClient.invalidateQueries(["get-product-group", slug]);
-    },
-    onError: (err) => {
-      openErrorNotification(err);
-    },
-  });
+  const handleDeleteProductGroup = useMutation(
+    () => deleteProductGroup({ slug }),
+    {
+      onSuccess: (data) => {
+        openSuccessNotification(
+          data.data.message || "Rasan Choice deleted successfully"
+        );
+        if (setProductGroupsList) setProductGroupsList([]);
+        queryClient.invalidateQueries([GET_PAGINATED_PRODUCT_GROUPS]);
+        queryClient.invalidateQueries([[GET_SINGLE_PRODUCT_GROUP, slug]]);
+        queryClient.refetchQueries([GET_PAGINATED_PRODUCT_GROUPS]);
+        closeModal();
+      },
+      onError: (error) => {
+        openErrorNotification(error);
+      },
+    }
+  );
 
-  const {
-    mutate: deleteProductGroupMutate,
-    isLoading: deleteProductGroupIsLoading,
-  } = useMutation(deleteProductGroup, {
-    onSuccess: (data) => {
-      openSuccessNotification(data.data.message || "Product Group Deleted");
-      queryClient.invalidateQueries("get-product-groups");
-      navigate("/product-groups");
-    },
-    onError: (err) => {
-      openErrorNotification(err);
-    },
-  });
-
-  const closeProductGroupWidget = () => {
-    navigate(`/product-groups/${slug}`);
-  };
+  const handleUpdateProductGroup = useMutation(
+    ({ slug, form_data }) => updateProductGroup({ slug, form_data }),
+    {
+      onSuccess: (data) => {
+        openSuccessNotification(
+          data.data.message || "Category updated successfully"
+        );
+        if (setProductGroupsList) setProductGroupsList([]);
+        queryClient.invalidateQueries([GET_PAGINATED_PRODUCT_GROUPS]);
+        queryClient.invalidateQueries([[GET_SINGLE_PRODUCT_GROUP, slug]]);
+        queryClient.refetchQueries([GET_PAGINATED_PRODUCT_GROUPS]);
+        closeModal();
+      },
+      onError: (error) => {
+        openErrorNotification(error);
+      },
+    }
+  );
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -100,16 +103,12 @@ function EditProductGroup({ alert, setAlert }) {
       if (formState.imageFile) {
         form_data.append("product_group_image", formState.imageFile);
       }
-      updateProductGroupMutate({ slug, form_data });
+      handleUpdateProductGroup.mutate({ slug, form_data });
     } else {
       openErrorNotification({
         response: { data: { message: "Please fill all the fields" } },
       });
     }
-  };
-
-  const handleDelete = async () => {
-    deleteProductGroupMutate({ slug });
   };
 
   const props = {
@@ -133,152 +132,128 @@ function EditProductGroup({ alert, setAlert }) {
     },
   };
 
-  const showAlert = ({
-    title,
-    text,
-    primaryButton,
-    secondaryButton,
-    type,
-    image,
-    action,
-  }) => {
-    setAlert({
-      show: true,
-      title,
-      text,
-      primaryButton,
-      secondaryButton,
-      type,
-      image,
-      action,
-    });
-  };
-
   return (
     <>
-      <div
-        className="fixed top-0 left-0 h-screen w-full bg-[#03022920] animate-popupopen z-[99990]"
-        onClick={() => closeProductGroupWidget()}
-      ></div>
-      <div className="min-w-[36.25rem] min-h-[33.5rem] fixed z-[99999] top-[50%] right-[50%] translate-x-[50%] translate-y-[-50%] bg-white rounded-[10px] flex flex-col p-8 shadow-[-14px_30px_20px_rgba(0,0,0,0.05)] overflow-hidden">
-        <h2 className="text-3xl mb-3 text-[#192638] text-[2rem] font-medium">
-          Edit Rasan Choice
-        </h2>
-        {(updateProductGroupIsLoading ||
-          deleteProductGroupIsLoading ||
-          productGroupIsLoading) && (
-          <div className="absolute top-0 right-0 bg-black/25 w-full h-full flex flex-col items-center justify-center z-50 animate-popupopen">
-            <LoadingOutlined style={{ color: "white", fontSize: "3rem" }} />
-            <span className="p-2 text-white">Loading...</span>
+      <Alert
+        action={() => handleDeleteProductGroup.mutate()}
+        alertType={ALERT_TYPE.delete}
+        closeModal={() => setOpenDeleteAlert(false)}
+        isOpen={openDeleteAlert}
+        status={handleDeleteProductGroup.status}
+        text="Are you sure you want to delete this rasan choice?"
+        title="Delete Rasan Choice"
+      />
+
+      <Modal
+        footer={false}
+        title="Edit Rasan Choice"
+        visible={isOpen}
+        onCancel={closeModal}
+      >
+        {productGroupStatus === "loading" && (
+          <div className="my-4 mb-8 flex justify-center">
+            <Spin size="large" />
           </div>
         )}
-        <form
-          className="flex flex-col justify-between flex-1"
-          onSubmit={handleSubmit}
-        >
-          <div className="grid gap-[1rem] grid-cols-[100%]">
-            <Dragger {...props}>
-              <p className="ant-upload-drag-icon">
-                <img
-                  alt="gallery"
-                  className="h-[6rem] mx-auto"
-                  src={
-                    formState.image ||
-                    productGroupData?.data.data.product_group_image.full_size ||
-                    "/gallery-icon.svg"
+        {productGroupData && (
+          <form
+            className="flex flex-col justify-between flex-1"
+            onSubmit={handleSubmit}
+          >
+            <div className="grid gap-[1rem] grid-cols-[100%]">
+              <Dragger {...props}>
+                <p className="ant-upload-drag-icon">
+                  <img
+                    alt="gallery"
+                    className="h-[6rem] mx-auto"
+                    src={
+                      formState.image ||
+                      productGroupData?.product_group_image.full_size ||
+                      "/gallery-icon.svg"
+                    }
+                  />
+                </p>
+                <p className="ant-upload-text text-[13px]">
+                  <UploadOutlined style={{ verticalAlign: "middle" }} />
+                  <span> Click or drag file to this area to upload</span>
+                </p>
+              </Dragger>
+              <div className="flex flex-col">
+                <label className="mb-1" htmlFor="name">
+                  Rasan Choice Name *
+                </label>
+                <input
+                  className=" bg-[#FFFFFF] border-[1px] border-[#D9D9D9] rounded-[2px] p-[8px_12px]"
+                  id="name"
+                  placeholder="Eg. Mother's Day Special"
+                  type="text"
+                  value={formState.name}
+                  onChange={(e) =>
+                    setFormState({ ...formState, name: e.target.value })
                   }
                 />
-              </p>
-              <p className="ant-upload-text text-[13px]">
-                <UploadOutlined style={{ verticalAlign: "middle" }} />
-                <span> Click or drag file to this area to upload</span>
-              </p>
-            </Dragger>
-            <div className="flex flex-col">
-              <label className="mb-1" htmlFor="name">
-                Rasan Choice Name *
-              </label>
-              <input
-                className=" bg-[#FFFFFF] border-[1px] border-[#D9D9D9] rounded-[2px] p-[8px_12px]"
-                id="name"
-                placeholder="Eg. Mother's Day Special"
-                type="text"
-                value={formState.name}
-                onChange={(e) =>
-                  setFormState({ ...formState, name: e.target.value })
-                }
-              />
-            </div>
-            <div className="flex flex-col">
-              <div className="flex">
-                <label className="mb-1" htmlFor="name">
-                  Rasan Choice Name (In Nepali)
-                </label>
-                <img
-                  alt="nepali"
-                  className="w-[0.8rem] ml-2"
-                  src="/flag_nepal.svg"
-                />{" "}
-                *
               </div>
-              <input
-                className=" bg-[#FFFFFF] border-[1px] border-[#D9D9D9] rounded-[2px] p-[8px_12px]"
-                id="name"
-                placeholder="Eg. आमाको मुख हेर्ने दिन विशेष"
-                type="text"
-                value={formState.name_np}
-                onChange={(e) =>
-                  setFormState({ ...formState, name_np: e.target.value })
-                }
+              <div className="flex flex-col">
+                <div className="flex">
+                  <label className="mb-1" htmlFor="name">
+                    Rasan Choice Name (In Nepali)
+                  </label>
+                  <img
+                    alt="nepali"
+                    className="w-[0.8rem] ml-2"
+                    src="/flag_nepal.svg"
+                  />{" "}
+                  *
+                </div>
+                <input
+                  className=" bg-[#FFFFFF] border-[1px] border-[#D9D9D9] rounded-[2px] p-[8px_12px]"
+                  id="name"
+                  placeholder="Eg. आमाको मुख हेर्ने दिन विशेष"
+                  type="text"
+                  value={formState.name_np}
+                  onChange={(e) =>
+                    setFormState({ ...formState, name_np: e.target.value })
+                  }
+                />
+              </div>
+            </div>
+            <div>
+              <Switch
+                checked={formState.is_featured}
+                checkedChildren="Featured"
+                className={`px-1 ${
+                  formState.is_featured ? "bg-[#1890ff]" : "bg-[#bfbfbf]"
+                }`}
+                size="default"
+                unCheckedChildren="Feature"
+                defaultChecked
+                onChange={(e) => setFormState({ ...formState, is_featured: e })}
               />
             </div>
-          </div>
-          <div>
-            <Switch
-              checked={formState.is_featured}
-              checkedChildren="Featured"
-              className={`px-1 ${
-                formState.is_featured ? "bg-[#1890ff]" : "bg-[#bfbfbf]"
-              }`}
-              size="default"
-              unCheckedChildren="Feature"
-              defaultChecked
-              onChange={(e) => setFormState({ ...formState, is_featured: e })}
-            />
-          </div>
-          <div className="flex justify-end">
-            <button
-              className="text-white bg-[#C63617] p-[8px_12px] min-w-[5rem] rounded-[4px] border-[1px] border-  [#C63617] hover:bg-[#ad2f13] transition-colors"
-              type="button"
-              onClick={async () =>
-                showAlert({
-                  title: "Are you sure to Delete?",
-                  text: "This action cannot be undone",
-                  primaryButton: "Delete",
-                  secondaryButton: "Cancel",
-                  type: "danger",
-                  image: "/delete-icon.svg",
-                  action: async () => {
-                    await handleDelete();
-                  },
-                })
-              }
-            >
-              Delete
-            </button>
+            <div className="flex justify-end">
+              <button
+                className="text-white bg-[#C63617] p-[8px_12px] min-w-[5rem] rounded-[4px] border-[1px] border-  [#C63617] hover:bg-[#ad2f13] transition-colors"
+                type="button"
+                onClick={() => setOpenDeleteAlert(true)}
+              >
+                Delete Rasan Choice
+              </button>
 
-            <button
-              className="bg-[#00B0C2] text-white p-[8px_12px] ml-5 min-w-[5rem] rounded-[4px] border-[1px] border-[#00B0C2] hover:bg-[#12919f] transition-colors"
-              type="button"
-              onClick={async () => {
-                await handleSave();
-              }}
-            >
-              Save
-            </button>
-          </div>
-        </form>
-      </div>
+              <button
+                className="bg-[#00B0C2] text-white p-[8px_12px] ml-5 min-w-[5rem] rounded-[4px] border-[1px] border-[#00B0C2] hover:bg-[#12919f] transition-colors"
+                type="button"
+                onClick={async () => {
+                  await handleSave();
+                }}
+              >
+                {handleUpdateProductGroup.status === "loading"
+                  ? "Saving..."
+                  : "Save"}
+              </button>
+            </div>
+          </form>
+        )}
+      </Modal>
     </>
   );
 }

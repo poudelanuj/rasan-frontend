@@ -3,6 +3,7 @@ import React from "react";
 import { useQuery } from "react-query";
 import { CANCELLED, DELIVERED, IN_PROCESS } from "../../constants";
 import { getOrders } from "../../context/OrdersContext";
+import CustomPageHeader from "../../shared/PageHeader";
 import OrdersList from "./OrdersList";
 
 const Orders = () => {
@@ -20,7 +21,8 @@ const Orders = () => {
 
   return (
     <div>
-      <div className="text-2xl my-4">Orders</div>
+      <CustomPageHeader title="Orders" isBasicHeader />
+
       <Tabs defaultActiveKey="all">
         <TabPane key="all" tab="All">
           <OrdersList

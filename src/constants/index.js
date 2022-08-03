@@ -1,3 +1,5 @@
+import defaultRasanImage from "../assets/images/rasan-default.png";
+
 const colors = {
   primary: "#00A0B0",
   light: "#F6FAFF",
@@ -17,8 +19,16 @@ export { colors, siteInformation };
 export const DEFAULT_CARD_IMAGE =
   "https://fisnikde.com/wp-content/uploads/2019/01/broken-image.png";
 
+export const DEFAULT_RASAN_IMAGE = defaultRasanImage;
+
 export const COMING_SOON_IMAGE =
   "https://motoworldnepal.com/wp-content/uploads/2022/06/coming-soon-2579123_960_720.jpg";
+
+export const ALERT_TYPE = {
+  publish: "publish",
+  unpublish: "unpublish",
+  delete: "delete",
+};
 
 export const IN_PROCESS = "in_process";
 export const CANCELLED = "cancelled";

@@ -14,10 +14,15 @@ export const GET_PRODUCT_PACK = "product-pack";
 
 //* Product Groups
 export const GET_ALL_PRODUCT_GROUPS = "all-product-groups";
+export const GET_PAGINATED_PRODUCT_GROUPS = "paginated-product-groups";
+export const GET_SINGLE_PRODUCT_GROUP = "single-product-group";
 
 //* Brands
 export const GET_ALL_BRANDS = "all-brands";
 export const GET_SINGLE_BRAND = "single-brand";
+export const GET_PAGINATED_BRANDS = "paginated-brands";
+export const GET_PRODUCTS_FROM_BRAND = "products-from-brand";
+export const GET_PRODUCT_SKUS_FROM_BRAND = "product-skus-from-brand";
 
 //* Categories
 export const GET_ALL_CATEGORIES = "all-categories";

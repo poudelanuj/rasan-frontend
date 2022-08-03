@@ -1,76 +1,74 @@
-import React, { useEffect, useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "react-query";
-import { uniqBy } from "lodash";
 import { Button, Pagination, Select } from "antd";
+import React, { useEffect, useState } from "react";
+import { uniqBy } from "lodash";
+import { useMutation, useQuery } from "react-query";
 
 import CategoryWidget from "../categories/shared/CategoryWidget";
-import SearchBox from "../subComponents/SearchBox";
-
 import ClearSelection from "../subComponents/ClearSelection";
+import SearchBox from "../subComponents/SearchBox";
 import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../../utils/openNotification";
 import { ALERT_TYPE, DEFAULT_RASAN_IMAGE } from "../../../constants";
-import { GET_PAGINATED_BRANDS } from "../../../constants/queryKeys";
 import {
   bulkDelete,
   bulkPublish,
-  getPaginatedBrands,
-} from "../../../api/brands";
+  getPaginatedProductGroups,
+} from "../../../api/products/productGroups";
+import { GET_PAGINATED_PRODUCT_GROUPS } from "../../../constants/queryKeys";
 import Loader from "../../../shared/Loader";
 import CustomPageHeader from "../../../shared/PageHeader";
 import Alert from "../../../shared/Alert";
-import AddBrand from "./AddBrand";
-import EditBrand from "./EditBrand";
+import AddProductGroup from "./AddProductGroup";
+import EditProductGroup from "./EditProductGroup";
 
 const { Option } = Select;
 
-function BrandsScreen() {
+function ProductGroupsScreen() {
   const [openAlert, setOpenAlert] = useState(false);
   const [alertType, setAlertType] = useState("");
 
-  const [isAddBrandOpen, setIsAddBrandOpen] = useState(false);
-  const [isEditBrandOpen, setIsEditBrandOpen] = useState(false);
-  const [selectedBrandSlug, setSelectedBrandSlug] = useState(""); // * For Edit
+  const [isAddGroupOpen, setIsAddGroupOpen] = useState(false);
+  const [isEditGroupOpen, setIsEditGroupOpen] = useState(false);
+  const [selectedGroupSlug, setSelectedGroupSlug] = useState(""); // * For Edit
 
   const [page, setPage] = useState(1);
   const pageSize = 20;
-  const [paginatedBrands, setPaginatedBrands] = useState([]);
-  const [selectedBrands, setSelectedBrands] = useState([]);
+  const [paginatedProductGroups, setPaginatedProductGroups] = useState([]);
+  const [selectedProductGroups, setSelectedProductGroups] = useState([]);
 
   const {
     data,
     status,
-    refetch: refetchBrands,
+    refetch: refetchProductGroups,
     isRefetching,
   } = useQuery(
-    [GET_PAGINATED_BRANDS, page.toString() + pageSize.toString()],
-    () => getPaginatedBrands(page, pageSize)
+    [GET_PAGINATED_PRODUCT_GROUPS, page.toString() + pageSize.toString()],
+    () => getPaginatedProductGroups(page, pageSize)
   );
 
   useEffect(() => {
-    if (data)
-      setPaginatedBrands((prev) => uniqBy([...prev, ...data.results], "slug"));
-  }, [data]);
+    if (data || isRefetching === "success")
+      setPaginatedProductGroups((prev) =>
+        uniqBy([...prev, ...data.results], "slug")
+      );
+  }, [data, isRefetching]);
 
   useEffect(() => {
-    refetchBrands();
+    refetchProductGroups();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
-
-  const queryClient = useQueryClient();
 
   const handleBulkPublish = useMutation(
     ({ slugs, isPublish }) => bulkPublish({ slugs, isPublish }),
     {
       onSuccess: (data) => {
-        openSuccessNotification(data.message || "Brands Updated");
+        openSuccessNotification(data.message || "Rasan Choices Updated");
         setOpenAlert(false);
-        setSelectedBrands([]);
-        setPaginatedBrands([]);
-        queryClient.invalidateQueries([GET_PAGINATED_BRANDS]);
-        queryClient.refetchQueries([GET_PAGINATED_BRANDS]);
+        setSelectedProductGroups([]);
+        setPaginatedProductGroups([]);
+        refetchProductGroups();
       },
       onError: (error) => openErrorNotification(error),
     }
@@ -78,12 +76,11 @@ function BrandsScreen() {
 
   const handleBulkDelete = useMutation((slugs) => bulkDelete(slugs), {
     onSuccess: (data) => {
-      openSuccessNotification(data.message || "Brands Deleted");
+      openSuccessNotification(data.message || "Rasan Choices Deleted");
       setOpenAlert(false);
-      setSelectedBrands([]);
-      setPaginatedBrands([]);
-      queryClient.invalidateQueries([GET_PAGINATED_BRANDS]);
-      queryClient.refetchQueries([GET_PAGINATED_BRANDS]);
+      setSelectedProductGroups([]);
+      setPaginatedProductGroups([]);
+      refetchProductGroups();
     },
     onError: (error) => openErrorNotification(error),
   });
@@ -96,15 +93,15 @@ function BrandsScreen() {
             action={() =>
               handleBulkPublish.mutate({
                 isPublish: true,
-                slugs: selectedBrands.map(({ slug }) => slug),
+                slugs: selectedProductGroups.map(({ slug }) => slug),
               })
             }
             alertType={ALERT_TYPE.publish}
             closeModal={() => setOpenAlert(false)}
             isOpen={openAlert}
             status={handleBulkPublish.status}
-            text="Are you sure you want to publish selected brands?"
-            title="Publish Selected Brands"
+            text="Are you sure you want to publish selected rasan choices?"
+            title="Publish Selected Rasan Choices"
           />
         );
 
@@ -114,29 +111,31 @@ function BrandsScreen() {
             action={() =>
               handleBulkPublish.mutate({
                 isPublish: false,
-                slugs: selectedBrands.map(({ slug }) => slug),
+                slugs: selectedProductGroups.map(({ slug }) => slug),
               })
             }
             alertType={ALERT_TYPE.unpublish}
             closeModal={() => setOpenAlert(false)}
             isOpen={openAlert}
             status={handleBulkPublish.status}
-            text="Are you sure you want to unpublish selected brands?"
-            title="Unpublish Selected Brands"
+            text="Are you sure you want to unpublish selected rasan choices?"
+            title="Unpublish Selected Rasan Choices"
           />
         );
       case "delete":
         return (
           <Alert
             action={() =>
-              handleBulkDelete.mutate(selectedBrands.map(({ slug }) => slug))
+              handleBulkDelete.mutate(
+                selectedProductGroups.map(({ slug }) => slug)
+              )
             }
             alertType={ALERT_TYPE.delete}
             closeModal={() => setOpenAlert(false)}
             isOpen={openAlert}
             status={handleBulkDelete.status}
-            text="Are you sure you want to delete selected brands?"
-            title="Delete Selected Brands"
+            text="Are you sure you want to delete selected rasan choices?"
+            title="Delete Selected Rasan Choices"
           />
         );
       default:
@@ -146,20 +145,21 @@ function BrandsScreen() {
 
   return (
     <>
+      {openAlert && renderAlert()}
+
       {(status === "loading" || isRefetching) && <Loader isOpen />}
 
-      {openAlert && renderAlert()}
-      <CustomPageHeader title="Brands" isBasicHeader />
+      <CustomPageHeader title="Rasan Choices" isBasicHeader />
 
       <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[75vh]">
         <div className="flex justify-between mb-3">
           <SearchBox placeholder="Search Brands..." />
           <div className="flex">
             <ClearSelection
-              selectedCategories={selectedBrands}
-              setSelectedCategories={setSelectedBrands}
+              selectedCategories={selectedProductGroups}
+              setSelectedCategories={setSelectedProductGroups}
             />
-            {selectedBrands.length > 0 && (
+            {selectedProductGroups.length > 0 && (
               <Select
                 style={{
                   width: 120,
@@ -176,37 +176,41 @@ function BrandsScreen() {
                 <Option value={ALERT_TYPE.delete}>Delete</Option>
               </Select>
             )}
-            <Button type="primary" onClick={() => setIsAddBrandOpen(true)}>
-              Add New Brand
+            <Button type="primary" onClick={() => setIsAddGroupOpen(true)}>
+              Add New Rasan Choice
             </Button>
           </div>
         </div>
         <div className="grid gap-8 grid-cols-[repeat(auto-fill,_minmax(200px,_1fr))]">
-          {paginatedBrands
+          {paginatedProductGroups
             .filter((item, index) => {
               const initPage = (page - 1) * pageSize;
               const endPage = page * pageSize;
               if (index >= initPage && index < endPage) return true;
               return false;
             })
-            .map((brand, index) => (
+            .map((group) => (
               <CategoryWidget
-                key={brand.slug}
-                completeLink={`/brands/${brand.slug}`}
+                key={group.slug}
+                completeLink={`/product-groups/${group.slug}`}
                 editClick={() => {
-                  setIsEditBrandOpen(true);
-                  setSelectedBrandSlug(brand.slug);
+                  setIsEditGroupOpen(true);
+                  setSelectedGroupSlug(group.slug);
                 }}
-                id={brand.sn}
-                image={brand.brand_image.thumbnail || DEFAULT_RASAN_IMAGE}
-                is_published={brand.is_published}
-                selectedCategories={selectedBrands}
-                setSelectedCategories={setSelectedBrands}
-                slug={brand.slug}
-                title={brand.name}
+                id={group.slug}
+                image={
+                  group.product_group_image.thumbnail || DEFAULT_RASAN_IMAGE
+                }
+                imgClassName=""
+                is_published={group.is_published}
+                selectedCategories={selectedProductGroups}
+                setSelectedCategories={setSelectedProductGroups}
+                slug={group.slug}
+                title={group.name}
               />
             ))}
         </div>
+
         <div className="flex justify-end bg-white w-full mt-10">
           <Pagination
             current={page}
@@ -220,24 +224,24 @@ function BrandsScreen() {
         </div>
       </div>
 
-      {isAddBrandOpen && (
-        <AddBrand
-          closeModal={() => setIsAddBrandOpen(false)}
-          isOpen={isAddBrandOpen}
-          setPaginatedBrandsList={setPaginatedBrands}
+      {isAddGroupOpen && (
+        <AddProductGroup
+          closeModal={() => setIsAddGroupOpen(false)}
+          isOpen={isAddGroupOpen}
+          setProductGroupsList={setPaginatedProductGroups}
         />
       )}
 
-      {isEditBrandOpen && (
-        <EditBrand
-          closeModal={() => setIsEditBrandOpen(false)}
-          isOpen={isEditBrandOpen}
-          setPaginatedBrandsList={setPaginatedBrands}
-          slug={selectedBrandSlug}
+      {isEditGroupOpen && (
+        <EditProductGroup
+          closeModal={() => setIsEditGroupOpen(false)}
+          isOpen={isEditGroupOpen}
+          setProductGroupsList={setPaginatedProductGroups}
+          slug={selectedGroupSlug}
         />
       )}
     </>
   );
 }
 
-export default BrandsScreen;
+export default ProductGroupsScreen;
