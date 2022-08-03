@@ -88,6 +88,7 @@ const UpdateTutorial = () => {
       onSuccess: (res) => {
         openSuccessNotification(res.message);
         refetchTutorials();
+        queryClient.refetchQueries([GET_TUTORIALS]);
       },
       onError: (err) => openErrorNotification(err),
     }

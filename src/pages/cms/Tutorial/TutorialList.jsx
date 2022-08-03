@@ -2,6 +2,7 @@ import { Button, Dropdown, Space, Table, Menu, Tag } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "react-query";
 import { useState } from "react";
+import { capitalize } from "lodash";
 import { DeleteOutlined } from "@ant-design/icons";
 import ConfirmDelete from "../../../shared/ConfirmDelete";
 import {
@@ -168,9 +169,7 @@ const TutorialList = ({
     return {
       key: index + 1,
       title: el.title,
-      page_location:
-        el.page_location.charAt(0).toUpperCase() +
-        el.page_location.slice(1).replace("_", " "),
+      page_location: capitalize(el.page_location).replace("_", " "),
       tags: el.tags === [] ? el.tags[0] : el.tags,
       type: el.type.charAt(0).toUpperCase() + el.type.slice(1),
       status: el.published_at ? "Published" : "Unpublished",
