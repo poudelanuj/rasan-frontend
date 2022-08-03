@@ -60,3 +60,5 @@ export const GET_ADDRESSES = "get-addresses";
 // * Tutorials
 export const GET_TAGLISTS = "taglists";
 export const GET_TUTORIALS = "tutorials";
+export const GET_TUTORIALS_BY_ID = "tutorials-by-id";
+export const GET_TAGLISTS_BY_ID = "tutorial-tags-by-id";

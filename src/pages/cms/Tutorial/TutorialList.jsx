@@ -8,7 +8,7 @@ import {
   openSuccessNotification,
   openErrorNotification,
 } from "../../../utils/openNotification";
-import { deleteTutorials } from "../../../api/tutorial";
+import { deleteTutorials, publishTutorial } from "../../../api/tutorial";
 import { PUBLISHED, UNPUBLISHED } from "../../../constants";
 
 export const getStatusColor = (status) => {
@@ -47,6 +47,14 @@ const TutorialList = ({
     onError: (err) => openErrorNotification(err),
   });
 
+  const handlePublishTutorial = useMutation((slug) => publishTutorial(slug), {
+    onSuccess: (res) => {
+      openSuccessNotification(res.message);
+      refetchTutorials();
+    },
+    onError: (err) => openErrorNotification(err),
+  });
+
   const columns = [
     {
       title: "S.N.",
@@ -58,17 +66,20 @@ const TutorialList = ({
       title: "Title",
       dataIndex: "title",
       key: "title",
-      width: "28%",
+      width: "35%",
+      render: (_, { slug, title }) => (
+        <div
+          className="text-blue-500 cursor-pointer hover:underline"
+          onClick={() => navigate(`update/${slug}`)}
+        >
+          {title}
+        </div>
+      ),
     },
     {
       title: "Page Location",
       dataIndex: "page_location",
       key: "page_location",
-    },
-    {
-      title: "Tags",
-      dataIndex: "tags",
-      key: "tags",
     },
     {
       title: "Type",
@@ -82,9 +93,7 @@ const TutorialList = ({
       render: (_, { status }) => {
         return (
           <>
-            <Tag color={getStatusColor(status)}>
-              {status.toUpperCase().replaceAll("_", " ")}
-            </Tag>
+            <Tag color={getStatusColor(status)}>{status.toUpperCase()}</Tag>
           </>
         );
       },
@@ -93,17 +102,29 @@ const TutorialList = ({
       title: "Actions",
       dataIndex: "action",
       key: "action",
-      width: "10%",
-      render: (_, { slug, title }) => {
+      width: "15%",
+      render: (_, { slug, title, published_at }) => {
         return (
-          <DeleteOutlined
-            className="ml-5"
-            onClick={() => {
-              setIsDeleteTutorialsModalOpen(true);
-              setDeleteTutorialsModalTitle(`Delete ${title}?`);
-              setSlugs([slug]);
-            }}
-          />
+          <div className="flex items-center justify-between">
+            <Button
+              className="w-20 text-center"
+              danger={published_at ? true : false}
+              loading={handlePublishTutorial.isLoading}
+              size="small"
+              type="primary"
+              onClick={() => handlePublishTutorial.mutate(slug)}
+            >
+              {published_at ? "Unpublish" : "Publish"}
+            </Button>
+            <DeleteOutlined
+              className="ml-5"
+              onClick={() => {
+                setIsDeleteTutorialsModalOpen(true);
+                setDeleteTutorialsModalTitle(`Delete ${title}?`);
+                setSlugs([slug]);
+              }}
+            />
+          </div>
         );
       },
     },
@@ -146,6 +167,7 @@ const TutorialList = ({
       type: el.type.charAt(0).toUpperCase() + el.type.slice(1),
       status: el.published_at ? "Published" : "Unpublished",
       slug: el.slug,
+      published_at: el.published_at,
     };
   });
 
@@ -174,7 +196,6 @@ const TutorialList = ({
         columns={columns}
         dataSource={dataSourceTutorials}
         loading={status === "loading" || refetchingTutorials}
-        rowClassName="cursor-pointer"
         rowSelection={{ ...rowSelection }}
       />
 

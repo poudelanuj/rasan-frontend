@@ -1,10 +1,7 @@
 import { Form, Input, Button, Select, Upload } from "antd";
 import { useQuery, useMutation, useQueryClient } from "react-query";
-import { Editor } from "react-draft-wysiwyg";
-import { EditorState, convertToRaw } from "draft-js";
-import draftToMarkdown from "draftjs-to-markdown";
-import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
-
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import {
   openSuccessNotification,
   openErrorNotification,
@@ -13,19 +10,18 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createTutorial, getTutorialTags } from "../../../../api/tutorial";
 import CustomPageHeader from "../../../../shared/PageHeader";
-import { GET_TUTORIALS } from "../../../../constants/queryKeys";
+import { GET_TAGLISTS, GET_TUTORIALS } from "../../../../constants/queryKeys";
 
 const CreateTutorial = () => {
   const { Dragger } = Upload;
   const { Option } = Select;
+  const { TextArea } = Input;
 
   const queryClient = useQueryClient();
 
   const [form] = Form.useForm();
 
   const navigate = useNavigate();
-
-  const [editorState, setEditorState] = useState(EditorState.createEmpty());
 
   const [getMarkdown, setGetMarkdown] = useState("");
 
@@ -37,7 +33,7 @@ const CreateTutorial = () => {
 
   const { data: tagList } = useQuery({
     queryFn: () => getTutorialTags(),
-    queryKey: "taglist",
+    queryKey: GET_TAGLISTS,
   });
 
   const fileUploadOptions = {
@@ -96,11 +92,7 @@ const CreateTutorial = () => {
         layout="vertical"
         name="basic"
         onFinish={() =>
-          form
-            .validateFields()
-            .then((values) =>
-              onFormSubmit.mutate({ content: getMarkdown, ...values })
-            )
+          form.validateFields().then((values) => onFormSubmit.mutate(values))
         }
       >
         <Form.Item
@@ -162,7 +154,7 @@ const CreateTutorial = () => {
           name="title"
           rules={[{ required: true, message: "Please input title!" }]}
         >
-          <Input />
+          <Input placeholder="Enter a title" />
         </Form.Item>
 
         <Form.Item
@@ -171,7 +163,7 @@ const CreateTutorial = () => {
           name="subtitle"
           rules={[{ required: true, message: "Please input subtitle!" }]}
         >
-          <Input />
+          <Input placeholder="Enter a subtitle" />
         </Form.Item>
 
         {type === "video" && (
@@ -182,7 +174,10 @@ const CreateTutorial = () => {
               name="video_link"
               rules={[{ required: true, message: "Please input video link!" }]}
             >
-              <Input onChange={(e) => setIframeLink(e.target.value)} />
+              <Input
+                placeholder="Enter video link"
+                onChange={(e) => setIframeLink(e.target.value)}
+              />
             </Form.Item>
 
             {iframeLink && (
@@ -198,18 +193,27 @@ const CreateTutorial = () => {
         )}
 
         {type === "text" && (
-          <div className="col-span-full mb-5">
-            <p>Content</p>
-            <Editor
-              editorClassName="border-2"
-              editorState={editorState}
-              onEditorStateChange={(newState) => {
-                setEditorState(newState);
-                setGetMarkdown(
-                  draftToMarkdown(convertToRaw(editorState.getCurrentContent()))
-                );
-              }}
-            />
+          <div className="col-span-full flex justify-between">
+            <Form.Item
+              className="w-[49%]"
+              label="Content"
+              name="content"
+              rules={[{ required: true, message: "Please input content" }]}
+            >
+              <TextArea
+                style={{
+                  height: 180,
+                }}
+                showCount
+                onChange={(e) => setGetMarkdown(e.target.value)}
+              />
+            </Form.Item>
+            <div className="w-[45%]">
+              <p>Preview</p>
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {getMarkdown}
+              </ReactMarkdown>
+            </div>
           </div>
         )}
 
