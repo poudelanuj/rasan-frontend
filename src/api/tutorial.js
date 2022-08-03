@@ -41,3 +41,36 @@ export const deleteTutorials = async (slugs = []) => {
 
   return res;
 };
+
+export const getTutorialsById = async (slug) => {
+  const res = await axios.get(`/api/tutorial/admin/tutorials/${slug}/`);
+  return res.data.data;
+};
+
+export const updateTutorial = async (slug, data) => {
+  const res = await axios.put(`/api/tutorial/admin/tutorials/${slug}/`, data);
+  return res.data;
+};
+
+export const getTagListById = async (ids = []) => {
+  const res = await Promise.all(
+    ids.map(
+      async (id) => await axios.get(`/api/tutorial/admin/tutorial-tags/${id}/`)
+    )
+  );
+  return res;
+};
+
+export const publishTutorial = async ({ slug, shouldPublish }) => {
+  if (shouldPublish) {
+    const res = await axios.post(
+      `/api/tutorial/admin/tutorials/${slug}/publish/`
+    );
+    return res.data;
+  } else {
+    const res = await axios.delete(
+      `/api/tutorial/admin/tutorials/${slug}/publish/`
+    );
+    return res.data;
+  }
+};

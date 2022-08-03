@@ -61,6 +61,7 @@ import ViewOrderPage from "./pages/Orders/components/ViewOrderPage";
 import About from "./pages/cms/About";
 import Tutorial from "./pages/cms/Tutorial";
 import CreateTutorial from "./pages/cms/Tutorial/components/CreateTutorial";
+import UpdateTutorial from "./pages/cms/Tutorial/components/UpdateTutorial";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const queryClient = new QueryClient({
@@ -136,6 +137,10 @@ root.render(
                 <Route element={<About />} index />
                 <Route element={<Tutorial />} path="tutorial" />
                 <Route element={<CreateTutorial />} path="tutorial/create" />
+                <Route
+                  element={<UpdateTutorial />}
+                  path="tutorial/update/:slug"
+                />
               </Route>
 
               {/* ends */}
