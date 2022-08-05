@@ -67,3 +67,17 @@ export const GET_TAGLISTS = "taglists";
 export const GET_TUTORIALS = "tutorials";
 export const GET_TUTORIALS_BY_ID = "tutorials-by-id";
 export const GET_TAGLISTS_BY_ID = "tutorial-tags-by-id";
+
+// *About us
+export const GET_VIDEO_LINKS = "videolinks";
+export const GET_VIDEO_LINK_BY_ID = "videolink-by-id";
+export const GET_CUSTOMER_STORIES = "customer-stories";
+export const GET_CUSTOMER_STORY_BY_ID = "customer-stories-by-id";
+
+// *FAQ Groups
+export const GET_FAQ_GROUPS = "faqgroups";
+export const GET_FAQ_GROPUS_BY_ID = "faqgroups-by-id";
+
+// *FAQS
+export const GET_FAQS = "faqs";
+export const GET_FAQS_BY_ID = "faqs-by-id";

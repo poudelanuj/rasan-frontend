@@ -1,6 +1,6 @@
 import { Button, Dropdown, Space, Table, Menu, Tag } from "antd";
 import { useNavigate } from "react-router-dom";
-import { useMutation } from "react-query";
+import { useQueryClient, useMutation } from "react-query";
 import { useState } from "react";
 import { capitalize } from "lodash";
 import { DeleteOutlined } from "@ant-design/icons";
@@ -11,6 +11,7 @@ import {
 } from "../../../utils/openNotification";
 import { deleteTutorials, publishTutorial } from "../../../api/tutorial";
 import { PUBLISHED, UNPUBLISHED } from "../../../constants";
+import { GET_TUTORIALS_BY_ID } from "../../../constants/queryKeys";
 
 export const getStatusColor = (status) => {
   switch (status) {
@@ -30,6 +31,8 @@ const TutorialList = ({
   refetchingTutorials,
 }) => {
   const navigate = useNavigate();
+
+  const queryClient = useQueryClient();
 
   const [isDeleteTutorialsModalOpen, setIsDeleteTutorialsModalOpen] =
     useState(false);
@@ -54,6 +57,7 @@ const TutorialList = ({
       onSuccess: (res) => {
         openSuccessNotification(res.message);
         refetchTutorials();
+        queryClient.refetchQueries([GET_TUTORIALS_BY_ID]);
       },
       onError: (err) => openErrorNotification(err),
     }
@@ -113,7 +117,11 @@ const TutorialList = ({
             <Button
               className="w-20 text-center"
               danger={published_at ? true : false} //* TODO
-              loading={handlePublishTutorial.isLoading}
+              loading={
+                handlePublishTutorial.variables &&
+                handlePublishTutorial.variables.slug === slug &&
+                handlePublishTutorial.isLoading
+              }
               size="small"
               type="primary"
               onClick={() =>
