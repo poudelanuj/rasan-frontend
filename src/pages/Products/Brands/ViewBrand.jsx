@@ -65,7 +65,7 @@ function Brands() {
         title={brand?.name || parseSlug(slug)}
       />
 
-      <div className="relative">
+      <div className="relative bg-white p-4 rounded mb-5">
         <Descriptions column={2} layout="horizontal">
           <Descriptions.Item
             label={<strong className="font-medium">Brand Name</strong>}
@@ -105,7 +105,7 @@ function Brands() {
         <div className="absolute right-0 top-0">
           <Image
             className="bg-white rounded"
-            height={140}
+            height={150}
             src={
               brand?.brand_image?.full_size ||
               brand?.brand_image?.thumbnail ||

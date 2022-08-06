@@ -66,7 +66,7 @@ function Category() {
         title={category?.name || parseSlug(slug)}
       />
 
-      <div className="relative">
+      <div className="relative bg-white p-4 rounded mb-5">
         <Descriptions column={2} layout="horizontal">
           <Descriptions.Item
             label={<strong className="font-medium">Category Name</strong>}
@@ -106,7 +106,7 @@ function Category() {
         <div className="absolute right-0 top-0">
           <Image
             className="bg-white rounded"
-            height={140}
+            height={150}
             src={
               category?.category_image?.full_size ||
               category?.category_image?.thumbnail ||
