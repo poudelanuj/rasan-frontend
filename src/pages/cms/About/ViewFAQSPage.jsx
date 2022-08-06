@@ -331,12 +331,21 @@ const ViewFAQSPage = () => {
                       </Tag>
                       <span className="flex gap-5 items-center">
                         {editId === el.id ? (
-                          <Button
-                            htmlType="submit"
-                            loading={handleUpdateFAQS.isLoading}
-                          >
-                            Save
-                          </Button>
+                          <>
+                            <Button
+                              htmlType="submit"
+                              loading={handleUpdateFAQS.isLoading}
+                              type="primary"
+                            >
+                              Save
+                            </Button>
+                            <Button
+                              type="ghost"
+                              onClick={() => setEditId(null)}
+                            >
+                              Cancel
+                            </Button>
+                          </>
                         ) : (
                           <EditOutlined
                             className="text-xl cursor-pointer"
@@ -360,24 +369,26 @@ const ViewFAQSPage = () => {
                             setDeletetIds([el.id]);
                           }}
                         />
-                        <Button
-                          className="w-24 text-center"
-                          danger={el.is_published}
-                          loading={
-                            handlePublishFAQS.variables &&
-                            handlePublishFAQS.variables.id === el.id &&
-                            handlePublishFAQS.isLoading
-                          }
-                          type="primary"
-                          onClick={() =>
-                            handlePublishFAQS.mutate({
-                              id: el.id,
-                              shouldPublish: !el.is_published,
-                            })
-                          }
-                        >
-                          {el.is_published ? "Unpublish" : "Publish"}
-                        </Button>
+                        {!(editId === el.id) && (
+                          <Button
+                            className="w-24 text-center"
+                            danger={el.is_published}
+                            loading={
+                              handlePublishFAQS.variables &&
+                              handlePublishFAQS.variables.id === el.id &&
+                              handlePublishFAQS.isLoading
+                            }
+                            type="primary"
+                            onClick={() =>
+                              handlePublishFAQS.mutate({
+                                id: el.id,
+                                shouldPublish: !el.is_published,
+                              })
+                            }
+                          >
+                            {el.is_published ? "Unpublish" : "Publish"}
+                          </Button>
+                        )}
                       </span>
                     </div>
                   </form>
