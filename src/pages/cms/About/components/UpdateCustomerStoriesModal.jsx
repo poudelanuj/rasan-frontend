@@ -181,7 +181,7 @@ const UpdateCustomerStoriesModal = ({
           ]}
           visible={isUpdateCustomerStoriesModalOpen}
           centered
-          onCancel={() => isUpdateCustomerStoriesModalOpen(false)}
+          onCancel={() => setIsUpdateCustomerStoriesModalOpen(false)}
         >
           {dataSource && (
             <Form

@@ -8,8 +8,8 @@ import {
 import { postCustomerStories } from "../../../../api/aboutus";
 
 const CreateCustomerStoriesModal = ({
-  isCreateCustomerStoriesModalOpen,
-  setIsCreateCustomerStoriesModalOpen,
+  isCreateModalOpen,
+  setIsCreateModalOpen,
   refetchCustomerStories,
 }) => {
   const [form] = Form.useForm();
@@ -51,7 +51,7 @@ const CreateCustomerStoriesModal = ({
         openSuccessNotification(data.message);
         form.resetFields();
         refetchCustomerStories();
-        setIsCreateCustomerStoriesModalOpen(false);
+        setIsCreateModalOpen(false);
       },
       onError: (error) => {
         openErrorNotification(error);
@@ -67,7 +67,7 @@ const CreateCustomerStoriesModal = ({
           <Button
             className="mr-2"
             type="ghost"
-            onClick={() => setIsCreateCustomerStoriesModalOpen(false)}
+            onClick={() => setIsCreateModalOpen(false)}
           >
             Cancel
           </Button>
@@ -85,9 +85,9 @@ const CreateCustomerStoriesModal = ({
         </>
       }
       title="Create Customer Stories"
-      visible={isCreateCustomerStoriesModalOpen}
+      visible={isCreateModalOpen}
       centered
-      onCancel={() => setIsCreateCustomerStoriesModalOpen(false)}
+      onCancel={() => setIsCreateModalOpen(false)}
     >
       <Form
         form={form}

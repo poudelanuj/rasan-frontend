@@ -147,7 +147,7 @@ export const publishFAQS = async ({ id, shouldPublish }) => {
     const res = await axios.post(`/api/about/admin/faqs/${id}/publish/`);
     return res.data;
   } else {
-    const res = await axios.delete(`/api/about/admin/faq/${id}/publish/`);
+    const res = await axios.delete(`/api/about/admin/faqs/${id}/publish/`);
     return res.data;
   }
 };

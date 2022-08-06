@@ -2,6 +2,7 @@ import { Dropdown, Space, Button, Menu, Table, Tag } from "antd";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import { useMutation, useQuery } from "react-query";
+import moment from "moment";
 import {
   deleteFAQGroups,
   getFAQGroups,
@@ -16,7 +17,6 @@ import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../../utils/openNotification";
-import moment from "moment";
 import CreateFAQGroupsModal from "./components/CreateFAQGroupsModal";
 import UpdateFAQGroupsModal from "./components/UpdateFAQGroupsModal";
 
@@ -34,7 +34,7 @@ export const getStatusColor = (status) => {
 const FAQS = () => {
   const navigate = useNavigate();
 
-  const [ids, setIds] = useState([]);
+  const [faqIds, setFaqIds] = useState([]);
 
   const [isDeleteFAQGroupsModalOpen, setIsDeleteFAQGroupsModalOpen] =
     useState(false);
@@ -54,7 +54,7 @@ const FAQS = () => {
     refetch: refetchFAQGroups,
   } = useQuery({ queryFn: () => getFAQGroups(), queryKey: GET_FAQ_GROUPS });
 
-  const handleDeleteFAQGroups = useMutation(() => deleteFAQGroups(ids), {
+  const handleDeleteFAQGroups = useMutation(() => deleteFAQGroups(faqIds), {
     onSuccess: (data) => {
       openSuccessNotification(data[0].data.message);
       setIsDeleteFAQGroupsModalOpen(false);
@@ -147,14 +147,14 @@ const FAQS = () => {
             <EditOutlined
               onClick={() => {
                 setIsUpdateFAQGroupsModalOpen(true);
-                setIds([id]);
+                setFaqIds([id]);
               }}
             />
             <DeleteOutlined
               onClick={() => {
                 setIsDeleteFAQGroupsModalOpen(true);
                 setDeleteFAQGroupsModalTitle(`Delete ${name}?`);
-                setIds([id]);
+                setFaqIds([id]);
               }}
             />
           </div>
@@ -185,7 +185,7 @@ const FAQS = () => {
 
   const rowSelection = {
     onChange: (_, selectedRows) => {
-      setIds(selectedRows.map((el) => el.id));
+      setFaqIds(selectedRows.map((el) => el.id));
     },
   };
 
@@ -237,7 +237,7 @@ const FAQS = () => {
             setIsCreateFAQGroupsModalOpen={setIsCreateFAQGroupsModalOpen}
           />
           <UpdateFAQGroupsModal
-            ids={ids}
+            faqIds={faqIds}
             isUpdateFAQGroupsModalOpen={isUpdateFAQGroupsModalOpen}
             refetchFAQGroups={refetchFAQGroups}
             setIsUpdateFAQGroupsModalOpen={setIsUpdateFAQGroupsModalOpen}

@@ -13,7 +13,7 @@ const UpdateFAQGroupsModal = ({
   isUpdateFAQGroupsModalOpen,
   setIsUpdateFAQGroupsModalOpen,
   refetchFAQGroups,
-  ids,
+  faqIds,
 }) => {
   const [form] = Form.useForm();
 
@@ -23,9 +23,9 @@ const UpdateFAQGroupsModal = ({
     isSuccess,
     refetch,
   } = useQuery({
-    queryFn: () => getFAQGroupsById(ids),
-    queryKey: [GET_FAQ_GROPUS_BY_ID, ids],
-    enabled: !!ids,
+    queryFn: () => getFAQGroupsById(faqIds),
+    queryKey: [GET_FAQ_GROPUS_BY_ID, faqIds],
+    enabled: !!faqIds,
   });
 
   const handleUpdateFAQGroups = useMutation(
@@ -73,7 +73,7 @@ const UpdateFAQGroupsModal = ({
                   form
                     .validateFields()
                     .then((values) =>
-                      handleUpdateFAQGroups.mutate({ id: ids, data: values })
+                      handleUpdateFAQGroups.mutate({ id: faqIds, data: values })
                     );
                 }}
               >

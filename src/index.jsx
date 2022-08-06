@@ -142,7 +142,7 @@ root.render(
                   element={<UpdateTutorial />}
                   path="tutorial/update/:slug"
                 />
-                <Route element={<ViewFAQSPage />} path="faqs/:id" />
+                <Route element={<ViewFAQSPage />} path="faqs/:groupId" />
               </Route>
 
               {/* ends */}

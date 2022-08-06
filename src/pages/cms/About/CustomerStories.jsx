@@ -10,10 +10,7 @@ import UpdateCustomerStoriesModal from "./components/UpdateCustomerStoriesModal"
 const CustomerStories = () => {
   const { Meta } = Card;
 
-  const [
-    isCreateCustomerStoriesModalOpen,
-    setIsCreateCustomerStoriesModalOpen,
-  ] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const [customerId, setCustomerId] = useState(null);
 
@@ -23,7 +20,7 @@ const CustomerStories = () => {
   ] = useState(false);
 
   const {
-    data: dataSource,
+    data: customerStories,
     refetch: refetchCustomerStories,
     isFetching,
   } = useQuery({
@@ -53,7 +50,7 @@ const CustomerStories = () => {
               className="flex items-center"
               type="primary"
               ghost
-              onClick={() => setIsCreateCustomerStoriesModalOpen(true)}
+              onClick={() => setIsCreateModalOpen(true)}
             >
               Create Customer Stories
             </Button>
@@ -66,8 +63,8 @@ const CustomerStories = () => {
           </div>
 
           <div className="w-full grid grid-cols-4 gap-6">
-            {dataSource &&
-              dataSource.map((el) => (
+            {customerStories &&
+              customerStories.map((el) => (
                 <Badge.Ribbon
                   key={el.id}
                   color={!el.is_published && "orange"}
@@ -97,11 +94,9 @@ const CustomerStories = () => {
           </div>
 
           <CreateCustomerStoriesModal
-            isCreateCustomerStoriesModalOpen={isCreateCustomerStoriesModalOpen}
+            isCreateModalOpen={isCreateModalOpen}
             refetchCustomerStories={refetchCustomerStories}
-            setIsCreateCustomerStoriesModalOpen={
-              setIsCreateCustomerStoriesModalOpen
-            }
+            setIsCreateModalOpen={setIsCreateModalOpen}
           />
 
           <UpdateCustomerStoriesModal
