@@ -127,10 +127,9 @@ const UpdateTutorial = () => {
     {
       onSuccess: (data) => {
         openSuccessNotification(data.message);
-        form.resetFields();
-        refetchTutorials();
-        navigate(-1);
+        navigate("/cms/tutorial");
         queryClient.refetchQueries([GET_TUTORIALS]);
+        refetchTutorials();
       },
       onError: (error) => {
         openErrorNotification(error);
@@ -144,9 +143,9 @@ const UpdateTutorial = () => {
         <Loader isOpen={true} />
       ) : (
         <>
-          <CustomPageHeader title={slug} />
+          <CustomPageHeader title={dataSource.title} />
           <div className="px-4 bg-[#FFFFFF]">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mb-2">
               <Button
                 danger={dataSource.is_published}
                 loading={handlePublishTutorial.isLoading}
@@ -274,11 +273,6 @@ const UpdateTutorial = () => {
                   initialValue={dataSourceTagList.map((el) => el.data.data.id)}
                   label="Tags"
                   name="tags"
-                  rules={[
-                    {
-                      required: true,
-                    },
-                  ]}
                 >
                   <Select
                     defaultValue={dataSourceTagList.map(

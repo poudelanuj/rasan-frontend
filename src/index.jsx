@@ -62,6 +62,7 @@ import About from "./pages/cms/About";
 import Tutorial from "./pages/cms/Tutorial";
 import CreateTutorial from "./pages/cms/Tutorial/components/CreateTutorial";
 import UpdateTutorial from "./pages/cms/Tutorial/components/UpdateTutorial";
+import ViewFAQSPage from "./pages/cms/About/ViewFAQSPage";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const queryClient = new QueryClient({
@@ -141,6 +142,7 @@ root.render(
                   element={<UpdateTutorial />}
                   path="tutorial/update/:slug"
                 />
+                <Route element={<ViewFAQSPage />} path="faqs/:groupId" />
               </Route>
 
               {/* ends */}

@@ -78,7 +78,7 @@ const CreateTutorial = () => {
       },
     }
   );
-
+  // FIX FORM
   return (
     <div className="px-4 bg-[#FFFFFF]">
       <CustomPageHeader title="Create Tutorial" />
@@ -129,16 +129,7 @@ const CreateTutorial = () => {
           </Select>
         </Form.Item>
 
-        <Form.Item
-          className="col-span-full"
-          label="Tags"
-          name="tags"
-          rules={[
-            {
-              required: true,
-            },
-          ]}
-        >
+        <Form.Item className="col-span-full" label="Tags" name="tags">
           <Select mode="multiple" placeholder="Select a tag" allowClear>
             {tagList?.map((el) => (
               <Option key={el.id} value={el.id}>
