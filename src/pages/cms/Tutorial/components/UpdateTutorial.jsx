@@ -326,6 +326,17 @@ const UpdateTutorial = () => {
                     name="video_link"
                     rules={[
                       { required: true, message: "Please input video link!" },
+                      () => ({
+                        validator(_, value) {
+                          if (value.includes("youtube.com")) {
+                            return Promise.resolve();
+                          }
+
+                          return Promise.reject(
+                            new Error("Only Youtube video links allowed!")
+                          );
+                        },
+                      }),
                     ]}
                   >
                     <Input

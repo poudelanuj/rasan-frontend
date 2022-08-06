@@ -212,6 +212,17 @@ const UpdateVideoLinksModal = ({
                       required: true,
                       message: "Please input video url!",
                     },
+                    () => ({
+                      validator(_, value) {
+                        if (value.includes("youtube.com")) {
+                          return Promise.resolve();
+                        }
+
+                        return Promise.reject(
+                          new Error("Only Youtube video links allowed!")
+                        );
+                      },
+                    }),
                   ]}
                 >
                   <Input onChange={(e) => setPreviewUrl(e.target.value)} />

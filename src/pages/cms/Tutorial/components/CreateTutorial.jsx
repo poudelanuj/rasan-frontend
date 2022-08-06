@@ -71,6 +71,8 @@ const CreateTutorial = () => {
         openSuccessNotification(data.message);
         form.resetFields();
         navigate(-1);
+        setGetMarkdown("");
+        setIframeLink("");
         queryClient.refetchQueries([GET_TUTORIALS]);
       },
       onError: (error) => {
@@ -163,7 +165,20 @@ const CreateTutorial = () => {
               className="col-span-full"
               label="Video Link"
               name="video_link"
-              rules={[{ required: true, message: "Please input video link!" }]}
+              rules={[
+                { required: true, message: "Please input video link!" },
+                () => ({
+                  validator(_, value) {
+                    if (value.includes("youtube.com")) {
+                      return Promise.resolve();
+                    }
+
+                    return Promise.reject(
+                      new Error("Only Youtube video links allowed!")
+                    );
+                  },
+                }),
+              ]}
             >
               <Input
                 placeholder="Enter video link"
