@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Table, Select, Space } from "antd";
+import { Table, Select } from "antd";
 import { useMutation, useQuery } from "react-query";
-
-import AddCategoryButton from "../../subComponents/AddCategoryButton";
 
 import {
   openErrorNotification,
@@ -170,7 +168,7 @@ const columns = [
   },
 ];
 
-function TabAll({ slug, publishCategory }) {
+function TabAll({ slug }) {
   const [openAlert, setOpenAlert] = useState(false);
   const [alertType, setAlertType] = useState("");
 
@@ -313,15 +311,6 @@ function TabAll({ slug, publishCategory }) {
                 <Option value={ALERT_TYPE.delete}>Delete</Option>
               </Select>
             )}
-
-            <Space>
-              {publishCategory}
-
-              <AddCategoryButton
-                linkText="Add Products"
-                linkTo={`/product-list/add?category=${slug}`}
-              />
-            </Space>
           </div>
         </div>
 

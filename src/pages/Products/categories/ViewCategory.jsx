@@ -1,7 +1,7 @@
 import React from "react";
 import { useMutation, useQuery } from "react-query";
-import { Button, Tabs } from "antd";
-import { useParams } from "react-router-dom";
+import { Button, Descriptions, Image, Space, Tabs, Tag } from "antd";
+import { useNavigate, useParams } from "react-router-dom";
 
 import ProductsTab from "./Tabs/ProductsTab";
 import SkuTab from "./Tabs/SkuTab";
@@ -13,11 +13,14 @@ import {
   openSuccessNotification,
   parseSlug,
 } from "../../../utils";
+import { DEFAULT_RASAN_IMAGE } from "../../../constants";
 
 const { TabPane } = Tabs;
 
 function Category() {
   const { slug } = useParams();
+  const navigate = useNavigate();
+
   const {
     data: category,
     status,
@@ -42,6 +45,7 @@ function Category() {
       <Button
         disabled={status === "loading"}
         loading={onPublishCategory.status === "loading"}
+        size="small"
         type={category?.is_published ? "danger" : "primary"}
         onClick={() =>
           onPublishCategory.mutate({
@@ -62,13 +66,63 @@ function Category() {
         title={category?.name || parseSlug(slug)}
       />
 
+      <div className="relative bg-white p-4 rounded mb-5">
+        <Descriptions column={2} layout="horizontal">
+          <Descriptions.Item
+            label={<strong className="font-medium">Category Name</strong>}
+            span={2}
+          >
+            {category?.name}
+          </Descriptions.Item>
+
+          <Descriptions.Item
+            label={<strong className="font-medium">Publish Status</strong>}
+            span={2}
+          >
+            {category?.is_published ? (
+              <Tag color="green">PUBLISHED</Tag>
+            ) : (
+              <Tag color="red">UNPUBLISHED</Tag>
+            )}
+          </Descriptions.Item>
+
+          <Descriptions.Item
+            label={<strong className="font-medium">Actions</strong>}
+            span={2}
+          >
+            <Space>
+              <PublishCategory />
+
+              <Button
+                size="small"
+                onClick={() => navigate(`/product-list/add?category=${slug}`)}
+              >
+                Add New Products
+              </Button>
+            </Space>
+          </Descriptions.Item>
+        </Descriptions>
+
+        <div className="absolute right-0 top-0">
+          <Image
+            className="bg-white rounded"
+            height={150}
+            src={
+              category?.category_image?.full_size ||
+              category?.category_image?.thumbnail ||
+              DEFAULT_RASAN_IMAGE
+            }
+          />
+        </div>
+      </div>
+
       <div>
         <Tabs defaultActiveKey="1">
           <TabPane key="1" tab="Products">
-            <ProductsTab publishCategory={<PublishCategory />} slug={slug} />
+            <ProductsTab slug={slug} />
           </TabPane>
           <TabPane key="2" tab="SKU">
-            <SkuTab publishCategory={<PublishCategory />} slug={slug} />
+            <SkuTab slug={slug} />
           </TabPane>
         </Tabs>
       </div>

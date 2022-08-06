@@ -86,9 +86,8 @@ const AddProduct = () => {
     <>
       <Loader isOpen={onFormSubmit.status === "loading"} />
 
-      <div className="py-5">
-        <CustomPageHeader title="Add Product" />
-
+      <CustomPageHeader title="Add Product" />
+      <>
         <div>
           <Form
             layout="vertical"
@@ -237,7 +236,7 @@ const AddProduct = () => {
             </Form.Item>
           </Form>
         </div>
-      </div>
+      </>
     </>
   );
 };

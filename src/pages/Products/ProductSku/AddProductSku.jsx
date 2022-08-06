@@ -101,9 +101,8 @@ const AddProductSku = () => {
     <>
       <Loader isOpen={onFormSubmit.status === "loading"} />
 
-      <div className="py-5">
-        <CustomPageHeader title="Add Product SKU" />
-
+      <CustomPageHeader title="Add Product SKU" />
+      <>
         <div>
           <Form
             layout="vertical"
@@ -309,7 +308,7 @@ const AddProductSku = () => {
             </Form.Item>
           </Form>
         </div>
-      </div>
+      </>
     </>
   );
 };
