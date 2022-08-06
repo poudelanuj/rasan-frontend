@@ -3,7 +3,7 @@ import TabAll from "./Tabs/TabAll";
 import TabSKU from "./Tabs/TabSKU";
 import { useMutation, useQuery } from "react-query";
 
-import { Button, Descriptions, Image, Space, Tabs } from "antd";
+import { Button, Descriptions, Image, Space, Tabs, Tag } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import CustomPageHeader from "../../../shared/PageHeader";
 import {
@@ -44,6 +44,7 @@ function Brands() {
       <Button
         disabled={status === "loading"}
         loading={onPublishBrand.status === "loading"}
+        size="small"
         type={brand?.is_published ? "danger" : "primary"}
         onClick={() =>
           onPublishBrand.mutate({
@@ -65,12 +66,23 @@ function Brands() {
       />
 
       <div className="relative">
-        <Descriptions column={2} layout="vertical">
+        <Descriptions column={2} layout="horizontal">
           <Descriptions.Item
             label={<strong className="font-medium">Brand Name</strong>}
             span={2}
           >
             {brand?.name}
+          </Descriptions.Item>
+
+          <Descriptions.Item
+            label={<strong className="font-medium">Publish Status</strong>}
+            span={2}
+          >
+            {brand?.is_published ? (
+              <Tag color="green">PUBLISHED</Tag>
+            ) : (
+              <Tag color="red">UNPUBLISHED</Tag>
+            )}
           </Descriptions.Item>
 
           <Descriptions.Item
@@ -81,6 +93,7 @@ function Brands() {
               <PublishBrand />
 
               <Button
+                size="small"
                 onClick={() => navigate(`/product-list/add?brand=${slug}`)}
               >
                 Add New Products

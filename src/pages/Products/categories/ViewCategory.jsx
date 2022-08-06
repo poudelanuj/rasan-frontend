@@ -1,6 +1,6 @@
 import React from "react";
 import { useMutation, useQuery } from "react-query";
-import { Button, Descriptions, Image, Space, Tabs } from "antd";
+import { Button, Descriptions, Image, Space, Tabs, Tag } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 
 import ProductsTab from "./Tabs/ProductsTab";
@@ -45,6 +45,7 @@ function Category() {
       <Button
         disabled={status === "loading"}
         loading={onPublishCategory.status === "loading"}
+        size="small"
         type={category?.is_published ? "danger" : "primary"}
         onClick={() =>
           onPublishCategory.mutate({
@@ -66,12 +67,23 @@ function Category() {
       />
 
       <div className="relative">
-        <Descriptions column={2} layout="vertical">
+        <Descriptions column={2} layout="horizontal">
           <Descriptions.Item
             label={<strong className="font-medium">Category Name</strong>}
             span={2}
           >
             {category?.name}
+          </Descriptions.Item>
+
+          <Descriptions.Item
+            label={<strong className="font-medium">Publish Status</strong>}
+            span={2}
+          >
+            {category?.is_published ? (
+              <Tag color="green">PUBLISHED</Tag>
+            ) : (
+              <Tag color="red">UNPUBLISHED</Tag>
+            )}
           </Descriptions.Item>
 
           <Descriptions.Item
@@ -82,6 +94,7 @@ function Category() {
               <PublishCategory />
 
               <Button
+                size="small"
                 onClick={() => navigate(`/product-list/add?category=${slug}`)}
               >
                 Add New Products
