@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery } from "react-query";
-import { Table, Select } from "antd";
+import { Table, Select, Tag } from "antd";
 
 import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../../../utils/openNotification";
-import { parseArray, parseSlug } from "../../../../utils";
+import { parseSlug } from "../../../../utils";
 import { getProductSkusFromBrand } from "../../../../api/brands";
 import { GET_PRODUCT_SKUS_FROM_BRAND } from "../../../../constants/queryKeys";
 import { uniqBy } from "lodash";
@@ -44,17 +44,17 @@ const columns = [
     dataIndex: "quantity",
   },
   {
-    title: "Cost Price / Piece (रु)",
+    title: "CP Per Piece (रु)",
     dataIndex: "cost_price_per_piece",
     sorter: (a, b) => a.cost_price_per_piece - b.cost_price_per_piece,
   },
   {
-    title: "MRP / piece (रु)",
+    title: "MRP Per Piece (रु)",
     dataIndex: "mrp_per_piece",
     sorter: (a, b) => a.mrp_per_piece - b.mrp_per_piece,
   },
   {
-    title: "Price / piece (रु)",
+    title: "SP Per Piece (रु)",
     dataIndex: "price_per_piece",
     sorter: (a, b) => a.price_per_piece - b.price_per_piece,
   },
@@ -80,58 +80,16 @@ const columns = [
       );
     },
   },
-  {
-    title: "Brand",
-    render: (text, record) => {
-      return <div className="capitalize">{parseSlug(record.brand)}</div>;
-    },
-  },
-  {
-    title: "Rasan Choices",
-    render: (text, record) => {
-      return (
-        <div className="flex items-center capitalize">
-          {parseArray(record.product_group)}
-        </div>
-      );
-    },
-  },
-  {
-    title: "Loyalty Policy",
-    render: (text, record) => {
-      if (record.loyalty_policy) {
-        return <div className="capitalize">{record.loyalty_policy}</div>;
-      } else {
-        return <div className="text-center">-</div>;
-      }
-    },
-  },
+
   {
     title: "Status",
     render: (text, record) => {
       return (
-        <div
-          className={`text-center rounded-[36px] text-[14px] p-[2px_14px] ${
-            record.is_published
-              ? "bg-[#E4FEEF] text-[#0E9E49]"
-              : "bg-[#FFF8E1] text-[#FF8F00]"
-          }`}
-        >
-          {record.is_published ? "Published" : "Unpublished"}
-        </div>
+        <Tag color={record.is_published ? "green" : "orange"}>
+          {record.is_published ? "PUBLISHED" : "UNPUBLISHED"}
+        </Tag>
       );
     },
-    filters: [
-      {
-        text: "Published",
-        value: true,
-      },
-      {
-        text: "Unpublished",
-        value: false,
-      },
-    ],
-    onFilter: (value, record) => record.is_published === value,
   },
 ];
 
