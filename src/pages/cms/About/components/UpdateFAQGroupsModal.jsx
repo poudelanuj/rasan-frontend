@@ -18,7 +18,7 @@ const UpdateFAQGroupsModal = ({
   const [form] = Form.useForm();
 
   const {
-    data: dataSource,
+    data: FAQGroups,
     isFetching,
     isSuccess,
     refetch,
@@ -45,10 +45,10 @@ const UpdateFAQGroupsModal = ({
   useEffect(() => {
     if (isSuccess)
       form.setFieldsValue({
-        name: dataSource.name,
-        name_np: dataSource.name_np,
+        name: FAQGroups.name,
+        name_np: FAQGroups.name_np,
       });
-  }, [isSuccess, form, dataSource]);
+  }, [isSuccess, form, FAQGroups]);
 
   return (
     <>
@@ -86,7 +86,7 @@ const UpdateFAQGroupsModal = ({
           centered
           onCancel={() => setIsUpdateFAQGroupsModalOpen(false)}
         >
-          {dataSource && (
+          {FAQGroups && (
             <Form
               form={form}
               initialValues={{

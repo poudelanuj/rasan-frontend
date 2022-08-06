@@ -35,7 +35,7 @@ const UpdateCustomerStoriesModal = ({
   ] = useState(false);
 
   const {
-    data: dataSource,
+    data: customerStories,
     refetch: refetchUpdatedCustomerStories,
     isFetching,
     isSuccess,
@@ -70,7 +70,7 @@ const UpdateCustomerStoriesModal = ({
       if (selectedImage) formData.append("image", selectedImage);
 
       return updateCustomerStories({
-        id: dataSource && dataSource.id,
+        id: customerStories && customerStories.id,
         data: formData,
       });
     },
@@ -115,11 +115,11 @@ const UpdateCustomerStoriesModal = ({
   useEffect(() => {
     if (isSuccess)
       form.setFieldsValue({
-        full_name: dataSource.full_name,
-        shop_name: dataSource.shop_name,
-        content: dataSource.content,
+        full_name: customerStories.full_name,
+        shop_name: customerStories.shop_name,
+        content: customerStories.content,
       });
-  }, [isSuccess, dataSource, form]);
+  }, [isSuccess, customerStories, form]);
 
   return (
     <>
@@ -165,17 +165,18 @@ const UpdateCustomerStoriesModal = ({
             >
               <span>Update Customer Stories</span>
               <Button
-                danger={dataSource && dataSource.is_published}
+                danger={customerStories && customerStories.is_published}
                 loading={handlePublishCustomerStories.isLoading}
                 type="primary"
                 onClick={() =>
                   handlePublishCustomerStories.mutate({
-                    id: dataSource && dataSource.id,
-                    shouldPublish: dataSource && !dataSource.is_published,
+                    id: customerStories && customerStories.id,
+                    shouldPublish:
+                      customerStories && !customerStories.is_published,
                   })
                 }
               >
-                {dataSource?.is_published ? "Unpublish" : "Publish"}
+                {customerStories?.is_published ? "Unpublish" : "Publish"}
               </Button>
             </span>,
           ]}
@@ -183,7 +184,7 @@ const UpdateCustomerStoriesModal = ({
           centered
           onCancel={() => setIsUpdateCustomerStoriesModalOpen(false)}
         >
-          {dataSource && (
+          {customerStories && (
             <Form
               form={form}
               initialValues={{
@@ -252,7 +253,9 @@ const UpdateCustomerStoriesModal = ({
           <ConfirmDelete
             closeModal={() => setIsDeleteCustomerStoriesModalOpen(false)}
             deleteMutation={() =>
-              handleDeleteCustomerStories.mutate(dataSource && dataSource.id)
+              handleDeleteCustomerStories.mutate(
+                customerStories && customerStories.id
+              )
             }
             isOpen={isDeleteCustomerStoriesModalOpen}
             status={handleDeleteCustomerStories.status}

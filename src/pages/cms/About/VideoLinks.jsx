@@ -17,7 +17,7 @@ const VideoLinks = () => {
   const [videoId, setVideoId] = useState(null);
 
   const {
-    data: dataSource,
+    data: videoLinks,
     refetch: refetchVideoLinks,
     isFetching,
   } = useQuery({
@@ -60,8 +60,8 @@ const VideoLinks = () => {
           </div>
 
           <div className="w-full grid grid-cols-4 gap-6">
-            {dataSource &&
-              dataSource.map((el) => (
+            {videoLinks &&
+              videoLinks.map((el) => (
                 <Badge.Ribbon
                   key={el.id}
                   color={!el.is_published && "orange"}

@@ -33,7 +33,7 @@ const UpdateVideoLinksModal = ({
     useState(false);
 
   const {
-    data: dataSource,
+    data: videoLink,
     refetch: refetchUpdatedVideoLink,
     isFetching,
     isSuccess,
@@ -67,7 +67,7 @@ const UpdateVideoLinksModal = ({
 
       if (selectedImage) formData.append("image", selectedImage);
 
-      return updateVideo({ id: dataSource && dataSource.id, data: formData });
+      return updateVideo({ id: videoLink && videoLink.id, data: formData });
     },
     {
       onSuccess: (data) => {
@@ -107,9 +107,9 @@ const UpdateVideoLinksModal = ({
   useEffect(() => {
     if (isSuccess)
       form.setFieldsValue({
-        video_url: dataSource.video_url,
+        video_url: videoLink.video_url,
       });
-  }, [isSuccess, dataSource, form]);
+  }, [isSuccess, videoLink, form]);
 
   return (
     <>
@@ -155,17 +155,17 @@ const UpdateVideoLinksModal = ({
             >
               <span>Update Video Link</span>
               <Button
-                danger={dataSource && dataSource.is_published}
+                danger={videoLink && videoLink.is_published}
                 loading={handlePublishVideoLink.isLoading}
                 type="primary"
                 onClick={() =>
                   handlePublishVideoLink.mutate({
-                    id: dataSource && dataSource.id,
-                    shouldPublish: dataSource && !dataSource.is_published,
+                    id: videoLink && videoLink.id,
+                    shouldPublish: videoLink && !videoLink.is_published,
                   })
                 }
               >
-                {dataSource?.is_published ? "Unpublish" : "Publish"}
+                {videoLink?.is_published ? "Unpublish" : "Publish"}
               </Button>
             </span>,
           ]}
@@ -173,7 +173,7 @@ const UpdateVideoLinksModal = ({
           centered
           onCancel={() => setIsUpdateVideoLinkModalOpen(false)}
         >
-          {dataSource && (
+          {videoLink && (
             <>
               <Form
                 form={form}
@@ -218,12 +218,12 @@ const UpdateVideoLinksModal = ({
                 </Form.Item>
               </Form>
 
-              {(previewUrl || dataSource.video_url) && (
+              {(previewUrl || videoLink.video_url) && (
                 <iframe
                   className="w-full h-60"
                   src={
                     previewUrl.replace("watch?v=", "embed/") ||
-                    dataSource.video_url.replace("watch?v=", "embed/")
+                    videoLink.video_url.replace("watch?v=", "embed/")
                   }
                   title="Video Link"
                 ></iframe>
@@ -234,7 +234,7 @@ const UpdateVideoLinksModal = ({
           <ConfirmDelete
             closeModal={() => setIsDeleteVideoLinkModalOpen(false)}
             deleteMutation={() =>
-              handleDeleteVideoLink.mutate(dataSource && dataSource.id)
+              handleDeleteVideoLink.mutate(videoLink && videoLink.id)
             }
             isOpen={isDeleteVideoLinkModalOpen}
             status={handleDeleteVideoLink.status}

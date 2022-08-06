@@ -36,11 +36,10 @@ const FAQS = () => {
 
   const [faqIds, setFaqIds] = useState([]);
 
-  const [isDeleteFAQGroupsModalOpen, setIsDeleteFAQGroupsModalOpen] =
-    useState(false);
-
-  const [deleteFAQGroupsModalTitle, setDeleteFAQGroupsModalTitle] =
-    useState("");
+  const [isDeleteFAQModal, setIsDeleteFAQModal] = useState({
+    isOpen: false,
+    title: "",
+  });
 
   const [isCreateFAQGroupsModalOpen, setIsCreateFAQGroupsModalOpen] =
     useState(false);
@@ -57,7 +56,7 @@ const FAQS = () => {
   const handleDeleteFAQGroups = useMutation(() => deleteFAQGroups(faqIds), {
     onSuccess: (data) => {
       openSuccessNotification(data[0].data.message);
-      setIsDeleteFAQGroupsModalOpen(false);
+      setIsDeleteFAQModal({ ...isDeleteFAQModal, isOpen: false });
       refetchFAQGroups();
     },
     onError: (err) => openErrorNotification(err),
@@ -152,8 +151,11 @@ const FAQS = () => {
             />
             <DeleteOutlined
               onClick={() => {
-                setIsDeleteFAQGroupsModalOpen(true);
-                setDeleteFAQGroupsModalTitle(`Delete ${name}?`);
+                setIsDeleteFAQModal({
+                  ...isDeleteFAQModal,
+                  isOpen: true,
+                  title: `Delete ${name}?`,
+                });
                 setFaqIds([id]);
               }}
             />
@@ -171,8 +173,11 @@ const FAQS = () => {
           label: (
             <div
               onClick={() => {
-                setIsDeleteFAQGroupsModalOpen(true);
-                setDeleteFAQGroupsModalTitle(`Delete all FAQ Groups?`);
+                setIsDeleteFAQModal({
+                  ...isDeleteFAQModal,
+                  isOpen: true,
+                  title: "Delete all FAQ Groups?",
+                });
               }}
             >
               Delete
@@ -189,7 +194,7 @@ const FAQS = () => {
     },
   };
 
-  const dataSourceFAQGroups = dataSource?.map((el, index) => {
+  const FAQGroups = dataSource?.map((el, index) => {
     return {
       id: el.id,
       key: index + 1,
@@ -226,7 +231,7 @@ const FAQS = () => {
 
           <Table
             columns={columns}
-            dataSource={dataSourceFAQGroups}
+            dataSource={FAQGroups}
             loading={status === "loading" || refetchFAQGroups}
             rowSelection={{ ...rowSelection }}
           />
@@ -244,11 +249,13 @@ const FAQS = () => {
           />
 
           <ConfirmDelete
-            closeModal={() => setIsDeleteFAQGroupsModalOpen(false)}
+            closeModal={() =>
+              setIsDeleteFAQModal({ ...isDeleteFAQModal, isOpen: false })
+            }
             deleteMutation={() => handleDeleteFAQGroups.mutate()}
-            isOpen={isDeleteFAQGroupsModalOpen}
+            isOpen={isDeleteFAQModal.isOpen}
             status={handleDeleteFAQGroups.status}
-            title={deleteFAQGroupsModalTitle}
+            title={isDeleteFAQModal.title}
           />
         </>
       )}
