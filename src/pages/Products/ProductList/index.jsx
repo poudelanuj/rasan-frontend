@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
-import { Button, Space, Table } from "antd";
+import { Button, Space, Table, Tag } from "antd";
 import { uniqBy } from "lodash";
 import { useMutation, useQuery } from "react-query";
 import AddCategoryButton from "../subComponents/AddCategoryButton";
@@ -112,15 +112,9 @@ function ProductListScreen() {
       // render jsx
       render: (text, record) => {
         return (
-          <div
-            className={`text-center rounded-[36px] text-[14px] p-[2px_14px] ${
-              record.is_published
-                ? "bg-[#E4FEEF] text-[#0E9E49]"
-                : "bg-[#FFF8E1] text-[#FF8F00]"
-            }`}
-          >
-            {record.is_published ? "Published" : "Unpublished"}
-          </div>
+          <Tag color={record.is_published ? "green" : "orange"}>
+            {record.is_published ? "PUBLISHED" : "UNPUBLISHED"}
+          </Tag>
         );
       },
     },

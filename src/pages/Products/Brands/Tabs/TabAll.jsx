@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { Table, Select } from "antd";
+import { Table, Select, Tag } from "antd";
 import { useMutation, useQuery } from "react-query";
 
 import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../../../utils/openNotification";
-import { getDate, parseArray, parseSlug } from "../../../../utils";
+import { getDate, parseArray } from "../../../../utils";
 import { ALERT_TYPE } from "../../../../constants";
 import Alert from "../../../../shared/Alert";
 import { GET_PRODUCTS_FROM_BRAND } from "../../../../constants/queryKeys";
@@ -55,74 +55,14 @@ const columns = [
       );
     },
   },
-  {
-    title: "Brand",
-    render: (text, record) => {
-      return record.brand.length > 0 ? (
-        <div className="capitalize">{parseSlug(record.brand)}</div>
-      ) : (
-        <div className="text-center">-</div>
-      );
-    },
-  },
-  {
-    title: "Alternate Products",
-    render: (text, record) => {
-      return (
-        <div className="capitalize">
-          {record.alternate_products.length > 0 ? (
-            parseArray(record.alternate_products)
-          ) : (
-            <div className="text-center">-</div>
-          )}
-        </div>
-      );
-    },
-  },
-  {
-    title: "Supplementary Products",
-    render: (text, record) => {
-      return (
-        <div className="capitalize">
-          {record.supplementary_products.length > 0 ? (
-            parseArray(record.supplementary_products)
-          ) : (
-            <div className="text-center">-</div>
-          )}
-        </div>
-      );
-    },
-  },
-  {
-    title: "Includes VAT",
-    dataIndex: "includes_vat",
-    render: (text, record) => {
-      return (
-        <div
-          className={`text-center rounded-[36px] text-[14px] p-[2px_14px] ${
-            record.includes_vat
-              ? "bg-[#E4FEEF] text-[#0E9E49]"
-              : "bg-[#FFF8E1] text-[#FF8F00]"
-          }`}
-        >
-          {record.includes_vat ? "Yes" : "No"}
-        </div>
-      );
-    },
-  },
+
   {
     title: "Status",
     render: (text, record) => {
       return (
-        <div
-          className={`text-center rounded-[36px] text-[14px] p-[2px_14px] ${
-            record.is_published
-              ? "bg-[#E4FEEF] text-[#0E9E49]"
-              : "bg-[#FFF8E1] text-[#FF8F00]"
-          }`}
-        >
-          {record.is_published ? "Published" : "Unpublished"}
-        </div>
+        <Tag color={record.is_published ? "green" : "orange"}>
+          {record.is_published ? "PUBLISHED" : "UNPUBLISHED"}
+        </Tag>
       );
     },
   },

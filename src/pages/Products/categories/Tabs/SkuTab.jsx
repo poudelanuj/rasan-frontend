@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { Table, Select } from "antd";
+import { Table, Select, Tag } from "antd";
 import { useMutation, useQuery } from "react-query";
 
 import {
   openErrorNotification,
   openSuccessNotification,
-  parseArray,
   parseSlug,
 } from "../../../../utils";
 import { getCategory } from "../../../../api/categories";
@@ -27,57 +26,40 @@ const columns = [
     sorter: (a, b) => a.sn - b.sn,
   },
   {
-    title: "Product Image",
-    render: (text, record) => {
-      return (
-        <div className="h-[80px]">
-          {record.product_sku_image.full_size && (
-            <img
-              alt={"text"}
-              className="inline pr-4 h-[100%]"
-              src={record.product_sku_image.full_size}
-            />
-          )}
-        </div>
-      );
-    },
-  },
-  {
     title: "Product Name",
     dataIndex: "name",
     defaultSortOrder: "descend",
+    render: (_, { name, product_image }) => (
+      <div className="flex items-center gap-3">
+        <img
+          alt=""
+          className="h-[40px] w-[40px] object-cover rounded"
+          src={product_image?.thumbnail || "/rasan-default.png"}
+        />
+        <span>{name}</span>
+      </div>
+    ),
   },
   {
     title: "Quantity",
     dataIndex: "quantity",
   },
   {
-    title: "Cost Price / Piece (रु)",
+    title: "CP Per Piece (रु)",
     dataIndex: "cost_price_per_piece",
     sorter: (a, b) => a.cost_price_per_piece - b.cost_price_per_piece,
   },
   {
-    title: "MRP / piece (रु)",
+    title: "MRP Per Piece (रु)",
     dataIndex: "mrp_per_piece",
     sorter: (a, b) => a.mrp_per_piece - b.mrp_per_piece,
   },
   {
-    title: "Price / piece (रु)",
+    title: "SP Per Piece (रु)",
     dataIndex: "price_per_piece",
     sorter: (a, b) => a.price_per_piece - b.price_per_piece,
   },
-  {
-    title: "Category",
-    render: (text, record) => {
-      return (
-        <div className="capitalize">
-          {record.category.map((category, index) => {
-            return parseSlug(category);
-          })}
-        </div>
-      );
-    },
-  },
+
   {
     title: "Product",
     render: (text, record) => {
@@ -94,52 +76,16 @@ const columns = [
       return <div className="capitalize">{parseSlug(record.brand)}</div>;
     },
   },
-  {
-    title: "Rasan Choices",
-    render: (text, record) => {
-      return (
-        <div className="flex items-center capitalize">
-          {parseArray(record.product_group)}
-        </div>
-      );
-    },
-  },
-  {
-    title: "Loyalty Policy",
-    render: (text, record) => {
-      if (record.loyalty_policy) {
-        return <div className="capitalize">{record.loyalty_policy}</div>;
-      } else {
-        return <div className="text-center">-</div>;
-      }
-    },
-  },
+
   {
     title: "Status",
     render: (text, record) => {
       return (
-        <div
-          className={`text-center rounded-[36px] text-[14px] p-[2px_14px] ${
-            record.is_published
-              ? "bg-[#E4FEEF] text-[#0E9E49]"
-              : "bg-[#FFF8E1] text-[#FF8F00]"
-          }`}
-        >
-          {record.is_published ? "Published" : "Unpublished"}
-        </div>
+        <Tag color={record.is_published ? "green" : "orange"}>
+          {record.is_published ? "PUBLISHED" : "UNPUBLISHED"}
+        </Tag>
       );
     },
-    filters: [
-      {
-        text: "Published",
-        value: true,
-      },
-      {
-        text: "Unpublished",
-        value: false,
-      },
-    ],
-    onFilter: (value, record) => record.is_published === value,
   },
 ];
 

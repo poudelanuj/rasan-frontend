@@ -2,7 +2,7 @@ import { DeleteOutlined } from "@ant-design/icons";
 import React, { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
-import { Button, Select, Space, Table } from "antd";
+import { Button, Select, Space, Table, Tag } from "antd";
 import {
   getProductGroup,
   updateProductSKU,
@@ -133,15 +133,9 @@ function ViewProductGroup() {
       dataIndex: "is_published",
       render: (text, record) => {
         return (
-          <div
-            className={`text-center rounded-[36px] text-[14px] p-[2px_14px] ${
-              record.is_published
-                ? "bg-[#E4FEEF] text-[#0E9E49]"
-                : "bg-[#FFF8E1] text-[#FF8F00]"
-            }`}
-          >
-            {record.is_published ? "Published" : "Unpublished"}
-          </div>
+          <Tag color={record.is_published ? "green" : "orange"}>
+            {record.is_published ? "PUBLISHED" : "UNPUBLISHED"}
+          </Tag>
         );
       },
     },
@@ -224,20 +218,14 @@ function ViewProductGroup() {
                 </div>
               </div>
               <div className="mt-[1rem]">
-                <div className="flex justify-start items-center">
-                  <h3 className="text-xl text-[#374253]">
+                <Space className="flex justify-start items-center" size="large">
+                  <h3 className="text-xl m-0 text-[#374253]">
                     Rasan Choice Details
                   </h3>
-                  {productGroup.is_published ? (
-                    <p className="ml-[6rem] rounded-full bg-[#E4FEEF] text-[#0E9E49] px-[1rem] py-[2px]">
-                      Published
-                    </p>
-                  ) : (
-                    <p className="ml-[6rem] rounded-full bg-[#FFF8E1] text-[#FF8F00] px-[1rem] py-[2px]">
-                      Unpublished
-                    </p>
-                  )}
-                </div>
+                  <Tag color={productGroup.is_published ? "green" : "orange"}>
+                    {productGroup.is_published ? "PUBLISHED" : "UNPUBLISHED"}
+                  </Tag>
+                </Space>
                 <div className="mt-[0.5rem] flex">
                   <div className="flex flex-col flex-1 items-start">
                     <div className="grid grid-cols-[10rem_10rem] gap-x-5 bg-[#f5f5f5] rounded-2xl py-2 px-4 mt-5">
