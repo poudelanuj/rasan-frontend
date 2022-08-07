@@ -119,7 +119,8 @@ const UpdateCustomerStoriesModal = ({
         shop_name: customerStories.shop_name,
         content: customerStories.content,
       });
-  }, [isSuccess, customerStories, form]);
+    setSelectedImage(null);
+  }, [isSuccess, customerStories, form, customerId]);
 
   return (
     <>
@@ -202,6 +203,8 @@ const UpdateCustomerStoriesModal = ({
                       src={
                         selectedImage
                           ? URL.createObjectURL(selectedImage)
+                          : customerStories.image.thumbnail
+                          ? customerStories.image.thumbnail
                           : "/gallery-icon.svg"
                       }
                     />

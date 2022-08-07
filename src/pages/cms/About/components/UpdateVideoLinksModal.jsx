@@ -109,7 +109,8 @@ const UpdateVideoLinksModal = ({
       form.setFieldsValue({
         video_url: videoLink.video_url,
       });
-  }, [isSuccess, videoLink, form]);
+    setSelectedImage(null);
+  }, [isSuccess, videoLink, form, videoId]);
 
   return (
     <>
@@ -192,6 +193,8 @@ const UpdateVideoLinksModal = ({
                         src={
                           selectedImage
                             ? URL.createObjectURL(selectedImage)
+                            : videoLink.image.thumbnail
+                            ? videoLink.image.thumbnail
                             : "/gallery-icon.svg"
                         }
                       />
