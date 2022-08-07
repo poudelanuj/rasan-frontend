@@ -12,9 +12,15 @@ fs.readFile(path.join(__dirname, fileName), (err, data) => {
     return console.log(chalk.bold.red(err.message));
   }
 
+  // * replacing BASE_URL in redirects file
+  const newData = data
+    .toString()
+    .replaceAll("BASE_URL/", process.env.REACT_APP_BASE_URL);
+
+  // * creating a redirect file in build folder
   fs.writeFile(
     path.join(__dirname, "..", "build", "_redirects"),
-    data.toString(),
+    newData,
     (err) => {
       if (err) return console.log(chalk.bold.red(err.message));
       console.log(chalk.bold.green("_redirects file created"));
