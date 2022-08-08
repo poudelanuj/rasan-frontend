@@ -12,6 +12,11 @@ export const getPaginatedCategories = async (page, pageSize) => {
   return res.data.data;
 };
 
+export const createCategory = async (data) => {
+  const res = await axios.post(`/api/product/admin/categories/`, data);
+  return res.data;
+};
+
 export const getCategory = async (slug) => {
   const res = await axios.get(`/api/product/admin/categories/${slug}/`);
   return res.data.data;
