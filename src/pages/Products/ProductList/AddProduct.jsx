@@ -7,15 +7,23 @@ import { getAllBrands } from "../../../api/brands";
 import { getAllCategories } from "../../../api/categories";
 import { getLoyaltyPolicies } from "../../../api/loyalties";
 import { createProduct, getAllProducts } from "../../../api/products";
+import {
+  GET_ALL_BRANDS,
+  GET_ALL_CATEGORIES,
+} from "../../../constants/queryKeys";
 import Loader from "../../../shared/Loader";
 import CustomPageHeader from "../../../shared/PageHeader";
 import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../../utils/openNotification";
+import CreateBrandModal from "../shared/CreateBrandModal";
+import CreateCategoryModal from "../shared/CreateCategoryModal";
 
 const AddProduct = () => {
   const [selectedImage, setSelectedImage] = useState(null);
+  const [isCreateCategoryOpen, setIsCreateCategoryOpen] = useState(false);
+  const [isCreateBrandOpen, setIsCreatBrandOpen] = useState(false);
 
   const { Dragger } = Upload;
 
@@ -34,12 +42,12 @@ const AddProduct = () => {
 
   const { data: categories, status: categoriesStatus } = useQuery({
     queryFn: () => getAllCategories(),
-    queryKey: ["all-categories"],
+    queryKey: [GET_ALL_CATEGORIES],
   });
 
   const { data: brands, status: brandsStatus } = useQuery({
     queryFn: () => getAllBrands(),
-    queryKey: ["all-brands"],
+    queryKey: [GET_ALL_BRANDS],
   });
 
   const { data: products, status: productsStatus } = useQuery({
@@ -87,6 +95,17 @@ const AddProduct = () => {
       <Loader isOpen={onFormSubmit.status === "loading"} />
 
       <CustomPageHeader title="Add Product" />
+
+      <CreateCategoryModal
+        isOpen={isCreateCategoryOpen}
+        onClose={() => setIsCreateCategoryOpen(false)}
+      />
+
+      <CreateBrandModal
+        isOpen={isCreateBrandOpen}
+        onClose={() => setIsCreatBrandOpen(false)}
+      />
+
       <>
         <div>
           <Form
@@ -124,7 +143,17 @@ const AddProduct = () => {
 
             <div className="grid grid-cols-2 gap-2">
               <Form.Item
-                label="Product Category"
+                label={
+                  <Space>
+                    <span>Product Category</span>
+                    <Button
+                      size="small"
+                      onClick={() => setIsCreateCategoryOpen(true)}
+                    >
+                      Create New Category
+                    </Button>
+                  </Space>
+                }
                 name="category"
                 rules={[{ required: true, message: "category required" }]}
               >
@@ -144,7 +173,17 @@ const AddProduct = () => {
               </Form.Item>
 
               <Form.Item
-                label="Product Brand"
+                label={
+                  <Space>
+                    <span>Product Brand</span>
+                    <Button
+                      size="small"
+                      onClick={() => setIsCreatBrandOpen(true)}
+                    >
+                      Create New Brand
+                    </Button>
+                  </Space>
+                }
                 name="brand"
                 rules={[{ required: true, message: "brand required" }]}
               >

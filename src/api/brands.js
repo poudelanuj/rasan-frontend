@@ -35,6 +35,11 @@ export const getBrand = async (slug) => {
   return res.data.data;
 };
 
+export const createBrand = async (data) => {
+  const res = await axios.post(`/api/product/admin/brands/`, data);
+  return res.data;
+};
+
 export const publishBrand = async ({ slug, shouldPublish }) => {
   if (shouldPublish) {
     const res = await axios.post(`/api/product/admin/brands/publish/${slug}/`);

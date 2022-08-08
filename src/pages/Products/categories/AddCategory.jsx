@@ -41,6 +41,7 @@ function AddCategory({ isOpen, closeModal, setPaginatedCategoriesList }) {
     e.preventDefault();
     handleSave();
   };
+
   const handleSave = async () => {
     if (formState.name && formState.name_np) {
       let form_data = new FormData();

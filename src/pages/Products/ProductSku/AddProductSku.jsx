@@ -22,9 +22,13 @@ import {
   GET_ALL_PRODUCTS,
   GET_ALL_PRODUCT_GROUPS,
 } from "../../../constants/queryKeys";
+import CreateCategoryModal from "../shared/CreateCategoryModal";
+import CreateBrandModal from "../shared/CreateBrandModal";
 
 const AddProductSku = () => {
   const [selectedImage, setSelectedImage] = useState(null);
+  const [isCreateCategoryOpen, setIsCreateCategoryOpen] = useState(false);
+  const [isCreateBrandOpen, setIsCreatBrandOpen] = useState(false);
 
   const { Dragger } = Upload;
 
@@ -102,6 +106,17 @@ const AddProductSku = () => {
       <Loader isOpen={onFormSubmit.status === "loading"} />
 
       <CustomPageHeader title="Add Product SKU" />
+
+      <CreateCategoryModal
+        isOpen={isCreateCategoryOpen}
+        onClose={() => setIsCreateCategoryOpen(false)}
+      />
+
+      <CreateBrandModal
+        isOpen={isCreateBrandOpen}
+        onClose={() => setIsCreatBrandOpen(false)}
+      />
+
       <>
         <div>
           <Form
@@ -193,7 +208,17 @@ const AddProductSku = () => {
             <div className="grid grid-cols-2 gap-2">
               <Form.Item
                 initialValue={JSON.parse(searchParams.get("category") || "[]")}
-                label="Product Category"
+                label={
+                  <Space>
+                    <span>Product Category</span>
+                    <Button
+                      size="small"
+                      onClick={() => setIsCreateCategoryOpen(true)}
+                    >
+                      Create New Category
+                    </Button>
+                  </Space>
+                }
                 name="category"
                 rules={[{ required: true, message: "category required" }]}
               >
@@ -214,7 +239,17 @@ const AddProductSku = () => {
 
               <Form.Item
                 initialValue={JSON.parse(searchParams.get("brand") || "[]")}
-                label="Product Brand"
+                label={
+                  <Space>
+                    <span>Product Brand</span>
+                    <Button
+                      size="small"
+                      onClick={() => setIsCreatBrandOpen(true)}
+                    >
+                      Create New Brand
+                    </Button>
+                  </Space>
+                }
                 name="brand"
                 rules={[{ required: true, message: "brand required" }]}
               >
@@ -237,7 +272,18 @@ const AddProductSku = () => {
             <div className="grid grid-cols-2 gap-2">
               <Form.Item
                 initialValue={searchParams.get("product")}
-                label="Product"
+                label={
+                  <Space>
+                    <span>Product</span>
+
+                    <Button
+                      size="small"
+                      onClick={() => navigate("/product-list/add")}
+                    >
+                      Create New Product
+                    </Button>
+                  </Space>
+                }
                 name="product"
                 rules={[{ required: true, message: "product required" }]}
               >
