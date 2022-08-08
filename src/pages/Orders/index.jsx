@@ -2,9 +2,9 @@ import { Tabs } from "antd";
 import { uniqBy } from "lodash";
 import React, { useEffect, useState } from "react";
 import { useQuery } from "react-query";
-import { getOrders } from "../../api/orders";
+import { getPaginatedOrders } from "../../api/orders";
 import { CANCELLED, DELIVERED, IN_PROCESS } from "../../constants";
-import { GET_ORDERS_LIST } from "../../constants/queryKeys";
+import { GET_PAGINATED_ORDERS } from "../../constants/queryKeys";
 import CustomPageHeader from "../../shared/PageHeader";
 import OrdersList from "./OrdersList";
 
@@ -22,9 +22,9 @@ const Orders = () => {
     isRefetching,
     refetch: refetchOrders,
   } = useQuery({
-    queryFn: () => getOrders({ page, orderStatus, size: pageSize }),
+    queryFn: () => getPaginatedOrders({ page, orderStatus, size: pageSize }),
     queryKey: [
-      GET_ORDERS_LIST,
+      GET_PAGINATED_ORDERS,
       orderStatus + page.toString() + pageSize.toString(),
     ],
   });

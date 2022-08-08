@@ -47,7 +47,7 @@ export const GET_USER_GROUPS = "all-user-groups";
 // * Orders
 export const GET_ORDERS = "all-orders";
 export const GET_ORDER_METRICS = "order-metrics";
-export const GET_ORDERS_LIST = "orders-list";
+export const GET_PAGINATED_ORDERS = "paginated-orders";
 
 //* Baskets
 export const GET_BASKETS = "all-baskets";
