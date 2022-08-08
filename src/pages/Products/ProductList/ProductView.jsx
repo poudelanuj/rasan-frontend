@@ -1,7 +1,15 @@
 import { EditOutlined } from "@ant-design/icons";
-import { Descriptions, Divider, Tag, Button, Spin, Space } from "antd";
+import {
+  Descriptions,
+  Divider,
+  Tag,
+  Button,
+  Spin,
+  Space,
+  Breadcrumb,
+} from "antd";
 import moment from "moment";
-import React from "react";
+import React, { useCallback } from "react";
 import { useQuery, useMutation } from "react-query";
 import { Link, useParams } from "react-router-dom";
 import {
@@ -37,13 +45,28 @@ function ViewProduct() {
     }
   );
 
+  const getHeaderBreadcrumb = useCallback(() => {
+    return (
+      <Breadcrumb>
+        <Breadcrumb.Item>
+          <Link to="/product-list">Products</Link>
+        </Breadcrumb.Item>
+
+        <Breadcrumb.Item>{product?.name}</Breadcrumb.Item>
+      </Breadcrumb>
+    );
+  }, [product]);
+
   return (
     <>
       {productStatus === "loading" && <Loader isOpen />}
 
       {product && (
         <>
-          <CustomPageHeader path="../" title={product.name} />
+          <CustomPageHeader
+            breadcrumb={getHeaderBreadcrumb()}
+            title={product.name}
+          />
 
           <div className="flex flex-col bg-white p-6 rounded">
             <div>

@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { useMutation, useQuery } from "react-query";
-import { Button, Descriptions, Image, Space, Tabs, Tag } from "antd";
-import { useNavigate, useParams } from "react-router-dom";
+import { Breadcrumb, Button, Image, Tabs, Tag } from "antd";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 import ProductsTab from "./Tabs/ProductsTab";
 import SkuTab from "./Tabs/SkuTab";
@@ -45,7 +45,6 @@ function Category() {
       <Button
         disabled={status === "loading"}
         loading={onPublishCategory.status === "loading"}
-        size="small"
         type={category?.is_published ? "danger" : "primary"}
         onClick={() =>
           onPublishCategory.mutate({
@@ -59,62 +58,64 @@ function Category() {
     );
   };
 
+  const getHeaderBreadcrumb = useCallback(() => {
+    return (
+      <Breadcrumb>
+        <Breadcrumb.Item>
+          <Link to="/category-list">Categories</Link>
+        </Breadcrumb.Item>
+
+        <Breadcrumb.Item>{category?.name}</Breadcrumb.Item>
+      </Breadcrumb>
+    );
+  }, [category]);
+
+  const getHeaderAvatarProps = useCallback(() => {
+    return {
+      size: 60,
+      src: (
+        <Image
+          className="bg-white rounded"
+          height={60}
+          src={
+            category?.category_image?.full_size ||
+            category?.category_image?.thumbnail ||
+            DEFAULT_RASAN_IMAGE
+          }
+        />
+      ),
+    };
+  }, [category]);
+
+  const getPublishTag = useCallback(() => {
+    return category?.is_published ? (
+      <Tag color="green">PUBLISHED</Tag>
+    ) : (
+      <Tag color="red">UNPUBLISHED</Tag>
+    );
+  }, [category]);
+
   return (
     <>
       <CustomPageHeader
+        avatar={getHeaderAvatarProps()}
+        breadcrumb={getHeaderBreadcrumb()}
+        extra={[
+          <PublishCategory key="1" />,
+          <Button
+            key="2"
+            onClick={() => navigate(`/product-list/add?category=${slug}`)}
+          >
+            Add New Products
+          </Button>,
+          <Button key="3" type="primary">
+            Edit Category
+          </Button>,
+        ]}
         path="/category-list"
+        subTitle={getPublishTag()}
         title={category?.name || parseSlug(slug)}
       />
-
-      <div className="relative bg-white p-4 rounded mb-5">
-        <Descriptions column={2} layout="horizontal">
-          <Descriptions.Item
-            label={<strong className="font-medium">Category Name</strong>}
-            span={2}
-          >
-            {category?.name}
-          </Descriptions.Item>
-
-          <Descriptions.Item
-            label={<strong className="font-medium">Publish Status</strong>}
-            span={2}
-          >
-            {category?.is_published ? (
-              <Tag color="green">PUBLISHED</Tag>
-            ) : (
-              <Tag color="red">UNPUBLISHED</Tag>
-            )}
-          </Descriptions.Item>
-
-          <Descriptions.Item
-            label={<strong className="font-medium">Actions</strong>}
-            span={2}
-          >
-            <Space>
-              <PublishCategory />
-
-              <Button
-                size="small"
-                onClick={() => navigate(`/product-list/add?category=${slug}`)}
-              >
-                Add New Products
-              </Button>
-            </Space>
-          </Descriptions.Item>
-        </Descriptions>
-
-        <div className="absolute right-0 top-0">
-          <Image
-            className="bg-white rounded"
-            height={150}
-            src={
-              category?.category_image?.full_size ||
-              category?.category_image?.thumbnail ||
-              DEFAULT_RASAN_IMAGE
-            }
-          />
-        </div>
-      </div>
 
       <div>
         <Tabs defaultActiveKey="1">

@@ -1,10 +1,18 @@
-import React from "react";
-import TabAll from "./Tabs/TabAll";
-import TabSKU from "./Tabs/TabSKU";
+import React, { useCallback } from "react";
 import { useMutation, useQuery } from "react-query";
 
-import { Button, Descriptions, Image, Space, Tabs, Tag } from "antd";
-import { useNavigate, useParams } from "react-router-dom";
+import {
+  Breadcrumb,
+  Button,
+  Descriptions,
+  Image,
+  Space,
+  Tabs,
+  Tag,
+} from "antd";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import TabAll from "./Tabs/TabAll";
+import TabSKU from "./Tabs/TabSKU";
 import CustomPageHeader from "../../../shared/PageHeader";
 import {
   openErrorNotification,
@@ -33,7 +41,7 @@ function Brands() {
     ({ slug, shouldPublish }) => publishBrand({ slug, shouldPublish }),
     {
       onSuccess: (data) =>
-        openSuccessNotification(data.message || "Category Updated"),
+        openSuccessNotification(data.message || "Brand Updated"),
       onError: (err) => openErrorNotification(err),
       onSettled: () => refetchBrand(),
     }
@@ -58,62 +66,65 @@ function Brands() {
     );
   };
 
+  const getHeaderBreadcrumb = useCallback(() => {
+    return (
+      <Breadcrumb>
+        <Breadcrumb.Item>
+          <Link to="/brands">Brands</Link>
+        </Breadcrumb.Item>
+
+        <Breadcrumb.Item>{brand?.name}</Breadcrumb.Item>
+      </Breadcrumb>
+    );
+  }, [brand]);
+
+  const getHeaderAvatarProps = useCallback(() => {
+    return {
+      size: 60,
+      src: (
+        <Image
+          className="bg-white rounded"
+          height={60}
+          src={
+            brand?.brand_image?.full_size ||
+            brand?.brand_image?.thumbnail ||
+            DEFAULT_RASAN_IMAGE
+          }
+        />
+      ),
+    };
+  }, [brand]);
+
+  const getPublishTag = useCallback(() => {
+    return brand?.is_published ? (
+      <Tag color="green">PUBLISHED</Tag>
+    ) : (
+      <Tag color="red">UNPUBLISHED</Tag>
+    );
+  }, [brand]);
+
   return (
     <>
       <CustomPageHeader
-        path="/category-list"
+        avatar={getHeaderAvatarProps()}
+        breadcrumb={getHeaderBreadcrumb()}
+        extra={[
+          <PublishBrand key="1" />,
+          <Button
+            key="2"
+            size="small"
+            onClick={() => navigate(`/product-list/add?brand=${slug}`)}
+          >
+            Add New Products
+          </Button>,
+          <Button key="3" type="primary">
+            Edit Brand
+          </Button>,
+        ]}
+        path="/brands"
+        subTitle={getPublishTag()}
         title={brand?.name || parseSlug(slug)}
       />
-
-      <div className="relative bg-white p-4 rounded mb-5">
-        <Descriptions column={2} layout="horizontal">
-          <Descriptions.Item
-            label={<strong className="font-medium">Brand Name</strong>}
-            span={2}
-          >
-            {brand?.name}
-          </Descriptions.Item>
-
-          <Descriptions.Item
-            label={<strong className="font-medium">Publish Status</strong>}
-            span={2}
-          >
-            {brand?.is_published ? (
-              <Tag color="green">PUBLISHED</Tag>
-            ) : (
-              <Tag color="red">UNPUBLISHED</Tag>
-            )}
-          </Descriptions.Item>
-
-          <Descriptions.Item
-            label={<strong className="font-medium">Actions</strong>}
-            span={2}
-          >
-            <Space>
-              <PublishBrand />
-
-              <Button
-                size="small"
-                onClick={() => navigate(`/product-list/add?brand=${slug}`)}
-              >
-                Add New Products
-              </Button>
-            </Space>
-          </Descriptions.Item>
-        </Descriptions>
-
-        <div className="absolute right-0 top-0">
-          <Image
-            className="bg-white rounded"
-            height={150}
-            src={
-              brand?.brand_image?.full_size ||
-              brand?.brand_image?.thumbnail ||
-              DEFAULT_RASAN_IMAGE
-            }
-          />
-        </div>
-      </div>
 
       <div>
         <Tabs defaultActiveKey="1">

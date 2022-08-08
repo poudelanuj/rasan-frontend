@@ -1,8 +1,17 @@
 import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
-import { Upload, Form, Input, Select, Switch, Button, Space } from "antd";
-import { useState } from "react";
+import {
+  Upload,
+  Form,
+  Input,
+  Select,
+  Switch,
+  Button,
+  Space,
+  Breadcrumb,
+} from "antd";
+import { useCallback, useState } from "react";
 import { useQuery, useMutation } from "react-query";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { getAllBrands } from "../../../api/brands";
 import { getAllCategories } from "../../../api/categories";
 import { getLoyaltyPolicies } from "../../../api/loyalties";
@@ -93,6 +102,18 @@ const EditProduct = () => {
     }
   );
 
+  const getHeaderBreadcrumb = useCallback(() => {
+    return (
+      <Breadcrumb>
+        <Breadcrumb.Item>
+          <Link to="/product-list">Products</Link>
+        </Breadcrumb.Item>
+
+        <Breadcrumb.Item>Edit Product</Breadcrumb.Item>
+      </Breadcrumb>
+    );
+  }, []);
+
   return (
     <>
       <Loader
@@ -103,7 +124,10 @@ const EditProduct = () => {
           !product?.name
         }
       />
-      <CustomPageHeader title={`Edit ${product?.name}`} />
+      <CustomPageHeader
+        breadcrumb={getHeaderBreadcrumb()}
+        title={`Edit ${product?.name}`}
+      />
 
       <div className="py-5">
         {productStatus === "success" && product && product.name && (

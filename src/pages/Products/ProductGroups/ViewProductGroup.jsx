@@ -1,8 +1,8 @@
 import { DeleteOutlined } from "@ant-design/icons";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import { useNavigate, useParams } from "react-router-dom";
-import { Button, Select, Space, Table, Tag } from "antd";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { Breadcrumb, Button, Select, Space, Table, Tag } from "antd";
 import {
   getProductGroup,
   updateProductSKU,
@@ -156,6 +156,19 @@ function ViewProductGroup() {
       },
     },
   ];
+
+  const getHeaderBreadcrumb = useCallback(() => {
+    return (
+      <Breadcrumb>
+        <Breadcrumb.Item>
+          <Link to="/product-groups">Rasan Choices</Link>
+        </Breadcrumb.Item>
+
+        <Breadcrumb.Item>{productGroup?.name}</Breadcrumb.Item>
+      </Breadcrumb>
+    );
+  }, [productGroup]);
+
   return (
     <>
       {productGroupStatus === "loading" && <Loader isOpen />}
@@ -170,7 +183,11 @@ function ViewProductGroup() {
 
       {productGroupData && (
         <>
-          <CustomPageHeader path="/product-groups" title={productGroup.name} />
+          <CustomPageHeader
+            breadcrumb={getHeaderBreadcrumb()}
+            path="/product-groups"
+            title={productGroup.name}
+          />
 
           <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[70vh]">
             <div>
