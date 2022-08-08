@@ -1,6 +1,4 @@
 import React, { useCallback } from "react";
-import TabAll from "./Tabs/TabAll";
-import TabSKU from "./Tabs/TabSKU";
 import { useMutation, useQuery } from "react-query";
 
 import {
@@ -13,6 +11,8 @@ import {
   Tag,
 } from "antd";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import TabAll from "./Tabs/TabAll";
+import TabSKU from "./Tabs/TabSKU";
 import CustomPageHeader from "../../../shared/PageHeader";
 import {
   openErrorNotification,
@@ -41,7 +41,7 @@ function Brands() {
     ({ slug, shouldPublish }) => publishBrand({ slug, shouldPublish }),
     {
       onSuccess: (data) =>
-        openSuccessNotification(data.message || "brand Updated"),
+        openSuccessNotification(data.message || "Brand Updated"),
       onError: (err) => openErrorNotification(err),
       onSettled: () => refetchBrand(),
     }
