@@ -92,7 +92,14 @@ const OrdersList = ({
       dataIndex: "id",
       key: "orderId",
       render: (_, { id, status }) => {
-        return <div className="text-blue-500 cursor-pointer">#{id}</div>;
+        return (
+          <div
+            className="text-blue-500 cursor-pointer hover:underline"
+            onClick={() => navigate(`view-order/${id}`)}
+          >
+            #{id}
+          </div>
+        );
       },
       ...getColumnSearchProps("order Id"),
       sorter: (a, b) => a.id - b.id,
@@ -103,8 +110,15 @@ const OrdersList = ({
       key: "user",
       ...getColumnSearchProps("customer"),
       sorter: (a, b) => a.user.localeCompare(b.user),
-      render: (_, { user }) => {
-        return <>{user}</>;
+      render: (_, { user, id }) => {
+        return (
+          <div
+            className="text-blue-500 cursor-pointer hover:underline"
+            onClick={() => navigate(`view-order/${id}`)}
+          >
+            {user}
+          </div>
+        );
       },
     },
     {
@@ -260,16 +274,7 @@ const OrdersList = ({
             setPage(page);
           },
         }}
-        rowClassName="cursor-pointer"
         rowSelection={{ ...rowSelection }}
-        onRow={(record) => {
-          const { id } = record;
-          return {
-            onClick: () => {
-              navigate(`view-order/${id}`);
-            },
-          };
-        }}
       />
 
       <DeleteOrder
