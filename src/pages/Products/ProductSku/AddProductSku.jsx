@@ -1,8 +1,17 @@
 import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
-import { Upload, Form, Input, Select, Button, Switch, Space } from "antd";
-import { useState } from "react";
+import {
+  Upload,
+  Form,
+  Input,
+  Select,
+  Button,
+  Switch,
+  Space,
+  Breadcrumb,
+} from "antd";
+import { useCallback, useState } from "react";
 import { useQuery, useMutation } from "react-query";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { getAllBrands } from "../../../api/brands";
 import { getAllCategories } from "../../../api/categories";
 import { getLoyaltyPolicies } from "../../../api/loyalties";
@@ -101,11 +110,26 @@ const AddProductSku = () => {
     }
   );
 
+  const getHeaderBreadcrumb = useCallback(() => {
+    return (
+      <Breadcrumb>
+        <Breadcrumb.Item>
+          <Link to="/product-sku">Product SKUs</Link>
+        </Breadcrumb.Item>
+
+        <Breadcrumb.Item>Add New Product SKU</Breadcrumb.Item>
+      </Breadcrumb>
+    );
+  }, []);
+
   return (
     <>
       <Loader isOpen={onFormSubmit.status === "loading"} />
 
-      <CustomPageHeader title="Add Product SKU" />
+      <CustomPageHeader
+        breadcrumb={getHeaderBreadcrumb()}
+        title="Add Product SKU"
+      />
 
       <CreateCategoryModal
         isOpen={isCreateCategoryOpen}

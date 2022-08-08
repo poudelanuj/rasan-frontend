@@ -1,8 +1,17 @@
 import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
-import { Upload, Form, Input, Select, Button, Space, Switch } from "antd";
-import { useState } from "react";
+import {
+  Upload,
+  Form,
+  Input,
+  Select,
+  Button,
+  Space,
+  Switch,
+  Breadcrumb,
+} from "antd";
+import { useCallback, useState } from "react";
 import { useQuery, useMutation } from "react-query";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { getAllBrands } from "../../../api/brands";
 import { getAllCategories } from "../../../api/categories";
 import { getLoyaltyPolicies } from "../../../api/loyalties";
@@ -99,6 +108,18 @@ const EditProductSku = () => {
     }
   );
 
+  const getHeaderBreadcrumb = useCallback(() => {
+    return (
+      <Breadcrumb>
+        <Breadcrumb.Item>
+          <Link to="/product-sku">Product SKUs</Link>
+        </Breadcrumb.Item>
+
+        <Breadcrumb.Item>Edit Product SKU</Breadcrumb.Item>
+      </Breadcrumb>
+    );
+  }, []);
+
   return (
     <>
       <Loader
@@ -106,7 +127,10 @@ const EditProductSku = () => {
           onFormSubmit.status === "loading" || productSkuStatus === "loading"
         }
       />
-      <CustomPageHeader title={`Edit ${productSku?.name}`} />
+      <CustomPageHeader
+        breadcrumb={getHeaderBreadcrumb()}
+        title={`Edit ${productSku?.name}`}
+      />
 
       <div className="py-1">
         {productSkuStatus === "success" && productSku && (

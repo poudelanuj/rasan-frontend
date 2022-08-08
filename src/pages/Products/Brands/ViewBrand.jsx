@@ -1,10 +1,18 @@
-import React from "react";
+import React, { useCallback } from "react";
 import TabAll from "./Tabs/TabAll";
 import TabSKU from "./Tabs/TabSKU";
 import { useMutation, useQuery } from "react-query";
 
-import { Button, Descriptions, Image, Space, Tabs, Tag } from "antd";
-import { useNavigate, useParams } from "react-router-dom";
+import {
+  Breadcrumb,
+  Button,
+  Descriptions,
+  Image,
+  Space,
+  Tabs,
+  Tag,
+} from "antd";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import CustomPageHeader from "../../../shared/PageHeader";
 import {
   openErrorNotification,
@@ -33,7 +41,7 @@ function Brands() {
     ({ slug, shouldPublish }) => publishBrand({ slug, shouldPublish }),
     {
       onSuccess: (data) =>
-        openSuccessNotification(data.message || "Category Updated"),
+        openSuccessNotification(data.message || "brand Updated"),
       onError: (err) => openErrorNotification(err),
       onSettled: () => refetchBrand(),
     }
@@ -58,10 +66,63 @@ function Brands() {
     );
   };
 
+  const getHeaderBreadcrumb = useCallback(() => {
+    return (
+      <Breadcrumb>
+        <Breadcrumb.Item>
+          <Link to="/brands">Brands</Link>
+        </Breadcrumb.Item>
+
+        <Breadcrumb.Item>{brand?.name}</Breadcrumb.Item>
+      </Breadcrumb>
+    );
+  }, [brand]);
+
+  const getHeaderAvatarProps = useCallback(() => {
+    return {
+      size: 60,
+      src: (
+        <Image
+          className="bg-white rounded"
+          height={60}
+          src={
+            brand?.brand_image?.full_size ||
+            brand?.brand_image?.thumbnail ||
+            DEFAULT_RASAN_IMAGE
+          }
+        />
+      ),
+    };
+  }, [brand]);
+
+  const getPublishTag = useCallback(() => {
+    return brand?.is_published ? (
+      <Tag color="green">PUBLISHED</Tag>
+    ) : (
+      <Tag color="red">UNPUBLISHED</Tag>
+    );
+  }, [brand]);
+
   return (
     <>
       <CustomPageHeader
-        path="/category-list"
+        avatar={getHeaderAvatarProps()}
+        breadcrumb={getHeaderBreadcrumb()}
+        extra={[
+          <PublishBrand key="1" />,
+          <Button
+            key="2"
+            size="small"
+            onClick={() => navigate(`/product-list/add?brand=${slug}`)}
+          >
+            Add New Products
+          </Button>,
+          <Button key="3" type="primary">
+            Edit Brand
+          </Button>,
+        ]}
+        path="/brands"
+        subTitle={getPublishTag()}
         title={brand?.name || parseSlug(slug)}
       />
 
