@@ -126,56 +126,6 @@ function Brands() {
         title={brand?.name || parseSlug(slug)}
       />
 
-      <div className="relative bg-white p-4 rounded mb-5">
-        <Descriptions column={2} layout="horizontal">
-          <Descriptions.Item
-            label={<strong className="font-medium">Brand Name</strong>}
-            span={2}
-          >
-            {brand?.name}
-          </Descriptions.Item>
-
-          <Descriptions.Item
-            label={<strong className="font-medium">Publish Status</strong>}
-            span={2}
-          >
-            {brand?.is_published ? (
-              <Tag color="green">PUBLISHED</Tag>
-            ) : (
-              <Tag color="red">UNPUBLISHED</Tag>
-            )}
-          </Descriptions.Item>
-
-          <Descriptions.Item
-            label={<strong className="font-medium">Actions</strong>}
-            span={2}
-          >
-            <Space>
-              <PublishBrand />
-
-              <Button
-                size="small"
-                onClick={() => navigate(`/product-list/add?brand=${slug}`)}
-              >
-                Add New Products
-              </Button>
-            </Space>
-          </Descriptions.Item>
-        </Descriptions>
-
-        <div className="absolute right-0 top-0">
-          <Image
-            className="bg-white rounded"
-            height={150}
-            src={
-              brand?.brand_image?.full_size ||
-              brand?.brand_image?.thumbnail ||
-              DEFAULT_RASAN_IMAGE
-            }
-          />
-        </div>
-      </div>
-
       <div>
         <Tabs defaultActiveKey="1">
           <TabPane key="1" tab="Products">
