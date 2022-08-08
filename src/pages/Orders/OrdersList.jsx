@@ -27,7 +27,15 @@ export const getOrderStatusColor = (status) => {
   }
 };
 
-const OrdersList = ({ dataSource, status, refetchOrders }) => {
+const OrdersList = ({
+  dataSource,
+  status,
+  refetchOrders,
+  page,
+  setPage,
+  pageSize,
+  ordersCount,
+}) => {
   const searchInput = useRef(null);
   const [isDeleteOrderOpen, setIsDeleteOrderOpen] = useState(false);
   const [deleteOrderId, setDeleteOrderId] = useState(0);
@@ -84,7 +92,14 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
       dataIndex: "id",
       key: "orderId",
       render: (_, { id, status }) => {
-        return <div className="text-blue-500 cursor-pointer">#{id}</div>;
+        return (
+          <div
+            className="text-blue-500 cursor-pointer hover:underline"
+            onClick={() => navigate(`view-order/${id}`)}
+          >
+            #{id}
+          </div>
+        );
       },
       ...getColumnSearchProps("order Id"),
       sorter: (a, b) => a.id - b.id,
@@ -95,8 +110,15 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
       key: "user",
       ...getColumnSearchProps("customer"),
       sorter: (a, b) => a.user.localeCompare(b.user),
-      render: (_, { user }) => {
-        return <>{user}</>;
+      render: (_, { user, id }) => {
+        return (
+          <div
+            className="text-blue-500 cursor-pointer hover:underline"
+            onClick={() => navigate(`view-order/${id}`)}
+          >
+            {user}
+          </div>
+        );
       },
     },
     {
@@ -243,16 +265,16 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
         columns={columns}
         dataSource={dataSource?.map((item) => ({ ...item, key: item.id }))}
         loading={status === "loading"}
-        rowClassName="cursor-pointer"
-        rowSelection={{ ...rowSelection }}
-        onRow={(record) => {
-          const { id } = record;
-          return {
-            onClick: () => {
-              navigate(`view-order/${id}`);
-            },
-          };
+        pagination={{
+          pageSize,
+          total: ordersCount,
+          current: page,
+
+          onChange: (page, pageSize) => {
+            setPage(page);
+          },
         }}
+        rowSelection={{ ...rowSelection }}
       />
 
       <DeleteOrder
