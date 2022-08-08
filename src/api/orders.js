@@ -1,8 +1,10 @@
 import axios from "../axios";
 
-export const getOrders = async () => {
-  const res = await axios.get("/api/order/admin/orders");
-  return res.data.data.results;
+export const getOrders = async ({ orderStatus, page, size }) => {
+  const res = await axios.get(
+    `/api/order/admin/orders/?status=${orderStatus}page=${page}&size=${size}`
+  );
+  return res.data.data;
 };
 
 export const updateOrder = async (orderId, data) => {

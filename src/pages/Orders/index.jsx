@@ -1,13 +1,20 @@
 import { Tabs } from "antd";
-import React from "react";
+import { uniqBy } from "lodash";
+import React, { useEffect, useState } from "react";
 import { useQuery } from "react-query";
+import { getOrders } from "../../api/orders";
 import { CANCELLED, DELIVERED, IN_PROCESS } from "../../constants";
-import { getOrders } from "../../context/OrdersContext";
+import { GET_ORDERS_LIST } from "../../constants/queryKeys";
 import CustomPageHeader from "../../shared/PageHeader";
 import OrdersList from "./OrdersList";
 
 const Orders = () => {
   const { TabPane } = Tabs;
+
+  const pageSize = 20;
+  const [page, setPage] = useState(1);
+  const [orderStatus, setOrderStatus] = useState("all");
+  const [orders, setOrders] = useState([]);
 
   const {
     data,
@@ -15,40 +22,71 @@ const Orders = () => {
     isRefetching,
     refetch: refetchOrders,
   } = useQuery({
-    queryFn: getOrders,
-    queryKey: "getOrdersList",
+    queryFn: () => getOrders({ page, orderStatus, size: pageSize }),
+    queryKey: [
+      GET_ORDERS_LIST,
+      orderStatus + page.toString() + pageSize.toString(),
+    ],
   });
+
+  useEffect(() => {
+    if (data) setOrders((prev) => uniqBy([...prev, ...data.results], "id"));
+  }, [data]);
+
+  useEffect(() => {
+    refetchOrders();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, orderStatus]);
 
   return (
     <div>
       <CustomPageHeader title="Orders" isBasicHeader />
 
-      <Tabs defaultActiveKey="all">
+      <Tabs
+        defaultActiveKey="all"
+        onTabClick={(tabKey) => setOrderStatus(tabKey)}
+      >
         <TabPane key="all" tab="All">
           <OrdersList
-            dataSource={data}
+            dataSource={orders}
+            ordersCount={data?.count}
+            page={page}
+            pageSize={pageSize}
             refetchOrders={refetchOrders}
+            setPage={setPage}
             status={isRefetching ? "loading" : status}
           />
         </TabPane>
-        <TabPane key="inProcess" tab="In Progress">
+        <TabPane key={IN_PROCESS} tab="In Progress">
           <OrdersList
-            dataSource={data?.filter((order) => order.status === IN_PROCESS)}
+            dataSource={orders}
+            ordersCount={data?.count}
+            page={page}
+            pageSize={pageSize}
             refetchOrders={refetchOrders}
+            setPage={setPage}
             status={isRefetching ? "loading" : status}
           />
         </TabPane>
-        <TabPane key="delivered" tab="Delivered">
+        <TabPane key={DELIVERED} tab="Delivered">
           <OrdersList
-            dataSource={data?.filter((order) => order.status === DELIVERED)}
+            dataSource={orders}
+            ordersCount={data?.count}
+            page={page}
+            pageSize={pageSize}
             refetchOrders={refetchOrders}
+            setPage={setPage}
             status={isRefetching ? "loading" : status}
           />
         </TabPane>
-        <TabPane key="cancelled" tab="Cancelled">
+        <TabPane key={CANCELLED} tab="Cancelled">
           <OrdersList
-            dataSource={data?.filter((order) => order.status === CANCELLED)}
+            dataSource={orders}
+            ordersCount={data?.count}
+            page={page}
+            pageSize={pageSize}
             refetchOrders={refetchOrders}
+            setPage={setPage}
             status={isRefetching ? "loading" : status}
           />
         </TabPane>

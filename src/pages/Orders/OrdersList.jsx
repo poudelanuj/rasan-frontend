@@ -27,7 +27,15 @@ export const getOrderStatusColor = (status) => {
   }
 };
 
-const OrdersList = ({ dataSource, status, refetchOrders }) => {
+const OrdersList = ({
+  dataSource,
+  status,
+  refetchOrders,
+  page,
+  setPage,
+  pageSize,
+  ordersCount,
+}) => {
   const searchInput = useRef(null);
   const [isDeleteOrderOpen, setIsDeleteOrderOpen] = useState(false);
   const [deleteOrderId, setDeleteOrderId] = useState(0);
@@ -243,6 +251,15 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
         columns={columns}
         dataSource={dataSource?.map((item) => ({ ...item, key: item.id }))}
         loading={status === "loading"}
+        pagination={{
+          pageSize,
+          total: ordersCount,
+          current: page,
+
+          onChange: (page, pageSize) => {
+            setPage(page);
+          },
+        }}
         rowClassName="cursor-pointer"
         rowSelection={{ ...rowSelection }}
         onRow={(record) => {
