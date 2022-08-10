@@ -3,7 +3,7 @@ import { Modal, Form, Upload, Select, Button } from "antd";
 import { useMutation, useQuery } from "react-query";
 import { updateBanners, getBannersById } from "../../../api/promotions";
 import { openSuccessNotification, openErrorNotification } from "../../../utils";
-import { GET_BANNERS_BY_ID } from "../../../constants/queryKeys";
+import { GET_PROMOTIONS_BANNERS_BY_ID } from "../../../constants/queryKeys";
 import Loader from "../../../shared/Loader";
 import { useEffect } from "react";
 
@@ -28,7 +28,7 @@ const UpdateBannersModal = ({
     refetch: refetchBanner,
   } = useQuery({
     queryFn: () => getBannersById(bannerId),
-    queryKey: [GET_BANNERS_BY_ID, bannerId],
+    queryKey: [GET_PROMOTIONS_BANNERS_BY_ID, bannerId],
     enabled: !!bannerId && !!promotionsId,
   });
 

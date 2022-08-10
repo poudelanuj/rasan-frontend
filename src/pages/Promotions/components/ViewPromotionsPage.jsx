@@ -126,7 +126,7 @@ const ViewPromotionsPage = () => {
         <Loader isOpen={true} />
       ) : (
         <>
-          {promotions && userGroups && (
+          {promotions && (
             <>
               <CustomPageHeader title={promotions.title} />
 
@@ -201,14 +201,15 @@ const ViewPromotionsPage = () => {
                   </p>
                   <p>
                     User group:{" "}
-                    {userGroups.map((el) => (
-                      <span
-                        key={el.data.data.id}
-                        className="font-semibold pr-1"
-                      >
-                        {el.data.data.name},
-                      </span>
-                    ))}
+                    {userGroups &&
+                      userGroups.map((el) => (
+                        <span
+                          key={el.data.data.id}
+                          className="font-semibold pr-1"
+                        >
+                          {el.data.data.name},
+                        </span>
+                      ))}
                   </p>
                   <p>
                     No. of banners:{" "}

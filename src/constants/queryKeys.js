@@ -87,6 +87,6 @@ export const GET_FAQS_BY_ID = "faqs-by-id";
 export const GET_PROMOTIONS = "promotions";
 export const GET_PROMOTIONS_BY_ID = "promotions-by-id";
 
-// *Banners
-export const GET_BANNERS = "banners";
-export const GET_BANNERS_BY_ID = "banners-by-id";
+// *Promotions Banners
+export const GET_PROMOTIONS_BANNERS = "promotions-banners";
+export const GET_PROMOTIONS_BANNERS_BY_ID = "promotions-banners-by-id";
