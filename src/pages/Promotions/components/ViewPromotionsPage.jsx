@@ -76,8 +76,9 @@ const ViewPromotionsPage = () => {
 
   const handleDeleteBanner = useMutation((id) => deleteBanners(id), {
     onSuccess: (data) => {
-      openSuccessNotification(data.message);
+      openSuccessNotification(data.message || "Banners deleted successfully");
       refetchPromotions();
+      setIsDeleteBanner({ ...isDeleteBanner, isOpen: false });
     },
     onError: (err) => openErrorNotification(err),
   });
