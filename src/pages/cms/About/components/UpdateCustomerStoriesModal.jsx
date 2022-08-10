@@ -134,7 +134,10 @@ const UpdateCustomerStoriesModal = ({
             <>
               <Button
                 type="ghost"
-                onClick={() => setIsUpdateCustomerStoriesModalOpen(false)}
+                onClick={() => {
+                  setSelectedImage(null);
+                  setIsUpdateCustomerStoriesModalOpen(false);
+                }}
               >
                 Cancel
               </Button>
@@ -183,7 +186,10 @@ const UpdateCustomerStoriesModal = ({
           ]}
           visible={isUpdateCustomerStoriesModalOpen}
           centered
-          onCancel={() => setIsUpdateCustomerStoriesModalOpen(false)}
+          onCancel={() => {
+            setSelectedImage(null);
+            setIsUpdateCustomerStoriesModalOpen(false);
+          }}
         >
           {customerStories && (
             <Form
@@ -196,24 +202,32 @@ const UpdateCustomerStoriesModal = ({
             >
               <Form.Item label="Thumbnail">
                 <Dragger {...fileUploadOptions}>
-                  <p className="ant-upload-drag-icon">
+                  {selectedImage || !customerStories.image.full_size ? (
+                    <>
+                      <p className="ant-upload-drag-icon">
+                        <img
+                          alt="gallery"
+                          className="h-[4rem] mx-auto"
+                          src={
+                            selectedImage
+                              ? URL.createObjectURL(selectedImage)
+                              : "/gallery-icon.svg"
+                          }
+                        />
+                      </p>
+                      <p className="ant-upload-text">
+                        <span className="text-gray-500">
+                          click or drag file to this area to upload
+                        </span>
+                      </p>
+                    </>
+                  ) : (
                     <img
-                      alt="gallery"
-                      className="h-[4rem] mx-auto"
-                      src={
-                        selectedImage
-                          ? URL.createObjectURL(selectedImage)
-                          : customerStories.image.thumbnail
-                          ? customerStories.image.thumbnail
-                          : "/gallery-icon.svg"
-                      }
+                      alt=""
+                      className="object-cover"
+                      src={customerStories.image.full_size}
                     />
-                  </p>
-                  <p className="ant-upload-text">
-                    <span className="text-gray-500">
-                      click or drag file to this area to upload
-                    </span>
-                  </p>
+                  )}
                 </Dragger>
               </Form.Item>
 

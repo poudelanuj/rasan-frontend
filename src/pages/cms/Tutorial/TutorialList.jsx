@@ -111,12 +111,12 @@ const TutorialList = ({
       dataIndex: "action",
       key: "action",
       width: "15%",
-      render: (_, { slug, title, published_at }) => {
+      render: (_, { slug, title, is_published }) => {
         return (
           <div className="flex items-center justify-between">
             <Button
               className="w-20 text-center"
-              danger={published_at ? true : false} //* TODO
+              danger={is_published} //* TODO
               loading={
                 handlePublishTutorial.variables &&
                 handlePublishTutorial.variables.slug === slug &&
@@ -127,11 +127,11 @@ const TutorialList = ({
               onClick={() =>
                 handlePublishTutorial.mutate({
                   slug: slug,
-                  shouldPublish: published_at ? false : true, //* TODO
+                  shouldPublish: !is_published,
                 })
               }
             >
-              {published_at ? "Unpublish" : "Publish"}
+              {is_published ? "Unpublish" : "Publish"}
             </Button>
             <DeleteOutlined
               className="ml-5"
@@ -179,9 +179,10 @@ const TutorialList = ({
       title: el.title,
       page_location: capitalize(el.page_location).replaceAll("_", " "),
       type: capitalize(el.type),
-      status: el.published_at ? "Published" : "Unpublished", //* TODO
+      status: el.is_published ? "Published" : "Unpublished",
       slug: el.slug,
-      published_at: el.published_at, // *TODO
+      published_at: el.published_at,
+      is_published: el.is_published,
     };
   });
 

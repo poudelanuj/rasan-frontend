@@ -8,6 +8,7 @@ import {
   BellOutlined,
   AppstoreOutlined,
   FolderOutlined,
+  TaobaoCircleOutlined,
 } from "@ant-design/icons";
 import { Avatar, Dropdown, Layout, Menu } from "antd";
 import React from "react";
@@ -96,6 +97,11 @@ const sidebarItems = [
       { label: "About Us", key: "cms" },
       { label: "Tutorial", key: "cms/tutorial" },
     ],
+  },
+  {
+    key: "promotions",
+    label: "Promotions",
+    icon: <TaobaoCircleOutlined />,
   },
 ];
 const AppLayout = () => {

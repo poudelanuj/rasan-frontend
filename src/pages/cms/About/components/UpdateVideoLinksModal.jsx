@@ -124,7 +124,10 @@ const UpdateVideoLinksModal = ({
             <>
               <Button
                 type="ghost"
-                onClick={() => setIsUpdateVideoLinkModalOpen(false)}
+                onClick={() => {
+                  setSelectedImage(null);
+                  setIsUpdateVideoLinkModalOpen(false);
+                }}
               >
                 Cancel
               </Button>
@@ -172,7 +175,10 @@ const UpdateVideoLinksModal = ({
           ]}
           visible={isUpdateVideoLinkModalOpen}
           centered
-          onCancel={() => setIsUpdateVideoLinkModalOpen(false)}
+          onCancel={() => {
+            setSelectedImage(null);
+            setIsUpdateVideoLinkModalOpen(false);
+          }}
         >
           {videoLink && (
             <>
@@ -186,24 +192,32 @@ const UpdateVideoLinksModal = ({
               >
                 <Form.Item label="Thumbnail">
                   <Dragger {...fileUploadOptions}>
-                    <p className="ant-upload-drag-icon">
+                    {selectedImage || !videoLink.image.full_size ? (
+                      <>
+                        <p className="ant-upload-drag-icon">
+                          <img
+                            alt="gallery"
+                            className="h-[4rem] mx-auto"
+                            src={
+                              selectedImage
+                                ? URL.createObjectURL(selectedImage)
+                                : "/gallery-icon.svg"
+                            }
+                          />
+                        </p>
+                        <p className="ant-upload-text">
+                          <span className="text-gray-500">
+                            click or drag file to this area to upload
+                          </span>
+                        </p>
+                      </>
+                    ) : (
                       <img
-                        alt="gallery"
-                        className="h-[4rem] mx-auto"
-                        src={
-                          selectedImage
-                            ? URL.createObjectURL(selectedImage)
-                            : videoLink.image.thumbnail
-                            ? videoLink.image.thumbnail
-                            : "/gallery-icon.svg"
-                        }
+                        alt=""
+                        className="object-cover"
+                        src={videoLink.image.full_size}
                       />
-                    </p>
-                    <p className="ant-upload-text">
-                      <span className="text-gray-500">
-                        click or drag file to this area to upload
-                      </span>
-                    </p>
+                    )}
                   </Dragger>
                 </Form.Item>
 
