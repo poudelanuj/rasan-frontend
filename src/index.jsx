@@ -64,6 +64,12 @@ import CreateTutorial from "./pages/cms/Tutorial/components/CreateTutorial";
 import UpdateTutorial from "./pages/cms/Tutorial/components/UpdateTutorial";
 import ViewFAQSPage from "./pages/cms/About/ViewFAQSPage";
 
+// *Promotions
+import Promotions from "./pages/Promotions";
+import CreatePromotionsPage from "./pages/Promotions/components/CreatePromotionsPage";
+import ViewPromotionsPage from "./pages/Promotions/components/ViewPromotionsPage";
+import UpdatePromotionsPage from "./pages/Promotions/components/UpdatePromotionsPage";
+
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -143,6 +149,16 @@ root.render(
                   path="tutorial/update/:slug"
                 />
                 <Route element={<ViewFAQSPage />} path="faqs/:groupId" />
+              </Route>
+
+              <Route path="promotions">
+                <Route element={<Promotions />} index />
+                <Route element={<ViewPromotionsPage />} path=":promotionsId" />
+                <Route element={<CreatePromotionsPage />} path="create" />
+                <Route
+                  element={<UpdatePromotionsPage />}
+                  path="update/:promotionsId"
+                />
               </Route>
 
               {/* ends */}

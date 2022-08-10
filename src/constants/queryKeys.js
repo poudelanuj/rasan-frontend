@@ -43,6 +43,7 @@ export const GET_USERS = "all-users";
 
 // * User Groups
 export const GET_USER_GROUPS = "all-user-groups";
+export const GET_USER_GROUPS_BY_ID = "user-groups-by-id";
 
 // * Orders
 export const GET_ORDERS = "all-orders";
@@ -82,3 +83,11 @@ export const GET_FAQ_GROPUS_BY_ID = "faqgroups-by-id";
 // *FAQS
 export const GET_FAQS = "faqs";
 export const GET_FAQS_BY_ID = "faqs-by-id";
+
+// *Promotions
+export const GET_PROMOTIONS = "promotions";
+export const GET_PROMOTIONS_BY_ID = "promotions-by-id";
+
+// *Promotions Banners
+export const GET_PROMOTIONS_BANNERS = "promotions-banners";
+export const GET_PROMOTIONS_BANNERS_BY_ID = "promotions-banners-by-id";

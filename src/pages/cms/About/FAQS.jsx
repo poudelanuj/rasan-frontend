@@ -126,7 +126,7 @@ const FAQS = () => {
           <div className="flex items-center justify-between">
             <Button
               className="w-20 text-center"
-              danger={is_published} //* TODO
+              danger={is_published}
               loading={
                 handlePublishFAQGroups.variables &&
                 handlePublishFAQGroups.variables.id === id &&
@@ -200,7 +200,9 @@ const FAQS = () => {
       key: index + 1,
       name: el.name,
       name_np: el.name_np,
-      published_at: moment(el.published_at).format("ll"),
+      published_at: el.published_at
+        ? moment(el.published_at).format("ll")
+        : "Not published",
       status: el.is_published ? "Published" : "Unpublished",
       is_published: el.is_published,
     };

@@ -209,7 +209,7 @@ const UpdateTutorial = () => {
                   <Image
                     className="object-cover"
                     height={100}
-                    src={dataSource.image.thumbnail}
+                    src={dataSource.image.full_size}
                   />
                 }
                 style={{
