@@ -162,7 +162,7 @@ const ViewPromotionsPage = () => {
                           : getStatusColor(UNPUBLISHED)
                       }
                     >
-                      {promotions.is_published ? "Published" : "Unpublished"}
+                      {promotions.is_published ? "Published" : "Not published"}
                     </Tag>
                   </div>
 
@@ -272,8 +272,15 @@ const ViewPromotionsPage = () => {
                     <Select placeholder="Select an option" allowClear>
                       <Option value="app_home_top">App Home Top</Option>
                       <Option value="app_home_bottom">App Home Bottom</Option>
+                      <Option value="web_home_top">Web Home Top</Option>
+                      <Option value="web_home_bottom">Web Home Bottom</Option>
                     </Select>
                   </Form.Item>
+
+                  <p>
+                    The recommended size for app banners is of aspect ratio
+                    828x360 and for website banners is of aspect ratio 1320x400.
+                  </p>
 
                   <Form.Item>
                     <Space>
@@ -310,7 +317,7 @@ const ViewPromotionsPage = () => {
                               : getStatusColor(UNPUBLISHED)
                           }
                         >
-                          {el.is_published ? "Published" : "Unpublished"}
+                          {el.is_published ? "Published" : "Not published"}
                         </Tag>
                         <p>
                           Banner ID:{" "}

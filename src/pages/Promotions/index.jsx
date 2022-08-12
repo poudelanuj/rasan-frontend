@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Table, Button, Dropdown, Space, Menu, Tag } from "antd";
@@ -9,7 +9,10 @@ import {
   getPromotions,
   publishPromotions,
 } from "../../api/promotions";
-import { GET_PROMOTIONS } from "../../constants/queryKeys";
+import {
+  GET_PROMOTIONS,
+  GET_PROMOTIONS_BY_ID,
+} from "../../constants/queryKeys";
 import CustomPageHeader from "../../shared/PageHeader";
 import {
   openErrorNotification,
@@ -32,6 +35,8 @@ export const getStatusColor = (status) => {
 
 const Promotions = () => {
   const navigate = useNavigate();
+
+  const queryClient = useQueryClient();
 
   const [promotionsIds, setPromotionsIds] = useState([]);
 
@@ -111,7 +116,7 @@ const Promotions = () => {
       type: capitalize(el.type).replaceAll("_", " "),
       context: el.brand || el.category || el.product_group,
       bannersCount: el.banners.length,
-      status: el.is_published ? "Published" : "Unpublished",
+      status: el.is_published ? "Published" : "Not published",
       is_published: el.is_published,
     };
   });
@@ -181,12 +186,13 @@ const Promotions = () => {
               }
               size="small"
               type="primary"
-              onClick={() =>
+              onClick={() => {
                 handlePublishPromotions.mutate({
                   id: id,
                   shouldPublish: !is_published,
-                })
-              }
+                });
+                queryClient.removeQueries([GET_PROMOTIONS_BY_ID]);
+              }}
             >
               {is_published ? "Unpublish" : "Publish"}
             </Button>

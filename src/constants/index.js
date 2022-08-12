@@ -126,4 +126,4 @@ export const DASHBOARD_TIME_KEYS = [
 ];
 
 export const PUBLISHED = "Published";
-export const UNPUBLISHED = "Unpublished";
+export const UNPUBLISHED = "Not published";
