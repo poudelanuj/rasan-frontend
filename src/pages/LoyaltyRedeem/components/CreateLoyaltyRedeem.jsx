@@ -1,4 +1,5 @@
 import { Form, Select, Button, Input } from "antd";
+import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useNavigate } from "react-router-dom";
 import { createReedemableProduct } from "../../../api/loyaltyRedeem";
@@ -21,6 +22,8 @@ const CreateLoyaltyRedeem = () => {
   const navigate = useNavigate();
 
   const { Option } = Select;
+
+  const [productPack, setProductPack] = useState([]);
 
   const { data: dropdownProductSku } = useQuery({
     queryFn: () => getDropdownProductSkus(),
@@ -67,7 +70,17 @@ const CreateLoyaltyRedeem = () => {
             },
           ]}
         >
-          <Select placeholder="Select an option">
+          <Select
+            placeholder="Select an option"
+            onChange={(value) => {
+              form.resetFields(["product_pack"]);
+              setProductPack(
+                dropdownProductSku &&
+                  dropdownProductSku.filter((el) => el.slug === value)[0]
+                    .product_packs
+              );
+            }}
+          >
             {dropdownProductSku &&
               dropdownProductSku.map((el) => (
                 <Option key={el.id} value={el.slug}>
@@ -103,7 +116,14 @@ const CreateLoyaltyRedeem = () => {
             },
           ]}
         >
-          <Input type="number" />
+          <Select placeholder="Select an option" allowClear>
+            {productPack &&
+              productPack.map((el) => (
+                <Option key={el.sn} value={el.number_of_items}>
+                  {el.number_of_items}
+                </Option>
+              ))}
+          </Select>
         </Form.Item>
 
         <Form.Item
