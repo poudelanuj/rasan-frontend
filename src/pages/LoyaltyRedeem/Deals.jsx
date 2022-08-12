@@ -21,7 +21,7 @@ const Deals = ({ deals, refetchLoyaltyRedeem, status }) => {
 
   const [dealsId, setDealsId] = useState([]);
 
-  const [isDeleteDealsModal, setIsDeleteDealsModal] = useState({
+  const [deleteDealsModal, setDeleteDealsModal] = useState({
     isOpen: false,
     title: "",
   });
@@ -31,8 +31,8 @@ const Deals = ({ deals, refetchLoyaltyRedeem, status }) => {
     {
       onSuccess: (data) => {
         openSuccessNotification(data[0].data.message);
-        setIsDeleteDealsModal({
-          ...isDeleteDealsModal,
+        setDeleteDealsModal({
+          ...deleteDealsModal,
           isOpen: false,
         });
         refetchLoyaltyRedeem();
@@ -152,8 +152,8 @@ const Deals = ({ deals, refetchLoyaltyRedeem, status }) => {
 
             <DeleteOutlined
               onClick={() => {
-                setIsDeleteDealsModal({
-                  ...isDeleteDealsModal,
+                setDeleteDealsModal({
+                  ...deleteDealsModal,
                   isOpen: true,
                   title: `Delete ${product_sku}?`,
                 });
@@ -180,8 +180,8 @@ const Deals = ({ deals, refetchLoyaltyRedeem, status }) => {
           label: (
             <div
               onClick={() => {
-                setIsDeleteDealsModal({
-                  ...isDeleteDealsModal,
+                setDeleteDealsModal({
+                  ...deleteDealsModal,
                   isOpen: true,
                   title: "Delete all FAQ Groups?",
                 });
@@ -223,15 +223,15 @@ const Deals = ({ deals, refetchLoyaltyRedeem, status }) => {
 
       <ConfirmDelete
         closeModal={() =>
-          setIsDeleteDealsModal({
-            ...isDeleteDealsModal,
+          setDeleteDealsModal({
+            ...deleteDealsModal,
             isOpen: false,
           })
         }
         deleteMutation={() => handleDeleteLoyaltyRedeem.mutate()}
-        isOpen={isDeleteDealsModal.isOpen}
+        isOpen={deleteDealsModal.isOpen}
         status={handleDeleteLoyaltyRedeem.status}
-        title={isDeleteDealsModal.title}
+        title={deleteDealsModal.title}
       />
     </>
   );
