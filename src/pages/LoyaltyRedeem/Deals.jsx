@@ -47,6 +47,7 @@ const Deals = ({ deals, refetchLoyaltyRedeem, status }) => {
       onSuccess: (data) => {
         openSuccessNotification(data.message);
         refetchLoyaltyRedeem();
+        queryClient.removeQueries([GET_LOYALTY_REDEEM_BY_ID]);
       },
       onError: (err) => openErrorNotification(err),
     }
@@ -60,7 +61,7 @@ const Deals = ({ deals, refetchLoyaltyRedeem, status }) => {
       loyalty_points: el.loyalty_points + " points",
       total_quota: el.quota,
       redeemed_items: el.redeems_made,
-      status: el.is_published ? "Published" : "Unpublished",
+      status: el.is_published ? "Published" : "Not published",
       is_published: el.is_published,
     };
   });
@@ -139,13 +140,12 @@ const Deals = ({ deals, refetchLoyaltyRedeem, status }) => {
               }
               size="small"
               type="primary"
-              onClick={() => {
+              onClick={() =>
                 handlePublishLoyaltyRedeem.mutate({
                   id: id,
                   shouldPublish: !is_published,
-                });
-                queryClient.removeQueries([GET_LOYALTY_REDEEM_BY_ID]);
-              }}
+                })
+              }
             >
               {is_published ? "Unpublish" : "Publish"}
             </Button>

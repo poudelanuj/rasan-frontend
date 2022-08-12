@@ -105,7 +105,7 @@ const ViewLoyaltyRedeemPage = () => {
                       >
                         {loyaltyRedeem.is_published
                           ? "Published"
-                          : "Unpublished"}
+                          : "Not published"}
                       </Tag>
                     </div>
                   </div>

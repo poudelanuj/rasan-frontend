@@ -128,7 +128,7 @@ const ViewFAQSPage = () => {
       content: el.content,
       content_np: el.content_np,
       published_at: moment(el.published_at).format("ll"),
-      status: el.is_published ? "Published" : "Unpublished",
+      status: el.is_published ? "Published" : "Not published",
       is_published: el.is_published,
     };
   });

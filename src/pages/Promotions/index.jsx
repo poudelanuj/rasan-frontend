@@ -116,7 +116,7 @@ const Promotions = () => {
       type: capitalize(el.type).replaceAll("_", " "),
       context: el.brand || el.category || el.product_group,
       bannersCount: el.banners.length,
-      status: el.is_published ? "Published" : "Unpublished",
+      status: el.is_published ? "Published" : "Not published",
       is_published: el.is_published,
     };
   });

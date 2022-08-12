@@ -162,7 +162,7 @@ const ViewPromotionsPage = () => {
                           : getStatusColor(UNPUBLISHED)
                       }
                     >
-                      {promotions.is_published ? "Published" : "Unpublished"}
+                      {promotions.is_published ? "Published" : "Not published"}
                     </Tag>
                   </div>
 
@@ -317,7 +317,7 @@ const ViewPromotionsPage = () => {
                               : getStatusColor(UNPUBLISHED)
                           }
                         >
-                          {el.is_published ? "Published" : "Unpublished"}
+                          {el.is_published ? "Published" : "Not published"}
                         </Tag>
                         <p>
                           Banner ID:{" "}

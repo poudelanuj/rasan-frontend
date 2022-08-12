@@ -203,7 +203,7 @@ const FAQS = () => {
       published_at: el.published_at
         ? moment(el.published_at).format("ll")
         : "Not published",
-      status: el.is_published ? "Published" : "Unpublished",
+      status: el.is_published ? "Published" : "Not published",
       is_published: el.is_published,
     };
   });

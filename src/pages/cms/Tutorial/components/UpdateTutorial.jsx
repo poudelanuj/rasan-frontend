@@ -183,7 +183,7 @@ const UpdateTutorial = () => {
                       : getStatusColor(UNPUBLISHED)
                   }
                 >
-                  {dataSource.is_published ? "Published" : "Unpublished"}
+                  {dataSource.is_published ? "Published" : "Not published"}
                 </Tag>
               </div>
 
