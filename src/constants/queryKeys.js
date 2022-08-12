@@ -90,3 +90,7 @@ export const GET_PROMOTIONS_BY_ID = "promotions-by-id";
 // *Promotions Banners
 export const GET_PROMOTIONS_BANNERS = "promotions-banners";
 export const GET_PROMOTIONS_BANNERS_BY_ID = "promotions-banners-by-id";
+
+// *Loyalty Redeem
+export const GET_LOYALTY_REDEEM = "loyalty-redeem";
+export const GET_LOYALTY_REDEEM_BY_ID = "loyalty-redeem-by-id";

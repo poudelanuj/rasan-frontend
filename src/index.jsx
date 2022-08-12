@@ -70,6 +70,11 @@ import CreatePromotionsPage from "./pages/Promotions/components/CreatePromotions
 import ViewPromotionsPage from "./pages/Promotions/components/ViewPromotionsPage";
 import UpdatePromotionsPage from "./pages/Promotions/components/UpdatePromotionsPage";
 
+// *Loyalty Redeem
+import LoyaltyRedeem from "./pages/LoyaltyRedeem";
+import CreateLoyaltyRedeem from "./pages/LoyaltyRedeem/components/CreateLoyaltyRedeem";
+import ViewLoyaltyRedeemPage from "./pages/LoyaltyRedeem/components/ViewLoyaltyRedeemPage";
+
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -158,6 +163,15 @@ root.render(
                 <Route
                   element={<UpdatePromotionsPage />}
                   path="update/:promotionsId"
+                />
+              </Route>
+
+              <Route path="loyalty-redeem">
+                <Route element={<LoyaltyRedeem />} index />
+                <Route element={<CreateLoyaltyRedeem />} path="create" />
+                <Route
+                  element={<ViewLoyaltyRedeemPage />}
+                  path=":loyaltyRedeemId"
                 />
               </Route>
 

@@ -9,6 +9,7 @@ import {
   AppstoreOutlined,
   FolderOutlined,
   TaobaoCircleOutlined,
+  RocketOutlined,
 } from "@ant-design/icons";
 import { Avatar, Dropdown, Layout, Menu } from "antd";
 import React from "react";
@@ -83,6 +84,11 @@ const sidebarItems = [
       { label: "Out of Stock Enquiry", key: "crm/stock-enquiry" },
       { label: "User Feedbacks", key: "crm/user-feedbacks" },
     ],
+  },
+  {
+    key: "loyalty-redeem",
+    label: "Loyalty Redeem",
+    icon: <RocketOutlined />,
   },
   {
     key: "notifications",
