@@ -5,6 +5,13 @@ export const getPromotions = async () => {
   return res.data.data.results;
 };
 
+export const getPaginatedPromotions = async (page, pageSize) => {
+  const res = await axios.get(
+    `/api/promotion/admin/promotions/?page=${page || 1}&size=${pageSize || 20}`
+  );
+  return res.data.data;
+};
+
 export const postPromotions = async (data) => {
   const res = await axios.post("/api/promotion/admin/promotions/", data);
   return res.data;

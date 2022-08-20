@@ -65,7 +65,9 @@ export const GET_ADDRESSES = "get-addresses";
 
 // * Tutorials
 export const GET_TAGLISTS = "taglists";
+export const GET_PAGINATED_TAGLISTS = "taglists-paginated";
 export const GET_TUTORIALS = "tutorials";
+export const GET_PAGINATED_TUTORIALS = "tutorials-paginated";
 export const GET_TUTORIALS_BY_ID = "tutorials-by-id";
 export const GET_TAGLISTS_BY_ID = "tutorial-tags-by-id";
 
@@ -77,6 +79,7 @@ export const GET_CUSTOMER_STORY_BY_ID = "customer-stories-by-id";
 
 // *FAQ Groups
 export const GET_FAQ_GROUPS = "faqgroups";
+export const GET_PAGINATED_FAQ_GROUPS = "faqgroups-paginated";
 export const GET_FAQ_GROPUS_BY_ID = "faqgroups-by-id";
 
 // *FAQS
@@ -85,6 +88,7 @@ export const GET_FAQS_BY_ID = "faqs-by-id";
 
 // *Promotions
 export const GET_PROMOTIONS = "promotions";
+export const GET_PAGINATED_PROMOTIONS = "promotions-paginated";
 export const GET_PROMOTIONS_BY_ID = "promotions-by-id";
 
 // *Promotions Banners
@@ -92,5 +96,17 @@ export const GET_PROMOTIONS_BANNERS = "promotions-banners";
 export const GET_PROMOTIONS_BANNERS_BY_ID = "promotions-banners-by-id";
 
 // *Loyalty Redeem
-export const GET_LOYALTY_REDEEM = "loyalty-redeem";
+export const GET_LOYALTY_REDEEM_ARCHIVED_SPECIAL =
+  "loyalty-redeem-archived-special";
+export const GET_LOYALTY_REDEEM_ARCHIVED_RASAN =
+  "loyalty-redeem-archived-rasan";
+export const GET_LOYALTY_REDEEM_UNARCHIVED_SPECIAL =
+  "loyalty-redeem-unarchived-special";
+export const GET_LOYALTY_REDEEM_UNARCHIVED_RASAN =
+  "loyalty-redeem-unarchived-rasan";
 export const GET_LOYALTY_REDEEM_BY_ID = "loyalty-redeem-by-id";
+
+// *Lucky Draw
+export const GET_LUCKY_DRAW = "lucky-draw";
+export const GET_PAGINATED_LUCKY_DRAW = "lucky-draw-paginated";
+export const GET_LUCKY_DRAW_BY_ID = "lucky-draw-by-id";

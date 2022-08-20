@@ -1,7 +1,9 @@
 import axios from "../axios";
 
-export const getRedeemableProduct = async () => {
-  const res = await axios.get(`/api/loyalty-redeem/admin/products/`);
+export const getRedeemableProduct = async ({ type, isArchived }) => {
+  const res = await axios.get(
+    `/api/loyalty-redeem/admin/products/?redeem_type=${type}&is_archived=${isArchived}`
+  );
   return res.data.data.results;
 };
 
@@ -10,17 +12,17 @@ export const getRedeemableProductById = async (id) => {
   return res.data.data;
 };
 
-export const createReedemableProduct = async (data) => {
+export const createRedeemableProduct = async (data) => {
   const res = await axios.post("/api/loyalty-redeem/admin/products/", data);
   return res.data;
 };
 
-export const updateReedemableProduct = async ({ id, data }) => {
+export const updateRedeemableProduct = async ({ id, data }) => {
   const res = await axios.put(`/api/loyalty-redeem/admin/product/${id}/`, data);
   return res.data;
 };
 
-export const deleteReedemableProduct = async (ids = []) => {
+export const deleteRedeemableProduct = async (ids = []) => {
   const res = await Promise.all(
     ids.map(
       async (id) =>
@@ -30,7 +32,7 @@ export const deleteReedemableProduct = async (ids = []) => {
   return res;
 };
 
-export const publishReedemableProduct = async ({ id, shouldPublish }) => {
+export const publishRedeemableProduct = async ({ id, shouldPublish }) => {
   if (shouldPublish) {
     const res = await axios.post(
       `/api/loyalty-redeem/admin/product/${id}/publish/`
@@ -44,7 +46,7 @@ export const publishReedemableProduct = async ({ id, shouldPublish }) => {
   }
 };
 
-export const archiveReedemableProduct = async ({ id, shouldArchive }) => {
+export const archiveRedeemableProduct = async ({ id, shouldArchive }) => {
   if (shouldArchive) {
     const res = await axios.post(
       `/api/loyalty-redeem/admin/product/${id}/archive/`

@@ -1,14 +1,15 @@
 import { Dropdown, Space, Button, Menu, Table, Tag } from "antd";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQuery } from "react-query";
+import { uniqBy } from "lodash";
 import moment from "moment";
 import {
   deleteFAQGroups,
-  getFAQGroups,
+  getPaginatedFAQGroups,
   publishFAQGroups,
 } from "../../../api/aboutus";
-import { GET_FAQ_GROUPS } from "../../../constants/queryKeys";
+import { GET_PAGINATED_FAQ_GROUPS } from "../../../constants/queryKeys";
 import Loader from "../../../shared/Loader";
 import { PUBLISHED, UNPUBLISHED } from "../../../constants";
 import { useNavigate } from "react-router-dom";
@@ -47,17 +48,36 @@ const FAQS = () => {
   const [isUpdateFAQGroupsModalOpen, setIsUpdateFAQGroupsModalOpen] =
     useState(false);
 
+  const [page, setPage] = useState(1);
+
+  const pageSize = 20;
+
+  const [faqGroups, setFaqGroups] = useState([]);
+
   const {
-    data: dataSource,
+    data,
     status,
     refetch: refetchFAQGroups,
-  } = useQuery({ queryFn: () => getFAQGroups(), queryKey: GET_FAQ_GROUPS });
+  } = useQuery({
+    queryFn: () => getPaginatedFAQGroups(page, pageSize),
+    queryKey: [GET_PAGINATED_FAQ_GROUPS, page.toString() + pageSize.toString()],
+  });
+
+  useEffect(() => {
+    if (data) setFaqGroups((prev) => uniqBy([...prev, ...data.results], "id"));
+  }, [data]);
+
+  useEffect(() => {
+    refetchFAQGroups();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   const handleDeleteFAQGroups = useMutation(() => deleteFAQGroups(faqIds), {
     onSuccess: (data) => {
       openSuccessNotification(data[0].data.message);
       setIsDeleteFAQModal({ ...isDeleteFAQModal, isOpen: false });
       refetchFAQGroups();
+      setFaqIds([]);
     },
     onError: (err) => openErrorNotification(err),
   });
@@ -194,7 +214,7 @@ const FAQS = () => {
     },
   };
 
-  const FAQGroups = dataSource?.map((el, index) => {
+  const FAQGroups = faqGroups?.map((el, index) => {
     return {
       id: el.id,
       key: index + 1,
@@ -235,6 +255,14 @@ const FAQS = () => {
             columns={columns}
             dataSource={FAQGroups}
             loading={status === "loading" || refetchFAQGroups}
+            pagination={{
+              pageSize,
+              total: data?.count,
+
+              onChange: (page, pageSize) => {
+                setPage(page);
+              },
+            }}
             rowSelection={{ ...rowSelection }}
           />
 

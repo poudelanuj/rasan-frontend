@@ -1,16 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Table, Button, Dropdown, Space, Menu, Tag } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
-import { capitalize } from "lodash";
+import { capitalize, uniqBy } from "lodash";
 import {
   deletePromotions,
-  getPromotions,
+  getPaginatedPromotions,
   publishPromotions,
 } from "../../api/promotions";
 import {
-  GET_PROMOTIONS,
+  GET_PAGINATED_PROMOTIONS,
   GET_PROMOTIONS_BY_ID,
 } from "../../constants/queryKeys";
 import CustomPageHeader from "../../shared/PageHeader";
@@ -38,13 +38,34 @@ const Promotions = () => {
 
   const queryClient = useQueryClient();
 
+  const [page, setPage] = useState(1);
+
+  const pageSize = 20;
+
+  const [dataSourcePromotions, setDataSourcePromotions] = useState([]);
+
   const [promotionsIds, setPromotionsIds] = useState([]);
 
   const {
-    data: dataSourcePromotions,
+    data,
     refetch: refetchPromotions,
     status,
-  } = useQuery({ queryFn: () => getPromotions(), queryKey: GET_PROMOTIONS });
+  } = useQuery({
+    queryFn: () => getPaginatedPromotions(page, pageSize),
+    queryKey: [GET_PAGINATED_PROMOTIONS, page.toString() + pageSize.toString()],
+  });
+
+  useEffect(() => {
+    if (data)
+      setDataSourcePromotions((prev) =>
+        uniqBy([...prev, ...data.results], "id")
+      );
+  }, [data]);
+
+  useEffect(() => {
+    refetchPromotions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   const [isDeletePromotionsModal, setIsDeletePromotionsModal] = useState({
     isOpen: false,
@@ -62,6 +83,7 @@ const Promotions = () => {
           ...isDeletePromotionsModal,
           isOpen: false,
         });
+        setPromotionsIds([]);
         refetchPromotions();
       },
       onError: (err) => openErrorNotification(err),
@@ -243,6 +265,14 @@ const Promotions = () => {
               columns={columns}
               dataSource={promotions}
               loading={status === "loading" || refetchPromotions}
+              pagination={{
+                pageSize,
+                total: data?.count,
+
+                onChange: (page, pageSize) => {
+                  setPage(page);
+                },
+              }}
               rowSelection={{ ...rowSelection }}
             />
           </div>

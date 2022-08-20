@@ -2,7 +2,7 @@ import { Modal, Form, Button, Input, Select, Image } from "antd";
 import { capitalize } from "lodash";
 import { useEffect } from "react";
 import { useMutation } from "react-query";
-import { updateReedemableProduct } from "../../../api/loyaltyRedeem";
+import { updateRedeemableProduct } from "../../../api/loyaltyRedeem";
 import { openErrorNotification, openSuccessNotification } from "../../../utils";
 
 const UpdateLoyaltyRedeemModal = ({
@@ -21,7 +21,7 @@ const UpdateLoyaltyRedeemModal = ({
   const { Option } = Select;
 
   const handleUpdateLoyalty = useMutation(
-    ({ id, data }) => updateReedemableProduct({ id, data }),
+    ({ id, data }) => updateRedeemableProduct({ id, data }),
     {
       onSuccess: (data) => {
         openSuccessNotification(data.message);

@@ -176,7 +176,7 @@ const UpdateTutorial = () => {
                     : "Not Published"}
                 </p>
                 <Tag
-                  className="text-center w-20"
+                  className="text-center w-fit"
                   color={
                     dataSource.is_published
                       ? getStatusColor(PUBLISHED)

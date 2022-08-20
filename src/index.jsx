@@ -75,6 +75,12 @@ import LoyaltyRedeem from "./pages/LoyaltyRedeem";
 import CreateLoyaltyRedeem from "./pages/LoyaltyRedeem/components/CreateLoyaltyRedeem";
 import ViewLoyaltyRedeemPage from "./pages/LoyaltyRedeem/components/ViewLoyaltyRedeemPage";
 
+// *Lucky Draw Campaign
+import LuckyDraw from "./pages/LuckyDraw";
+import CreateLuckyDraw from "./pages/LuckyDraw/components/CreateLuckyDraw";
+import UpdateLuckyDraw from "./pages/LuckyDraw/components/UpdateLuckyDraw";
+import ViewLuckyDraw from "./pages/LuckyDraw/components/ViewLuckyDraw";
+
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -173,6 +179,13 @@ root.render(
                   element={<ViewLoyaltyRedeemPage />}
                   path=":loyaltyRedeemId"
                 />
+              </Route>
+
+              <Route path="lucky-draw">
+                <Route element={<LuckyDraw />} index />
+                <Route element={<CreateLuckyDraw />} path="create" />
+                <Route element={<ViewLuckyDraw />} path=":eventId" />
+                <Route element={<UpdateLuckyDraw />} path="update/:eventId" />
               </Route>
 
               {/* ends */}
