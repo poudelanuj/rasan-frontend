@@ -49,6 +49,7 @@ const LuckyDraw = () => {
     data,
     status,
     refetch: refetchLuckyDraw,
+    isRefetching,
   } = useQuery({
     queryFn: () => getPaginatedLuckyDraw(page, pageSize),
     queryKey: [GET_PAGINATED_LUCKY_DRAW, page.toString() + pageSize.toString()],
@@ -68,6 +69,7 @@ const LuckyDraw = () => {
     {
       onSuccess: (data) => {
         openSuccessNotification(data.message);
+        setLuckyDraw([]);
         refetchLuckyDraw();
       },
       onError: (err) => openErrorNotification(err),
@@ -253,7 +255,7 @@ const LuckyDraw = () => {
           <Table
             columns={columns}
             dataSource={luckyDrawSource}
-            loading={status === "loading" || refetchLuckyDraw}
+            loading={status === "loading" || isRefetching}
             pagination={{
               pageSize,
               total: data?.count,
