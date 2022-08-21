@@ -31,7 +31,7 @@ const TutorialTagsList = () => {
     data,
     status,
     refetch: refetchTags,
-    isRefetching: refetchingTags,
+    isRefetching,
   } = useQuery({
     queryFn: () => getPaginatedTags(page, pageSize),
     queryKey: [GET_PAGINATED_TAGLISTS, page.toString() + pageSize.toString()],
@@ -143,7 +143,7 @@ const TutorialTagsList = () => {
         dataSource={tutorialTagList?.map((el, index) => {
           return { key: index + 1, title: el.tag, id: el.id };
         })}
-        loading={status === "loading" || refetchingTags}
+        loading={status === "loading" || isRefetching}
         pagination={{
           pageSize,
           total: data?.count,

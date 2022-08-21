@@ -54,7 +54,7 @@ const TutorialList = () => {
     data,
     status,
     refetch: refetchTutorials,
-    isRefetching: refetchingTutorials,
+    isRefetching,
   } = useQuery({
     queryFn: () => getPaginatedTutorials(page, pageSize),
     queryKey: [GET_PAGINATED_TUTORIALS, page.toString() + pageSize.toString()],
@@ -86,6 +86,7 @@ const TutorialList = () => {
     {
       onSuccess: (res) => {
         openSuccessNotification(res.message);
+        setTutorialList([]);
         refetchTutorials();
         queryClient.refetchQueries([GET_TUTORIALS_BY_ID]);
       },
@@ -240,7 +241,7 @@ const TutorialList = () => {
       <Table
         columns={columns}
         dataSource={dataSourceTutorials}
-        loading={status === "loading" || refetchingTutorials}
+        loading={status === "loading" || isRefetching}
         pagination={{
           pageSize,
           total: data?.count,

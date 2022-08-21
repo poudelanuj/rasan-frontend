@@ -43,6 +43,7 @@ const Deals = ({ type, isArchived, queryKey }) => {
     data: deals,
     status,
     refetch: refetchLoyaltyRedeem,
+    isRefetching,
   } = useQuery({
     queryFn: () => getRedeemableProduct({ type, isArchived }),
     queryKey: [queryKey],
@@ -245,7 +246,7 @@ const Deals = ({ type, isArchived, queryKey }) => {
         <Table
           columns={columns}
           dataSource={dealsDataSource}
-          loading={status === "loading" || refetchLoyaltyRedeem}
+          loading={status === "loading" || isRefetching}
           rowSelection={{ ...rowSelection }}
         />
       )}

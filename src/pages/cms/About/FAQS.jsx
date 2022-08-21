@@ -58,6 +58,7 @@ const FAQS = () => {
     data,
     status,
     refetch: refetchFAQGroups,
+    isRefetching,
   } = useQuery({
     queryFn: () => getPaginatedFAQGroups(page, pageSize),
     queryKey: [GET_PAGINATED_FAQ_GROUPS, page.toString() + pageSize.toString()],
@@ -87,6 +88,7 @@ const FAQS = () => {
     {
       onSuccess: (data) => {
         openSuccessNotification(data.message);
+        setFaqGroups([]);
         refetchFAQGroups();
       },
       onError: (err) => openErrorNotification(err),
@@ -254,7 +256,7 @@ const FAQS = () => {
           <Table
             columns={columns}
             dataSource={FAQGroups}
-            loading={status === "loading" || refetchFAQGroups}
+            loading={status === "loading" || isRefetching}
             pagination={{
               pageSize,
               total: data?.count,

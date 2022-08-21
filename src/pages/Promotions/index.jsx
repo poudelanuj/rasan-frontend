@@ -50,6 +50,7 @@ const Promotions = () => {
     data,
     refetch: refetchPromotions,
     status,
+    isRefetching,
   } = useQuery({
     queryFn: () => getPaginatedPromotions(page, pageSize),
     queryKey: [GET_PAGINATED_PROMOTIONS, page.toString() + pageSize.toString()],
@@ -95,6 +96,7 @@ const Promotions = () => {
     {
       onSuccess: (data) => {
         openSuccessNotification(data.message);
+        setDataSourcePromotions([]);
         refetchPromotions();
       },
       onError: (err) => openErrorNotification(err),
@@ -264,7 +266,7 @@ const Promotions = () => {
             <Table
               columns={columns}
               dataSource={promotions}
-              loading={status === "loading" || refetchPromotions}
+              loading={status === "loading" || isRefetching}
               pagination={{
                 pageSize,
                 total: data?.count,
