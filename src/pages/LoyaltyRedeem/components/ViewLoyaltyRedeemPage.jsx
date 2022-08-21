@@ -5,7 +5,7 @@ import { Button, Image, Tag } from "antd";
 import moment from "moment";
 import { EditOutlined } from "@ant-design/icons";
 import {
-  archiveReedemableProduct,
+  archiveRedeemableProduct,
   getRedeemableProductById,
 } from "../../../api/loyaltyRedeem";
 import {
@@ -44,7 +44,7 @@ const ViewLoyaltyRedeemPage = () => {
   });
 
   const handleArchiveLoyalty = useMutation(
-    ({ id, shouldArchive }) => archiveReedemableProduct({ id, shouldArchive }),
+    ({ id, shouldArchive }) => archiveRedeemableProduct({ id, shouldArchive }),
     {
       onSuccess: (data) => {
         openSuccessNotification(data.message);

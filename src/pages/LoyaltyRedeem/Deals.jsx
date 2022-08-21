@@ -1,33 +1,56 @@
-import { Button, Dropdown, Space, Table, Menu, Tag } from "antd";
+import { Button, Table, Tag, Menu, Space, Dropdown } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import { useMutation, useQueryClient, useQuery } from "react-query";
 import { capitalize } from "lodash";
 import { useState } from "react";
 import { PUBLISHED, UNPUBLISHED } from "../../constants";
 import ConfirmDelete from "../../shared/ConfirmDelete";
-import { useMutation, useQueryClient } from "react-query";
 import {
-  deleteReedemableProduct,
-  publishReedemableProduct,
+  getRedeemableProduct,
+  deleteRedeemableProduct,
+  publishRedeemableProduct,
 } from "../../api/loyaltyRedeem";
+import {
+  GET_LOYALTY_REDEEM_ARCHIVED_RASAN,
+  GET_LOYALTY_REDEEM_ARCHIVED_SPECIAL,
+  GET_LOYALTY_REDEEM_UNARCHIVED_RASAN,
+  GET_LOYALTY_REDEEM_UNARCHIVED_SPECIAL,
+  GET_LOYALTY_REDEEM_BY_ID,
+} from "../../constants/queryKeys";
 import { getStatusColor } from ".";
-import { openErrorNotification, openSuccessNotification } from "../../utils";
-import { GET_LOYALTY_REDEEM_BY_ID } from "../../constants/queryKeys";
+import {
+  openErrorNotification,
+  openSuccessNotification,
+  parseSlug,
+} from "../../utils";
 
-const Deals = ({ deals, refetchLoyaltyRedeem, status }) => {
+import Loader from "../../shared/Loader";
+
+const Deals = ({ type, isArchived, queryKey }) => {
   const navigate = useNavigate();
 
   const queryClient = useQueryClient();
-
-  const [dealsId, setDealsId] = useState([]);
 
   const [deleteDealsModal, setDeleteDealsModal] = useState({
     isOpen: false,
     title: "",
   });
 
+  const [dealsId, setDealsId] = useState([]);
+
+  const {
+    data: deals,
+    status,
+    refetch: refetchLoyaltyRedeem,
+    isRefetching,
+  } = useQuery({
+    queryFn: () => getRedeemableProduct({ type, isArchived }),
+    queryKey: [queryKey],
+  });
+
   const handleDeleteLoyaltyRedeem = useMutation(
-    () => deleteReedemableProduct(dealsId),
+    () => deleteRedeemableProduct(dealsId),
     {
       onSuccess: (data) => {
         openSuccessNotification(data[0].data.message);
@@ -35,14 +58,18 @@ const Deals = ({ deals, refetchLoyaltyRedeem, status }) => {
           ...deleteDealsModal,
           isOpen: false,
         });
-        refetchLoyaltyRedeem();
+        setDealsId([]);
+        queryClient.refetchQueries([GET_LOYALTY_REDEEM_ARCHIVED_RASAN]);
+        queryClient.refetchQueries([GET_LOYALTY_REDEEM_ARCHIVED_SPECIAL]);
+        queryClient.refetchQueries([GET_LOYALTY_REDEEM_UNARCHIVED_RASAN]);
+        queryClient.refetchQueries([GET_LOYALTY_REDEEM_UNARCHIVED_SPECIAL]);
       },
       onError: (err) => openErrorNotification(err),
     }
   );
 
   const handlePublishLoyaltyRedeem = useMutation(
-    ({ id, shouldPublish }) => publishReedemableProduct({ id, shouldPublish }),
+    ({ id, shouldPublish }) => publishRedeemableProduct({ id, shouldPublish }),
     {
       onSuccess: (data) => {
         openSuccessNotification(data.message);
@@ -53,11 +80,11 @@ const Deals = ({ deals, refetchLoyaltyRedeem, status }) => {
     }
   );
 
-  const specialDealsDataSource = deals?.map((el, index) => {
+  const dealsDataSource = deals?.map((el, index) => {
     return {
       id: el.id,
       key: index + 1,
-      product_sku: capitalize(el.product_sku).replaceAll("-", " "),
+      product_sku: capitalize(parseSlug(el.product_sku)),
       loyalty_points: el.loyalty_points + " points",
       total_quota: el.quota,
       redeemed_items: el.redeems_made,
@@ -213,13 +240,16 @@ const Deals = ({ deals, refetchLoyaltyRedeem, status }) => {
           </Button>
         </Dropdown>
       </div>
-
-      <Table
-        columns={columns}
-        dataSource={specialDealsDataSource}
-        loading={status === "loading" || refetchLoyaltyRedeem}
-        rowSelection={{ ...rowSelection }}
-      />
+      {status === "loading" ? (
+        <Loader isOpen={true} />
+      ) : (
+        <Table
+          columns={columns}
+          dataSource={dealsDataSource}
+          loading={status === "loading" || isRefetching}
+          rowSelection={{ ...rowSelection }}
+        />
+      )}
 
       <ConfirmDelete
         closeModal={() =>

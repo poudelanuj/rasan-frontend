@@ -78,6 +78,13 @@ export const getFAQGroups = async () => {
   return res.data.data.results;
 };
 
+export const getPaginatedFAQGroups = async (page, pageSize) => {
+  const res = await axios.get(
+    `/api/about/admin/faq-groups/?page=${page || 1}&size=${pageSize || 20}`
+  );
+  return res.data.data;
+};
+
 export const postFAQGroups = async (data) => {
   const res = await axios.post("/api/about/admin/faq-groups/", data);
   return res.data;

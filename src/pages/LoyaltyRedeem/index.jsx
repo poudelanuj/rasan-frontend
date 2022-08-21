@@ -1,13 +1,13 @@
 import { Tabs } from "antd";
-import { useEffect } from "react";
-import { useState } from "react";
-import { useQuery } from "react-query";
-import { getRedeemableProduct } from "../../api/loyaltyRedeem";
-import { GET_LOYALTY_REDEEM } from "../../constants/queryKeys";
-import Loader from "../../shared/Loader";
 import CustomPageHeader from "../../shared/PageHeader";
 import Deals from "./Deals";
 import { PUBLISHED, UNPUBLISHED } from "../../constants";
+import {
+  GET_LOYALTY_REDEEM_ARCHIVED_RASAN,
+  GET_LOYALTY_REDEEM_ARCHIVED_SPECIAL,
+  GET_LOYALTY_REDEEM_UNARCHIVED_RASAN,
+  GET_LOYALTY_REDEEM_UNARCHIVED_SPECIAL,
+} from "../../constants/queryKeys";
 
 export const getStatusColor = (status) => {
   switch (status) {
@@ -23,57 +23,49 @@ export const getStatusColor = (status) => {
 const LoyaltyRedeem = () => {
   const { TabPane } = Tabs;
 
-  const [specialDeals, setSpecialDeals] = useState([]);
-
-  const [rasanDeals, setRasanDeals] = useState([]);
-
-  const {
-    data: loyaltyRedeem,
-    status,
-    refetch: refetchLoyaltyRedeem,
-  } = useQuery({
-    queryFn: () => getRedeemableProduct(),
-    queryKey: [GET_LOYALTY_REDEEM],
-  });
-
-  useEffect(() => {
-    if (status === "success") {
-      setRasanDeals(
-        loyaltyRedeem.filter((el) => el.redeem_type === "rasan_deal")
-      );
-      setSpecialDeals(
-        loyaltyRedeem.filter((el) => el.redeem_type === "special_deal")
-      );
-    }
-  }, [loyaltyRedeem, status]);
-
   return (
     <>
       <CustomPageHeader title="Loyalty Redeem" isBasicHeader />
       <div className="py-5 px-4 bg-[#FFFFFF]">
         <Tabs defaultActiveKey="all">
-          <TabPane key="special_deals" tab="Special Deals">
-            {status === "loading" ? (
-              <Loader isOpen={true} />
-            ) : (
-              <Deals
-                deals={specialDeals}
-                refetchLoyaltyRedeem={refetchLoyaltyRedeem}
-                status={status}
-              />
-            )}
-          </TabPane>
+          {/* Todo Right Align*/}
+          <TabPane key="unarchived" tab="Active">
+            <Tabs>
+              <TabPane key="rasan_deals_unarchived" tab="Rasan Deals">
+                <Deals
+                  isArchived={"False"}
+                  queryKey={GET_LOYALTY_REDEEM_UNARCHIVED_RASAN}
+                  type="rasan_deal"
+                />
+              </TabPane>
 
-          <TabPane key="rasan_deals" tab="Rasan Deals">
-            {status === "loading" ? (
-              <Loader isOpen={true} />
-            ) : (
-              <Deals
-                deals={rasanDeals}
-                refetchLoyaltyRedeem={refetchLoyaltyRedeem}
-                status={status}
-              />
-            )}
+              <TabPane key="special_deals_unarchived" tab="Special Deals">
+                <Deals
+                  isArchived={"False"}
+                  queryKey={GET_LOYALTY_REDEEM_UNARCHIVED_SPECIAL}
+                  type="special_deal"
+                />
+              </TabPane>
+            </Tabs>
+          </TabPane>
+          <TabPane key="archived" tab="Archived">
+            <Tabs>
+              <TabPane key="rasan_deals_archived" tab="Rasan Deals">
+                <Deals
+                  isArchived={"True"}
+                  queryKey={GET_LOYALTY_REDEEM_ARCHIVED_RASAN}
+                  type="rasan_deal"
+                />
+              </TabPane>
+
+              <TabPane key="special_deals_archived" tab="Special Deals">
+                <Deals
+                  isArchived={"True"}
+                  queryKey={GET_LOYALTY_REDEEM_ARCHIVED_SPECIAL}
+                  type="special_deal"
+                />
+              </TabPane>
+            </Tabs>
           </TabPane>
         </Tabs>
       </div>

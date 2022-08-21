@@ -80,7 +80,7 @@ const CreateTutorial = () => {
       },
     }
   );
-  // FIX FORM
+
   return (
     <div className="px-4 bg-[#FFFFFF]">
       <CustomPageHeader title="Create Tutorial" />

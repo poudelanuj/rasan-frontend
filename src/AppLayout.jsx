@@ -10,6 +10,7 @@ import {
   FolderOutlined,
   TaobaoCircleOutlined,
   RocketOutlined,
+  AccountBookOutlined,
 } from "@ant-design/icons";
 import { Avatar, Dropdown, Layout, Menu } from "antd";
 import React from "react";
@@ -108,6 +109,11 @@ const sidebarItems = [
     key: "promotions",
     label: "Promotions",
     icon: <TaobaoCircleOutlined />,
+  },
+  {
+    key: "lucky-draw",
+    label: "Lucky Draw",
+    icon: <AccountBookOutlined />,
   },
 ];
 const AppLayout = () => {

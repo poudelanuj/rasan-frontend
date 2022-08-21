@@ -1,17 +1,24 @@
 import { Button, Dropdown, Space, Table, Menu, Tag } from "antd";
 import { useNavigate } from "react-router-dom";
-import { useQueryClient, useMutation } from "react-query";
-import { useState } from "react";
-import { capitalize } from "lodash";
+import { useQueryClient, useMutation, useQuery } from "react-query";
+import { useState, useEffect } from "react";
+import { capitalize, uniqBy } from "lodash";
 import { DeleteOutlined } from "@ant-design/icons";
 import ConfirmDelete from "../../../shared/ConfirmDelete";
 import {
   openSuccessNotification,
   openErrorNotification,
 } from "../../../utils/openNotification";
-import { deleteTutorials, publishTutorial } from "../../../api/tutorial";
+import {
+  deleteTutorials,
+  getPaginatedTutorials,
+  publishTutorial,
+} from "../../../api/tutorial";
 import { PUBLISHED, UNPUBLISHED } from "../../../constants";
-import { GET_TUTORIALS_BY_ID } from "../../../constants/queryKeys";
+import {
+  GET_PAGINATED_TUTORIALS,
+  GET_TUTORIALS_BY_ID,
+} from "../../../constants/queryKeys";
 
 export const getStatusColor = (status) => {
   switch (status) {
@@ -24,12 +31,7 @@ export const getStatusColor = (status) => {
   }
 };
 
-const TutorialList = ({
-  dataSource,
-  status,
-  refetchTutorials,
-  refetchingTutorials,
-}) => {
+const TutorialList = () => {
   const navigate = useNavigate();
 
   const queryClient = useQueryClient();
@@ -40,13 +42,41 @@ const TutorialList = ({
   const [deleteTutorialsModalTitle, setDeleteTutorialsModalTitle] =
     useState("");
 
+  const [page, setPage] = useState(1);
+
   const [slugs, setSlugs] = useState([]);
+
+  const pageSize = 20;
+
+  const [tutorialList, setTutorialList] = useState([]);
+
+  const {
+    data,
+    status,
+    refetch: refetchTutorials,
+    isRefetching,
+  } = useQuery({
+    queryFn: () => getPaginatedTutorials(page, pageSize),
+    queryKey: [GET_PAGINATED_TUTORIALS, page.toString() + pageSize.toString()],
+  });
+
+  useEffect(() => {
+    if (data) {
+      setTutorialList((prev) => uniqBy([...prev, ...data.results], "slug"));
+    }
+  }, [data]);
+
+  useEffect(() => {
+    refetchTutorials();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   const handleDeleteTutorial = useMutation(() => deleteTutorials(slugs), {
     onSuccess: (res) => {
       openSuccessNotification(res[0].data.message);
       refetchTutorials();
       setIsDeleteTutorialsModalOpen(false);
+      setSlugs([]);
     },
     onError: (err) => openErrorNotification(err),
   });
@@ -56,6 +86,7 @@ const TutorialList = ({
     {
       onSuccess: (res) => {
         openSuccessNotification(res.message);
+        setTutorialList([]);
         refetchTutorials();
         queryClient.refetchQueries([GET_TUTORIALS_BY_ID]);
       },
@@ -173,7 +204,7 @@ const TutorialList = ({
     },
   };
 
-  const dataSourceTutorials = dataSource?.map((el, index) => {
+  const dataSourceTutorials = tutorialList?.map((el, index) => {
     return {
       key: index + 1,
       title: el.title,
@@ -210,7 +241,15 @@ const TutorialList = ({
       <Table
         columns={columns}
         dataSource={dataSourceTutorials}
-        loading={status === "loading" || refetchingTutorials}
+        loading={status === "loading" || isRefetching}
+        pagination={{
+          pageSize,
+          total: data?.count,
+
+          onChange: (page, pageSize) => {
+            setPage(page);
+          },
+        }}
         rowSelection={{ ...rowSelection }}
       />
 

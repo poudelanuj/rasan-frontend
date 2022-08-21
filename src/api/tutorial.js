@@ -10,6 +10,15 @@ export const getTutorialTags = async () => {
   return res.data.data;
 };
 
+export const getPaginatedTags = async (page, pageSize) => {
+  const res = await axios.get(
+    `/api/tutorial/admin/tutorial-tags/?page=${page || 1}&size=${
+      pageSize || 20
+    }`
+  );
+  return res.data.data;
+};
+
 export const deleteTutorialTags = async (ids = []) => {
   const res = await Promise.all(
     ids.map(
@@ -29,6 +38,13 @@ export const createTutorial = async (data) => {
 export const getAllTutorials = async () => {
   const res = await axios.get("/api/tutorial/admin/tutorials/");
   return res.data.data.results;
+};
+
+export const getPaginatedTutorials = async (page, pageSize) => {
+  const res = await axios.get(
+    `/api/tutorial/admin/tutorials/?page=${page || 1}&size=${pageSize || 20}`
+  );
+  return res.data.data;
 };
 
 export const deleteTutorials = async (slugs = []) => {

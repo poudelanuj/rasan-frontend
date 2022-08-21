@@ -2,11 +2,14 @@ import { Form, Select, Button, Input } from "antd";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useNavigate } from "react-router-dom";
-import { createReedemableProduct } from "../../../api/loyaltyRedeem";
+import { createRedeemableProduct } from "../../../api/loyaltyRedeem";
 import { getDropdownProductSkus } from "../../../api/products/productSku";
 import {
   GET_DROPDOWN_PRODUCT_SKUS,
-  GET_LOYALTY_REDEEM,
+  GET_LOYALTY_REDEEM_ARCHIVED_RASAN,
+  GET_LOYALTY_REDEEM_ARCHIVED_SPECIAL,
+  GET_LOYALTY_REDEEM_UNARCHIVED_RASAN,
+  GET_LOYALTY_REDEEM_UNARCHIVED_SPECIAL,
 } from "../../../constants/queryKeys";
 import CustomPageHeader from "../../../shared/PageHeader";
 import {
@@ -31,11 +34,14 @@ const CreateLoyaltyRedeem = () => {
   });
 
   const handleCreateLoyaltyRedeem = useMutation(
-    (data) => createReedemableProduct(data),
+    (data) => createRedeemableProduct(data),
     {
       onSuccess: (data) => {
         openSuccessNotification(data.message);
-        queryClient.refetchQueries([GET_LOYALTY_REDEEM]);
+        queryClient.refetchQueries([GET_LOYALTY_REDEEM_ARCHIVED_RASAN]);
+        queryClient.refetchQueries([GET_LOYALTY_REDEEM_ARCHIVED_SPECIAL]);
+        queryClient.refetchQueries([GET_LOYALTY_REDEEM_UNARCHIVED_RASAN]);
+        queryClient.refetchQueries([GET_LOYALTY_REDEEM_UNARCHIVED_SPECIAL]);
         navigate(-1);
       },
       onError: (err) => openErrorNotification(err),

@@ -1,21 +1,18 @@
 import { Button, Dropdown, Space, Table, Menu } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
-import { useMutation } from "react-query";
-import { useState } from "react";
+import { useMutation, useQuery } from "react-query";
+import { useState, useEffect } from "react";
+import { uniqBy } from "lodash";
 import ConfirmDelete from "../../../shared/ConfirmDelete";
 import CreateTutorialTagsModal from "./components/CreateTutorialTagsModal";
-import { deleteTutorialTags } from "../../../api/tutorial";
+import { deleteTutorialTags, getPaginatedTags } from "../../../api/tutorial";
 import {
   openSuccessNotification,
   openErrorNotification,
 } from "../../../utils/openNotification";
+import { GET_PAGINATED_TAGLISTS } from "../../../constants/queryKeys";
 
-const TutorialTagsList = ({
-  dataSource,
-  status,
-  refetchTags,
-  refetchingTags,
-}) => {
+const TutorialTagsList = () => {
   const [isCreateTagsModalOpen, setIsCreateTagsModalOpen] = useState(false);
 
   const [isDeleteTagsModalOpen, setIsDeleteTagsModalOpen] = useState(false);
@@ -24,6 +21,31 @@ const TutorialTagsList = ({
 
   const [tagIds, setTagsIds] = useState([]);
 
+  const [page, setPage] = useState(1);
+
+  const pageSize = 20;
+
+  const [tutorialTagList, setTutorialTagList] = useState([]);
+
+  const {
+    data,
+    status,
+    refetch: refetchTags,
+    isRefetching,
+  } = useQuery({
+    queryFn: () => getPaginatedTags(page, pageSize),
+    queryKey: [GET_PAGINATED_TAGLISTS, page.toString() + pageSize.toString()],
+  });
+
+  useEffect(() => {
+    if (data) setTutorialTagList((prev) => uniqBy([...prev, ...data], "id"));
+  }, [data]);
+
+  useEffect(() => {
+    refetchTags();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
+
   const handleDeleteTutorialTags = useMutation(
     () => deleteTutorialTags(tagIds),
     {
@@ -31,6 +53,7 @@ const TutorialTagsList = ({
         openSuccessNotification(res[0].data.message);
         refetchTags();
         setIsDeleteTagsModalOpen(false);
+        setTagsIds([]);
       },
       onError: (err) => openErrorNotification(err),
     }
@@ -117,10 +140,18 @@ const TutorialTagsList = ({
 
       <Table
         columns={columns}
-        dataSource={dataSource?.map((el, index) => {
+        dataSource={tutorialTagList?.map((el, index) => {
           return { key: index + 1, title: el.tag, id: el.id };
         })}
-        loading={status === "loading" || refetchingTags}
+        loading={status === "loading" || isRefetching}
+        pagination={{
+          pageSize,
+          total: data?.count,
+
+          onChange: (page, pageSize) => {
+            setPage(page);
+          },
+        }}
         rowSelection={{ ...rowSelection }}
       />
 
