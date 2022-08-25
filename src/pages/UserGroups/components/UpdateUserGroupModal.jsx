@@ -176,7 +176,7 @@ const UpdateUserGroupModal = ({
               Remove All
             </Button>
           </Space>
-          <div className="overflow-y-scroll h-screen flex flex-col gap-2">
+          <div className="overflow-y-scroll h-[75vh] flex flex-col gap-2">
             {permissionList &&
               permissionList.map((el) => (
                 <span
