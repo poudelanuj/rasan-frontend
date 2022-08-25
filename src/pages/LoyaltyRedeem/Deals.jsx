@@ -2,14 +2,14 @@ import { Button, Table, Tag, Menu, Space, Dropdown } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient, useQuery } from "react-query";
-import { capitalize } from "lodash";
-import { useState } from "react";
+import { capitalize, uniqBy } from "lodash";
+import { useState, useEffect } from "react";
 import { PUBLISHED, UNPUBLISHED } from "../../constants";
 import ConfirmDelete from "../../shared/ConfirmDelete";
 import {
-  getRedeemableProduct,
   deleteRedeemableProduct,
   publishRedeemableProduct,
+  getPaginatedRedeemableProduct,
 } from "../../api/loyaltyRedeem";
 import {
   GET_LOYALTY_REDEEM_ARCHIVED_RASAN,
@@ -37,17 +37,36 @@ const Deals = ({ type, isArchived, queryKey }) => {
     title: "",
   });
 
+  const [page, setPage] = useState(1);
+
+  const pageSize = 20;
+
   const [dealsId, setDealsId] = useState([]);
 
+  const [deals, setDeals] = useState([]);
+
   const {
-    data: deals,
+    data,
     status,
     refetch: refetchLoyaltyRedeem,
     isRefetching,
   } = useQuery({
-    queryFn: () => getRedeemableProduct({ type, isArchived }),
+    queryFn: () =>
+      getPaginatedRedeemableProduct(page, pageSize, type, isArchived),
     queryKey: [queryKey],
   });
+
+  useEffect(() => {
+    if (data) {
+      setDeals([]);
+      setDeals((prev) => uniqBy([...prev, ...data.results], "id"));
+    }
+  }, [data]);
+
+  useEffect(() => {
+    refetchLoyaltyRedeem();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   const handleDeleteLoyaltyRedeem = useMutation(
     () => deleteRedeemableProduct(dealsId),
@@ -247,6 +266,14 @@ const Deals = ({ type, isArchived, queryKey }) => {
           columns={columns}
           dataSource={dealsDataSource}
           loading={status === "loading" || isRefetching}
+          pagination={{
+            pageSize,
+            total: data?.count,
+
+            onChange: (page, pageSize) => {
+              setPage(page);
+            },
+          }}
           rowSelection={{ ...rowSelection }}
         />
       )}

@@ -57,10 +57,12 @@ const Promotions = () => {
   });
 
   useEffect(() => {
-    if (data)
+    if (data) {
+      setDataSourcePromotions([]);
       setDataSourcePromotions((prev) =>
         uniqBy([...prev, ...data.results], "id")
       );
+    }
   }, [data]);
 
   useEffect(() => {
@@ -96,7 +98,6 @@ const Promotions = () => {
     {
       onSuccess: (data) => {
         openSuccessNotification(data.message);
-        setDataSourcePromotions([]);
         refetchPromotions();
       },
       onError: (err) => openErrorNotification(err),

@@ -48,7 +48,7 @@ const ViewLuckyDraw = () => {
     onError: (err) => openErrorNotification(err),
   });
 
-  const couponsDataSource = luckyDraw?.coupons?.map((el, index) => {
+  const couponsDataSource = luckyDraw?.coupons?.results.map((el, index) => {
     return {
       key: index + 1,
       id: el.coupon_id,
