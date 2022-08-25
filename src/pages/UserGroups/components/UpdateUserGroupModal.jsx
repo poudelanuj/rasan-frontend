@@ -49,41 +49,23 @@ const UpdateUserGroupModal = ({
       refPermissions.current = permissions;
 
       initialPermission.forEach((element) => {
-        let temp = {};
-        permissions.forEach((ele) => {
-          if (element.id === ele.id) {
-            temp = ele;
-          }
-        });
-
-        refPermissions.current = refPermissions.current.filter(
-          (el) => el.id !== temp.id
-        );
-
-        temp = {};
+        const temp = permissions.find((el) => el.id === element.id);
+        if (temp) {
+          refPermissions.current = refPermissions.current.filter(
+            (ele) => ele.id !== temp.id
+          );
+        }
       });
 
       setPermissionList(refPermissions.current);
     }
-  }, [permissions, initialPermission]);
-
-  const permissionListChange = (id) => {
-    setPermissionList((prev) => prev.filter((el) => el.id !== id));
-    form.setFieldsValue({
-      permissions: [...form.getFieldValue("permissions"), id],
-    });
-  };
-
-  const permissionFormChange = (val) =>
-    setPermissionList((prev) => [
-      permissions.find((el) => el.id === val),
-      ...prev,
-    ]);
+  }, [permissions, initialPermission, form]);
 
   return (
     <Modal
       cancelText="Cancel"
       centered={true}
+      footer={null}
       title="Update User Group"
       visible={isOpen}
       width={800}
@@ -128,7 +110,23 @@ const UpdateUserGroupModal = ({
               mode="multiple"
               placeholder="Select permissions"
               allowClear
-              onDeselect={permissionFormChange}
+              onChange={(val) => {
+                val.forEach((element) => {
+                  setPermissionList((prev) =>
+                    prev.filter(
+                      (ele) =>
+                        ele.id !==
+                        permissions.find((el) => el.id === element)?.id
+                    )
+                  );
+                });
+              }}
+              onDeselect={(val) =>
+                setPermissionList((prev) => [
+                  permissions.find((el) => el.id === val),
+                  ...prev,
+                ])
+              }
             >
               {permissions &&
                 permissions.map((el) => (
@@ -178,16 +176,28 @@ const UpdateUserGroupModal = ({
               Remove All
             </Button>
           </Space>
-          {permissionList &&
-            permissionList.map((el) => (
-              <span
-                key={el.id}
-                className="break-words w-full bg-gray-100 py-1 px-2 rounded-sm cursor-pointer hover:bg-gray-200"
-                onClick={() => permissionListChange(el.id)}
-              >
-                {el.name}
-              </span>
-            ))}
+          <div className="overflow-y-scroll h-screen flex flex-col gap-2">
+            {permissionList &&
+              permissionList.map((el) => (
+                <span
+                  key={el.id}
+                  className="break-words w-full bg-gray-100 py-1 px-2 rounded-sm cursor-pointer hover:bg-gray-200"
+                  onClick={() => {
+                    setPermissionList((prev) =>
+                      prev.filter((ele) => ele.id !== el.id)
+                    );
+                    form.setFieldsValue({
+                      permissions: [
+                        ...form.getFieldValue("permissions"),
+                        el.id,
+                      ],
+                    });
+                  }}
+                >
+                  {el.name}
+                </span>
+              ))}
+          </div>
         </div>
       </Form>
     </Modal>
