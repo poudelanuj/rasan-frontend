@@ -44,6 +44,7 @@ export const GET_USERS = "all-users";
 // * User Groups
 export const GET_USER_GROUPS = "all-user-groups";
 export const GET_USER_GROUPS_BY_ID = "user-groups-by-id";
+export const GET_PERMISSIONS = "permissions";
 
 // * Orders
 export const GET_ORDERS = "all-orders";

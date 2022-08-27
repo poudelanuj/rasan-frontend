@@ -1,10 +1,24 @@
 import axios from "../axios";
 
-export const getRedeemableProduct = async ({ type, isArchived }) => {
+export const getRedeemableProduct = async (type, isArchived) => {
   const res = await axios.get(
     `/api/loyalty-redeem/admin/products/?redeem_type=${type}&is_archived=${isArchived}`
   );
   return res.data.data.results;
+};
+
+export const getPaginatedRedeemableProduct = async (
+  page,
+  pageSize,
+  type,
+  isArchived
+) => {
+  const res = await axios.get(
+    `/api/loyalty-redeem/admin/products/?redeem_type=${type}&is_archived=${isArchived}&page=${
+      page || 1
+    }&size=${pageSize || 20}`
+  );
+  return res.data.data;
 };
 
 export const getRedeemableProductById = async (id) => {

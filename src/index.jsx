@@ -32,8 +32,10 @@ import "antd/dist/antd.min.css";
 import Users from "./pages/Users";
 import User from "./pages/Users/User";
 import OTPRequests from "./pages/Users/OTPRequests";
+
+// *User Groups
 import UserGroups from "./pages/UserGroups";
-import UserGroupPage from "./pages/UserGroups/UserGroupPage";
+import UserGroupPage from "./pages/UserGroups/components/UserGroupPage";
 
 // * CRM
 import Crm from "./pages/CRM";
@@ -192,8 +194,11 @@ root.render(
               <Route element={<Users />} path="users" />
               <Route element={<User />} path="user/:user_id" />
               <Route element={<OTPRequests />} path="otp-requests" />
-              <Route element={<UserGroups />} path="user-groups" />
-              <Route element={<UserGroupPage />} path="user-group/:group_id" />
+
+              <Route path="user-groups">
+                <Route element={<UserGroups />} index />
+                <Route element={<UserGroupPage />} path=":groupId" />
+              </Route>
 
               <Route element={<LiveUserBasket />} path="live-user-basket" />
 

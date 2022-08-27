@@ -62,6 +62,7 @@ const TutorialList = () => {
 
   useEffect(() => {
     if (data) {
+      setTutorialList([]);
       setTutorialList((prev) => uniqBy([...prev, ...data.results], "slug"));
     }
   }, [data]);
@@ -86,7 +87,6 @@ const TutorialList = () => {
     {
       onSuccess: (res) => {
         openSuccessNotification(res.message);
-        setTutorialList([]);
         refetchTutorials();
         queryClient.refetchQueries([GET_TUTORIALS_BY_ID]);
       },

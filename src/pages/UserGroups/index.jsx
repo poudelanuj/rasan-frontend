@@ -1,25 +1,112 @@
 import { Button } from "antd";
-import { useQuery } from "react-query";
-import { getUserGroup } from "../../context/UserGroupContext";
-import UserGroup from "./UserGroup";
+import { useMutation, useQuery } from "react-query";
+import { useState } from "react";
+import { DeleteOutlined } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
+import { IoIosPeople } from "react-icons/io";
+import { deleteUserGroup, getUserGroups } from "../../api/userGroups";
+import { GET_USER_GROUPS } from "../../constants/queryKeys";
+import Loader from "../../shared/Loader";
+import CustomPageHeader from "../../shared/PageHeader";
+import CreateUserGroupModal from "./components/CreateUserGroupModal";
+import { openErrorNotification, openSuccessNotification } from "../../utils";
+import ConfirmDelete from "../../shared/ConfirmDelete";
 
 const UserGroups = () => {
-  const { data: userGroups, isSuccess } = useQuery(
-    "get-user-groups",
-    getUserGroup
-  );
+  const navigate = useNavigate();
+
+  const [isCreateUserGroupModal, setIsCreateUserGroupModal] = useState(false);
+
+  const [isDeleteUserGroupModal, setIsDeleteUserGroupModal] = useState({
+    isOpen: false,
+    id: null,
+  });
+
+  const {
+    data: userGroup,
+    isFetching,
+    refetch: refetchUserGroup,
+  } = useQuery({
+    queryFn: () => getUserGroups(),
+    queryKey: [GET_USER_GROUPS],
+  });
+
+  const handleDeleteUserGroup = useMutation((id) => deleteUserGroup(id), {
+    onSuccess: (data) => {
+      openSuccessNotification(data.message);
+      setIsDeleteUserGroupModal({
+        ...isDeleteUserGroupModal,
+        isOpen: false,
+        id: null,
+      });
+      refetchUserGroup();
+    },
+    onError: (err) => openErrorNotification(err),
+  });
+
   return (
     <>
-      <div className="text-3xl bg-white mb-3 p-5">User Groups</div>
-      <div className="bg-white p-5">
-        <Button className="text-primary border-primary" type="primary">
-          Create new user group
+      <CustomPageHeader title="User Groups" isBasic />
+
+      <div className="py-5 px-4 bg-[#FFFFFF]">
+        <Button
+          className="mb-6"
+          type="primary"
+          ghost
+          onClick={() => setIsCreateUserGroupModal(true)}
+        >
+          Create User Group
         </Button>
-        {isSuccess &&
-          userGroups.map((userGroup) => (
-            <UserGroup key={userGroup.id} ug={userGroup} />
-          ))}
+
+        {isFetching ? (
+          <Loader isOpen={true} />
+        ) : (
+          <div className="w-full grid grid-cols-4 gap-4">
+            {userGroup &&
+              userGroup.map((el) => (
+                <div
+                  key={el.id}
+                  className="p-4 border flex items-center justify-between text-primary cursor-pointer"
+                >
+                  <div onClick={() => navigate(`${el.id}`)}>
+                    <IoIosPeople className="inline mr-3 text-3xl" />
+                    {el.name}
+                  </div>
+
+                  <DeleteOutlined
+                    onClick={() =>
+                      setIsDeleteUserGroupModal({
+                        ...isDeleteUserGroupModal,
+                        isOpen: true,
+                        id: el.id,
+                      })
+                    }
+                  />
+                </div>
+              ))}
+          </div>
+        )}
       </div>
+
+      <CreateUserGroupModal
+        isOpen={isCreateUserGroupModal}
+        onClose={() => setIsCreateUserGroupModal(false)}
+      />
+
+      <ConfirmDelete
+        closeModal={() =>
+          setIsDeleteUserGroupModal({
+            ...isDeleteUserGroupModal,
+            isOpen: false,
+          })
+        }
+        deleteMutation={() =>
+          handleDeleteUserGroup.mutate(isDeleteUserGroupModal.id)
+        }
+        isOpen={isDeleteUserGroupModal.isOpen}
+        status={handleDeleteUserGroup.status}
+        title={"Delete User Group?"}
+      />
     </>
   );
 };

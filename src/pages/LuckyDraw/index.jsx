@@ -56,7 +56,10 @@ const LuckyDraw = () => {
   });
 
   useEffect(() => {
-    if (data) setLuckyDraw((prev) => uniqBy([...prev, ...data.results], "id"));
+    if (data) {
+      setLuckyDraw([]);
+      setLuckyDraw((prev) => uniqBy([...prev, ...data.results], "id"));
+    }
   }, [data]);
 
   useEffect(() => {
@@ -69,7 +72,6 @@ const LuckyDraw = () => {
     {
       onSuccess: (data) => {
         openSuccessNotification(data.message);
-        setLuckyDraw([]);
         refetchLuckyDraw();
       },
       onError: (err) => openErrorNotification(err),
@@ -98,7 +100,7 @@ const LuckyDraw = () => {
       id: el.id,
       key: index + 1,
       campaign_title: el.title,
-      coupons_generated: el.coupons.length,
+      coupons_generated: el.coupons_count,
       event_start_date: moment(el.event_date).utc().format("lll"),
       status: el.is_active ? "Active" : "Inactive",
       is_active: el.is_active,
@@ -174,7 +176,7 @@ const LuckyDraw = () => {
               type="primary"
               onClick={() =>
                 handleActivateLuckyDraw.mutate({
-                  id: id,
+                  id,
                   shouldActivate: !is_active,
                 })
               }

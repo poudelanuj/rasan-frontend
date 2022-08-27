@@ -65,7 +65,10 @@ const FAQS = () => {
   });
 
   useEffect(() => {
-    if (data) setFaqGroups((prev) => uniqBy([...prev, ...data.results], "id"));
+    if (data) {
+      setFaqGroups([]);
+      setFaqGroups((prev) => uniqBy([...prev, ...data.results], "id"));
+    }
   }, [data]);
 
   useEffect(() => {
@@ -88,7 +91,6 @@ const FAQS = () => {
     {
       onSuccess: (data) => {
         openSuccessNotification(data.message);
-        setFaqGroups([]);
         refetchFAQGroups();
       },
       onError: (err) => openErrorNotification(err),

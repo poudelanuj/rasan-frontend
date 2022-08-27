@@ -38,7 +38,10 @@ const TutorialTagsList = () => {
   });
 
   useEffect(() => {
-    if (data) setTutorialTagList((prev) => uniqBy([...prev, ...data], "id"));
+    if (data) {
+      setTutorialTagList([]);
+      setTutorialTagList((prev) => uniqBy([...prev, ...data], "id"));
+    }
   }, [data]);
 
   useEffect(() => {
