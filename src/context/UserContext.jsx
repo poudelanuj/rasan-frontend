@@ -1,9 +1,11 @@
 import moment from "moment";
 import axios from "../axios";
 
-export const getUsers = async () => {
-  const response = await axios.get("/api/profile/admin/user-list/");
-  return response.data.data.results;
+export const getUsers = async (page, pageSize) => {
+  const response = await axios.get(
+    `/api/profile/admin/user-list/?page=${page}&size=${pageSize}`
+  );
+  return response.data.data;
 };
 
 export const getUser = async (user_id) => {

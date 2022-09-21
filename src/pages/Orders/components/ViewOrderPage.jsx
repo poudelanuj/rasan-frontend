@@ -333,7 +333,9 @@ const ViewOrderPage = () => {
                       {usersList &&
                         usersList.map((user) => (
                           <Select.Option key={user.id} value={user.phone}>
-                            {user.full_name || user.phone}
+                            {user.full_name
+                              ? `${user.full_name} (${user.phone})`
+                              : user.phone}
                           </Select.Option>
                         ))}
                     </Select>

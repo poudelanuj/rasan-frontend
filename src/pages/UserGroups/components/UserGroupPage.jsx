@@ -63,7 +63,7 @@ const UserGroupPage = () => {
       return {
         key: index + 1,
         phone: el.username,
-        name: el.name,
+        name: el.full_name,
         permissions: el.permissions,
       };
     });
@@ -78,6 +78,9 @@ const UserGroupPage = () => {
       title: "Phone Number",
       dataIndex: "phone",
       key: "phone",
+      render: (_, { phone, name }) => (
+        <>{name ? `${name} (${phone})` : phone}</>
+      ),
     },
     {
       title: "Actions",

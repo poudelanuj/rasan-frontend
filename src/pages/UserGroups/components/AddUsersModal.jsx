@@ -74,7 +74,7 @@ const AddUsersModal = ({ isOpen, onClose }) => {
             {users &&
               users.map((el) => (
                 <Option key={el.id} value={el.phone}>
-                  {el.full_name || el.phone}
+                  {el.full_name ? `${el.full_name} (${el.phone})` : el.phone}
                 </Option>
               ))}
           </Select>
