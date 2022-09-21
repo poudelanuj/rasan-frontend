@@ -1,4 +1,5 @@
 import { Button, Form, Modal, Select, Upload } from "antd";
+import { capitalize } from "lodash";
 import { useEffect, useState } from "react";
 import { useMutation } from "react-query";
 import { updateOrderPayment } from "../../../../api/orders";
@@ -101,7 +102,7 @@ const ChangePayment = ({
                   : true;
               }).map((item) => (
                 <Select.Option key={item} value={item}>
-                  {item.replaceAll("_", " ")}
+                  {capitalize(item.replaceAll("_", " "))}
                 </Select.Option>
               ))}
             </Select>

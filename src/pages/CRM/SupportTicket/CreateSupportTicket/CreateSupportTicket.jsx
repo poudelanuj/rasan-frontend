@@ -1,4 +1,5 @@
 import { Upload, Form, Input, Select, Button, Space, Tag } from "antd";
+import { capitalize } from "lodash";
 import { useState } from "react";
 import { useQuery, useMutation } from "react-query";
 import { useNavigate } from "react-router-dom";
@@ -135,7 +136,9 @@ const CreateSupportTicket = () => {
                   {users &&
                     users.map((user) => (
                       <Select.Option key={user.id} value={user.phone}>
-                        {user.full_name || user.phone || ""}
+                        {user.full_name
+                          ? `${user.full_name} (${user.phone})`
+                          : user.phone}
                       </Select.Option>
                     ))}
                 </Select>
@@ -150,7 +153,9 @@ const CreateSupportTicket = () => {
                   {users &&
                     users.map((user) => (
                       <Select.Option key={user.id} value={user.phone}>
-                        {user.full_name || user.phone || ""}
+                        {user.full_name
+                          ? `${user.full_name} (${user.phone})`
+                          : user.phone}
                       </Select.Option>
                     ))}
                 </Select>
@@ -178,7 +183,7 @@ const CreateSupportTicket = () => {
                 >
                   {TICKET_STATUS.map((status) => (
                     <Select.Option key={status} value={status}>
-                      {status.replaceAll("_", " ")}
+                      {capitalize(status.replaceAll("_", " "))}
                     </Select.Option>
                   ))}
                 </Select>

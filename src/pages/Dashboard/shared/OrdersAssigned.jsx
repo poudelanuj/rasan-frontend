@@ -1,8 +1,11 @@
 import { Table, Tag } from "antd";
 import moment from "moment";
+import { useNavigate } from "react-router-dom";
 import { CANCELLED, DELIVERED, IN_PROCESS } from "../../../constants";
 
 const OrdersAssigned = ({ orders, status }) => {
+  const navigate = useNavigate();
+
   const getTagColor = (status) => {
     switch (status) {
       case IN_PROCESS:
@@ -22,7 +25,14 @@ const OrdersAssigned = ({ orders, status }) => {
       dataIndex: "id",
       key: "orderId",
       render: (_, { id, status }) => {
-        return <div className="">#{id}</div>;
+        return (
+          <div
+            className="text-blue-500 cursor-pointer hover:underline"
+            onClick={() => navigate(`/orders/view-order/${id}`)}
+          >
+            #{id}
+          </div>
+        );
       },
       sorter: (a, b) => a.id - b.id,
     },
