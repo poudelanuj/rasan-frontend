@@ -15,6 +15,7 @@ import {
 import { getDropdownProductSkus } from "../../../../api/products/productSku";
 import { GET_DROPDOWN_PRODUCT_SKUS } from "../../../../constants/queryKeys";
 import { STATUS } from "../../../../constants";
+import ButtonWPermission from "../../../../shared/ButtonWPermission";
 
 const UserBasket = ({ user, setBasketItemsStatus }) => {
   const { basket_id } = user;
@@ -350,7 +351,8 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
             <Form.Item>
               <div style={{ height: 20 }} />
               {index + 1 === forms.length ? (
-                <Button
+                <ButtonWPermission
+                  codename="add_basketitem"
                   icon={<PlusOutlined />}
                   type="primary"
                   onClick={handleAddForm}
@@ -391,7 +393,8 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
             Clear
           </Button>
 
-          <Button
+          <ButtonWPermission
+            codename="add_basketitem"
             disabled={forms[0]?.product_pack === null}
             loading={handleBasketSubmit.status === "loading"}
             size="middle"
@@ -399,7 +402,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
             onClick={() => handleBasketSubmit.mutate()}
           >
             Save Items To Basket
-          </Button>
+          </ButtonWPermission>
         </Space>
       </div>
     </div>

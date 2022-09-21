@@ -5,7 +5,7 @@ import { useAuth } from "../AuthProvider";
 const ButtonWPermission = (props) => {
   const { permissions } = useAuth();
 
-  const { codeName, children, disabled } = props;
+  const { codename: codeName, children, disabled } = props;
 
   return (
     <Button

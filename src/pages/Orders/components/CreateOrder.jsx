@@ -1,4 +1,5 @@
-import { Button, Form, Select } from "antd";
+import { Form, Select } from "antd";
+import { capitalize } from "lodash";
 import { useState } from "react";
 import { useQuery, useMutation } from "react-query";
 import { useNavigate } from "react-router-dom";
@@ -14,6 +15,7 @@ import {
   UNPAID,
 } from "../../../constants";
 import { createOrder } from "../../../context/OrdersContext";
+import ButtonWPermission from "../../../shared/ButtonWPermission";
 import CustomPageHeader from "../../../shared/PageHeader";
 import {
   openErrorNotification,
@@ -90,14 +92,15 @@ const CreateOrder = () => {
             label={
               <div className="flex gap-3 items-center">
                 <span>User</span>
-                <Button
+                <ButtonWPermission
                   className="p-0 m-0 bg-white"
+                  codename="add_user"
                   size="small"
                   type="primary"
                   onClick={() => setIsCreateUserOpen(true)}
                 >
                   + Add New User
-                </Button>
+                </ButtonWPermission>
               </div>
             }
             name="user"
@@ -134,15 +137,16 @@ const CreateOrder = () => {
             label={
               <div className="flex gap-3 items-center">
                 <span>Shipping Address</span>
-                <Button
+                <ButtonWPermission
                   className="p-0 m-0 bg-white"
+                  codename="add_address"
                   disabled={!selectedUserPhone}
                   size="small"
                   type="primary"
                   onClick={() => setIsCreateShippingOpen(true)}
                 >
                   + Add Shipping Address
-                </Button>
+                </ButtonWPermission>
               </div>
             }
             name="shipping_address"
@@ -236,7 +240,7 @@ const CreateOrder = () => {
             >
               {PAYMENT_METHODS.map((item) => (
                 <Option key={item} value={item}>
-                  {item.replaceAll("_", " ")}
+                  {capitalize(item.replaceAll("_", " "))}
                 </Option>
               ))}
             </Select>
@@ -270,7 +274,8 @@ const CreateOrder = () => {
         </div>
 
         <div className="w-full flex justify-end">
-          <Button
+          <ButtonWPermission
+            codename="add_order"
             disabled={
               onFinish.status === "loading" ||
               basketItemsStatus === STATUS.processing
@@ -283,7 +288,7 @@ const CreateOrder = () => {
             {basketItemsStatus === STATUS.processing
               ? "Please save basket items to create order"
               : "Create Order"}
-          </Button>
+          </ButtonWPermission>
         </div>
 
         <CreateUserModal

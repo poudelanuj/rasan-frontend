@@ -13,6 +13,8 @@ import {
 } from "../../utils/openNotification";
 import { CANCELLED, DELIVERED, IN_PROCESS } from "../../constants";
 import DeleteOrder from "./components/DeleteOrder";
+import ButtonWPermission from "../../shared/ButtonWPermission";
+import { isEmpty } from "lodash";
 
 export const getOrderStatusColor = (status) => {
   switch (status) {
@@ -228,7 +230,16 @@ const OrdersList = ({
       items={[
         {
           key: "1",
-          label: <div onClick={() => handleDeleteBulk.mutate()}>Delete</div>,
+          label: (
+            <ButtonWPermission
+              className="!border-none !bg-inherit !text-current"
+              codename="delete_order"
+              disabled={isEmpty(checkedRows)}
+              onClick={() => handleDeleteBulk.mutate()}
+            >
+              Delete
+            </ButtonWPermission>
+          ),
         },
       ]}
     />
@@ -237,8 +248,9 @@ const OrdersList = ({
   return (
     <div className="">
       <div className="mb-4 flex justify-between">
-        <Button
+        <ButtonWPermission
           className="flex items-center"
+          codename="add_order"
           type="primary"
           ghost
           onClick={() => {
@@ -246,7 +258,7 @@ const OrdersList = ({
           }}
         >
           Create New Order
-        </Button>
+        </ButtonWPermission>
 
         <div>
           <Dropdown overlay={bulkMenu}>
