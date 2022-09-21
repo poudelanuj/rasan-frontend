@@ -1,6 +1,6 @@
 import React from "react";
 import { useMutation, useQuery } from "react-query";
-import { Button, Descriptions, Image, Space, Tabs, Tag } from "antd";
+import { Descriptions, Image, Space, Tabs, Tag } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 
 import ProductsTab from "./Tabs/ProductsTab";
@@ -14,6 +14,7 @@ import {
   parseSlug,
 } from "../../../utils";
 import { DEFAULT_RASAN_IMAGE } from "../../../constants";
+import ButtonWPermission from "../../../shared/ButtonWPermission";
 
 const { TabPane } = Tabs;
 
@@ -42,7 +43,8 @@ function Category() {
 
   const PublishCategory = () => {
     return (
-      <Button
+      <ButtonWPermission
+        codeName="change_category"
         disabled={status === "loading"}
         loading={onPublishCategory.status === "loading"}
         size="small"
@@ -55,7 +57,7 @@ function Category() {
         }
       >
         {category?.is_published ? "Unpublish" : "Publish"}
-      </Button>
+      </ButtonWPermission>
     );
   };
 
@@ -93,12 +95,13 @@ function Category() {
             <Space>
               <PublishCategory />
 
-              <Button
+              <ButtonWPermission
+                codeName="add_product"
                 size="small"
                 onClick={() => navigate(`/product-list/add?category=${slug}`)}
               >
                 Add New Products
-              </Button>
+              </ButtonWPermission>
             </Space>
           </Descriptions.Item>
         </Descriptions>

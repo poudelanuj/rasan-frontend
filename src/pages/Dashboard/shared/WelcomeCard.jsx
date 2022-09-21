@@ -7,7 +7,6 @@ const WelcomeCard = ({ title, contact, group, avatar }) => {
       bodyStyle={{ paddingBottom: 50 }}
       className="w-[300px]"
       headStyle={{ backgroundColor: colors.primary }}
-      style={{ maxHeight: 272 }}
       title={<div className="text-gray-50 ml-20">{title}</div>}
     >
       <div className="absolute bottom-[180px] p-1 bg-gray-100 rounded-full w-fit">

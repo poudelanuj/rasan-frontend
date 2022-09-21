@@ -3,7 +3,7 @@ import TabAll from "./Tabs/TabAll";
 import TabSKU from "./Tabs/TabSKU";
 import { useMutation, useQuery } from "react-query";
 
-import { Button, Descriptions, Image, Space, Tabs, Tag } from "antd";
+import { Descriptions, Image, Space, Tabs, Tag } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import CustomPageHeader from "../../../shared/PageHeader";
 import {
@@ -14,6 +14,7 @@ import {
 import { getBrand, publishBrand } from "../../../api/brands";
 import { GET_SINGLE_BRAND } from "../../../constants/queryKeys";
 import { DEFAULT_RASAN_IMAGE } from "../../../constants";
+import ButtonWPermission from "../../../shared/ButtonWPermission";
 const { TabPane } = Tabs;
 
 function Brands() {
@@ -41,7 +42,8 @@ function Brands() {
 
   const PublishBrand = () => {
     return (
-      <Button
+      <ButtonWPermission
+        codeName="change_brand"
         disabled={status === "loading"}
         loading={onPublishBrand.status === "loading"}
         size="small"
@@ -54,7 +56,7 @@ function Brands() {
         }
       >
         {brand?.is_published ? "Unpublish" : "Publish"}
-      </Button>
+      </ButtonWPermission>
     );
   };
 
@@ -92,12 +94,13 @@ function Brands() {
             <Space>
               <PublishBrand />
 
-              <Button
+              <ButtonWPermission
+                codeName="add_product"
                 size="small"
                 onClick={() => navigate(`/product-list/add?brand=${slug}`)}
               >
                 Add New Products
-              </Button>
+              </ButtonWPermission>
             </Space>
           </Descriptions.Item>
         </Descriptions>

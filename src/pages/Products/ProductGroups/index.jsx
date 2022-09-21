@@ -1,4 +1,4 @@
-import { Button, Pagination, Select } from "antd";
+import { Pagination, Select } from "antd";
 import React, { useEffect, useState } from "react";
 import { uniqBy } from "lodash";
 import { useMutation, useQuery } from "react-query";
@@ -22,6 +22,7 @@ import CustomPageHeader from "../../../shared/PageHeader";
 import Alert from "../../../shared/Alert";
 import AddProductGroup from "./AddProductGroup";
 import EditProductGroup from "./EditProductGroup";
+import ButtonWPermission from "../../../shared/ButtonWPermission";
 
 const { Option } = Select;
 
@@ -176,9 +177,13 @@ function ProductGroupsScreen() {
                 <Option value={ALERT_TYPE.delete}>Delete</Option>
               </Select>
             )}
-            <Button type="primary" onClick={() => setIsAddGroupOpen(true)}>
+            <ButtonWPermission
+              codeName="add_productgroup"
+              type="primary"
+              onClick={() => setIsAddGroupOpen(true)}
+            >
               Add New Rasan Choice
-            </Button>
+            </ButtonWPermission>
           </div>
         </div>
         <div className="grid gap-8 grid-cols-[repeat(auto-fill,_minmax(200px,_1fr))]">

@@ -1,7 +1,7 @@
 import React from "react";
 import { useMutation } from "react-query";
 import { useState } from "react";
-import { Space, Table, Tag, Button } from "antd";
+import { Space, Table, Tag } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import {
   deleteProductPack,
@@ -15,6 +15,7 @@ import {
 } from "../../../../utils/openNotification";
 import AddProductPack from "./AddProductPack";
 import EditProductPack from "./EditProductPack";
+import ButtonWPermission from "../../../../shared/ButtonWPermission";
 
 function ProductPackList({ productSkuSlug, productPacks, refetchProductSku }) {
   const [openAddPack, setOpenAddPack] = useState(false);
@@ -82,22 +83,25 @@ function ProductPackList({ productSkuSlug, productPacks, refetchProductSku }) {
       key: "action",
       render: (_, record) => (
         <Space size="middle">
-          <Button
+          <ButtonWPermission
+            codeName="delete_productpack"
             icon={<DeleteOutlined />}
             onClick={() => {
               setSelectedPack(record);
               setConfirmDelete(true);
             }}
           />
-          <Button
+          <ButtonWPermission
+            codeName="change_productpack"
             icon={<EditOutlined />}
             onClick={() => {
               setOpenEditPack(true);
               setSelectedPack(record);
             }}
           />
-          <Button
+          <ButtonWPermission
             className="rounded"
+            codeName="change_productpack"
             disabled={handlePublish.status === "loading"}
             type={record.is_published ? "danger" : "primary"}
             onClick={() =>
@@ -108,7 +112,7 @@ function ProductPackList({ productSkuSlug, productPacks, refetchProductSku }) {
             }
           >
             {record.is_published ? "Unpublish" : "Publish"}
-          </Button>
+          </ButtonWPermission>
         </Space>
       ),
     },
@@ -139,9 +143,13 @@ function ProductPackList({ productSkuSlug, productPacks, refetchProductSku }) {
 
       <div className="flex justify-between">
         <h3 className="text-xl text-[#374253] mb-4">Product Pack Details</h3>
-        <Button type="primary" onClick={() => setOpenAddPack(true)}>
+        <ButtonWPermission
+          codeName="add_productpack"
+          type="primary"
+          onClick={() => setOpenAddPack(true)}
+        >
           Add New
-        </Button>
+        </ButtonWPermission>
       </div>
 
       <Table

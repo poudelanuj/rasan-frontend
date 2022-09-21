@@ -12,6 +12,7 @@ import { getStatusColor } from "..";
 import ConfirmDelete from "../../../shared/ConfirmDelete";
 import { ACTIVE, INACTIVE } from "../../../constants";
 import { openErrorNotification, openSuccessNotification } from "../../../utils";
+import ButtonWPermission from "../../../shared/ButtonWPermission";
 
 const ViewLuckyDraw = () => {
   const { eventId } = useParams();
@@ -93,15 +94,21 @@ const ViewLuckyDraw = () => {
       key: "action",
       render: (_, { id, user }) => {
         return (
-          <DeleteOutlined
-            onClick={() => {
-              setDeleteCouponModal({
-                ...deleteCouponModal,
-                isOpen: true,
-                title: `Delete ${user}?`,
-              });
-              setCouponId([id]);
-            }}
+          <ButtonWPermission
+            className="!border-none"
+            codeName="delete_luckydrawcoupon"
+            icon={
+              <DeleteOutlined
+                onClick={() => {
+                  setDeleteCouponModal({
+                    ...deleteCouponModal,
+                    isOpen: true,
+                    title: `Delete ${user}?`,
+                  });
+                  setCouponId([id]);
+                }}
+              />
+            }
           />
         );
       },
@@ -120,7 +127,9 @@ const ViewLuckyDraw = () => {
         {
           key: "1",
           label: (
-            <div
+            <ButtonWPermission
+              className="w-full !border-none hover:!text-current hover:!bg-inherit !transition-none"
+              codeName="delete_luckydrawcoupon"
               onClick={() => {
                 setDeleteCouponModal({
                   ...deleteCouponModal,
@@ -130,7 +139,7 @@ const ViewLuckyDraw = () => {
               }}
             >
               Delete
-            </div>
+            </ButtonWPermission>
           ),
         },
       ]}
@@ -192,12 +201,13 @@ const ViewLuckyDraw = () => {
                   </Tag>
                 </div>
 
-                <div
-                  className="text-[#00A0B0] cursor-pointer flex items-center gap-1.5"
+                <ButtonWPermission
+                  className="!border-none !flex items-center gap-1.5"
+                  codeName="change_luckydrawevent"
                   onClick={() => navigate(`/lucky-draw/update/${eventId}`)}
                 >
                   <EditOutlined /> Edit Details
-                </div>
+                </ButtonWPermission>
               </div>
             </div>
 

@@ -1,5 +1,5 @@
 import { Table, Tag, Button, Menu, Dropdown, Space, Input } from "antd";
-import { useMutation } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import { SearchOutlined, DeleteOutlined } from "@ant-design/icons";
 import moment from "moment";
 import { useRef } from "react";
@@ -13,6 +13,8 @@ import {
 } from "../../utils/openNotification";
 import { CANCELLED, DELIVERED, IN_PROCESS } from "../../constants";
 import DeleteOrder from "./components/DeleteOrder";
+import ButtonWPermission from "../../shared/ButtonWPermission";
+import { getFilteredOrders } from "../../api/orders";
 
 export const getOrderStatusColor = (status) => {
   switch (status) {
@@ -27,13 +29,23 @@ export const getOrderStatusColor = (status) => {
   }
 };
 
-const OrdersList = ({ dataSource, status, refetchOrders }) => {
+const OrdersList = ({ status: apiStatus, queryKey }) => {
   const searchInput = useRef(null);
   const [isDeleteOrderOpen, setIsDeleteOrderOpen] = useState(false);
   const [deleteOrderId, setDeleteOrderId] = useState(0);
 
   const [checkedRows, setCheckedRows] = useState([]);
   const navigate = useNavigate();
+
+  const {
+    data: dataSource,
+    status,
+    refetch: refetchOrders,
+  } = useQuery({
+    queryFn: () => getFilteredOrders({ status: apiStatus }),
+    queryKey: [queryKey],
+    enavled: !!queryKey,
+  });
 
   const getColumnSearchProps = (dataIndex) => ({
     filterDropdown: ({
@@ -206,7 +218,15 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
       items={[
         {
           key: "1",
-          label: <div onClick={() => handleDeleteBulk.mutate()}>Delete</div>,
+          label: (
+            <ButtonWPermission
+              className="w-full !border-none hover:!text-current hover:!bg-inherit !transition-none"
+              codeName="delete_order"
+              onClick={() => handleDeleteBulk.mutate()}
+            >
+              Delete
+            </ButtonWPermission>
+          ),
         },
       ]}
     />
@@ -215,8 +235,9 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
   return (
     <div className="">
       <div className="mb-4 flex justify-between">
-        <Button
+        <ButtonWPermission
           className="flex items-center"
+          codeName="add_order"
           type="primary"
           ghost
           onClick={() => {
@@ -224,7 +245,7 @@ const OrdersList = ({ dataSource, status, refetchOrders }) => {
           }}
         >
           Create New Order
-        </Button>
+        </ButtonWPermission>
 
         <div>
           <Dropdown overlay={bulkMenu}>

@@ -11,7 +11,7 @@ import {
   Tag,
 } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
-import { useMutation } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 import { useQuery } from "react-query";
 import moment from "moment";
 import { saveAs } from "file-saver";
@@ -28,7 +28,13 @@ import {
 import CustomPageHeader from "../../../shared/PageHeader";
 import { useState } from "react";
 import { getUsers } from "../../../api/users";
-import { GET_USERS } from "../../../constants/queryKeys";
+import {
+  GET_CANCELLED_ORDER,
+  GET_DELIVERED_ORDER,
+  GET_INPROCESS_ORDER,
+  GET_ORDERS,
+  GET_USERS,
+} from "../../../constants/queryKeys";
 import { updateOrder } from "../../../api/orders";
 import {
   DEFAULT_CARD_IMAGE,
@@ -55,6 +61,7 @@ export const getOrderStatusColor = (status) => {
 };
 
 const ViewOrderPage = () => {
+  const queryClient = useQueryClient();
   const { orderId } = useParams();
   const [selectedProductSku, setSelectedSku] = useState();
   const [selectedProductPack, setSelectedPack] = useState();
@@ -103,6 +110,10 @@ const ViewOrderPage = () => {
       onSettled: () => {
         refetchOrderItems();
         // refetchOrders();
+        queryClient.refetchQueries([GET_ORDERS]);
+        queryClient.refetchQueries([GET_INPROCESS_ORDER]);
+        queryClient.refetchQueries([GET_DELIVERED_ORDER]);
+        queryClient.refetchQueries([GET_CANCELLED_ORDER]);
         setSelectedPack(null);
       },
     }
@@ -141,6 +152,10 @@ const ViewOrderPage = () => {
       onSettled: () => {
         refetchOrderItems();
         // refetchOrders();
+        queryClient.refetchQueries([GET_ORDERS]);
+        queryClient.refetchQueries([GET_INPROCESS_ORDER]);
+        queryClient.refetchQueries([GET_DELIVERED_ORDER]);
+        queryClient.refetchQueries([GET_CANCELLED_ORDER]);
       },
       onError: (error) => {
         openErrorNotification(error);
@@ -156,7 +171,12 @@ const ViewOrderPage = () => {
         openSuccessNotification(data.message || "Order Updated");
       },
       onSettled: () => {
+        refetchOrderItems();
         // refetchOrders();
+        queryClient.refetchQueries([GET_ORDERS]);
+        queryClient.refetchQueries([GET_INPROCESS_ORDER]);
+        queryClient.refetchQueries([GET_DELIVERED_ORDER]);
+        queryClient.refetchQueries([GET_CANCELLED_ORDER]);
       },
       onError: (error) => {
         openErrorNotification(error);
@@ -244,6 +264,10 @@ const ViewOrderPage = () => {
       onSuccess: (data) => {
         setActiveOrder((prev) => ({ ...prev, orderStatus: data.status }));
         // refetchOrders();
+        queryClient.refetchQueries([GET_ORDERS]);
+        queryClient.refetchQueries([GET_INPROCESS_ORDER]);
+        queryClient.refetchQueries([GET_DELIVERED_ORDER]);
+        queryClient.refetchQueries([GET_CANCELLED_ORDER]);
       },
 
       onError: (error) => {

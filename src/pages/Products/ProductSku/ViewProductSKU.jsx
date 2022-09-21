@@ -1,5 +1,5 @@
 import { EditOutlined } from "@ant-design/icons";
-import { Descriptions, Divider, Tag, Button, Space, Spin } from "antd";
+import { Descriptions, Divider, Tag, Space, Spin } from "antd";
 import moment from "moment";
 import { useQuery, useMutation } from "react-query";
 import { Link, useParams, useSearchParams } from "react-router-dom";
@@ -9,6 +9,7 @@ import {
   unpublishProductSku,
 } from "../../../api/products/productSku";
 import { GET_PRODUCT_SKU } from "../../../constants/queryKeys";
+import ButtonWPermission from "../../../shared/ButtonWPermission";
 import Loader from "../../../shared/Loader";
 import CustomPageHeader from "../../../shared/PageHeader";
 import { parseSlug } from "../../../utils";
@@ -111,8 +112,9 @@ function ProductSKU() {
 
                 <div className="absolute top-0 right-0">
                   <Space>
-                    <Button
+                    <ButtonWPermission
                       className="rounded"
+                      codeName="change_productsku"
                       disabled={handlePublish.status === "loading"}
                       type={productSku.is_published ? "danger" : "primary"}
                       onClick={() =>
@@ -126,14 +128,13 @@ function ProductSKU() {
                           {productSku.is_published ? "Unpublish" : "Publish"}
                         </span>
                       )}
-                    </Button>
-                    <Link
-                      className="text-[#00A0B0] hover:bg-[#d4e4e6] py-2 px-6"
-                      to={"edit"}
-                    >
-                      <EditOutlined style={{ verticalAlign: "middle" }} /> Edit
-                      Details
-                    </Link>
+                    </ButtonWPermission>
+                    <ButtonWPermission codeName="change_productsku">
+                      <Link to={"edit"}>
+                        <EditOutlined style={{ verticalAlign: "middle" }} />{" "}
+                        Edit Details
+                      </Link>
+                    </ButtonWPermission>
                   </Space>
                 </div>
               </div>

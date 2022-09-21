@@ -1,4 +1,4 @@
-import { Button, Form, Select } from "antd";
+import { Form, Select } from "antd";
 import { useState } from "react";
 import { useQuery, useMutation } from "react-query";
 import { useNavigate } from "react-router-dom";
@@ -22,6 +22,7 @@ import {
 import CreateShippingModal from "./shared/CreateShippingModal";
 import CreateUserModal from "./shared/CreateUserModal";
 import UserBasket from "./shared/UserBasket";
+import ButtonWPermission from "../../../shared/ButtonWPermission";
 
 const CreateOrder = () => {
   const [isCreateUserOpen, setIsCreateUserOpen] = useState(false);
@@ -90,14 +91,15 @@ const CreateOrder = () => {
             label={
               <div className="flex gap-3 items-center">
                 <span>User</span>
-                <Button
+                <ButtonWPermission
                   className="p-0 m-0 bg-white"
+                  codeName="add_user"
                   size="small"
                   type="primary"
                   onClick={() => setIsCreateUserOpen(true)}
                 >
                   + Add New User
-                </Button>
+                </ButtonWPermission>
               </div>
             }
             name="user"
@@ -122,7 +124,9 @@ const CreateOrder = () => {
             >
               {userList?.map((user) => (
                 <Option key={user.id} value={user.phone}>
-                  {user.full_name || user.phone}
+                  {user.full_name
+                    ? `${user.full_name} (${user.phone})`
+                    : user.phone}
                 </Option>
               ))}
             </Select>
@@ -132,15 +136,16 @@ const CreateOrder = () => {
             label={
               <div className="flex gap-3 items-center">
                 <span>Shipping Address</span>
-                <Button
+                <ButtonWPermission
                   className="p-0 m-0 bg-white"
+                  codeName="add_address"
                   disabled={!selectedUserPhone}
                   size="small"
                   type="primary"
                   onClick={() => setIsCreateShippingOpen(true)}
                 >
                   + Add Shipping Address
-                </Button>
+                </ButtonWPermission>
               </div>
             }
             name="shipping_address"
@@ -268,7 +273,8 @@ const CreateOrder = () => {
         </div>
 
         <div className="w-full flex justify-end">
-          <Button
+          <ButtonWPermission
+            codeName="add_order"
             disabled={
               onFinish.status === "loading" ||
               basketItemsStatus === STATUS.processing
@@ -281,7 +287,7 @@ const CreateOrder = () => {
             {basketItemsStatus === STATUS.processing
               ? "Please save basket items to create order"
               : "Create Order"}
-          </Button>
+          </ButtonWPermission>
         </div>
 
         <CreateUserModal

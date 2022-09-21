@@ -2,7 +2,7 @@ import { DeleteOutlined } from "@ant-design/icons";
 import React, { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
-import { Button, Select, Space, Table, Tag } from "antd";
+import { Select, Space, Table, Tag } from "antd";
 import {
   getProductGroup,
   updateProductSKU,
@@ -19,6 +19,7 @@ import CustomPageHeader from "../../../shared/PageHeader";
 import { publishProductGroup } from "../../../api/products/productGroups";
 import Loader from "../../../shared/Loader";
 import EditProductGroup from "./EditProductGroup";
+import ButtonWPermission from "../../../shared/ButtonWPermission";
 
 const { Option } = Select;
 
@@ -195,7 +196,8 @@ function ViewProductGroup() {
                 </div>
                 <div className="absolute top-0 right-0">
                   <Space>
-                    <Button
+                    <ButtonWPermission
+                      codeName="change_productgroup"
                       loading={onPublishProductGroup.status === "loading"}
                       type={productGroup.is_published ? "danger" : "primary"}
                       onClick={() =>
@@ -206,14 +208,15 @@ function ViewProductGroup() {
                       }
                     >
                       {productGroup.is_published ? "Unpublish" : "Publish"}
-                    </Button>
+                    </ButtonWPermission>
 
-                    <Button
+                    <ButtonWPermission
+                      codeName="change_productgroup"
                       type="ghost"
                       onClick={() => setIsEditGroupOpen(true)}
                     >
                       Edit Details
-                    </Button>
+                    </ButtonWPermission>
                   </Space>
                 </div>
               </div>

@@ -48,6 +48,10 @@ export const GET_PERMISSIONS = "permissions";
 
 // * Orders
 export const GET_ORDERS = "all-orders";
+export const GET_INPROCESS_ORDER = "in_process_order";
+export const GET_DELIVERED_ORDER = "in_delivered_order";
+export const GET_CANCELLED_ORDER = "in_cancelled_order";
+
 export const GET_ORDER_METRICS = "order-metrics";
 
 //* Baskets

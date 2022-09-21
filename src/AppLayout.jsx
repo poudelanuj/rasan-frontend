@@ -1,10 +1,12 @@
+import { Avatar, Dropdown, Layout, Menu } from "antd";
+import { useNavigate } from "react-router-dom";
 import {
+  UserOutlined,
   CustomerServiceOutlined,
   ShopOutlined,
   ShoppingCartOutlined,
   ShoppingOutlined,
   UsergroupAddOutlined,
-  UserOutlined,
   BellOutlined,
   AppstoreOutlined,
   FolderOutlined,
@@ -12,14 +14,13 @@ import {
   RocketOutlined,
   AccountBookOutlined,
 } from "@ant-design/icons";
-import { Avatar, Dropdown, Layout, Menu } from "antd";
-import React from "react";
 import { useQuery } from "react-query";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import { useAuth } from "./AuthProvider";
 import { getEndUser } from "./context/UserContext";
 import Logo from "./svgs/Logo";
 const { Header, Content, Sider } = Layout;
+
 const headerItem = (logout) => (
   <Menu
     items={[
@@ -33,92 +34,12 @@ const headerItem = (logout) => (
     }}
   />
 );
-const sidebarItems = [
-  {
-    key: "/",
-    label: "Dashboard",
-    icon: <AppstoreOutlined />,
-  },
-  {
-    key: "orders",
-    label: "Orders",
-    icon: <ShoppingCartOutlined />,
-  },
-  {
-    key: "products",
-    label: "Products",
-    icon: <ShoppingOutlined />,
-    children: [
-      { label: "Categories", key: "category-list" },
-      { label: "Brands", key: "brands" },
-      { label: "Products", key: "product-list" },
-      { label: "Product SKUs", key: "product-sku" },
-      { label: "Rasan Choices", key: "product-groups" },
-    ],
-  },
-  {
-    key: "users-section",
-    label: "Users",
-    icon: <UserOutlined />,
-    children: [
-      { label: "Users List", key: "users" },
-      { label: "OTP Requests", key: "otp-requests" },
-    ],
-  },
-  {
-    key: "user-groups",
-    label: "User Groups",
-    icon: <UsergroupAddOutlined />,
-  },
-  {
-    key: "live-user-basket",
-    label: "Live User Basket",
-    icon: <ShopOutlined />,
-  },
-  {
-    key: "crm",
-    label: "CRM",
-    icon: <CustomerServiceOutlined />,
-    children: [
-      { label: "Support Ticket", key: "crm" },
-      { label: "Return Request", key: "crm/return-request" },
-      { label: "Out of Stock Enquiry", key: "crm/stock-enquiry" },
-      { label: "User Feedbacks", key: "crm/user-feedbacks" },
-    ],
-  },
-  {
-    key: "loyalty-redeem",
-    label: "Loyalty Redeem",
-    icon: <RocketOutlined />,
-  },
-  {
-    key: "notifications",
-    label: "Notifications",
-    icon: <BellOutlined />,
-  },
-  {
-    key: "cms",
-    label: "CMS",
-    icon: <FolderOutlined />,
-    children: [
-      { label: "About Us", key: "cms" },
-      { label: "Tutorial", key: "cms/tutorial" },
-    ],
-  },
-  {
-    key: "promotions",
-    label: "Promotions",
-    icon: <TaobaoCircleOutlined />,
-  },
-  {
-    key: "lucky-draw",
-    label: "Lucky Draw",
-    icon: <AccountBookOutlined />,
-  },
-];
+
 const AppLayout = () => {
-  let navigate = useNavigate();
+  const navigate = useNavigate();
+
   let { logout } = useAuth();
+
   const { data: userInfo, isSuccess } = useQuery(
     ["get-end-user"],
     async () => getEndUser(),
@@ -129,6 +50,48 @@ const AppLayout = () => {
       },
     }
   );
+
+  const getMenuItem = (key, label, icon, children) => {
+    return {
+      key,
+      label,
+      icon,
+      children,
+    };
+  };
+
+  const menuItem = [
+    getMenuItem("/", "Dashboard", <AppstoreOutlined />),
+    getMenuItem("orders", "Orders", <ShoppingCartOutlined />),
+    getMenuItem("products", "Products", <ShoppingOutlined />, [
+      getMenuItem("category-list", "Categories"),
+      getMenuItem("brands", "Brands"),
+      getMenuItem("product-list", "Products"),
+      getMenuItem("product-sku", "Product SKUs"),
+      getMenuItem("product-groups", "Rasan Choices"),
+    ]),
+    getMenuItem("users-section", "Users", <UserOutlined />, [
+      getMenuItem("users", "Users List"),
+      getMenuItem("otp-requests", "OTP Requests"),
+    ]),
+    getMenuItem("user-groups", "User Groups", <UsergroupAddOutlined />),
+    getMenuItem("live-user-basket", "Live User Basket", <ShopOutlined />),
+    getMenuItem("crm", "CRM", <CustomerServiceOutlined />, [
+      getMenuItem("crm", "Support Ticket"),
+      getMenuItem("crm/return-request", "Return Request"),
+      getMenuItem("crm/stock-enquiry", "Out of Stock Enquiry"),
+      getMenuItem("crm/user-feedbacks", "User Feedbacks"),
+    ]),
+    getMenuItem("loyalty-redeem", "Loyalty Redeem", <RocketOutlined />),
+    getMenuItem("notifications", "Notifications", <BellOutlined />),
+    getMenuItem("cms", "CMS", <FolderOutlined />, [
+      getMenuItem("cms", "About Us"),
+      getMenuItem("cms/tutorial", "Tutorial"),
+    ]),
+    getMenuItem("promotions", "Promotions", <TaobaoCircleOutlined />),
+    getMenuItem("lucky-draw", "Lucky Draw", <AccountBookOutlined />),
+  ];
+
   return (
     <Layout>
       <Header className="header">
@@ -154,15 +117,13 @@ const AppLayout = () => {
           <Menu
             defaultOpenKeys={["sub1"]}
             defaultSelectedKeys={["0"]}
-            items={sidebarItems}
+            items={menuItem}
             mode="inline"
             style={{
               height: "100%",
               borderRight: 0,
             }}
-            onClick={({ key }) => {
-              navigate(key);
-            }}
+            onClick={({ key }) => navigate(key)}
           />
         </Sider>
         <Layout

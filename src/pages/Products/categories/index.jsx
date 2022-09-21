@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pagination, Select } from "antd";
+import { Pagination, Select } from "antd";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 
 import Alert from "../../../shared/Alert";
@@ -24,6 +24,7 @@ import { uniqBy } from "lodash";
 import CustomPageHeader from "../../../shared/PageHeader";
 import AddCategory from "./AddCategory";
 import EditCategory from "./EditCategory";
+import ButtonWPermission from "../../../shared/ButtonWPermission";
 
 const { Option } = Select;
 
@@ -181,9 +182,13 @@ const CategoryList = () => {
               </Select>
             )}
 
-            <Button type="primary" onClick={() => setIsAddCategoryOpen(true)}>
+            <ButtonWPermission
+              codeName="add_category"
+              type="primary"
+              onClick={() => setIsAddCategoryOpen(true)}
+            >
               Add New Category
-            </Button>
+            </ButtonWPermission>
           </div>
         </div>
         {categories && (

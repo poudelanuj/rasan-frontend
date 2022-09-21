@@ -101,12 +101,16 @@ const UpdateUserGroupModal = ({
           </Form.Item>
 
           <Form.Item
-            initialValue={initialPermission.map((el) => el.id)}
+            initialValue={
+              initialPermission && initialPermission.map((el) => el.id)
+            }
             label="Permissions"
             name="permissions"
           >
             <Select
-              defaultValue={initialPermission.map((el) => el.id)}
+              defaultValue={
+                initialPermission && initialPermission.map((el) => el.id)
+              }
               mode="multiple"
               placeholder="Select permissions"
               allowClear

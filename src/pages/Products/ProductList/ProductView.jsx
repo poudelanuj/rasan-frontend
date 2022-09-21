@@ -1,5 +1,5 @@
 import { EditOutlined } from "@ant-design/icons";
-import { Descriptions, Divider, Tag, Button, Spin, Space } from "antd";
+import { Descriptions, Divider, Tag, Spin, Space } from "antd";
 import moment from "moment";
 import React from "react";
 import { useQuery, useMutation } from "react-query";
@@ -10,6 +10,7 @@ import {
   unpublishProduct,
 } from "../../../api/products";
 import { GET_PRODUCT } from "../../../constants/queryKeys";
+import ButtonWPermission from "../../../shared/ButtonWPermission";
 import Loader from "../../../shared/Loader";
 import CustomPageHeader from "../../../shared/PageHeader";
 import { parseSlug } from "../../../utils";
@@ -108,8 +109,9 @@ function ViewProduct() {
 
                 <div className="absolute top-0 right-0">
                   <Space>
-                    <Button
+                    <ButtonWPermission
                       className="rounded"
+                      codeName="change_product"
                       disabled={handlePublish.status === "loading"}
                       type={product.is_published ? "danger" : "primary"}
                       onClick={() =>
@@ -123,14 +125,13 @@ function ViewProduct() {
                           {product.is_published ? "Unpublish" : "Publish"}
                         </span>
                       )}
-                    </Button>
-                    <Link
-                      className="text-[#00A0B0] hover:bg-[#d4e4e6] py-2 px-6"
-                      to={"edit"}
-                    >
-                      <EditOutlined style={{ verticalAlign: "middle" }} /> Edit
-                      Details
-                    </Link>
+                    </ButtonWPermission>
+                    <ButtonWPermission codeName="change_product">
+                      <Link to={"edit"}>
+                        <EditOutlined style={{ verticalAlign: "middle" }} />{" "}
+                        Edit Details
+                      </Link>
+                    </ButtonWPermission>
                   </Space>
                 </div>
               </div>

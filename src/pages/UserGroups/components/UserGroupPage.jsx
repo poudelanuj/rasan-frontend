@@ -15,6 +15,7 @@ import AddUsersModal from "./AddUsersModal";
 import { openErrorNotification, openSuccessNotification } from "../../../utils";
 import ConfirmDelete from "../../../shared/ConfirmDelete";
 import UpdateUserGroupModal from "./UpdateUserGroupModal";
+import ButtonWPermission from "../../../shared/ButtonWPermission";
 
 const UserGroupPage = () => {
   const { groupId } = useParams();
@@ -63,7 +64,7 @@ const UserGroupPage = () => {
       return {
         key: index + 1,
         phone: el.username,
-        name: el.name,
+        name: el.full_name,
         permissions: el.permissions,
       };
     });
@@ -85,11 +86,18 @@ const UserGroupPage = () => {
       key: "action",
       render: (_, { phone }) => {
         return (
-          <DeleteOutlined
-            onClick={() => {
-              setIsRemoveUserModal(true);
-              setUsers([phone]);
-            }}
+          <ButtonWPermission
+            className="!border-none"
+            codeName="delete_user"
+            disabled={userGroup && userGroup[0].data.data.name === "superadmin"}
+            icon={
+              <DeleteOutlined
+                onClick={() => {
+                  setUsers([phone]);
+                  setIsRemoveUserModal(true);
+                }}
+              />
+            }
           />
         );
       },
@@ -107,7 +115,15 @@ const UserGroupPage = () => {
       items={[
         {
           key: "1",
-          label: <div onClick={() => setIsRemoveUserModal(true)}>Delete</div>,
+          label: (
+            <ButtonWPermission
+              className="w-full !border-none hover:!text-current hover:!bg-inherit !transition-none"
+              codeName="delete_user"
+              onClick={() => setIsRemoveUserModal(true)}
+            >
+              Delete
+            </ButtonWPermission>
+          ),
         },
       ]}
     />
@@ -124,21 +140,26 @@ const UserGroupPage = () => {
           <div className="py-5 px-4 bg-[#FFFFFF]">
             <div className="flex items-center justify-between mb-6">
               <Space>
-                <Button
+                <ButtonWPermission
+                  codeName="add_user"
                   type="primary"
                   ghost
                   onClick={() => setIsAddUserModal(true)}
                 >
                   Add User
-                </Button>
+                </ButtonWPermission>
 
-                <Button
+                <ButtonWPermission
+                  codeName="add_permission"
+                  disabled={
+                    userGroup && userGroup[0].data.data.name === "superadmin"
+                  }
                   type="primary"
                   ghost
                   onClick={() => setIsUpdateUserGroupModal(true)}
                 >
                   Set Permisisons
-                </Button>
+                </ButtonWPermission>
               </Space>
 
               <Space>

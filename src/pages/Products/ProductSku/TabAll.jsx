@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { Button, Space, Table, Tag } from "antd";
+import { Space, Table, Tag } from "antd";
 import { useMutation, useQuery } from "react-query";
 import AddCategoryButton from "../subComponents/AddCategoryButton";
 
@@ -17,6 +17,7 @@ import {
   getPaginatedProdctSkus,
 } from "../../../api/products/productSku";
 import ConfirmDelete from "../../../shared/ConfirmDelete";
+import ButtonWPermission from "../../../shared/ButtonWPermission";
 
 function TabAll() {
   const [page, setPage] = useState(1);
@@ -152,10 +153,15 @@ function TabAll() {
       render: (_, { slug }) => {
         return (
           <Space>
-            <Button size="small" onClick={() => navigate(`${slug}/edit`)}>
+            <ButtonWPermission
+              codeName="change_productsku"
+              size="small"
+              onClick={() => navigate(`${slug}/edit`)}
+            >
               Edit
-            </Button>
-            <Button
+            </ButtonWPermission>
+            <ButtonWPermission
+              codeName="delete_productsku"
               loading={
                 handleDeleteSku.status === "loading" && selectedSkuSlug === slug
               }
@@ -167,7 +173,7 @@ function TabAll() {
               }}
             >
               Delete
-            </Button>
+            </ButtonWPermission>
           </Space>
         );
       },
@@ -222,7 +228,11 @@ function TabAll() {
       <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[70vh]">
         <div className="flex justify-end mb-3">
           <div>
-            <AddCategoryButton linkText="Add Product SKU" linkTo={`add`} />
+            <AddCategoryButton
+              codeName="add_productsku"
+              linkText="Add Product SKU"
+              linkTo={`add`}
+            />
           </div>
         </div>
 

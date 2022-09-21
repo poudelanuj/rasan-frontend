@@ -1,4 +1,3 @@
-import { Button } from "antd";
 import { useMutation, useQuery } from "react-query";
 import { useState } from "react";
 import { DeleteOutlined } from "@ant-design/icons";
@@ -11,6 +10,7 @@ import CustomPageHeader from "../../shared/PageHeader";
 import CreateUserGroupModal from "./components/CreateUserGroupModal";
 import { openErrorNotification, openSuccessNotification } from "../../utils";
 import ConfirmDelete from "../../shared/ConfirmDelete";
+import ButtonWPermission from "../../shared/ButtonWPermission";
 
 const UserGroups = () => {
   const navigate = useNavigate();
@@ -49,14 +49,15 @@ const UserGroups = () => {
       <CustomPageHeader title="User Groups" isBasic />
 
       <div className="py-5 px-4 bg-[#FFFFFF]">
-        <Button
+        <ButtonWPermission
           className="mb-6"
+          codeName="add_group"
           type="primary"
           ghost
           onClick={() => setIsCreateUserGroupModal(true)}
         >
           Create User Group
-        </Button>
+        </ButtonWPermission>
 
         {isFetching ? (
           <Loader isOpen={true} />
@@ -73,13 +74,19 @@ const UserGroups = () => {
                     {el.name}
                   </div>
 
-                  <DeleteOutlined
-                    onClick={() =>
-                      setIsDeleteUserGroupModal({
-                        ...isDeleteUserGroupModal,
-                        isOpen: true,
-                        id: el.id,
-                      })
+                  <ButtonWPermission
+                    className="!border-none"
+                    codeName="delete_group"
+                    icon={
+                      <DeleteOutlined
+                        onClick={() =>
+                          setIsDeleteUserGroupModal({
+                            ...isDeleteUserGroupModal,
+                            isOpen: true,
+                            id: el.id,
+                          })
+                        }
+                      />
                     }
                   />
                 </div>

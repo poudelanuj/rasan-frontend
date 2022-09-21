@@ -64,11 +64,12 @@ const UserList = ({ users }) => {
     <>
       {userColumns.length !== 0 && (
         <Table
+          className="cursor-pointer"
           columns={columns}
           dataSource={userColumns}
           onRow={(record) => {
             return {
-              onDoubleClick: (_) => {
+              onClick: (_) => {
                 navigate("/user/" + record.key);
               }, // double click row
             };

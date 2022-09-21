@@ -1,15 +1,18 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { PlusOutlined } from "@ant-design/icons";
+import ButtonWPermission from "../../../shared/ButtonWPermission";
 
-function AddCategoryButton({ linkTo, linkText }) {
+function AddCategoryButton({ linkTo, linkText, codeName }) {
   return (
-    <Link
-      className="text-[#00A0B0] font-normal border-[1px] border-[#00A0B0] py-1 px-4 rounded-md flex items-center justify-between"
-      to={linkTo}
-    >
-      <PlusOutlined /> <span className="ml-1">{linkText}</span>
-    </Link>
+    <ButtonWPermission codeName={codeName}>
+      <Link
+        className="flex items-center justify-between text-[#00A0B0] font-normal"
+        to={linkTo}
+      >
+        <PlusOutlined /> <span className="ml-1">{linkText}</span>
+      </Link>
+    </ButtonWPermission>
   );
 }
 
