@@ -30,6 +30,7 @@ const Orders = () => {
   });
 
   useEffect(() => {
+    setOrders([]);
     if (data) setOrders((prev) => uniqBy([...prev, ...data.results], "id"));
   }, [data]);
 
@@ -44,7 +45,10 @@ const Orders = () => {
 
       <Tabs
         defaultActiveKey="all"
-        onTabClick={(tabKey) => setOrderStatus(tabKey)}
+        onTabClick={(tabKey) => {
+          setPage(1);
+          setOrderStatus(tabKey);
+        }}
       >
         <TabPane key="all" tab="All">
           <OrdersList
@@ -57,7 +61,7 @@ const Orders = () => {
             status={isRefetching ? "loading" : status}
           />
         </TabPane>
-        <TabPane key={IN_PROCESS} tab="In Progress">
+        <TabPane key={IN_PROCESS} tab="In Process">
           <OrdersList
             dataSource={orders}
             ordersCount={data?.count}
