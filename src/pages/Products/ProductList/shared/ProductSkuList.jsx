@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 
-import { Button, Table, Tag } from "antd";
+import { Table, Tag } from "antd";
+import ButtonWPermission from "../../../../shared/ButtonWPermission";
 
 const columns = [
   {
@@ -73,7 +74,8 @@ function ProductSkuList({
     <>
       <div className="mb-4 flex justify-between">
         <h3 className="text-xl text-[#374253]">Product SKU List</h3>
-        <Button
+        <ButtonWPermission
+          codename="add_productsku"
           type="primary"
           onClick={() => {
             navigate(
@@ -82,7 +84,7 @@ function ProductSkuList({
           }}
         >
           Create New Product SKU
-        </Button>
+        </ButtonWPermission>
       </div>
       <div className="flex flex-col bg-white ">
         <div className="flex-1">

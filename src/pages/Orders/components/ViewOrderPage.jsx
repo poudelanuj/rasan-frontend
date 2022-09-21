@@ -478,7 +478,7 @@ const ViewOrderPage = () => {
               <Form.Item name="quantity">
                 <span>Quantity</span>
                 <Input
-                  placeholder="quantity"
+                  placeholder="Quantity"
                   type="number"
                   onChange={(e) => {
                     setQuantity(e.target.value);
@@ -489,7 +489,7 @@ const ViewOrderPage = () => {
               <Form.Item>
                 <span>Price Per Piece</span>
                 <Input
-                  placeholder="price"
+                  placeholder="Price"
                   type="number"
                   value={selectedProductPack?.price_per_piece}
                   disabled
@@ -499,7 +499,7 @@ const ViewOrderPage = () => {
               <Form.Item>
                 <span>Total Amount</span>
                 <Input
-                  placeholder="total amount"
+                  placeholder="Total amount"
                   type="number"
                   value={getTotalAmount()}
                   disabled
@@ -509,7 +509,7 @@ const ViewOrderPage = () => {
               <Form.Item>
                 <span>Loyalty</span>
                 <Input
-                  placeholder="loyalty points"
+                  placeholder="Loyalty points"
                   type="number"
                   value={
                     parseInt(
@@ -525,7 +525,7 @@ const ViewOrderPage = () => {
               <Form.Item>
                 <span>Cashback</span>
                 <Input
-                  placeholder="cashback"
+                  placeholder="Cashback"
                   type="number"
                   value={
                     parseInt(

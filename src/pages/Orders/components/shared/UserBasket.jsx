@@ -274,7 +274,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
             <Form.Item name="quantity">
               <span>Quantity</span>
               <Input
-                placeholder="quantity"
+                placeholder="Quantity"
                 type="number"
                 value={
                   forms.find((item) => item.id === basketForm.id)?.quantity
@@ -295,7 +295,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
             <Form.Item>
               <span>Price Per Piece</span>
               <Input
-                placeholder="price"
+                placeholder="Price"
                 type="number"
                 value={
                   forms.find((item) => item.id === basketForm.id)?.product_pack
@@ -308,7 +308,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
             <Form.Item>
               <span>Total Amount</span>
               <Input
-                placeholder="total amount"
+                placeholder="Total amount"
                 type="number"
                 value={getTotalAmount(basketForm.id)}
                 disabled
@@ -318,7 +318,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
             <Form.Item>
               <span>Loyalty</span>
               <Input
-                placeholder="loyalty points"
+                placeholder="Loyalty points"
                 type="number"
                 value={
                   parseInt(
@@ -334,7 +334,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
             <Form.Item>
               <span>Cashback</span>
               <Input
-                placeholder="cashback"
+                placeholder="Cashback"
                 type="number"
                 value={
                   parseInt(

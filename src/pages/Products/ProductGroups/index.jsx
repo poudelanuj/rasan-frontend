@@ -1,4 +1,4 @@
-import { Button, Pagination, Select } from "antd";
+import { Pagination, Select } from "antd";
 import React, { useEffect, useState } from "react";
 import { uniqBy } from "lodash";
 import { useMutation, useQuery } from "react-query";
@@ -22,6 +22,7 @@ import CustomPageHeader from "../../../shared/PageHeader";
 import Alert from "../../../shared/Alert";
 import AddProductGroup from "./AddProductGroup";
 import EditProductGroup from "./EditProductGroup";
+import ButtonWPermission from "../../../shared/ButtonWPermission";
 
 const { Option } = Select;
 
@@ -171,14 +172,39 @@ function ProductGroupsScreen() {
                   setAlertType(value);
                 }}
               >
-                <Option value={ALERT_TYPE.publish}>Publish</Option>
-                <Option value={ALERT_TYPE.unpublish}>Unpublish</Option>
-                <Option value={ALERT_TYPE.delete}>Delete</Option>
+                <Option value={ALERT_TYPE.publish}>
+                  <ButtonWPermission
+                    className="!border-none !text-current !bg-inherit"
+                    codename="change_productgroup"
+                  >
+                    Publish
+                  </ButtonWPermission>
+                </Option>
+                <Option value={ALERT_TYPE.unpublish}>
+                  <ButtonWPermission
+                    className="!border-none !text-current !bg-inherit"
+                    codename="change_productgroup"
+                  >
+                    Unpublish
+                  </ButtonWPermission>
+                </Option>
+                <Option value={ALERT_TYPE.delete}>
+                  <ButtonWPermission
+                    className="!border-none !text-current !bg-inherit"
+                    codename="delete_productgroup"
+                  >
+                    Delete
+                  </ButtonWPermission>
+                </Option>
               </Select>
             )}
-            <Button type="primary" onClick={() => setIsAddGroupOpen(true)}>
+            <ButtonWPermission
+              codename="add_productgroup"
+              type="primary"
+              onClick={() => setIsAddGroupOpen(true)}
+            >
               Add New Rasan Choice
-            </Button>
+            </ButtonWPermission>
           </div>
         </div>
         <div className="grid gap-8 grid-cols-[repeat(auto-fill,_minmax(200px,_1fr))]">

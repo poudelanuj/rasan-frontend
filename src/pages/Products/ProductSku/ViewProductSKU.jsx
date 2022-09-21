@@ -1,13 +1,5 @@
 import { EditOutlined } from "@ant-design/icons";
-import {
-  Descriptions,
-  Divider,
-  Tag,
-  Button,
-  Space,
-  Spin,
-  Breadcrumb,
-} from "antd";
+import { Descriptions, Divider, Tag, Space, Spin, Breadcrumb } from "antd";
 import moment from "moment";
 import { useCallback } from "react";
 import { useQuery, useMutation } from "react-query";
@@ -18,6 +10,7 @@ import {
   unpublishProductSku,
 } from "../../../api/products/productSku";
 import { GET_PRODUCT_SKU } from "../../../constants/queryKeys";
+import ButtonWPermission from "../../../shared/ButtonWPermission";
 import Loader from "../../../shared/Loader";
 import CustomPageHeader from "../../../shared/PageHeader";
 import { parseSlug } from "../../../utils";
@@ -133,8 +126,9 @@ function ProductSKU() {
 
                 <div className="absolute top-0 right-0">
                   <Space>
-                    <Button
+                    <ButtonWPermission
                       className="rounded"
+                      codename="change_productsku"
                       disabled={handlePublish.status === "loading"}
                       type={productSku.is_published ? "danger" : "primary"}
                       onClick={() =>
@@ -148,14 +142,16 @@ function ProductSKU() {
                           {productSku.is_published ? "Unpublish" : "Publish"}
                         </span>
                       )}
-                    </Button>
-                    <Link
-                      className="text-[#00A0B0] hover:bg-[#d4e4e6] py-2 px-6"
-                      to={"edit"}
+                    </ButtonWPermission>
+                    <ButtonWPermission
+                      className="!text-[#00A0B0] !bg-inherit !border-none"
+                      codename="change_productsku"
                     >
-                      <EditOutlined style={{ verticalAlign: "middle" }} /> Edit
-                      Details
-                    </Link>
+                      <Link to={"edit"}>
+                        <EditOutlined style={{ verticalAlign: "middle" }} />{" "}
+                        Edit Details
+                      </Link>
+                    </ButtonWPermission>
                   </Space>
                 </div>
               </div>

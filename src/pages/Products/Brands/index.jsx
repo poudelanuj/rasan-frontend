@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import { uniqBy } from "lodash";
-import { Button, Pagination, Select } from "antd";
+import { Pagination, Select } from "antd";
 
 import CategoryWidget from "../categories/shared/CategoryWidget";
 import SearchBox from "../subComponents/SearchBox";
@@ -23,6 +23,7 @@ import CustomPageHeader from "../../../shared/PageHeader";
 import Alert from "../../../shared/Alert";
 import AddBrand from "./AddBrand";
 import EditBrand from "./EditBrand";
+import ButtonWPermission from "../../../shared/ButtonWPermission";
 
 const { Option } = Select;
 
@@ -171,14 +172,39 @@ function BrandsScreen() {
                   setAlertType(value);
                 }}
               >
-                <Option value={ALERT_TYPE.publish}>Publish</Option>
-                <Option value={ALERT_TYPE.unpublish}>Unpublish</Option>
-                <Option value={ALERT_TYPE.delete}>Delete</Option>
+                <Option value={ALERT_TYPE.publish}>
+                  <ButtonWPermission
+                    className="!border-none !text-current !bg-inherit"
+                    codename="change_brand"
+                  >
+                    Publish
+                  </ButtonWPermission>
+                </Option>
+                <Option value={ALERT_TYPE.unpublish}>
+                  <ButtonWPermission
+                    className="!border-none !text-current !bg-inherit"
+                    codename="change_brand"
+                  >
+                    Unpublish
+                  </ButtonWPermission>
+                </Option>
+                <Option value={ALERT_TYPE.delete}>
+                  <ButtonWPermission
+                    className="!border-none !text-current !bg-inherit"
+                    codename="delete_brand"
+                  >
+                    Delete
+                  </ButtonWPermission>
+                </Option>
               </Select>
             )}
-            <Button type="primary" onClick={() => setIsAddBrandOpen(true)}>
+            <ButtonWPermission
+              codename="add_brand"
+              type="primary"
+              onClick={() => setIsAddBrandOpen(true)}
+            >
               Add New Brand
-            </Button>
+            </ButtonWPermission>
           </div>
         </div>
         <div className="grid gap-8 grid-cols-[repeat(auto-fill,_minmax(200px,_1fr))]">

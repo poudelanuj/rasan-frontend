@@ -19,6 +19,7 @@ import CustomPageHeader from "../../../shared/PageHeader";
 import { publishProductGroup } from "../../../api/products/productGroups";
 import Loader from "../../../shared/Loader";
 import EditProductGroup from "./EditProductGroup";
+import ButtonWPermission from "../../../shared/ButtonWPermission";
 
 const { Option } = Select;
 
@@ -144,13 +145,11 @@ function ViewProductGroup() {
       render: (text, record) => {
         return (
           <div className="flex items-center">
-            <button
-              className="text-red-500 text-xl p-4 flex items-center justify-center"
-              type="button"
+            <ButtonWPermission
+              codename="delete_productsku"
+              icon={<DeleteOutlined />}
               onClick={() => {}}
-            >
-              <DeleteOutlined />
-            </button>
+            />
           </div>
         );
       },
@@ -212,7 +211,8 @@ function ViewProductGroup() {
                 </div>
                 <div className="absolute top-0 right-0">
                   <Space>
-                    <Button
+                    <ButtonWPermission
+                      codename="change_productgroup"
                       loading={onPublishProductGroup.status === "loading"}
                       type={productGroup.is_published ? "danger" : "primary"}
                       onClick={() =>
@@ -223,14 +223,15 @@ function ViewProductGroup() {
                       }
                     >
                       {productGroup.is_published ? "Unpublish" : "Publish"}
-                    </Button>
+                    </ButtonWPermission>
 
-                    <Button
+                    <ButtonWPermission
+                      codename="change_productgroup"
                       type="ghost"
                       onClick={() => setIsEditGroupOpen(true)}
                     >
                       Edit Details
-                    </Button>
+                    </ButtonWPermission>
                   </Space>
                 </div>
               </div>

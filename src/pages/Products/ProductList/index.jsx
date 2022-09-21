@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
-import { Button, Space, Table, Tag } from "antd";
+import { Space, Table, Tag } from "antd";
 import { uniqBy } from "lodash";
 import { useMutation, useQuery } from "react-query";
 import AddCategoryButton from "../subComponents/AddCategoryButton";
@@ -15,6 +15,7 @@ import {
 } from "../../../utils";
 import CustomPageHeader from "../../../shared/PageHeader";
 import ConfirmDelete from "../../../shared/ConfirmDelete";
+import ButtonWPermission from "../../../shared/ButtonWPermission";
 
 function ProductListScreen() {
   const [page, setPage] = useState(1);
@@ -134,10 +135,15 @@ function ProductListScreen() {
       render: (_, { slug }) => {
         return (
           <Space>
-            <Button size="small" onClick={() => navigate(`${slug}/edit`)}>
+            <ButtonWPermission
+              codename="change_product"
+              size="small"
+              onClick={() => navigate(`${slug}/edit`)}
+            >
               Edit
-            </Button>
-            <Button
+            </ButtonWPermission>
+            <ButtonWPermission
+              codename="delete_product"
               loading={
                 handleDeleteProduct.status === "loading" &&
                 selectedProductSlug === slug
@@ -150,7 +156,7 @@ function ProductListScreen() {
               }}
             >
               Delete
-            </Button>
+            </ButtonWPermission>
           </Space>
         );
       },
@@ -208,7 +214,11 @@ function ProductListScreen() {
       <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[70vh]">
         <div className="flex justify-end mb-3">
           <div>
-            <AddCategoryButton linkText="Add Products" linkTo={`add`} />
+            <AddCategoryButton
+              codename="add_product"
+              linkText="Add Products"
+              linkTo={`add`}
+            />
           </div>
         </div>
 
