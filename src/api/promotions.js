@@ -27,13 +27,9 @@ export const updatePromotions = async ({ id, data }) => {
   return res.data;
 };
 
-export const deletePromotions = async (ids = []) => {
-  const res = await Promise.all(
-    ids.map(
-      async (id) => await axios.delete(`/api/promotion/admin/promotions/${id}/`)
-    )
-  );
-  return res;
+export const deletePromotions = async (ids) => {
+  const res = await axios.delete(`/api/promotion/admin/promotions/${ids}/`);
+  return res.data;
 };
 
 export const publishPromotions = async ({ id, shouldPublish }) => {

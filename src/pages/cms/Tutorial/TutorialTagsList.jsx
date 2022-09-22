@@ -2,7 +2,7 @@ import { Button, Dropdown, Space, Table, Menu } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 import { useMutation, useQuery } from "react-query";
 import { useState, useEffect } from "react";
-import { uniqBy } from "lodash";
+import { isEmpty, uniqBy } from "lodash";
 import ConfirmDelete from "../../../shared/ConfirmDelete";
 import CreateTutorialTagsModal from "./components/CreateTutorialTagsModal";
 import { deleteTutorialTags, getPaginatedTags } from "../../../api/tutorial";
@@ -11,6 +11,7 @@ import {
   openErrorNotification,
 } from "../../../utils/openNotification";
 import { GET_PAGINATED_TAGLISTS } from "../../../constants/queryKeys";
+import ButtonWPermission from "../../../shared/ButtonWPermission";
 
 const TutorialTagsList = () => {
   const [isCreateTagsModalOpen, setIsCreateTagsModalOpen] = useState(false);
@@ -53,7 +54,7 @@ const TutorialTagsList = () => {
     () => deleteTutorialTags(tagIds),
     {
       onSuccess: (res) => {
-        openSuccessNotification(res[0].data.message);
+        openSuccessNotification(res.message);
         refetchTags();
         setIsDeleteTagsModalOpen(false);
         setTagsIds([]);
@@ -81,13 +82,17 @@ const TutorialTagsList = () => {
       width: "10%",
       render: (_, { id, title }) => {
         return (
-          <DeleteOutlined
-            className="ml-5"
-            onClick={() => {
-              setIsDeleteTagsModalOpen(true);
-              setDeleteTagsModalTitle(`Delete ${title}?`);
-              setTagsIds([id]);
-            }}
+          <ButtonWPermission
+            codename="delete_tutorialtag"
+            icon={
+              <DeleteOutlined
+                onClick={() => {
+                  setIsDeleteTagsModalOpen(true);
+                  setDeleteTagsModalTitle(`Delete ${title}?`);
+                  setTagsIds([id]);
+                }}
+              />
+            }
           />
         );
       },
@@ -100,14 +105,17 @@ const TutorialTagsList = () => {
         {
           key: "1",
           label: (
-            <div
+            <ButtonWPermission
+              className="!border-none !text-current !bg-inherit"
+              codename="delete_tutorialtag"
+              disabled={isEmpty(tagIds)}
               onClick={() => {
                 setIsDeleteTagsModalOpen(true);
                 setDeleteTagsModalTitle(`Delete all tags?`);
               }}
             >
               Delete
-            </div>
+            </ButtonWPermission>
           ),
         },
       ]}

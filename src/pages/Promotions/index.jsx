@@ -81,7 +81,7 @@ const Promotions = () => {
     {
       onSuccess: (data) => {
         openSuccessNotification(
-          data[0].data.message || "Promotions Deleted Successfully"
+          data.message || "Promotions Deleted Successfully"
         );
         setIsDeletePromotionsModal({
           ...isDeletePromotionsModal,

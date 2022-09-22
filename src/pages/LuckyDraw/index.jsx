@@ -83,7 +83,7 @@ const LuckyDraw = () => {
     () => deleteLuckyDraw(luckyDrawId),
     {
       onSuccess: (data) => {
-        openSuccessNotification(data[0].data.message);
+        openSuccessNotification(data.message);
         refetchLuckyDraw();
         setDeleteLuckyDrawModal({
           ...deleteLuckyDrawModal,

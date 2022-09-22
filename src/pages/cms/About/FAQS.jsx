@@ -2,7 +2,7 @@ import { Dropdown, Space, Button, Menu, Table, Tag } from "antd";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { useState, useEffect } from "react";
 import { useMutation, useQuery } from "react-query";
-import { uniqBy } from "lodash";
+import { isEmpty, uniqBy } from "lodash";
 import moment from "moment";
 import {
   deleteFAQGroups,
@@ -20,6 +20,7 @@ import {
 } from "../../../utils/openNotification";
 import CreateFAQGroupsModal from "./components/CreateFAQGroupsModal";
 import UpdateFAQGroupsModal from "./components/UpdateFAQGroupsModal";
+import ButtonWPermission from "../../../shared/ButtonWPermission";
 
 export const getStatusColor = (status) => {
   switch (status) {
@@ -78,7 +79,7 @@ const FAQS = () => {
 
   const handleDeleteFAQGroups = useMutation(() => deleteFAQGroups(faqIds), {
     onSuccess: (data) => {
-      openSuccessNotification(data[0].data.message);
+      openSuccessNotification(data.message);
       setIsDeleteFAQModal({ ...isDeleteFAQModal, isOpen: false });
       refetchFAQGroups();
       setFaqIds([]);
@@ -148,8 +149,9 @@ const FAQS = () => {
       render: (_, { id, name, is_published }) => {
         return (
           <div className="flex items-center justify-between">
-            <Button
+            <ButtonWPermission
               className="w-20 text-center"
+              codename="change_faqgroup"
               danger={is_published}
               loading={
                 handlePublishFAQGroups.variables &&
@@ -166,22 +168,34 @@ const FAQS = () => {
               }
             >
               {is_published ? "Unpublish" : "Publish"}
-            </Button>
-            <EditOutlined
-              onClick={() => {
-                setIsUpdateFAQGroupsModalOpen(true);
-                setFaqIds([id]);
-              }}
+            </ButtonWPermission>
+
+            <ButtonWPermission
+              codename="change_faqgroup"
+              icon={
+                <EditOutlined
+                  onClick={() => {
+                    setIsUpdateFAQGroupsModalOpen(true);
+                    setFaqIds([id]);
+                  }}
+                />
+              }
             />
-            <DeleteOutlined
-              onClick={() => {
-                setIsDeleteFAQModal({
-                  ...isDeleteFAQModal,
-                  isOpen: true,
-                  title: `Delete ${name}?`,
-                });
-                setFaqIds([id]);
-              }}
+
+            <ButtonWPermission
+              codename="delete_faqgroup"
+              icon={
+                <DeleteOutlined
+                  onClick={() => {
+                    setIsDeleteFAQModal({
+                      ...isDeleteFAQModal,
+                      isOpen: true,
+                      title: `Delete ${name}?`,
+                    });
+                    setFaqIds([id]);
+                  }}
+                />
+              }
             />
           </div>
         );
@@ -195,7 +209,10 @@ const FAQS = () => {
         {
           key: "1",
           label: (
-            <div
+            <ButtonWPermission
+              className="!border-none !bg-inherit !text-current"
+              codename="delete_faqgroup"
+              disabled={isEmpty(faqIds)}
               onClick={() => {
                 setIsDeleteFAQModal({
                   ...isDeleteFAQModal,
@@ -205,7 +222,7 @@ const FAQS = () => {
               }}
             >
               Delete
-            </div>
+            </ButtonWPermission>
           ),
         },
       ]}
@@ -239,14 +256,15 @@ const FAQS = () => {
       ) : (
         <>
           <div className="mb-4 flex justify-between">
-            <Button
+            <ButtonWPermission
               className="flex items-center"
+              codename="add_faqgroup"
               type="primary"
               ghost
               onClick={() => setIsCreateFAQGroupsModalOpen(true)}
             >
               Create FAQ Groups
-            </Button>
+            </ButtonWPermission>
 
             <Dropdown overlay={bulkMenu}>
               <Button className="bg-white" type="default">

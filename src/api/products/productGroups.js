@@ -57,12 +57,9 @@ export const bulkPublish = async ({ slugs = [], isPublish }) => {
   }
 };
 
-export const bulkDelete = async (slugs = []) => {
-  const res = await Promise.all(
-    slugs.map(async (slug) => {
-      return await axios.delete(`/api/product/admin/product-groups/${slug}/`);
-    })
-  );
+export const bulkDelete = async (slugs) => {
+  const res = await axios.delete(`/api/product/admin/product-groups/${slugs}/`);
+
   return res.data;
 };
 

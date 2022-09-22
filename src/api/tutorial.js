@@ -19,15 +19,10 @@ export const getPaginatedTags = async (page, pageSize) => {
   return res.data.data;
 };
 
-export const deleteTutorialTags = async (ids = []) => {
-  const res = await Promise.all(
-    ids.map(
-      async (id) =>
-        await axios.delete(`/api/tutorial/admin/tutorial-tags/${id}/`)
-    )
-  );
+export const deleteTutorialTags = async (ids) => {
+  const res = await axios.delete(`/api/tutorial/admin/tutorial-tags/${ids}/`);
 
-  return res;
+  return res.data;
 };
 
 export const createTutorial = async (data) => {
@@ -47,15 +42,10 @@ export const getPaginatedTutorials = async (page, pageSize) => {
   return res.data.data;
 };
 
-export const deleteTutorials = async (slugs = []) => {
-  const res = await Promise.all(
-    slugs.map(
-      async (slug) =>
-        await axios.delete(`/api/tutorial/admin/tutorials/${slug}/`)
-    )
-  );
+export const deleteTutorials = async (slugs) => {
+  const res = await axios.delete(`/api/tutorial/admin/tutorials/${slugs}/`);
 
-  return res;
+  return res.data;
 };
 
 export const getTutorialsById = async (slug) => {

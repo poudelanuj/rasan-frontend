@@ -96,11 +96,8 @@ export const getFAQGroupsById = async (id) => {
 };
 
 export const deleteFAQGroups = async (ids = []) => {
-  const res = await Promise.all(
-    ids.map(
-      async (id) => await axios.delete(`/api/about/admin/faq-groups/${id}/`)
-    )
-  );
+  const res = await axios.delete(`/api/about/admin/faq-groups/${ids}/`);
+
   return res;
 };
 
@@ -142,11 +139,10 @@ export const updateFAQS = async ({ id, data }) => {
   return res.data;
 };
 
-export const deleteFAQS = async (ids = []) => {
-  const res = await Promise.all(
-    ids.map(async (id) => await axios.delete(`/api/about/admin/faqs/${id}/`))
-  );
-  return res;
+export const deleteFAQS = async (ids) => {
+  const res = await axios.delete(`/api/about/admin/faqs/${ids}/`);
+
+  return res.data;
 };
 
 export const publishFAQS = async ({ id, shouldPublish }) => {

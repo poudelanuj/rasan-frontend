@@ -2,7 +2,7 @@ import { Button, Dropdown, Space, Table, Menu, Tag } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient, useMutation, useQuery } from "react-query";
 import { useState, useEffect } from "react";
-import { capitalize, uniqBy } from "lodash";
+import { capitalize, isEmpty, uniqBy } from "lodash";
 import { DeleteOutlined } from "@ant-design/icons";
 import ConfirmDelete from "../../../shared/ConfirmDelete";
 import {
@@ -19,6 +19,7 @@ import {
   GET_PAGINATED_TUTORIALS,
   GET_TUTORIALS_BY_ID,
 } from "../../../constants/queryKeys";
+import ButtonWPermission from "../../../shared/ButtonWPermission";
 
 export const getStatusColor = (status) => {
   switch (status) {
@@ -74,7 +75,7 @@ const TutorialList = () => {
 
   const handleDeleteTutorial = useMutation(() => deleteTutorials(slugs), {
     onSuccess: (res) => {
-      openSuccessNotification(res[0].data.message);
+      openSuccessNotification(res.message);
       refetchTutorials();
       setIsDeleteTutorialsModalOpen(false);
       setSlugs([]);
@@ -145,8 +146,9 @@ const TutorialList = () => {
       render: (_, { slug, title, is_published }) => {
         return (
           <div className="flex items-center justify-between">
-            <Button
+            <ButtonWPermission
               className="w-20 text-center"
+              codename="change_tutorial"
               danger={is_published} //* TODO
               loading={
                 handlePublishTutorial.variables &&
@@ -163,14 +165,20 @@ const TutorialList = () => {
               }
             >
               {is_published ? "Unpublish" : "Publish"}
-            </Button>
-            <DeleteOutlined
-              className="ml-5"
-              onClick={() => {
-                setIsDeleteTutorialsModalOpen(true);
-                setDeleteTutorialsModalTitle(`Delete ${title}?`);
-                setSlugs([slug]);
-              }}
+            </ButtonWPermission>
+
+            <ButtonWPermission
+              codename="delete_tutorial"
+              icon={
+                <DeleteOutlined
+                  className="ml-5"
+                  onClick={() => {
+                    setIsDeleteTutorialsModalOpen(true);
+                    setDeleteTutorialsModalTitle(`Delete ${title}?`);
+                    setSlugs([slug]);
+                  }}
+                />
+              }
             />
           </div>
         );
@@ -184,14 +192,17 @@ const TutorialList = () => {
         {
           key: "1",
           label: (
-            <div
+            <ButtonWPermission
+              className="!border-none !bg-inherit !text-current"
+              codename="delete_tutorial"
+              disabled={isEmpty(slugs)}
               onClick={() => {
                 setIsDeleteTutorialsModalOpen(true);
                 setDeleteTutorialsModalTitle(`Delete all tutorials?`);
               }}
             >
               Delete
-            </div>
+            </ButtonWPermission>
           ),
         },
       ]}
@@ -220,8 +231,9 @@ const TutorialList = () => {
   return (
     <div className="">
       <div className="mb-4 flex justify-between">
-        <Button
+        <ButtonWPermission
           className="flex items-center"
+          codename="add_tutorial"
           type="primary"
           ghost
           onClick={() => {
@@ -229,7 +241,7 @@ const TutorialList = () => {
           }}
         >
           Create Tutorial
-        </Button>
+        </ButtonWPermission>
 
         <Dropdown overlay={bulkMenu}>
           <Button className="bg-white" type="default">

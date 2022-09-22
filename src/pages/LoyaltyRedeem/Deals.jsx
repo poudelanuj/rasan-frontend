@@ -73,7 +73,7 @@ const Deals = ({ type, isArchived, queryKey }) => {
     () => deleteRedeemableProduct(dealsId),
     {
       onSuccess: (data) => {
-        openSuccessNotification(data[0].data.message);
+        openSuccessNotification(data.message);
         setDeleteDealsModal({
           ...deleteDealsModal,
           isOpen: false,
