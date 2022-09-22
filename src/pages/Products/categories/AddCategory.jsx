@@ -10,6 +10,7 @@ import {
   openSuccessNotification,
 } from "../../../utils/openNotification";
 import { GET_PAGINATED_CATEGORIES } from "../../../constants/queryKeys";
+import { capitalize } from "lodash";
 
 const { Dragger } = Upload;
 
@@ -28,7 +29,7 @@ function AddCategory({ isOpen, closeModal, setPaginatedCategoriesList }) {
       queryClient.invalidateQueries([GET_PAGINATED_CATEGORIES]);
       queryClient.refetchQueries([GET_PAGINATED_CATEGORIES]);
       openSuccessNotification(
-        data.data.message || "Category created successfully"
+        capitalize(data.data.message) || "Category created successfully"
       );
       closeModal();
     },
