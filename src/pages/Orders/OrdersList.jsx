@@ -14,7 +14,7 @@ import {
 import { CANCELLED, DELIVERED, IN_PROCESS } from "../../constants";
 import DeleteOrder from "./components/DeleteOrder";
 import ButtonWPermission from "../../shared/ButtonWPermission";
-import { isEmpty } from "lodash";
+import { isEmpty, capitalize } from "lodash";
 
 export const getOrderStatusColor = (status) => {
   switch (status) {
@@ -153,7 +153,7 @@ const OrdersList = ({
       dataIndex: "payment",
       key: "payment",
       render: (_, { payment }) => {
-        return <>{payment?.payment_method?.replaceAll("_", " ")}</>;
+        return <>{capitalize(payment?.payment_method?.replaceAll("_", " "))}</>;
       },
       ...getColumnSearchProps("payment method"),
     },
