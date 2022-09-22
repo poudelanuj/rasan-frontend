@@ -4,7 +4,7 @@ import { useMutation, useQuery } from "react-query";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
-import { uniqBy } from "lodash";
+import { uniqBy, isEmpty } from "lodash";
 import CustomPageHeader from "../../shared/PageHeader";
 // import ConfirmDelete from "../../shared/ConfirmDelete";
 import Loader from "../../shared/Loader";
@@ -17,6 +17,7 @@ import {
 import { GET_PAGINATED_LUCKY_DRAW } from "../../constants/queryKeys";
 import { openErrorNotification, openSuccessNotification } from "../../utils";
 import ConfirmDelete from "../../shared/ConfirmDelete";
+import ButtonWPermission from "../../shared/ButtonWPermission";
 
 export const getStatusColor = (status) => {
   switch (status) {
@@ -164,8 +165,9 @@ const LuckyDraw = () => {
       render: (_, { id, campaign_title, is_active }) => {
         return (
           <div className="flex items-center justify-between">
-            <Button
+            <ButtonWPermission
               className="w-20 text-center"
+              codename="change_luckydrawevent"
               danger={is_active}
               loading={
                 handleActivateLuckyDraw.variables &&
@@ -182,17 +184,22 @@ const LuckyDraw = () => {
               }
             >
               {is_active ? "Deactivate" : "Activate"}
-            </Button>
+            </ButtonWPermission>
 
-            <DeleteOutlined
-              onClick={() => {
-                setDeleteLuckyDrawModal({
-                  ...deleteLuckyDrawModal,
-                  isOpen: true,
-                  title: `Delete ${campaign_title}?`,
-                });
-                setLuckyDrawId([id]);
-              }}
+            <ButtonWPermission
+              codename="delete_luckydrawevent"
+              icon={
+                <DeleteOutlined
+                  onClick={() => {
+                    setDeleteLuckyDrawModal({
+                      ...deleteLuckyDrawModal,
+                      isOpen: true,
+                      title: `Delete ${campaign_title}?`,
+                    });
+                    setLuckyDrawId([id]);
+                  }}
+                />
+              }
             />
           </div>
         );
@@ -212,7 +219,10 @@ const LuckyDraw = () => {
         {
           key: "1",
           label: (
-            <div
+            <ButtonWPermission
+              className="!border-none !bg-inherit !text-current"
+              codename="delete_luckydrawevent"
+              disabled={isEmpty(luckyDrawId)}
               onClick={() => {
                 setDeleteLuckyDrawModal({
                   ...deleteLuckyDrawModal,
@@ -222,7 +232,7 @@ const LuckyDraw = () => {
               }}
             >
               Delete
-            </div>
+            </ButtonWPermission>
           ),
         },
       ]}
@@ -235,14 +245,15 @@ const LuckyDraw = () => {
 
       <div className="py-5 px-4 bg-[#FFFFFF]">
         <div className="mb-4 flex justify-between">
-          <Button
+          <ButtonWPermission
             className="flex items-center"
+            codename="add_luckydrawevent"
             type="primary"
             ghost
             onClick={() => navigate("create")}
           >
             Create Campaigns
-          </Button>
+          </ButtonWPermission>
 
           <Dropdown overlay={bulkMenu}>
             <Button className="bg-white" type="default">

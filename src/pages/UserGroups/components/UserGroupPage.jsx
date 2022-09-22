@@ -91,6 +91,7 @@ const UserGroupPage = () => {
         return (
           <ButtonWPermission
             codename="delete_user"
+            disabled={userGroup && userGroup[0].data.data.name === "superadmin"}
             icon={<DeleteOutlined />}
             onClick={() => {
               setIsRemoveUserModal(true);
@@ -149,6 +150,9 @@ const UserGroupPage = () => {
 
                 <ButtonWPermission
                   codename="add_permission"
+                  disabled={
+                    userGroup && userGroup[0].data.data.name === "superadmin"
+                  }
                   type="primary"
                   ghost
                   onClick={() => setIsUpdateUserGroupModal(true)}
