@@ -68,9 +68,7 @@ const Notifications = () => {
       title: "Created At",
       dataIndex: "created_at",
       key: "created_at",
-      render: (_, { created_at }) => (
-        <>{moment(created_at).format("ll hh:mm a")}</>
-      ),
+      render: (_, { created_at }) => <>{moment(created_at).format("ll")}</>,
     },
   ];
 
