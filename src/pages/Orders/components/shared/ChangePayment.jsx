@@ -126,7 +126,7 @@ const ChangePayment = ({
             >
               {PAYMENT_STATUS.map((item) => (
                 <Select.Option key={item} value={item}>
-                  {item.replaceAll("_", " ")}
+                  {capitalize(item.replaceAll("_", " "))}
                 </Select.Option>
               ))}
             </Select>
