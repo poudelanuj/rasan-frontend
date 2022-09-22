@@ -19,6 +19,7 @@ import {
 } from "../../../utils/openNotification";
 import ProductSkuList from "./shared/ProductSkuList";
 import ButtonWPermission from "../../../shared/ButtonWPermission";
+import { capitalize } from "lodash";
 
 function ViewProduct() {
   const { slug } = useParams();
@@ -85,10 +86,10 @@ function ViewProduct() {
                                 key={item}
                                 className="mr-2 cursor-pointer hover:underline"
                               >
-                                {parseSlug(item)}
+                                {capitalize(parseSlug(item))}
                               </span>
                             ))
-                          : product.category}
+                          : capitalize(product.category)}
                       </span>
                     </Descriptions.Item>
                     <Descriptions.Item label="Brand">
@@ -99,12 +100,12 @@ function ViewProduct() {
                               key={item}
                               className="mr-2 cursor-pointer hover:underline"
                             >
-                              {parseSlug(item)}
+                              {capitalize(parseSlug(item))}
                             </span>
                           ))
                         ) : (
                           <span className="mr-2 cursor-pointer hover:underline">
-                            {product.brand}
+                            {capitalize(product.brand.replaceAll("-", " "))}
                           </span>
                         )}
                       </span>
