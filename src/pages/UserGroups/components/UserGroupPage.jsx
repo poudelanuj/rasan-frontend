@@ -15,6 +15,7 @@ import AddUsersModal from "./AddUsersModal";
 import { openErrorNotification, openSuccessNotification } from "../../../utils";
 import ConfirmDelete from "../../../shared/ConfirmDelete";
 import UpdateUserGroupModal from "./UpdateUserGroupModal";
+import ButtonWPermission from "../../../shared/ButtonWPermission";
 
 const UserGroupPage = () => {
   const { groupId } = useParams();
@@ -88,7 +89,9 @@ const UserGroupPage = () => {
       key: "action",
       render: (_, { phone }) => {
         return (
-          <DeleteOutlined
+          <ButtonWPermission
+            codename="delete_user"
+            icon={<DeleteOutlined />}
             onClick={() => {
               setIsRemoveUserModal(true);
               setUsers([phone]);
@@ -110,7 +113,15 @@ const UserGroupPage = () => {
       items={[
         {
           key: "1",
-          label: <div onClick={() => setIsRemoveUserModal(true)}>Delete</div>,
+          label: (
+            <ButtonWPermission
+              className="!text-current !bg-inherit !border-none"
+              codename="delete_user"
+              onClick={() => setIsRemoveUserModal(true)}
+            >
+              Delete
+            </ButtonWPermission>
+          ),
         },
       ]}
     />
@@ -127,21 +138,23 @@ const UserGroupPage = () => {
           <div className="py-5 px-4 bg-[#FFFFFF]">
             <div className="flex items-center justify-between mb-6">
               <Space>
-                <Button
+                <ButtonWPermission
+                  codename="add_user"
                   type="primary"
                   ghost
                   onClick={() => setIsAddUserModal(true)}
                 >
                   Add User
-                </Button>
+                </ButtonWPermission>
 
-                <Button
+                <ButtonWPermission
+                  codename="add_permission"
                   type="primary"
                   ghost
                   onClick={() => setIsUpdateUserGroupModal(true)}
                 >
                   Set Permisisons
-                </Button>
+                </ButtonWPermission>
               </Space>
 
               <Space>

@@ -33,6 +33,7 @@ const Users = () => {
         <div>
           <UserList
             count={data && data.count}
+            pageSize={pageSize}
             setPage={setPage}
             users={users}
           />

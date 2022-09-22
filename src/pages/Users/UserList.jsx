@@ -70,7 +70,7 @@ const UserList = ({ count, users, pageSize, setPage }) => {
   ];
   return (
     <>
-      {userColumns.length !== 0 && (
+      {userColumns && (
         <Table
           columns={columns}
           dataSource={userColumns}

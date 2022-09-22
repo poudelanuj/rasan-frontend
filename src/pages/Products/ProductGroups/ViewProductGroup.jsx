@@ -2,7 +2,7 @@ import { DeleteOutlined } from "@ant-design/icons";
 import React, { useCallback, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { Breadcrumb, Button, Select, Space, Table, Tag } from "antd";
+import { Breadcrumb, Select, Space, Table, Tag } from "antd";
 import {
   getProductGroup,
   updateProductSKU,
