@@ -542,6 +542,9 @@ const ViewOrderPage = () => {
                 <div style={{ height: 20 }} />
                 <Button
                   className="bg-blue-500"
+                  disabled={
+                    !(selectedProductPack && selectedProductSku && quantity)
+                  }
                   type="primary"
                   onClick={() => handleAddItem.mutate()}
                 >
