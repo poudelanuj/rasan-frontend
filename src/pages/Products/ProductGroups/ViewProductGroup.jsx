@@ -93,7 +93,7 @@ function ViewProductGroup() {
 
   const { data: productSkus } = useQuery({
     queryFn: () => getAllProductSkus(),
-    queryKey: GET_ALL_PRODUCT_SKUS,
+    queryKey: [GET_ALL_PRODUCT_SKUS, slug],
   });
 
   const navigate = useNavigate();

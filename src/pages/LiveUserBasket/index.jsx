@@ -3,7 +3,6 @@ import { Table } from "antd";
 import { useQuery } from "react-query";
 import { uniqBy } from "lodash";
 import moment from "moment";
-import UserInfo from "./UserInfo";
 import BasketInfo from "./BasketInfo";
 import BasketModal from "./BasketModal";
 import { getAllBaskets } from "../../api/baskets";
@@ -41,7 +40,12 @@ const LiveUserBasket = () => {
     {
       title: "Customer",
       dataIndex: "user",
-      render: (_, { user }) => <UserInfo user={user} />,
+      render: (_, { user }) => <>{user?.full_name}</>,
+    },
+    {
+      title: "Phone Number",
+      dataIndex: "phone",
+      render: (_, { user }) => <>{user?.phone}</>,
     },
     {
       title: "Total Items",
