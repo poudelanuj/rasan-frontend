@@ -66,7 +66,7 @@ function EditProductPack({
             initialValue={productSku.slug}
             label="Product Sku"
             name="product_sku"
-            rules={[{ required: true, message: "product sku required" }]}
+            rules={[{ required: true, message: "Product Sku is required" }]}
           >
             {productSkuStatus === "success" && productSku ? (
               <Select
@@ -96,7 +96,7 @@ function EditProductPack({
                 label="Number Of Items"
                 name="number_of_items"
                 rules={[
-                  { required: true, message: "number of items required" },
+                  { required: true, message: "Number of items required" },
                 ]}
               >
                 <Input
@@ -110,7 +110,7 @@ function EditProductPack({
                 label="Price Per Piece"
                 name="price_per_piece"
                 rules={[
-                  { required: true, message: "price per piece required" },
+                  { required: true, message: "Price per piece is required" },
                 ]}
               >
                 <Input
@@ -123,7 +123,9 @@ function EditProductPack({
                 initialValue={productPack?.mrp_per_piece}
                 label="MRP Per Piece"
                 name="mrp_per_piece"
-                rules={[{ required: true, message: "mrp per piece required" }]}
+                rules={[
+                  { required: true, message: "MRP per piece is required" },
+                ]}
               >
                 <Input
                   defaultValue={productPack?.mrp_per_piece}

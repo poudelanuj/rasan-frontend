@@ -172,7 +172,9 @@ const AddProductSku = () => {
               <Form.Item
                 label="Product Name"
                 name="name"
-                rules={[{ required: true, message: "product name required" }]}
+                rules={[
+                  { required: true, message: "Product name is required" },
+                ]}
               >
                 <Input />
               </Form.Item>
@@ -180,7 +182,9 @@ const AddProductSku = () => {
               <Form.Item
                 label="Product Name (In Nepali)"
                 name="name_np"
-                rules={[{ required: true, message: "product name required" }]}
+                rules={[
+                  { required: true, message: "Product name is required" },
+                ]}
               >
                 <Input />
               </Form.Item>
@@ -190,7 +194,7 @@ const AddProductSku = () => {
               <Form.Item
                 label="Quantity"
                 name="quantity"
-                rules={[{ required: true, message: "quantity required" }]}
+                rules={[{ required: true, message: "Quantity is required" }]}
               >
                 <Input />
               </Form.Item>
@@ -199,7 +203,7 @@ const AddProductSku = () => {
                 label="Cost Price/Piece"
                 name="cost_price_per_piece"
                 rules={[
-                  { required: true, message: "cost price/piece required" },
+                  { required: true, message: "Cost price/piece is required" },
                 ]}
               >
                 <Input type="number" />
@@ -208,14 +212,14 @@ const AddProductSku = () => {
               <Form.Item
                 label="Price/Piece"
                 name="price_per_piece"
-                rules={[{ required: true, message: "price/piece required" }]}
+                rules={[{ required: true, message: "Price/piece is required" }]}
               >
                 <Input />
               </Form.Item>
               <Form.Item
                 label="MRP/Piece"
                 name="mrp_per_piece"
-                rules={[{ required: true, message: "MRP/piece required" }]}
+                rules={[{ required: true, message: "MRP/piece is required" }]}
               >
                 <Input type="number" />
               </Form.Item>
@@ -224,7 +228,7 @@ const AddProductSku = () => {
             <Form.Item
               label="Product SKU Description"
               name="description"
-              rules={[{ required: true, message: "product name required" }]}
+              rules={[{ required: true, message: "Product name is required" }]}
             >
               <Input.TextArea placeholder="Description" rows={4} />
             </Form.Item>
@@ -244,7 +248,7 @@ const AddProductSku = () => {
                   </Space>
                 }
                 name="category"
-                rules={[{ required: true, message: "category required" }]}
+                rules={[{ required: true, message: "Category is required" }]}
               >
                 <Select
                   loading={categoriesStatus === "loading"}
@@ -275,7 +279,7 @@ const AddProductSku = () => {
                   </Space>
                 }
                 name="brand"
-                rules={[{ required: true, message: "brand required" }]}
+                rules={[{ required: true, message: "Brand is required" }]}
               >
                 <Select
                   loading={brandsStatus === "loading"}
@@ -309,7 +313,7 @@ const AddProductSku = () => {
                   </Space>
                 }
                 name="product"
-                rules={[{ required: true, message: "product required" }]}
+                rules={[{ required: true, message: "Product is required" }]}
               >
                 <Select
                   defaultValue={searchParams.get("product")}

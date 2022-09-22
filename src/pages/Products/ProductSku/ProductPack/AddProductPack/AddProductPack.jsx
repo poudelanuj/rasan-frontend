@@ -62,7 +62,7 @@ function AddProductPack({
                 initialValue={productSku.slug}
                 label="Product Sku"
                 name="product_sku"
-                rules={[{ required: true, message: "product sku required" }]}
+                rules={[{ required: true, message: "Product Sku is required" }]}
               >
                 <Select
                   defaultValue={productSku.slug}
@@ -78,7 +78,7 @@ function AddProductPack({
                 label="Number Of Items"
                 name="number_of_items"
                 rules={[
-                  { required: true, message: "number of items required" },
+                  { required: true, message: "Number of items required" },
                 ]}
               >
                 <Input type="number" />
@@ -89,7 +89,7 @@ function AddProductPack({
                 label="Price Per Piece"
                 name="price_per_piece"
                 rules={[
-                  { required: true, message: "price per piece required" },
+                  { required: true, message: "Price per piece is required" },
                 ]}
               >
                 <Input
@@ -102,7 +102,9 @@ function AddProductPack({
                 initialValue={productSku.mrp_per_piece}
                 label="MRP Per Piece"
                 name="mrp_per_piece"
-                rules={[{ required: true, message: "mrp per piece required" }]}
+                rules={[
+                  { required: true, message: "MRP per piece is required" },
+                ]}
               >
                 <Input defaultValue={productSku.mrp_per_piece} type="number" />
               </Form.Item>
