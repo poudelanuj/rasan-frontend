@@ -18,9 +18,11 @@ export const createNotificationGroup = async (data) => {
   return res.data;
 };
 
-export const getNotificationGroups = async () => {
-  const res = await axios.get("/api/notification/admin/groups/");
-  return res.data.data.results;
+export const getNotificationGroups = async (page, pageSize) => {
+  const res = await axios.get(
+    `/api/notification/admin/groups/?page=${page}&size=${pageSize}`
+  );
+  return res.data.data;
 };
 
 export const dispatchNotification = async (notificationId) => {

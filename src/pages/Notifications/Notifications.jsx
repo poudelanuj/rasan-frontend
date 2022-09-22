@@ -1,5 +1,7 @@
 import { Button, Table } from "antd";
+import { uniqBy } from "lodash";
 import moment from "moment";
+import { useEffect } from "react";
 import { useState } from "react";
 import { useQuery } from "react-query";
 import { getNotificationGroups } from "../../api/notifications";
@@ -11,16 +13,32 @@ const Notifications = () => {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedNotification, setSelected] = useState();
+  const [notifications, setNotifications] = useState([]);
+
+  const pageSize = 20;
+  const [page, setPage] = useState(1);
 
   const {
-    data: notifications,
+    data,
     status,
     refetch: refetchNotifications,
     isRefetching,
   } = useQuery({
-    queryFn: () => getNotificationGroups(),
-    queryKey: GET_NOTIFICATION_GROUPS,
+    queryFn: () => getNotificationGroups(page, pageSize),
+    queryKey: [GET_NOTIFICATION_GROUPS, page.toString() + pageSize.toString()],
   });
+
+  useEffect(() => {
+    if (data) {
+      setNotifications([]);
+      setNotifications((prev) => uniqBy([...prev, ...data.results], "id"));
+    }
+  }, [data]);
+
+  useEffect(() => {
+    refetchNotifications();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   const columns = [
     {
@@ -90,6 +108,14 @@ const Notifications = () => {
             sn: index + 1,
           }))}
           loading={status === "loading" || isRefetching}
+          pagination={{
+            pageSize,
+            total: data?.count,
+
+            onChange: (page, pageSize) => {
+              setPage(page);
+            },
+          }}
           rowClassName="cursor-pointer"
           onRow={(record) => {
             return {
