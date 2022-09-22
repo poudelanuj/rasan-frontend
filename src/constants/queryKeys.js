@@ -50,6 +50,7 @@ export const GET_PERMISSIONS = "permissions";
 export const GET_ORDERS = "all-orders";
 export const GET_ORDER_METRICS = "order-metrics";
 export const GET_PAGINATED_ORDERS = "paginated-orders";
+export const GET_ASSIGNED_ORDERS = "assigned-orders";
 
 //* Baskets
 export const GET_BASKETS = "all-baskets";

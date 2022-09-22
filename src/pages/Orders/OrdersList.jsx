@@ -97,7 +97,7 @@ const OrdersList = ({
         return (
           <div
             className="text-blue-500 cursor-pointer hover:underline"
-            onClick={() => navigate(`view-order/${id}`)}
+            onClick={() => navigate(`/orders/view-order/${id}`)}
           >
             #{id}
           </div>
@@ -116,7 +116,7 @@ const OrdersList = ({
         return (
           <div
             className="text-blue-500 cursor-pointer hover:underline"
-            onClick={() => navigate(`view-order/${id}`)}
+            onClick={() => navigate(`/orders/view-order/${id}`)}
           >
             {user}
           </div>
