@@ -2,12 +2,13 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Table, Select, Tag } from "antd";
 import { useMutation, useQuery } from "react-query";
+import moment from "moment";
 
 import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../../../utils/openNotification";
-import { getDate, parseSlug } from "../../../../utils";
+import { parseSlug } from "../../../../utils";
 import { GET_CATEGORY_PRODUCTS } from "../../../../constants/queryKeys";
 import { uniqBy } from "lodash";
 import { getProductsFromCategory } from "../../../../api/categories";
@@ -65,11 +66,11 @@ const columns = [
     title: "Published At",
     render: (text, record) => {
       return (
-        <div className="text-center">
+        <div>
           {record.published_at?.length > 0 ? (
-            getDate(record.published_at)
+            moment(record.published_at).format("ll")
           ) : (
-            <div className="text-center">-</div>
+            <div>-</div>
           )}
         </div>
       );

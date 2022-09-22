@@ -3,12 +3,13 @@ import { useNavigate } from "react-router-dom";
 
 import { Table, Select, Tag } from "antd";
 import { useMutation, useQuery } from "react-query";
+import moment from "moment/moment";
 
 import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../../../utils/openNotification";
-import { getDate, parseArray } from "../../../../utils";
+import { parseArray } from "../../../../utils";
 import { ALERT_TYPE } from "../../../../constants";
 import Alert from "../../../../shared/Alert";
 import { GET_PRODUCTS_FROM_BRAND } from "../../../../constants/queryKeys";
@@ -70,11 +71,11 @@ const columns = [
     title: "Published At",
     render: (text, record) => {
       return (
-        <div className="text-center">
+        <div>
           {record.published_at?.length > 0 ? (
-            getDate(record.published_at)
+            moment(record.published_at).format("ll")
           ) : (
-            <div className="text-center">-</div>
+            <div>-</div>
           )}
         </div>
       );
