@@ -2,7 +2,7 @@ import { Button, Table, Tag, Menu, Space, Dropdown } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient, useQuery } from "react-query";
-import { capitalize, uniqBy } from "lodash";
+import { capitalize, isEmpty, uniqBy } from "lodash";
 import { useState, useEffect } from "react";
 import { PUBLISHED, UNPUBLISHED } from "../../constants";
 import ConfirmDelete from "../../shared/ConfirmDelete";
@@ -26,6 +26,7 @@ import {
 } from "../../utils";
 
 import Loader from "../../shared/Loader";
+import ButtonWPermission from "../../shared/ButtonWPermission";
 
 const Deals = ({ type, isArchived, queryKey }) => {
   const navigate = useNavigate();
@@ -176,8 +177,9 @@ const Deals = ({ type, isArchived, queryKey }) => {
       render: (_, { id, product_sku, is_published }) => {
         return (
           <div className="flex items-center justify-between">
-            <Button
+            <ButtonWPermission
               className="w-20 text-center"
+              codename="change_loyalty"
               danger={is_published}
               loading={
                 handlePublishLoyaltyRedeem.variables &&
@@ -194,17 +196,22 @@ const Deals = ({ type, isArchived, queryKey }) => {
               }
             >
               {is_published ? "Unpublish" : "Publish"}
-            </Button>
+            </ButtonWPermission>
 
-            <DeleteOutlined
-              onClick={() => {
-                setDeleteDealsModal({
-                  ...deleteDealsModal,
-                  isOpen: true,
-                  title: `Delete ${product_sku}?`,
-                });
-                setDealsId([id]);
-              }}
+            <ButtonWPermission
+              codename="delete_loyalty"
+              icon={
+                <DeleteOutlined
+                  onClick={() => {
+                    setDeleteDealsModal({
+                      ...deleteDealsModal,
+                      isOpen: true,
+                      title: `Delete ${product_sku}?`,
+                    });
+                    setDealsId([id]);
+                  }}
+                />
+              }
             />
           </div>
         );
@@ -224,7 +231,10 @@ const Deals = ({ type, isArchived, queryKey }) => {
         {
           key: "1",
           label: (
-            <div
+            <ButtonWPermission
+              className="!border-none !bg-inherit !text-current"
+              codename="delete_loyalty"
+              disabled={isEmpty(dealsId)}
               onClick={() => {
                 setDeleteDealsModal({
                   ...deleteDealsModal,
@@ -234,7 +244,7 @@ const Deals = ({ type, isArchived, queryKey }) => {
               }}
             >
               Delete
-            </div>
+            </ButtonWPermission>
           ),
         },
       ]}
@@ -244,14 +254,15 @@ const Deals = ({ type, isArchived, queryKey }) => {
   return (
     <>
       <div className="mb-4 flex justify-between">
-        <Button
+        <ButtonWPermission
           className="flex items-center"
+          codename="add_loyalty"
           type="primary"
           ghost
           onClick={() => navigate("create")}
         >
           Create Loyalty Redeem
-        </Button>
+        </ButtonWPermission>
 
         <Dropdown overlay={bulkMenu}>
           <Button className="bg-white" type="default">
