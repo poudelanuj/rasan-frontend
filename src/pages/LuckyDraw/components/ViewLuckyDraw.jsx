@@ -203,7 +203,7 @@ const ViewLuckyDraw = () => {
                 </div>
 
                 <ButtonWPermission
-                  className="!text-[#00A0B0] !border-none !bg-inherit !flex items-center gap-1.5"
+                  className="!text-[#00A0B0] !border-none !bg-inherit !flex items-center"
                   codename="change_luckydrawevent"
                   onClick={() => navigate(`/lucky-draw/update/${eventId}`)}
                 >

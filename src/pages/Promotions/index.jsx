@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Table, Button, Dropdown, Space, Menu, Tag } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
-import { capitalize, uniqBy } from "lodash";
+import { capitalize, isEmpty, uniqBy } from "lodash";
 import {
   deletePromotions,
   getPaginatedPromotions,
@@ -21,6 +21,7 @@ import {
 import Loader from "../../shared/Loader";
 import { PUBLISHED, UNPUBLISHED } from "../../constants";
 import ConfirmDelete from "../../shared/ConfirmDelete";
+import ButtonWPermission from "../../shared/ButtonWPermission";
 
 export const getStatusColor = (status) => {
   switch (status) {
@@ -110,7 +111,10 @@ const Promotions = () => {
         {
           key: "1",
           label: (
-            <div
+            <ButtonWPermission
+              className="!border-none !bg-inherit !text-current"
+              codename="delete_promotion"
+              disabled={isEmpty(promotionsIds)}
               onClick={() => {
                 setIsDeletePromotionsModal({
                   ...isDeletePromotionsModal,
@@ -120,7 +124,7 @@ const Promotions = () => {
               }}
             >
               Delete
-            </div>
+            </ButtonWPermission>
           ),
         },
       ]}
@@ -201,8 +205,9 @@ const Promotions = () => {
       render: (_, { id, title, is_published }) => {
         return (
           <div className="flex items-center justify-between">
-            <Button
+            <ButtonWPermission
               className="w-20 text-center"
+              codename="change_promotion"
               danger={is_published}
               loading={
                 handlePublishPromotions.variables &&
@@ -220,17 +225,22 @@ const Promotions = () => {
               }}
             >
               {is_published ? "Unpublish" : "Publish"}
-            </Button>
+            </ButtonWPermission>
 
-            <DeleteOutlined
-              onClick={() => {
-                setIsDeletePromotionsModal({
-                  ...isDeletePromotionsModal,
-                  isOpen: true,
-                  title: `Delete ${title}?`,
-                });
-                setPromotionsIds([id]);
-              }}
+            <ButtonWPermission
+              codename="delete_promotion"
+              icon={
+                <DeleteOutlined
+                  onClick={() => {
+                    setIsDeletePromotionsModal({
+                      ...isDeletePromotionsModal,
+                      isOpen: true,
+                      title: `Delete ${title}?`,
+                    });
+                    setPromotionsIds([id]);
+                  }}
+                />
+              }
             />
           </div>
         );
@@ -248,14 +258,15 @@ const Promotions = () => {
 
           <div className="py-5 px-4 bg-[#FFFFFF]">
             <div className="mb-4 flex justify-between">
-              <Button
+              <ButtonWPermission
                 className="flex items-center"
+                codename="add_promotion"
                 type="primary"
                 ghost
                 onClick={() => navigate("create")}
               >
                 Create Promotions
-              </Button>
+              </ButtonWPermission>
 
               <Dropdown overlay={bulkMenu}>
                 <Button className="bg-white" type="default">
