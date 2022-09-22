@@ -8,6 +8,7 @@ import {
   getProductGroup,
   updateProductSKU,
 } from "../../../context/CategoryContext";
+import { deleteProductSku } from "../../../api/products/productSku";
 import {
   openErrorNotification,
   openSuccessNotification,
@@ -21,6 +22,7 @@ import { publishProductGroup } from "../../../api/products/productGroups";
 import Loader from "../../../shared/Loader";
 import EditProductGroup from "./EditProductGroup";
 import ButtonWPermission from "../../../shared/ButtonWPermission";
+import ConfirmDelete from "../../../shared/ConfirmDelete";
 
 const { Option } = Select;
 
@@ -29,6 +31,12 @@ function ViewProductGroup() {
 
   const [isEditGroupOpen, setIsEditGroupOpen] = useState(false);
   const { slug } = useParams();
+
+  const [isDeleteProductSkuModal, setIsDeleteProductSkuModal] = useState({
+    isOpen: false,
+    slug: null,
+    title: null,
+  });
 
   const [productGroup, setProductGroup] = useState({
     sn: "",
@@ -91,9 +99,18 @@ function ViewProductGroup() {
     }
   );
 
+  const handleDeleteProductSku = useMutation((slug) => deleteProductSku(slug), {
+    onSuccess: (data) => {
+      openSuccessNotification(data.message);
+      setIsDeleteProductSkuModal({ isOpen: false, slug: null, title: null });
+      refetchProductGroup();
+    },
+    onError: (err) => openErrorNotification(err),
+  });
+
   const { data: productSkus } = useQuery({
     queryFn: () => getAllProductSkus(),
-    queryKey: [GET_ALL_PRODUCT_SKUS, slug],
+    queryKey: GET_ALL_PRODUCT_SKUS,
   });
 
   const navigate = useNavigate();
@@ -109,10 +126,16 @@ function ViewProductGroup() {
       title: "Product Name",
       render: (text, record) => {
         return (
-          <div className="flex items-center gap-3">
+          <div
+            className="flex items-center gap-3 text-blue-500"
+            onClick={() => {
+              const pageHeaderPath = `/product-groups/${productGroup.slug}`;
+              navigate(`/product-sku/${record.slug}?path=${pageHeaderPath}`);
+            }}
+          >
             <img
               alt={"text"}
-              className="h-[40px] rounded"
+              className="h-[40px] w-9 rounded"
               src={record?.product_sku_image?.full_size || "/rasan-default.png"}
             />
             {record.name}
@@ -149,7 +172,14 @@ function ViewProductGroup() {
             <ButtonWPermission
               codename="delete_productsku"
               icon={<DeleteOutlined />}
-              onClick={() => {}}
+              onClick={() => {
+                setIsDeleteProductSkuModal({
+                  ...isDeleteProductSkuModal,
+                  slug: record.slug,
+                  isOpen: true,
+                  title: record.name,
+                });
+              }}
             />
           </div>
         );
@@ -181,7 +211,7 @@ function ViewProductGroup() {
         />
       )}
 
-      {productGroupData && (
+      {productGroupStatus === "success" && productGroupData && (
         <>
           <CustomPageHeader
             breadcrumb={getHeaderBreadcrumb()}
@@ -288,16 +318,6 @@ function ViewProductGroup() {
                     dataSource={productGroup?.product_skus?.results}
                     pagination={false}
                     rowClassName="h-[3rem] cursor-pointer"
-                    onRow={(record) => {
-                      return {
-                        onClick: () => {
-                          const pageHeaderPath = `/product-groups/${productGroup.slug}`;
-                          navigate(
-                            `/product-sku/${record.slug}?path=${pageHeaderPath}`
-                          );
-                        },
-                      };
-                    }}
                   />
                 </div>
                 <div>
@@ -328,6 +348,23 @@ function ViewProductGroup() {
               </div>
             </div>
           </div>
+
+          <ConfirmDelete
+            closeModal={() =>
+              setIsDeleteProductSkuModal({
+                ...isDeleteProductSkuModal,
+                slug: null,
+                isOpen: false,
+                title: null,
+              })
+            }
+            deleteMutation={() =>
+              handleDeleteProductSku.mutate(isDeleteProductSkuModal.slug)
+            }
+            isOpen={isDeleteProductSkuModal.isOpen}
+            status={handleDeleteProductSku.status}
+            title={isDeleteProductSkuModal.title}
+          />
         </>
       )}
     </>
