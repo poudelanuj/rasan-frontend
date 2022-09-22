@@ -23,6 +23,7 @@ import Loader from "../../../shared/Loader";
 import EditProductGroup from "./EditProductGroup";
 import ButtonWPermission from "../../../shared/ButtonWPermission";
 import ConfirmDelete from "../../../shared/ConfirmDelete";
+import { useEffect } from "react";
 
 const { Option } = Select;
 
@@ -53,17 +54,20 @@ function ViewProductGroup() {
     status: productGroupStatus,
     refetch: refetchProductGroup,
   } = useQuery(["get-product-group", slug], () => getProductGroup({ slug }), {
-    onSuccess: (data) => {
-      let newData = data.data.data;
-      newData.product_skus.results.forEach((productSku) => {
-        productSku["key"] = productSku.slug;
-      });
-      setProductGroup(newData);
-    },
     onError: (error) => {
       openErrorNotification(error);
     },
   });
+
+  useEffect(() => {
+    if (productGroupData) {
+      let newData = productGroupData.data.data;
+      newData.product_skus.results.forEach((productSku) => {
+        productSku["key"] = productSku.slug;
+      });
+      setProductGroup(newData);
+    }
+  }, [productGroupData]);
 
   const { mutate: productSKUGroupUpdate } = useMutation(updateProductSKU, {
     onSuccess: (data) => {
