@@ -3,6 +3,7 @@ import React, { useCallback, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Breadcrumb, Select, Space, Table, Tag } from "antd";
+import moment from "moment/moment";
 import {
   getProductGroup,
   updateProductSKU,
@@ -13,7 +14,7 @@ import {
 } from "../../../utils/openNotification";
 import { getAllProductSkus } from "../../../api/products/productSku";
 import { GET_ALL_PRODUCT_SKUS } from "../../../constants/queryKeys";
-import { getDate, parseArray } from "../../../utils";
+import { parseArray } from "../../../utils";
 import { DEFAULT_RASAN_IMAGE } from "../../../constants";
 import CustomPageHeader from "../../../shared/PageHeader";
 import { publishProductGroup } from "../../../api/products/productGroups";
@@ -259,7 +260,7 @@ function ViewProductGroup() {
                       </p>
                       <p className="text-[#596579] font-bold mb-0">
                         {productGroup.published_at
-                          ? getDate(productGroup.published_at)
+                          ? moment(productGroup.published_at).format("ll")
                           : "-"}
                       </p>
                     </div>
