@@ -125,7 +125,7 @@ function ProductListScreen() {
       render: (_, { published_at }) => {
         return (
           <div className="text-center text-[14px] p-[2px_5px]">
-            {moment(published_at).format("ll")}
+            {published_at ? moment(published_at).format("ll") : "-"}
           </div>
         );
       },
