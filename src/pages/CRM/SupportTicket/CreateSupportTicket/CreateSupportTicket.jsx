@@ -203,7 +203,7 @@ const CreateSupportTicket = () => {
                 >
                   {TICKET_TYPES.map((type) => (
                     <Select.Option key={type} value={type}>
-                      {type.replaceAll("_", " ")}
+                      {capitalize(type.replaceAll("_", " "))}
                     </Select.Option>
                   ))}
                 </Select>
