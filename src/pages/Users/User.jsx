@@ -5,6 +5,7 @@ import Icon, {
 } from "@ant-design/icons";
 import { useQuery } from "react-query";
 import { useParams } from "react-router-dom";
+import moment from "moment";
 import { getLastLogin, getUser } from "../../context/UserContext";
 import Loyalty from "../../svgs/Loyalty";
 import Time from "../../svgs/Time";
@@ -71,7 +72,9 @@ const User = () => {
               <div className="text-light_text text-sm ml-2">
                 Last Logged In
                 <div className="text-text text-lg">
-                  {isLoading ? "Loading.." : lastLoggedInFetch}
+                  {isLoading
+                    ? "Loading.."
+                    : moment(lastLoggedInFetch).format("ll")}
                 </div>
               </div>
             </div>
