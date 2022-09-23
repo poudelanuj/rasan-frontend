@@ -6,3 +6,11 @@ export const getAllBaskets = async (page, pageSize) => {
   );
   return res.data.data;
 };
+
+export const getUserBasket = async (user, page, pageSize) => {
+  const res = await axios.get(
+    `/api/order/admin/baskets/?user=${user}&page=${page}&size=${pageSize}`
+  );
+
+  return res.data.data;
+};

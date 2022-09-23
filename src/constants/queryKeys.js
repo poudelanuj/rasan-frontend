@@ -51,9 +51,11 @@ export const GET_ORDERS = "all-orders";
 export const GET_ORDER_METRICS = "order-metrics";
 export const GET_PAGINATED_ORDERS = "paginated-orders";
 export const GET_ASSIGNED_ORDERS = "assigned-orders";
+export const GET_USER_ORDERS = "user-orders";
 
 //* Baskets
 export const GET_BASKETS = "all-baskets";
+export const GET_USER_BASKET = "user-basket";
 
 // * Notifications
 export const GET_NOTIFICATIONS = "all-notifications";
