@@ -1,8 +1,8 @@
 import { useContext, useState, createContext } from "react";
 import { useQuery } from "react-query";
 import { isLoggedIn } from "./utils";
-import { getUserGroupsById } from "./api/userGroups";
-import { GET_USER_GROUPS_BY_ID } from "./constants/queryKeys";
+import { getUserGroupsById, getUserGroups } from "./api/userGroups";
+import { GET_USER_GROUPS_BY_ID, GET_USER_GROUPS } from "./constants/queryKeys";
 
 let AuthContext = createContext(null);
 
@@ -27,11 +27,17 @@ export default function AuthProvider({ children }) {
     queryKey: [GET_USER_GROUPS_BY_ID],
   });
 
+  const { data: userGroupIds } = useQuery({
+    queryFn: () => getUserGroups(),
+    queryKey: [GET_USER_GROUPS],
+  });
+
   let value = {
     user,
     loginFinalise,
     logout,
     permissions: userGroup && userGroup[0].data.data.permissions,
+    userGroupIds: userGroupIds && userGroupIds.map((el) => el.id),
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

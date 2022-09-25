@@ -40,6 +40,7 @@ export const GET_TICKET_METRICS = "ticket-metrics";
 
 //* Users
 export const GET_USERS = "all-users";
+export const GET_ADMIN_USER = "admin-users";
 
 // * User Groups
 export const GET_USER_GROUPS = "all-user-groups";

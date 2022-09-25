@@ -1,5 +1,6 @@
 import { Form, Select } from "antd";
-import { capitalize } from "lodash";
+import { capitalize, uniqBy } from "lodash";
+import { useEffect } from "react";
 import { useState } from "react";
 import { useQuery, useMutation } from "react-query";
 import { useNavigate } from "react-router-dom";
@@ -33,18 +34,33 @@ const CreateOrder = () => {
   const [selectedUserPhone, setSelectedUserPhone] = useState(0);
   const [basketItemsStatus, setBasketItemsStatus] = useState(STATUS.idle);
   const [selectedShippingAddress, setSelectedShippingAddress] = useState(null);
+  const [page, setPage] = useState(1);
+
+  const [userList, setUserList] = useState([]);
 
   const navigate = useNavigate();
 
   const {
-    data: userList,
+    data,
     status: userListStatus,
     refetch: refetchUserList,
     isRefetching: refetchingUserList,
   } = useQuery({
-    queryFn: () => getUsers(),
-    queryKey: ["getUserList"],
+    queryFn: () => getUsers(page, "", 100),
+    queryKey: ["getUserList", page.toString()],
   });
+
+  useEffect(() => {
+    if (data) {
+      setUserList([]);
+      setUserList((prev) => uniqBy([prev, ...data.results], "id"));
+    }
+  }, [data]);
+
+  useEffect(() => {
+    refetchUserList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   const onFinish = useMutation(
     ({
@@ -114,16 +130,13 @@ const CreateOrder = () => {
             <Select
               className="w-full"
               disabled={userListStatus === "loading"}
-              filterOption={(input, option) =>
-                option.children.toLowerCase().includes(input.toLowerCase())
-              }
               loading={userListStatus === "loading" || refetchingUserList}
               optionFilterProp="children"
               placeholder="Select User"
               showSearch
               onSelect={(value) => setSelectedUserPhone(value)}
             >
-              {userList?.map((user) => (
+              {userList?.map((user, index) => (
                 <Option key={user.id} value={user.phone}>
                   {user.full_name
                     ? `${user.full_name} (${user.phone})`

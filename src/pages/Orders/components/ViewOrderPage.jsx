@@ -14,6 +14,8 @@ import { DeleteOutlined } from "@ant-design/icons";
 import { useMutation } from "react-query";
 import { useQuery } from "react-query";
 import moment from "moment";
+import { useEffect } from "react";
+import { uniqBy } from "lodash";
 import { saveAs } from "file-saver";
 import {
   addOrderItem,
@@ -27,8 +29,7 @@ import {
 } from "../../../utils/openNotification";
 import CustomPageHeader from "../../../shared/PageHeader";
 import { useState } from "react";
-import { getUsers } from "../../../api/users";
-import { GET_USERS } from "../../../constants/queryKeys";
+import { getAdminUsers, getUsers } from "../../../api/users";
 import { updateOrder } from "../../../api/orders";
 import {
   DEFAULT_CARD_IMAGE,
@@ -40,6 +41,7 @@ import { useParams } from "react-router-dom";
 import { CANCELLED, DELIVERED, IN_PROCESS } from "../../../constants";
 import { updateOrderStatus } from "../../../context/OrdersContext";
 import axios from "../../../axios";
+import { useAuth } from "../../../AuthProvider";
 
 export const getOrderStatusColor = (status) => {
   switch (status) {
@@ -55,7 +57,9 @@ export const getOrderStatusColor = (status) => {
 };
 
 const ViewOrderPage = () => {
+  const { userGroupIds } = useAuth();
   const { orderId } = useParams();
+  const { Option } = Select;
   const [selectedProductSku, setSelectedSku] = useState();
   const [selectedProductPack, setSelectedPack] = useState();
   const [quantity, setQuantity] = useState(1);
@@ -65,6 +69,10 @@ const ViewOrderPage = () => {
     orderId: orderId,
     orderStatus: null,
   });
+
+  const [page, setPage] = useState(1);
+
+  const [userList, setUserList] = useState([]);
 
   const {
     data,
@@ -82,10 +90,26 @@ const ViewOrderPage = () => {
     queryKey: ["getProductSkus"],
   });
 
-  const { data: usersList, status: usersStatus } = useQuery({
-    queryFn: () => getUsers(),
-    queryKey: [GET_USERS],
+  const {
+    data: dataUser,
+    status: usersStatus,
+    refetch: refetchUserList,
+  } = useQuery({
+    queryFn: () => getAdminUsers(userGroupIds, page, "", 100),
+    queryKey: ["getUserList", page.toString()],
   });
+
+  useEffect(() => {
+    if (dataUser) {
+      setUserList([]);
+      setUserList((prev) => uniqBy([prev, ...dataUser.results], "id"));
+    }
+  }, [dataUser]);
+
+  useEffect(() => {
+    refetchUserList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   const handleAddItem = useMutation(
     () =>
@@ -326,17 +350,18 @@ const ViewOrderPage = () => {
                       defaultValue={data?.assigned_to}
                       loading={usersStatus === "loading"}
                       mode="multiple"
+                      optionFilterProp="children"
                       placeholder="Select Users"
                       style={{ width: 300 }}
                       showSearch
                     >
-                      {usersList &&
-                        usersList.map((user) => (
-                          <Select.Option key={user.id} value={user.phone}>
+                      {userList &&
+                        userList.map((user) => (
+                          <Option key={user.id} value={user.phone}>
                             {user.full_name
                               ? `${user.full_name} (${user.phone})`
                               : user.phone}
-                          </Select.Option>
+                          </Option>
                         ))}
                     </Select>
                   </Form.Item>

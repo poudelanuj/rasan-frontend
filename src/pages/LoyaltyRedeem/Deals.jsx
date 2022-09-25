@@ -199,6 +199,7 @@ const Deals = ({ type, isArchived, queryKey }) => {
             </ButtonWPermission>
 
             <ButtonWPermission
+              className="!border-none"
               codename="delete_loyalty"
               icon={
                 <DeleteOutlined

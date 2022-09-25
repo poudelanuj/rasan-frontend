@@ -1,5 +1,6 @@
 import { Button, Form, Input, Modal, Select, Space } from "antd";
 import { useState } from "react";
+import { capitalize } from "lodash";
 import { useMutation, useQuery } from "react-query";
 import { createNotificationGroup } from "../../../api/notifications";
 import { getUserGroups } from "../../../api/userGroups";
@@ -79,7 +80,7 @@ const CreateNotification = ({ isOpen, onClose, refetchNotifications }) => {
             >
               {NOTIFICATION_TYPES.map((type) => (
                 <Select.Option key={type.name} value={type.value}>
-                  {type.name.replaceAll("_", " ")}
+                  {capitalize(type.name.replaceAll("_", " "))}
                 </Select.Option>
               ))}
             </Select>

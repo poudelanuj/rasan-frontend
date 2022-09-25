@@ -1,6 +1,7 @@
 import { Table, Tag } from "antd";
 import moment from "moment";
 import { useNavigate } from "react-router-dom";
+import { capitalize } from "lodash";
 import { CANCELLED, DELIVERED, IN_PROCESS } from "../../../constants";
 
 const OrdersAssigned = ({ orders, status }) => {
@@ -73,7 +74,7 @@ const OrdersAssigned = ({ orders, status }) => {
       dataIndex: "payment",
       key: "payment",
       render: (_, { payment }) => {
-        return <>{payment?.payment_method?.replaceAll("_", " ")}</>;
+        return <>{capitalize(payment?.payment_method?.replaceAll("_", " "))}</>;
       },
     },
     {

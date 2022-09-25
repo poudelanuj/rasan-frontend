@@ -1,11 +1,11 @@
 import { Upload, Form, Input, Select, Button, Space, Tag } from "antd";
-import { capitalize } from "lodash";
-import { useState } from "react";
+import { capitalize, uniqBy } from "lodash";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "react-query";
 import { useNavigate } from "react-router-dom";
 import { createTicket } from "../../../../api/crm/tickets";
 import { getOrders } from "../../../../api/orders";
-import { getUsers } from "../../../../api/users";
+import { getUsers, getAdminUsers } from "../../../../api/users";
 import {
   TICKET_STATUS,
   TICKET_STATUS_NEW,
@@ -14,15 +14,21 @@ import {
   TICKET_TYPE_GENERAL,
   TICKET_TYPE_RETURN,
 } from "../../../../constants";
-import { GET_ORDERS, GET_USERS } from "../../../../constants/queryKeys";
+import {
+  GET_ORDERS,
+  GET_USERS,
+  GET_ADMIN_USER,
+} from "../../../../constants/queryKeys";
 import Loader from "../../../../shared/Loader";
 import CustomPageHeader from "../../../../shared/PageHeader";
 import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../../../utils/openNotification";
+import { useAuth } from "../../../../AuthProvider";
 
 const CreateSupportTicket = () => {
+  const { userGroupIds } = useAuth();
   const [selectedImage, setSelectedImage] = useState([]);
   const [selectedType, setSelectedType] = useState("");
   const { Dragger } = Upload;
@@ -39,14 +45,61 @@ const CreateSupportTicket = () => {
     onRemove: () => setSelectedImage([]),
   };
 
-  const { data: users, status: usersStatus } = useQuery({
-    queryFn: () => getUsers(),
-    queryKey: [GET_USERS],
-  });
   const { data: orders, status: ordersStatus } = useQuery({
     queryFn: () => getOrders(),
     queryKey: [GET_ORDERS],
   });
+
+  const [generalPage, setGeneralPage] = useState(1);
+
+  const [generalUsers, setGeneralUsers] = useState([]);
+
+  const {
+    data: dataGeneral,
+    refetch: refetchGeneral,
+    status: generalStatus,
+  } = useQuery({
+    queryFn: () => getUsers(generalPage, "", 100),
+    queryKey: [GET_USERS, generalPage.toString()],
+  });
+
+  useEffect(() => {
+    if (dataGeneral) {
+      setGeneralUsers([]);
+      setGeneralUsers((prev) => uniqBy([prev, ...dataGeneral.results], "id"));
+    }
+  }, [dataGeneral]);
+
+  useEffect(() => {
+    refetchGeneral();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [generalPage]);
+
+  const [adminPage, setAdminPage] = useState(1);
+
+  const [adminUsers, setAdminUsers] = useState([]);
+
+  const {
+    data: dataAdmin,
+    refetch: refetchAdmin,
+    status: adminStatus,
+  } = useQuery({
+    queryFn: () => getAdminUsers(userGroupIds, adminPage, 100),
+    queryKey: [GET_ADMIN_USER, userGroupIds, adminPage.toString()],
+    enabled: !!userGroupIds,
+  });
+
+  useEffect(() => {
+    if (dataAdmin) {
+      setAdminUsers([]);
+      setAdminUsers((prev) => uniqBy([prev, ...dataAdmin.results], "id"));
+    }
+  }, [dataAdmin]);
+
+  useEffect(() => {
+    refetchAdmin();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [adminPage]);
 
   const onFormSubmit = useMutation(
     (formValues) => {
@@ -129,12 +182,12 @@ const CreateSupportTicket = () => {
                 rules={[{ required: true, message: "customer required" }]}
               >
                 <Select
-                  loading={usersStatus === "loading"}
+                  loading={generalStatus === "loading"}
                   placeholder="Select Initiator"
                   allowClear
                 >
-                  {users &&
-                    users.map((user) => (
+                  {generalUsers &&
+                    generalUsers.map((user) => (
                       <Select.Option key={user.id} value={user.phone}>
                         {user.full_name
                           ? `${user.full_name} (${user.phone})`
@@ -146,12 +199,12 @@ const CreateSupportTicket = () => {
 
               <Form.Item label="Assigned to" name="assigned_to">
                 <Select
-                  loading={usersStatus === "loading"}
+                  loading={adminStatus === "loading"}
                   placeholder="Select Assigned To"
                   allowClear
                 >
-                  {users &&
-                    users.map((user) => (
+                  {adminUsers &&
+                    adminUsers.map((user) => (
                       <Select.Option key={user.id} value={user.phone}>
                         {user.full_name
                           ? `${user.full_name} (${user.phone})`

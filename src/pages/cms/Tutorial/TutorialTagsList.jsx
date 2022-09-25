@@ -83,6 +83,7 @@ const TutorialTagsList = () => {
       render: (_, { id, title }) => {
         return (
           <ButtonWPermission
+            className="!border-none"
             codename="delete_tutorialtag"
             icon={
               <DeleteOutlined

@@ -28,7 +28,7 @@ export const updateUserGroup = async ({ id, data }) => {
 };
 
 export const getPermission = async () => {
-  const res = await axios.get("/api/auth/permission/?page=1&size=125");
+  const res = await axios.get("/api/auth/permission/?page=1&size=100");
 
   let nextUrl = `${res.data.data.next}`;
 

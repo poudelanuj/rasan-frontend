@@ -187,6 +187,7 @@ const LuckyDraw = () => {
             </ButtonWPermission>
 
             <ButtonWPermission
+              className="!border-none"
               codename="delete_luckydrawevent"
               icon={
                 <DeleteOutlined

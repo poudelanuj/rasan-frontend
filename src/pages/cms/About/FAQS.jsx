@@ -171,6 +171,7 @@ const FAQS = () => {
             </ButtonWPermission>
 
             <ButtonWPermission
+              className="!border-none"
               codename="change_faqgroup"
               icon={
                 <EditOutlined
@@ -183,6 +184,7 @@ const FAQS = () => {
             />
 
             <ButtonWPermission
+              className="!border-none"
               codename="delete_faqgroup"
               icon={
                 <DeleteOutlined

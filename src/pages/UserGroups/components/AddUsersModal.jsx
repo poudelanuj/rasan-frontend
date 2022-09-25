@@ -2,15 +2,21 @@ import { Modal, Button, Form, Select } from "antd";
 import { useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import { openErrorNotification, openSuccessNotification } from "../../../utils";
-import { getUsers } from "../../../api/users";
+import { getAdminUsers } from "../../../api/users";
 import {
-  GET_USERS,
+  GET_ADMIN_USER,
   GET_USER_GROUPS,
   GET_USER_GROUPS_BY_ID,
 } from "../../../constants/queryKeys";
 import { addUser } from "../../../api/userGroups";
+import { useState } from "react";
+import { useEffect } from "react";
+import { uniqBy } from "lodash";
+import { useAuth } from "../../../AuthProvider";
 
 const AddUsersModal = ({ isOpen, onClose }) => {
+  const { userGroupIds } = useAuth();
+
   const { groupId } = useParams();
 
   const [form] = Form.useForm();
@@ -19,10 +25,27 @@ const AddUsersModal = ({ isOpen, onClose }) => {
 
   const queryClient = useQueryClient();
 
-  const { data: users } = useQuery({
-    queryFn: () => getUsers(),
-    queryKey: [GET_USERS],
+  const [page, setPage] = useState(1);
+
+  const [users, setUsers] = useState([]);
+
+  const { data, refetch } = useQuery({
+    queryFn: () => getAdminUsers(userGroupIds, page, 100),
+    queryKey: [GET_ADMIN_USER, userGroupIds, page.toString()],
+    enabled: !!userGroupIds,
   });
+
+  useEffect(() => {
+    if (data) {
+      setUsers([]);
+      setUsers((prev) => uniqBy([prev, ...data.results], "id"));
+    }
+  }, [data]);
+
+  useEffect(() => {
+    refetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   const handleAddUser = useMutation(({ id, data }) => addUser({ id, data }), {
     onSuccess: (data) => {

@@ -142,7 +142,7 @@ const TutorialList = () => {
       title: "Actions",
       dataIndex: "action",
       key: "action",
-      width: "15%",
+      width: "13%",
       render: (_, { slug, title, is_published }) => {
         return (
           <div className="flex items-center justify-between">
@@ -168,10 +168,10 @@ const TutorialList = () => {
             </ButtonWPermission>
 
             <ButtonWPermission
+              className="!border-none"
               codename="delete_tutorial"
               icon={
                 <DeleteOutlined
-                  className="ml-5"
                   onClick={() => {
                     setIsDeleteTutorialsModalOpen(true);
                     setDeleteTutorialsModalTitle(`Delete ${title}?`);

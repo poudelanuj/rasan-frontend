@@ -228,6 +228,7 @@ const Promotions = () => {
             </ButtonWPermission>
 
             <ButtonWPermission
+              className="!border-none"
               codename="delete_promotion"
               icon={
                 <DeleteOutlined
