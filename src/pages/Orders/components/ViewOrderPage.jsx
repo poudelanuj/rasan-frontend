@@ -29,7 +29,7 @@ import {
 } from "../../../utils/openNotification";
 import CustomPageHeader from "../../../shared/PageHeader";
 import { useState } from "react";
-import { getAdminUsers, getUsers } from "../../../api/users";
+import { getAdminUsers } from "../../../api/users";
 import { updateOrder } from "../../../api/orders";
 import {
   DEFAULT_CARD_IMAGE,
@@ -42,6 +42,7 @@ import { CANCELLED, DELIVERED, IN_PROCESS } from "../../../constants";
 import { updateOrderStatus } from "../../../context/OrdersContext";
 import axios from "../../../axios";
 import { useAuth } from "../../../AuthProvider";
+import InfiniteScroll from "react-infinite-scroller";
 
 export const getOrderStatusColor = (status) => {
   switch (status) {
@@ -95,14 +96,14 @@ const ViewOrderPage = () => {
     status: usersStatus,
     refetch: refetchUserList,
   } = useQuery({
-    queryFn: () => getAdminUsers(userGroupIds, page, "", 100),
-    queryKey: ["getUserList", page.toString()],
+    queryFn: () => userGroupIds && getAdminUsers(userGroupIds, page, "", 100),
+    queryKey: ["getUserList", userGroupIds, page.toString()],
+    enabled: !!userGroupIds,
   });
 
   useEffect(() => {
     if (dataUser) {
-      setUserList([]);
-      setUserList((prev) => uniqBy([prev, ...dataUser.results], "id"));
+      setUserList((prev) => uniqBy([...prev, ...dataUser.results], "id"));
     }
   }, [dataUser]);
 
@@ -346,24 +347,32 @@ const ViewOrderPage = () => {
                     label="Assign To"
                     name="assigned_to"
                   >
-                    <Select
-                      defaultValue={data?.assigned_to}
-                      loading={usersStatus === "loading"}
-                      mode="multiple"
-                      optionFilterProp="children"
-                      placeholder="Select Users"
-                      style={{ width: 300 }}
-                      showSearch
+                    <InfiniteScroll
+                      hasMore={!!dataUser?.next}
+                      loadMore={() => {
+                        setPage((prev) => prev + 1);
+                        refetchUserList();
+                      }}
                     >
-                      {userList &&
-                        userList.map((user) => (
-                          <Option key={user.id} value={user.phone}>
-                            {user.full_name
-                              ? `${user.full_name} (${user.phone})`
-                              : user.phone}
-                          </Option>
-                        ))}
-                    </Select>
+                      <Select
+                        defaultValue={data?.assigned_to}
+                        loading={usersStatus === "loading"}
+                        mode="multiple"
+                        optionFilterProp="children"
+                        placeholder="Select Users"
+                        style={{ width: 300 }}
+                        showSearch
+                      >
+                        {userList &&
+                          userList.map((user) => (
+                            <Option key={user.id} value={user.phone}>
+                              {user.full_name
+                                ? `${user.full_name} (${user.phone})`
+                                : user.phone}
+                            </Option>
+                          ))}
+                      </Select>
+                    </InfiniteScroll>
                   </Form.Item>
                   <Form.Item>
                     <Button

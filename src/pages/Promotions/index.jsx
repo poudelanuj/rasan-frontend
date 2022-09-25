@@ -5,6 +5,7 @@ import { Table, Button, Dropdown, Space, Menu, Tag } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 import { capitalize, isEmpty, uniqBy } from "lodash";
 import {
+  deleteBulkPromotions,
   deletePromotions,
   getPaginatedPromotions,
   publishPromotions,
@@ -47,6 +48,12 @@ const Promotions = () => {
 
   const [promotionsIds, setPromotionsIds] = useState([]);
 
+  const [isDeletePromotionsModal, setIsDeletePromotionsModal] = useState({
+    isOpen: false,
+    title: "",
+    type: "",
+  });
+
   const {
     data,
     refetch: refetchPromotions,
@@ -71,13 +78,11 @@ const Promotions = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
-  const [isDeletePromotionsModal, setIsDeletePromotionsModal] = useState({
-    isOpen: false,
-    title: "",
-  });
-
   const handleDeletePromotions = useMutation(
-    () => deletePromotions(promotionsIds),
+    () =>
+      isDeletePromotionsModal.type === "bulk"
+        ? deleteBulkPromotions(promotionsIds)
+        : deletePromotions(promotionsIds),
     {
       onSuccess: (data) => {
         openSuccessNotification(
@@ -120,6 +125,7 @@ const Promotions = () => {
                   ...isDeletePromotionsModal,
                   isOpen: true,
                   title: "Delete all Promotions?",
+                  type: "bulk",
                 });
               }}
             >
@@ -237,6 +243,7 @@ const Promotions = () => {
                       ...isDeletePromotionsModal,
                       isOpen: true,
                       title: `Delete ${title}?`,
+                      type: "single",
                     });
                     setPromotionsIds([id]);
                   }}

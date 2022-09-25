@@ -48,6 +48,14 @@ export const deleteTutorials = async (slugs) => {
   return res.data;
 };
 
+export const deleteBulkTutorials = async (slugs) => {
+  const res = await axios.post("/api/tutorial/admin/tutorial/bulk-action/", {
+    ids: slugs,
+    action_type: "delete",
+  });
+  return res.data;
+};
+
 export const getTutorialsById = async (slug) => {
   const res = await axios.get(`/api/tutorial/admin/tutorials/${slug}/`);
   return res.data.data;

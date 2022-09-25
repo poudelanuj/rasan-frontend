@@ -1,13 +1,13 @@
 import axios from "../axios";
 
 export const getUsers = async (page, search, pageSize) => {
-  const res1 = await axios.get(
+  const res = await axios.get(
     `/api/profile/admin/user-list/?page=${page || 1}&search=${
       search || ""
     }&size=${pageSize || 20}`
   );
 
-  return res1.data.data;
+  return res.data.data;
 };
 
 export const getEndUser = async () => {

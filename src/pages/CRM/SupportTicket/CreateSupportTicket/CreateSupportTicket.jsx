@@ -26,6 +26,7 @@ import {
   openSuccessNotification,
 } from "../../../../utils/openNotification";
 import { useAuth } from "../../../../AuthProvider";
+import InfiniteScroll from "react-infinite-scroller";
 
 const CreateSupportTicket = () => {
   const { userGroupIds } = useAuth();
@@ -64,10 +65,10 @@ const CreateSupportTicket = () => {
   });
 
   useEffect(() => {
-    if (dataGeneral) {
-      setGeneralUsers([]);
-      setGeneralUsers((prev) => uniqBy([prev, ...dataGeneral.results], "id"));
-    }
+    if (dataGeneral)
+      setGeneralUsers((prev) =>
+        uniqBy([...prev, ...dataGeneral.results], "id")
+      );
   }, [dataGeneral]);
 
   useEffect(() => {
@@ -84,16 +85,14 @@ const CreateSupportTicket = () => {
     refetch: refetchAdmin,
     status: adminStatus,
   } = useQuery({
-    queryFn: () => getAdminUsers(userGroupIds, adminPage, 100),
+    queryFn: () => userGroupIds && getAdminUsers(userGroupIds, adminPage, 100),
     queryKey: [GET_ADMIN_USER, userGroupIds, adminPage.toString()],
     enabled: !!userGroupIds,
   });
 
   useEffect(() => {
-    if (dataAdmin) {
-      setAdminUsers([]);
-      setAdminUsers((prev) => uniqBy([prev, ...dataAdmin.results], "id"));
-    }
+    if (dataAdmin)
+      setAdminUsers((prev) => uniqBy([...prev, ...dataAdmin.results], "id"));
   }, [dataAdmin]);
 
   useEffect(() => {
@@ -181,37 +180,53 @@ const CreateSupportTicket = () => {
                 name="initiator"
                 rules={[{ required: true, message: "customer required" }]}
               >
-                <Select
-                  loading={generalStatus === "loading"}
-                  placeholder="Select Initiator"
-                  allowClear
+                <InfiniteScroll
+                  hasMore={!!dataGeneral?.next}
+                  loadMore={() => {
+                    setGeneralPage((prev) => prev + 1);
+                    refetchGeneral();
+                  }}
                 >
-                  {generalUsers &&
-                    generalUsers.map((user) => (
-                      <Select.Option key={user.id} value={user.phone}>
-                        {user.full_name
-                          ? `${user.full_name} (${user.phone})`
-                          : user.phone}
-                      </Select.Option>
-                    ))}
-                </Select>
+                  <Select
+                    loading={generalStatus === "loading"}
+                    placeholder="Select Initiator"
+                    allowClear
+                  >
+                    {generalUsers &&
+                      generalUsers.map((user) => (
+                        <Select.Option key={user.id} value={user.phone}>
+                          {user.full_name
+                            ? `${user.full_name} (${user.phone})`
+                            : user.phone}
+                        </Select.Option>
+                      ))}
+                  </Select>
+                </InfiniteScroll>
               </Form.Item>
 
               <Form.Item label="Assigned to" name="assigned_to">
-                <Select
-                  loading={adminStatus === "loading"}
-                  placeholder="Select Assigned To"
-                  allowClear
+                <InfiniteScroll
+                  hasMore={!!dataAdmin?.next}
+                  loadMore={() => {
+                    setAdminPage((prev) => prev + 1);
+                    refetchAdmin();
+                  }}
                 >
-                  {adminUsers &&
-                    adminUsers.map((user) => (
-                      <Select.Option key={user.id} value={user.phone}>
-                        {user.full_name
-                          ? `${user.full_name} (${user.phone})`
-                          : user.phone}
-                      </Select.Option>
-                    ))}
-                </Select>
+                  <Select
+                    loading={adminStatus === "loading"}
+                    placeholder="Select Assigned To"
+                    allowClear
+                  >
+                    {adminUsers &&
+                      adminUsers.map((user) => (
+                        <Select.Option key={user.id} value={user.phone}>
+                          {user.full_name
+                            ? `${user.full_name} (${user.phone})`
+                            : user.phone}
+                        </Select.Option>
+                      ))}
+                  </Select>
+                </InfiniteScroll>
               </Form.Item>
             </div>
 

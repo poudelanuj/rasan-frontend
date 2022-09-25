@@ -5,9 +5,11 @@ export const getAllCategories = async () => {
   return res.data.data.results;
 };
 
-export const getPaginatedCategories = async (page, pageSize) => {
+export const getPaginatedCategories = async (page, pageSize, search) => {
   const res = await axios.get(
-    `/api/product/admin/categories/?page=${page || 1}&size=${pageSize || 20}`
+    `/api/product/admin/categories/?page=${page || 1}&size=${
+      pageSize || 20
+    }&search=${search || ""}`
   );
   return res.data.data;
 };

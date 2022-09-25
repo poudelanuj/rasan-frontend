@@ -31,6 +31,14 @@ export const updateOrder = async (orderId, data) => {
   return res.data;
 };
 
+export const deleteBulkOrders = async (ids) => {
+  const res = await axios.post("/api/order/admin/order/bulk-action/", {
+    ids,
+    action_type: "delete",
+  });
+  return res.data;
+};
+
 export const getOrderMetrics = async (timeKey) => {
   const res = await axios.get(
     `/api/order/admin/orders/metrics/?time_key=${timeKey}`

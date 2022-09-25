@@ -6,7 +6,7 @@ import { useRef } from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { deleteBulkOrders } from "../../context/OrdersContext";
+import { deleteBulkOrders } from "../../api/orders";
 import {
   openErrorNotification,
   openSuccessNotification,
@@ -15,6 +15,7 @@ import { CANCELLED, DELIVERED, IN_PROCESS } from "../../constants";
 import DeleteOrder from "./components/DeleteOrder";
 import ButtonWPermission from "../../shared/ButtonWPermission";
 import { isEmpty, capitalize } from "lodash";
+import ConfirmDelete from "../../shared/ConfirmDelete";
 
 export const getOrderStatusColor = (status) => {
   switch (status) {
@@ -41,6 +42,8 @@ const OrdersList = ({
   const searchInput = useRef(null);
   const [isDeleteOrderOpen, setIsDeleteOrderOpen] = useState(false);
   const [deleteOrderId, setDeleteOrderId] = useState(0);
+
+  const [isDeleteBulkOrderModal, setIsDeleteBulkOrderModal] = useState(false);
 
   const [checkedRows, setCheckedRows] = useState([]);
   const navigate = useNavigate();
@@ -217,8 +220,9 @@ const OrdersList = ({
 
   const handleDeleteBulk = useMutation(() => deleteBulkOrders(checkedRows), {
     onSuccess: (data) => {
-      if (checkedRows.length) openSuccessNotification("Orders Deleted");
+      openSuccessNotification(data.message || "Orders Deleted");
       refetchOrders();
+      setIsDeleteBulkOrderModal(false);
     },
     onError: (error) => {
       openErrorNotification(error);
@@ -235,7 +239,7 @@ const OrdersList = ({
               className="!border-none !bg-inherit !text-current"
               codename="delete_order"
               disabled={isEmpty(checkedRows)}
-              onClick={() => handleDeleteBulk.mutate()}
+              onClick={() => setIsDeleteBulkOrderModal(true)}
             >
               Delete
             </ButtonWPermission>
@@ -295,6 +299,14 @@ const OrdersList = ({
         orderId={deleteOrderId}
         refetchOrders={refetchOrders}
         title={"Order #" + deleteOrderId}
+      />
+
+      <ConfirmDelete
+        closeModal={() => setIsDeleteBulkOrderModal(false)}
+        deleteMutation={() => handleDeleteBulk.mutate()}
+        isOpen={isDeleteBulkOrderModal}
+        status={handleDeleteBulk.status}
+        title="Delete selected orders?"
       />
     </div>
   );

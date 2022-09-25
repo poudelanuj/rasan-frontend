@@ -1,17 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { Table } from "antd";
-import { useQuery } from "react-query";
-import { uniqBy } from "lodash";
+import { Table, Dropdown, Button, Space, Menu } from "antd";
+import { useQuery, useMutation } from "react-query";
+import { uniqBy, isEmpty } from "lodash";
 import moment from "moment";
 import BasketInfo from "./BasketInfo";
 import BasketModal from "./BasketModal";
-import { getAllBaskets } from "../../api/baskets";
+import ButtonWPermission from "../../shared/ButtonWPermission";
+import { deleteBulkUserBasket, getAllBaskets } from "../../api/baskets";
 import { GET_BASKETS } from "../../constants/queryKeys";
+import { openErrorNotification, openSuccessNotification } from "../../utils";
+import ConfirmDelete from "../../shared/ConfirmDelete";
 
 const LiveUserBasket = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [modalBasket, setModalBasket] = useState();
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false);
 
   const [basketList, setBasketList] = useState([]);
 
@@ -35,6 +40,19 @@ const LiveUserBasket = () => {
     refetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
+
+  const handleBulkDelete = useMutation(
+    () => deleteBulkUserBasket(selectedRowKeys),
+    {
+      onSuccess: (data) => {
+        openSuccessNotification(data.message);
+        refetch();
+        setSelectedRowKeys([]);
+        setIsBulkDeleteModalOpen(false);
+      },
+      onError: (err) => openErrorNotification(err),
+    }
+  );
 
   const columns = [
     {
@@ -63,20 +81,44 @@ const LiveUserBasket = () => {
     },
   ];
 
-  const onSelectChange = (newSelectedRowKeys) => {
-    setSelectedRowKeys(newSelectedRowKeys);
-  };
+  const bulkMenu = (
+    <Menu
+      items={[
+        {
+          key: "1",
+          label: (
+            <ButtonWPermission
+              className="!border-none !bg-inherit !text-current"
+              codename="delete_basket"
+              disabled={isEmpty(selectedRowKeys)}
+              onClick={() => setIsBulkDeleteModalOpen(true)}
+            >
+              Delete
+            </ButtonWPermission>
+          ),
+        },
+      ]}
+    />
+  );
 
   const rowSelection = {
     selectedRowKeys,
     selections: [Table.SELECTION_ALL, Table.SELECTION_NONE],
-    onChange: onSelectChange,
+    onChange: (selectedRows) => {
+      setSelectedRowKeys(selectedRows);
+    },
   };
 
   return (
     <div>
-      <h2 className="text-2xl my-3">Live User Basket</h2>
-
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl my-3">Live User Basket</h2>
+        <Dropdown overlay={bulkMenu}>
+          <Button className="bg-white" type="default">
+            <Space>Bulk Actions</Space>
+          </Button>
+        </Dropdown>
+      </div>
       <Table
         columns={columns}
         dataSource={basketList?.map((item) => ({
@@ -100,6 +142,14 @@ const LiveUserBasket = () => {
             },
           };
         }}
+      />
+
+      <ConfirmDelete
+        closeModal={() => setIsBulkDeleteModalOpen(false)}
+        deleteMutation={() => handleBulkDelete.mutate()}
+        isOpen={isBulkDeleteModalOpen}
+        status={() => handleBulkDelete.status}
+        title="Delete selected basket?"
       />
 
       {modalBasket && (

@@ -32,6 +32,14 @@ export const deletePromotions = async (ids) => {
   return res.data;
 };
 
+export const deleteBulkPromotions = async (ids) => {
+  const res = await axios.post("/api/promotion/admin/promotions/bulk-action/", {
+    ids,
+    action_type: "delete",
+  });
+  return res.data;
+};
+
 export const publishPromotions = async ({ id, shouldPublish }) => {
   if (shouldPublish) {
     const res = await axios.post(

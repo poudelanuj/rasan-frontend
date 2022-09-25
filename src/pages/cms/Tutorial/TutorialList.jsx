@@ -10,6 +10,7 @@ import {
   openErrorNotification,
 } from "../../../utils/openNotification";
 import {
+  deleteBulkTutorials,
   deleteTutorials,
   getPaginatedTutorials,
   publishTutorial,
@@ -37,11 +38,11 @@ const TutorialList = () => {
 
   const queryClient = useQueryClient();
 
-  const [isDeleteTutorialsModalOpen, setIsDeleteTutorialsModalOpen] =
-    useState(false);
-
-  const [deleteTutorialsModalTitle, setDeleteTutorialsModalTitle] =
-    useState("");
+  const [isDeleteTutorialsModal, setIsDeleteTutorialsModal] = useState({
+    isOpen: false,
+    type: "",
+    title: "",
+  });
 
   const [page, setPage] = useState(1);
 
@@ -73,15 +74,21 @@ const TutorialList = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
-  const handleDeleteTutorial = useMutation(() => deleteTutorials(slugs), {
-    onSuccess: (res) => {
-      openSuccessNotification(res.message);
-      refetchTutorials();
-      setIsDeleteTutorialsModalOpen(false);
-      setSlugs([]);
-    },
-    onError: (err) => openErrorNotification(err),
-  });
+  const handleDeleteTutorial = useMutation(
+    () =>
+      isDeleteTutorialsModal.type === "bulk"
+        ? deleteBulkTutorials(slugs)
+        : deleteTutorials(slugs),
+    {
+      onSuccess: (res) => {
+        openSuccessNotification(res.message);
+        refetchTutorials();
+        setIsDeleteTutorialsModal({ isOpen: false, title: "", type: "" });
+        setSlugs([]);
+      },
+      onError: (err) => openErrorNotification(err),
+    }
+  );
 
   const handlePublishTutorial = useMutation(
     ({ slug, shouldPublish }) => publishTutorial({ slug, shouldPublish }),
@@ -173,8 +180,11 @@ const TutorialList = () => {
               icon={
                 <DeleteOutlined
                   onClick={() => {
-                    setIsDeleteTutorialsModalOpen(true);
-                    setDeleteTutorialsModalTitle(`Delete ${title}?`);
+                    setIsDeleteTutorialsModal({
+                      isOpen: true,
+                      title: `Delete ${title}?`,
+                      type: "single",
+                    });
                     setSlugs([slug]);
                   }}
                 />
@@ -196,10 +206,13 @@ const TutorialList = () => {
               className="!border-none !bg-inherit !text-current"
               codename="delete_tutorial"
               disabled={isEmpty(slugs)}
-              onClick={() => {
-                setIsDeleteTutorialsModalOpen(true);
-                setDeleteTutorialsModalTitle(`Delete all tutorials?`);
-              }}
+              onClick={() =>
+                setIsDeleteTutorialsModal({
+                  isOpen: true,
+                  title: "Delete all tutorials?",
+                  type: "bulk",
+                })
+              }
             >
               Delete
             </ButtonWPermission>
@@ -266,11 +279,16 @@ const TutorialList = () => {
       />
 
       <ConfirmDelete
-        closeModal={() => setIsDeleteTutorialsModalOpen(false)}
+        closeModal={() =>
+          setIsDeleteTutorialsModal({
+            ...isDeleteTutorialsModal,
+            isOpen: false,
+          })
+        }
         deleteMutation={() => handleDeleteTutorial.mutate()}
-        isOpen={isDeleteTutorialsModalOpen}
+        isOpen={isDeleteTutorialsModal.isOpen}
         status={handleDeleteTutorial.status}
-        title={deleteTutorialsModalTitle}
+        title={isDeleteTutorialsModal.title}
       />
     </div>
   );

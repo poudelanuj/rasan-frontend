@@ -7,10 +7,14 @@ import UserList from "./UserList";
 
 const Users = () => {
   const { Search } = Input;
+
   const searchText = useRef();
   const pageSize = 20;
   const [page, setPage] = useState(1);
   const [users, setUsers] = useState([]);
+
+  let timeout = 0;
+
   const { data, refetch, isLoading } = useQuery({
     queryKey: [
       "get-users",
@@ -32,12 +36,6 @@ const Users = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
-  const debounceSearch = () => {
-    const delayDebounceFn = setTimeout(refetch, 1000);
-
-    return () => clearTimeout(delayDebounceFn);
-  };
-
   return (
     <div>
       <div className="text-3xl bg-white mb-3 p-5">Users List</div>
@@ -49,7 +47,8 @@ const Users = () => {
         allowClear
         onChange={(e) => {
           searchText.current = e.target.value;
-          debounceSearch();
+          if (timeout) clearTimeout(timeout);
+          timeout = setTimeout(refetch, 400);
         }}
       />
       {isLoading && <Spin />}

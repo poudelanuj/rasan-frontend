@@ -14,3 +14,12 @@ export const getUserBasket = async (user, page, pageSize) => {
 
   return res.data.data;
 };
+
+export const deleteBulkUserBasket = async (ids) => {
+  const res = await axios.post("/api/order/admin/basket/bulk-action/", {
+    ids,
+    action_type: "delete",
+  });
+
+  return res.data;
+};

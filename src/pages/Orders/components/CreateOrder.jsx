@@ -2,6 +2,7 @@ import { Form, Select } from "antd";
 import { capitalize, uniqBy } from "lodash";
 import { useEffect } from "react";
 import { useState } from "react";
+import InfiniteScroll from "react-infinite-scroller";
 import { useQuery, useMutation } from "react-query";
 import { useNavigate } from "react-router-dom";
 import { getUsers } from "../../../api/users";
@@ -51,10 +52,7 @@ const CreateOrder = () => {
   });
 
   useEffect(() => {
-    if (data) {
-      setUserList([]);
-      setUserList((prev) => uniqBy([prev, ...data.results], "id"));
-    }
+    if (data) setUserList((prev) => uniqBy([...prev, ...data.results], "id"));
   }, [data]);
 
   useEffect(() => {
@@ -127,23 +125,31 @@ const CreateOrder = () => {
               },
             ]}
           >
-            <Select
-              className="w-full"
-              disabled={userListStatus === "loading"}
-              loading={userListStatus === "loading" || refetchingUserList}
-              optionFilterProp="children"
-              placeholder="Select User"
-              showSearch
-              onSelect={(value) => setSelectedUserPhone(value)}
+            <InfiniteScroll
+              hasMore={!!data?.next}
+              loadMore={() => {
+                setPage((prev) => prev + 1);
+                refetchUserList();
+              }}
             >
-              {userList?.map((user, index) => (
-                <Option key={user.id} value={user.phone}>
-                  {user.full_name
-                    ? `${user.full_name} (${user.phone})`
-                    : user.phone}
-                </Option>
-              ))}
-            </Select>
+              <Select
+                className="w-full"
+                disabled={userListStatus === "loading"}
+                loading={userListStatus === "loading" || refetchingUserList}
+                optionFilterProp="children"
+                placeholder="Select User"
+                showSearch
+                onSelect={(value) => setSelectedUserPhone(value)}
+              >
+                {userList?.map((user, index) => (
+                  <Option key={user.id} value={user.phone}>
+                    {user.full_name
+                      ? `${user.full_name} (${user.phone})`
+                      : user.phone}
+                  </Option>
+                ))}
+              </Select>
+            </InfiniteScroll>
           </Form.Item>
 
           <Form.Item

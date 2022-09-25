@@ -101,6 +101,15 @@ export const deleteFAQGroups = async (ids = []) => {
   return res;
 };
 
+export const deleteBulkFAQGroups = async (ids) => {
+  const res = await axios.post("/api/about/admin/faq-groups/bulk-action/", {
+    ids,
+    action_type: "delete",
+  });
+
+  return res.data;
+};
+
 export const updateFAQGroups = async ({ id, data }) => {
   const res = await axios.put(`/api/about/admin/faq-groups/${id}/`, data);
   return res.data;

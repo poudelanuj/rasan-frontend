@@ -10,6 +10,7 @@ import {
   deleteRedeemableProduct,
   publishRedeemableProduct,
   getPaginatedRedeemableProduct,
+  deleteBulkRedeemableProduct,
 } from "../../api/loyaltyRedeem";
 import {
   GET_LOYALTY_REDEEM_ARCHIVED_RASAN,
@@ -36,6 +37,7 @@ const Deals = ({ type, isArchived, queryKey }) => {
   const [deleteDealsModal, setDeleteDealsModal] = useState({
     isOpen: false,
     title: "",
+    type: "",
   });
 
   const [page, setPage] = useState(1);
@@ -70,7 +72,10 @@ const Deals = ({ type, isArchived, queryKey }) => {
   }, [page]);
 
   const handleDeleteLoyaltyRedeem = useMutation(
-    () => deleteRedeemableProduct(dealsId),
+    () =>
+      deleteDealsModal.type === "bulk"
+        ? deleteBulkRedeemableProduct(dealsId)
+        : deleteRedeemableProduct(dealsId),
     {
       onSuccess: (data) => {
         openSuccessNotification(data.message);
@@ -208,6 +213,7 @@ const Deals = ({ type, isArchived, queryKey }) => {
                       ...deleteDealsModal,
                       isOpen: true,
                       title: `Delete ${product_sku}?`,
+                      type: "single",
                     });
                     setDealsId([id]);
                   }}
@@ -240,7 +246,8 @@ const Deals = ({ type, isArchived, queryKey }) => {
                 setDeleteDealsModal({
                   ...deleteDealsModal,
                   isOpen: true,
-                  title: "Delete all FAQ Groups?",
+                  title: "Delete all Redeemable Products?",
+                  type: "bulk",
                 });
               }}
             >

@@ -33,6 +33,14 @@ export const deleteLuckyDraw = async (ids) => {
   return res.data;
 };
 
+export const deleteBulkLuckyDraw = async (ids) => {
+  const res = await axios.post("/api/lucky-draw/admin/event/bulk-action/", {
+    ids,
+    action_type: "delete",
+  });
+  return res.data;
+};
+
 export const activateLuckyDraw = async ({ id, shouldActivate }) => {
   if (shouldActivate) {
     const res = await axios.post(`/api/lucky-draw/admin/event/${id}/activate/`);

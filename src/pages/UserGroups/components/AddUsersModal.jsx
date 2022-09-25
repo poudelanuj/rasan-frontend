@@ -13,6 +13,7 @@ import { useState } from "react";
 import { useEffect } from "react";
 import { uniqBy } from "lodash";
 import { useAuth } from "../../../AuthProvider";
+import InfiniteScroll from "react-infinite-scroller";
 
 const AddUsersModal = ({ isOpen, onClose }) => {
   const { userGroupIds } = useAuth();
@@ -30,15 +31,14 @@ const AddUsersModal = ({ isOpen, onClose }) => {
   const [users, setUsers] = useState([]);
 
   const { data, refetch } = useQuery({
-    queryFn: () => getAdminUsers(userGroupIds, page, 100),
+    queryFn: () => userGroupIds && getAdminUsers(userGroupIds, page, 100),
     queryKey: [GET_ADMIN_USER, userGroupIds, page.toString()],
     enabled: !!userGroupIds,
   });
 
   useEffect(() => {
     if (data) {
-      setUsers([]);
-      setUsers((prev) => uniqBy([prev, ...data.results], "id"));
+      setUsers((prev) => uniqBy([...prev, ...data.results], "id"));
     }
   }, [data]);
 
@@ -93,14 +93,22 @@ const AddUsersModal = ({ isOpen, onClose }) => {
         name="form_in_modal"
       >
         <Form.Item label="Users" name="users">
-          <Select mode="multiple" placeholder="Select users" allowClear>
-            {users &&
-              users.map((el) => (
-                <Option key={el.id} value={el.phone}>
-                  {el.full_name ? `${el.full_name} (${el.phone})` : el.phone}
-                </Option>
-              ))}
-          </Select>
+          <InfiniteScroll
+            hasMore={!!data?.next}
+            loadMore={() => {
+              setPage((prev) => prev + 1);
+              refetch();
+            }}
+          >
+            <Select mode="multiple" placeholder="Select users" allowClear>
+              {users &&
+                users.map((el) => (
+                  <Option key={el.id} value={el.phone}>
+                    {el.full_name ? `${el.full_name} (${el.phone})` : el.phone}
+                  </Option>
+                ))}
+            </Select>
+          </InfiniteScroll>
         </Form.Item>
       </Form>
     </Modal>

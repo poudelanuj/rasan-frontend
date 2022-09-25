@@ -11,6 +11,7 @@ import Loader from "../../shared/Loader";
 import { ACTIVE, INACTIVE } from "../../constants";
 import {
   activateLuckyDraw,
+  deleteBulkLuckyDraw,
   deleteLuckyDraw,
   getPaginatedLuckyDraw,
 } from "../../api/luckyDraw";
@@ -36,6 +37,7 @@ const LuckyDraw = () => {
   const [deleteLuckyDrawModal, setDeleteLuckyDrawModal] = useState({
     isOpen: false,
     title: "",
+    type: "",
   });
 
   const [luckyDrawId, setLuckyDrawId] = useState([]);
@@ -80,7 +82,10 @@ const LuckyDraw = () => {
   );
 
   const handleDeleteLuckyDraw = useMutation(
-    () => deleteLuckyDraw(luckyDrawId),
+    () =>
+      deleteLuckyDrawModal.type === "bulk"
+        ? deleteBulkLuckyDraw(luckyDraw)
+        : deleteLuckyDraw(luckyDrawId),
     {
       onSuccess: (data) => {
         openSuccessNotification(data.message);
@@ -196,6 +201,7 @@ const LuckyDraw = () => {
                       ...deleteLuckyDrawModal,
                       isOpen: true,
                       title: `Delete ${campaign_title}?`,
+                      type: "single",
                     });
                     setLuckyDrawId([id]);
                   }}
@@ -229,6 +235,7 @@ const LuckyDraw = () => {
                   ...deleteLuckyDrawModal,
                   isOpen: true,
                   title: "Delete all lucky draw?",
+                  type: "bulk",
                 });
               }}
             >

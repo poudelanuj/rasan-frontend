@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { Pagination, Select } from "antd";
+import React, { useEffect, useState, useRef } from "react";
+import { Pagination, Select, Space, Spin } from "antd";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 
 import Alert from "../../../shared/Alert";
-
-import SearchBox from "../subComponents/SearchBox";
+import { SearchOutlined, LoadingOutlined } from "@ant-design/icons";
 
 import ClearSelection from "../subComponents/ClearSelection";
 import {
@@ -13,7 +12,6 @@ import {
 } from "../../../utils/openNotification";
 import CategoryWidget from "./shared/CategoryWidget";
 import { ALERT_TYPE, DEFAULT_RASAN_IMAGE } from "../../../constants";
-import Loader from "../../../shared/Loader";
 import {
   bulkDelete,
   bulkPublish,
@@ -34,6 +32,8 @@ const CategoryList = () => {
   const [openAlert, setOpenAlert] = useState(false);
   const [alertType, setAlertType] = useState("");
 
+  const searchText = useRef();
+
   const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
   const [isEditCategoryOpen, setIsEditCategoryOpen] = useState(false);
   const [selectedCategorySlug, setSelectedCategorySlug] = useState(""); // * For Edit
@@ -43,19 +43,27 @@ const CategoryList = () => {
   const [categories, setCategories] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
 
+  let timeout = 0;
+
   const {
     data,
     status,
     refetch: refetchCategories,
     isRefetching,
   } = useQuery(
-    [GET_PAGINATED_CATEGORIES, page.toString() + pageSize.toString()],
-    () => getPaginatedCategories(page, pageSize)
+    [
+      GET_PAGINATED_CATEGORIES,
+      page.toString() + pageSize.toString(),
+      searchText.current,
+    ],
+    () => getPaginatedCategories(page, pageSize, searchText.current)
   );
 
   useEffect(() => {
-    if (data)
+    if (data) {
+      setCategories([]);
       setCategories((prev) => uniqBy([...prev, ...data.results], "slug"));
+    }
   }, [data]);
 
   useEffect(() => {
@@ -150,15 +158,31 @@ const CategoryList = () => {
 
   return (
     <>
-      {(status === "loading" || isRefetching) && <Loader isOpen />}
-
       {openAlert && renderAlert()}
 
       <CustomPageHeader title="Categories" isBasicHeader />
 
       <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[75vh]">
         <div className="flex justify-between mb-3">
-          <SearchBox placeholder="Search Category..." />
+          <Space className="flex items-center">
+            <div className="py-[3px] px-3 min-w-[18rem] border-[1px] border-[#D9D9D9] rounded-lg flex items-center justify-between">
+              <SearchOutlined style={{ color: "#D9D9D9" }} />
+              <input
+                className="focus:outline-none w-full ml-1 placeholder:text-[#D9D9D9]"
+                placeholder={"Search categories..."}
+                type="text"
+                onChange={(e) => {
+                  searchText.current = e.target.value;
+                  if (timeout) clearTimeout(timeout);
+                  timeout = setTimeout(refetchCategories, 400);
+                }}
+              />
+            </div>
+
+            {(status === "loading" || isRefetching) && (
+              <Spin indicator={<LoadingOutlined />} />
+            )}
+          </Space>
           <div className="flex">
             <ClearSelection
               selectedCategories={selectedCategories}

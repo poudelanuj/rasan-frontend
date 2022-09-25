@@ -5,6 +5,7 @@ import { useMutation, useQuery } from "react-query";
 import { isEmpty, uniqBy } from "lodash";
 import moment from "moment";
 import {
+  deleteBulkFAQGroups,
   deleteFAQGroups,
   getPaginatedFAQGroups,
   publishFAQGroups,
@@ -41,13 +42,16 @@ const FAQS = () => {
   const [isDeleteFAQModal, setIsDeleteFAQModal] = useState({
     isOpen: false,
     title: "",
+    type: "",
   });
 
   const [isCreateFAQGroupsModalOpen, setIsCreateFAQGroupsModalOpen] =
     useState(false);
 
-  const [isUpdateFAQGroupsModalOpen, setIsUpdateFAQGroupsModalOpen] =
-    useState(false);
+  const [isUpdateFAQGroupsModal, setIsUpdateFAQGroupsModal] = useState({
+    isOpen: false,
+    id: "",
+  });
 
   const [page, setPage] = useState(1);
 
@@ -77,15 +81,21 @@ const FAQS = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
-  const handleDeleteFAQGroups = useMutation(() => deleteFAQGroups(faqIds), {
-    onSuccess: (data) => {
-      openSuccessNotification(data.message);
-      setIsDeleteFAQModal({ ...isDeleteFAQModal, isOpen: false });
-      refetchFAQGroups();
-      setFaqIds([]);
-    },
-    onError: (err) => openErrorNotification(err),
-  });
+  const handleDeleteFAQGroups = useMutation(
+    () =>
+      isDeleteFAQModal.type === "bulk"
+        ? deleteBulkFAQGroups(faqIds)
+        : deleteFAQGroups(faqIds),
+    {
+      onSuccess: (data) => {
+        openSuccessNotification(data.message);
+        setIsDeleteFAQModal({ ...isDeleteFAQModal, isOpen: false });
+        refetchFAQGroups();
+        setFaqIds([]);
+      },
+      onError: (err) => openErrorNotification(err),
+    }
+  );
 
   const handlePublishFAQGroups = useMutation(
     ({ id, shouldPublish }) => publishFAQGroups({ id, shouldPublish }),
@@ -176,8 +186,7 @@ const FAQS = () => {
               icon={
                 <EditOutlined
                   onClick={() => {
-                    setIsUpdateFAQGroupsModalOpen(true);
-                    setFaqIds([id]);
+                    setIsUpdateFAQGroupsModal({ isOpen: true, id });
                   }}
                 />
               }
@@ -193,6 +202,7 @@ const FAQS = () => {
                       ...isDeleteFAQModal,
                       isOpen: true,
                       title: `Delete ${name}?`,
+                      type: "single",
                     });
                     setFaqIds([id]);
                   }}
@@ -220,6 +230,7 @@ const FAQS = () => {
                   ...isDeleteFAQModal,
                   isOpen: true,
                   title: "Delete all FAQ Groups?",
+                  type: "bulk",
                 });
               }}
             >
@@ -296,10 +307,10 @@ const FAQS = () => {
             setIsCreateFAQGroupsModalOpen={setIsCreateFAQGroupsModalOpen}
           />
           <UpdateFAQGroupsModal
-            faqIds={faqIds}
-            isUpdateFAQGroupsModalOpen={isUpdateFAQGroupsModalOpen}
+            faqIds={isUpdateFAQGroupsModal.id}
+            isUpdateFAQGroupsModalOpen={isUpdateFAQGroupsModal.isOpen}
             refetchFAQGroups={refetchFAQGroups}
-            setIsUpdateFAQGroupsModalOpen={setIsUpdateFAQGroupsModalOpen}
+            setIsUpdateFAQGroupsModalOpen={setIsUpdateFAQGroupsModal}
           />
 
           <ConfirmDelete
