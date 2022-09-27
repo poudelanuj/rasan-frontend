@@ -94,7 +94,6 @@ const AdminUserList = () => {
           {phone}
         </span>
       ),
-      sorter: (a, b) => a.age - b.age,
     },
     {
       title: "Shop Name",
@@ -116,7 +115,6 @@ const AdminUserList = () => {
         enterButton="Search"
         placeholder="Search User"
         size="large"
-        allowClear
         onChange={(e) => {
           searchText.current = e.target.value;
           if (timeout) clearTimeout(timeout);

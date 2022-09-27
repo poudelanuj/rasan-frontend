@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Table, Dropdown, Button, Space, Menu } from "antd";
+import React, { useState, useEffect, useRef } from "react";
+import { Table, Dropdown, Button, Space, Menu, Input, Spin } from "antd";
 import { useQuery, useMutation } from "react-query";
 import { uniqBy, isEmpty } from "lodash";
 import moment from "moment";
@@ -12,6 +12,8 @@ import { openErrorNotification, openSuccessNotification } from "../../utils";
 import ConfirmDelete from "../../shared/ConfirmDelete";
 
 const LiveUserBasket = () => {
+  const { Search } = Input;
+
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [modalBasket, setModalBasket] = useState();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -20,13 +22,21 @@ const LiveUserBasket = () => {
 
   const [basketList, setBasketList] = useState([]);
 
+  const searchText = useRef();
+
+  let timeout = 0;
+
   const pageSize = 20;
 
   const [page, setPage] = useState(1);
 
-  const { data, status, refetch } = useQuery({
-    queryFn: () => getAllBaskets(page, pageSize),
-    queryKey: [GET_BASKETS, page.toString() + pageSize.toString()],
+  const { data, isLoading, refetch } = useQuery({
+    queryFn: () => getAllBaskets(page, pageSize, searchText.current),
+    queryKey: [
+      GET_BASKETS,
+      page.toString() + pageSize.toString(),
+      searchText.current,
+    ],
   });
 
   useEffect(() => {
@@ -113,19 +123,33 @@ const LiveUserBasket = () => {
     <div>
       <div className="flex justify-between items-center">
         <h2 className="text-2xl my-3">Live User Basket</h2>
+
         <Dropdown overlay={bulkMenu}>
           <Button className="bg-white" type="default">
             <Space>Bulk Actions</Space>
           </Button>
         </Dropdown>
       </div>
+      <Search
+        className="mb-4"
+        enterButton="Search"
+        placeholder="Search User"
+        size="large"
+        onChange={(e) => {
+          searchText.current = e.target.value;
+          if (timeout) clearTimeout(timeout);
+          timeout = setTimeout(refetch, 400);
+        }}
+      />
+
+      {isLoading && <Spin />}
       <Table
         columns={columns}
         dataSource={basketList?.map((item) => ({
           ...item,
           key: item.basket_id,
         }))}
-        loading={status === "loading"}
+        loading={isLoading}
         pagination={{
           pageSize,
           total: data?.count,
