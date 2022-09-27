@@ -25,6 +25,17 @@ export const deleteTutorialTags = async (ids) => {
   return res.data;
 };
 
+export const deleteBulkTutorialTags = async (ids) => {
+  const res = await axios.post(
+    "/api/tutorial/admin/tutorial-tag/bulk-action/",
+    {
+      ids,
+      action_type: "delete",
+    }
+  );
+  return res.data;
+};
+
 export const createTutorial = async (data) => {
   const res = await axios.post("/api/tutorial/admin/tutorials/", data);
   return res.data;

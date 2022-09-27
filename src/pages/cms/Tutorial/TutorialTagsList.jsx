@@ -5,7 +5,11 @@ import { useState, useEffect } from "react";
 import { isEmpty, uniqBy } from "lodash";
 import ConfirmDelete from "../../../shared/ConfirmDelete";
 import CreateTutorialTagsModal from "./components/CreateTutorialTagsModal";
-import { deleteTutorialTags, getPaginatedTags } from "../../../api/tutorial";
+import {
+  deleteBulkTutorialTags,
+  deleteTutorialTags,
+  getPaginatedTags,
+} from "../../../api/tutorial";
 import {
   openSuccessNotification,
   openErrorNotification,
@@ -16,9 +20,11 @@ import ButtonWPermission from "../../../shared/ButtonWPermission";
 const TutorialTagsList = () => {
   const [isCreateTagsModalOpen, setIsCreateTagsModalOpen] = useState(false);
 
-  const [isDeleteTagsModalOpen, setIsDeleteTagsModalOpen] = useState(false);
-
-  const [deleteTagsModalTitle, setDeleteTagsModalTitle] = useState("");
+  const [isDeleteTagsModal, setIsDeleteTagsModal] = useState({
+    isOpen: false,
+    title: "",
+    type: "",
+  });
 
   const [tagIds, setTagsIds] = useState([]);
 
@@ -51,12 +57,15 @@ const TutorialTagsList = () => {
   }, [page]);
 
   const handleDeleteTutorialTags = useMutation(
-    () => deleteTutorialTags(tagIds),
+    () =>
+      isDeleteTagsModal.type === "bulk"
+        ? deleteBulkTutorialTags(tagIds)
+        : deleteTutorialTags(tagIds),
     {
       onSuccess: (res) => {
         openSuccessNotification(res.message);
         refetchTags();
-        setIsDeleteTagsModalOpen(false);
+        setIsDeleteTagsModal({ ...isDeleteTagsModal, isOpen: false });
         setTagsIds([]);
       },
       onError: (err) => openErrorNotification(err),
@@ -88,9 +97,12 @@ const TutorialTagsList = () => {
             icon={
               <DeleteOutlined
                 onClick={() => {
-                  setIsDeleteTagsModalOpen(true);
-                  setDeleteTagsModalTitle(`Delete ${title}?`);
                   setTagsIds([id]);
+                  setIsDeleteTagsModal({
+                    isOpen: true,
+                    title: `Delete ${title}?`,
+                    type: "single",
+                  });
                 }}
               />
             }
@@ -111,8 +123,11 @@ const TutorialTagsList = () => {
               codename="delete_tutorialtag"
               disabled={isEmpty(tagIds)}
               onClick={() => {
-                setIsDeleteTagsModalOpen(true);
-                setDeleteTagsModalTitle(`Delete all tags?`);
+                setIsDeleteTagsModal({
+                  isOpen: true,
+                  title: "Delete all tags?",
+                  type: "bulk",
+                });
               }}
             >
               Delete
@@ -174,11 +189,13 @@ const TutorialTagsList = () => {
       />
 
       <ConfirmDelete
-        closeModal={() => setIsDeleteTagsModalOpen(false)}
+        closeModal={() =>
+          setIsDeleteTagsModal({ ...isDeleteTagsModal, isOpen: false })
+        }
         deleteMutation={() => handleDeleteTutorialTags.mutate()}
-        isOpen={isDeleteTagsModalOpen}
+        isOpen={isDeleteTagsModal.isOpen}
         status={handleDeleteTutorialTags.status}
-        title={deleteTagsModalTitle}
+        title={isDeleteTagsModal.title}
       />
     </div>
   );

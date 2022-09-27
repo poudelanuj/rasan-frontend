@@ -17,3 +17,12 @@ const getAllUserFeedbacks = async ({ isArchived, page, pageSize }) => {
 };
 
 export default getAllUserFeedbacks;
+
+export const archiveBulkFeedbacks = async (ids) => {
+  const res = await axios.post("/api/crm/admin/feedback/bulk-action/", {
+    ids,
+    action_type: "archive",
+  });
+
+  return res.data;
+};

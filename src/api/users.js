@@ -20,11 +20,11 @@ export const createUser = async (data) => {
   return response.data;
 };
 
-export const getAdminUsers = async (groupIds, page, pageSize) => {
+export const getAdminUsers = async (groupIds, page, pageSize, search) => {
   const res = await axios.get(
     `/api/profile/admin/user-list/?group_ids=${groupIds}&page=${page}&size=${
       pageSize || 20
-    }`
+    }&search=${search || ""}`
   );
 
   return res.data.data;

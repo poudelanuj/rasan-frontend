@@ -4,11 +4,15 @@ import React, { useState, useEffect, useRef } from "react";
 import { useQuery } from "react-query";
 import { Input, Spin } from "antd";
 import { uniqBy } from "lodash";
-import { getUsers } from "../../api/users";
+import { getAdminUsers } from "../../api/users";
+import { useAuth } from "../../AuthProvider";
+import { GET_ADMIN_USER } from "../../constants/queryKeys";
 const { Search } = Input;
 
-const UserList = () => {
+const AdminUserList = () => {
   let navigate = useNavigate();
+
+  const { userGroupIds } = useAuth();
 
   const searchText = useRef();
   const pageSize = 20;
@@ -19,11 +23,15 @@ const UserList = () => {
 
   const { data, refetch, isLoading } = useQuery({
     queryKey: [
-      "get-users",
+      GET_ADMIN_USER,
       page.toString() + pageSize.toString(),
+      userGroupIds,
       searchText.current,
     ],
-    queryFn: () => getUsers(page, searchText.current, pageSize),
+    queryFn: () =>
+      userGroupIds &&
+      getAdminUsers(userGroupIds, page, pageSize, searchText.current),
+    enabled: !!userGroupIds,
   });
 
   useEffect(() => {
@@ -52,7 +60,7 @@ const UserList = () => {
 
   const columns = [
     {
-      title: "Customer Name",
+      title: "Name",
       dataIndex: "full_name",
       render: (text, record) => {
         return (
@@ -117,7 +125,6 @@ const UserList = () => {
       />
 
       {isLoading && <Spin />}
-
       {userColumns && (
         <Table
           columns={columns}
@@ -136,4 +143,4 @@ const UserList = () => {
   );
 };
 
-export default UserList;
+export default AdminUserList;
