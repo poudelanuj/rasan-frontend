@@ -19,10 +19,17 @@ export const getUserOrder = async ({ orderStatus, user, page, pageSize }) => {
   return res.data.data;
 };
 
-export const getPaginatedOrders = async ({ orderStatus, page, size, sort }) => {
+export const getPaginatedOrders = async ({
+  orderStatus,
+  page,
+  size,
+  sort,
+  search,
+}) => {
   const res = await axios.get(
-    `/api/order/admin/orders/?status=${orderStatus}&page=${page}&size=${size}&sort=${sort}`
+    `/api/order/admin/orders/?status=${orderStatus}&page=${page}&size=${size}&sort=${sort}&user=${search}`
   );
+
   return res.data.data;
 };
 

@@ -15,7 +15,6 @@ import DeleteOrder from "./components/DeleteOrder";
 import ButtonWPermission from "../../shared/ButtonWPermission";
 import { isEmpty, capitalize } from "lodash";
 import ConfirmDelete from "../../shared/ConfirmDelete";
-import { useRef } from "react";
 
 export const getOrderStatusColor = (status) => {
   switch (status) {
@@ -39,8 +38,9 @@ const OrdersList = ({
   pageSize,
   ordersCount,
   sortingFn,
+  searchInput,
 }) => {
-  const searchInput = useRef();
+  let timeout = 0;
 
   const [isDeleteOrderOpen, setIsDeleteOrderOpen] = useState(false);
   const [deleteOrderId, setDeleteOrderId] = useState(0);
@@ -51,29 +51,23 @@ const OrdersList = ({
   const navigate = useNavigate();
 
   const getColumnSearchProps = (dataIndex) => ({
-    filterDropdown: ({
-      setSelectedKeys,
-      selectedKeys,
-      confirm,
-      clearFilters,
-    }) => (
+    filterDropdown: () => (
       <div
         style={{
           padding: 8,
         }}
       >
         <Input
-          ref={searchInput}
           placeholder={`Search ${dataIndex}`}
           style={{
             marginBottom: 8,
             display: "block",
           }}
-          value={selectedKeys[0]}
-          onChange={(e) =>
-            setSelectedKeys(e.target.value ? [e.target.value] : [])
-          }
-          onPressEnter={() => {}}
+          onChange={(e) => {
+            searchInput.current = e.target.value;
+            if (timeout) clearTimeout(timeout);
+            timeout = setTimeout(refetchOrders, 1000);
+          }}
         />
       </div>
     ),
@@ -84,13 +78,6 @@ const OrdersList = ({
         }}
       />
     ),
-    onFilter: (value, record) =>
-      record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
-    onFilterDropdownVisibleChange: (visible) => {
-      if (visible) {
-        setTimeout(() => searchInput.current?.select(), 100);
-      }
-    },
   });
 
   const columns = [
@@ -129,7 +116,7 @@ const OrdersList = ({
           </div>
         );
       },
-      ...getColumnSearchProps(),
+      ...getColumnSearchProps("customer"),
     },
     {
       title: "Total Paid Amount",

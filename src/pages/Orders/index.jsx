@@ -1,6 +1,6 @@
 import { Tabs } from "antd";
 import { uniqBy } from "lodash";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useQuery } from "react-query";
 import { getPaginatedOrders } from "../../api/orders";
 import { CANCELLED, DELIVERED, IN_PROCESS } from "../../constants";
@@ -10,6 +10,8 @@ import OrdersList from "./OrdersList";
 
 const Orders = () => {
   const { TabPane } = Tabs;
+
+  const searchInput = useRef();
 
   const pageSize = 20;
   const [page, setPage] = useState(1);
@@ -36,11 +38,13 @@ const Orders = () => {
         orderStatus,
         size: pageSize,
         sort: sortObj.sort,
+        search: searchInput.current,
       }),
     queryKey: [
       GET_PAGINATED_ORDERS,
       orderStatus + page.toString() + pageSize.toString(),
       sortObj.sort,
+      searchInput.current,
     ],
   });
 
@@ -85,6 +89,7 @@ const Orders = () => {
             page={page}
             pageSize={pageSize}
             refetchOrders={refetchOrders}
+            searchInput={searchInput}
             setPage={setPage}
             sortingFn={sortingFn}
             status={isRefetching ? "loading" : status}
@@ -97,6 +102,7 @@ const Orders = () => {
             page={page}
             pageSize={pageSize}
             refetchOrders={refetchOrders}
+            searchInput={searchInput}
             setPage={setPage}
             sortingFn={sortingFn}
             status={isRefetching ? "loading" : status}
@@ -109,6 +115,7 @@ const Orders = () => {
             page={page}
             pageSize={pageSize}
             refetchOrders={refetchOrders}
+            searchInput={searchInput}
             setPage={setPage}
             sortingFn={sortingFn}
             status={isRefetching ? "loading" : status}
@@ -121,6 +128,7 @@ const Orders = () => {
             page={page}
             pageSize={pageSize}
             refetchOrders={refetchOrders}
+            searchInput={searchInput}
             setPage={setPage}
             sortingFn={sortingFn}
             status={isRefetching ? "loading" : status}
