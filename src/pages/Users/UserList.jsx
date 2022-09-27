@@ -15,6 +15,14 @@ const UserList = () => {
   const [page, setPage] = useState(1);
   const [users, setUsers] = useState([]);
 
+  const [sortObj, setSortObj] = useState({
+    sortType: {
+      id: true,
+      full_name: true,
+    },
+    sort: [],
+  });
+
   let timeout = 0;
 
   const { data, refetch, isLoading } = useQuery({
@@ -22,8 +30,9 @@ const UserList = () => {
       "get-users",
       page.toString() + pageSize.toString(),
       searchText.current,
+      sortObj.sort,
     ],
-    queryFn: () => getUsers(page, searchText.current, pageSize),
+    queryFn: () => getUsers(page, searchText.current, pageSize, sortObj.sort),
   });
 
   useEffect(() => {
@@ -36,11 +45,12 @@ const UserList = () => {
   useEffect(() => {
     refetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  }, [page, sortObj]);
 
   const userColumns = users.map((user) => {
     return {
       key: user.id,
+      id: user.id,
       full_name: user.full_name || "N/A",
       phone: user.phone,
       profile_picture: user.profile_picture?.small_square_crop,
@@ -50,7 +60,34 @@ const UserList = () => {
     };
   });
 
+  const sorting = (header, name) =>
+    setSortObj({
+      sortType: {
+        ...sortObj.sortType,
+        [name]: !sortObj.sortType[name],
+      },
+      sort: [`${sortObj.sortType[name] ? "" : "-"}${header.dataIndex}`],
+    });
+
   const columns = [
+    {
+      title: "ID",
+      dataIndex: "id",
+      render: (text, record) => (
+        <span
+          className="text-blue-500"
+          onClick={() => navigate(`/user/${record.key}`)}
+        >
+          #{text}
+        </span>
+      ),
+      sorter: true,
+      onHeaderCell: (header) => {
+        return {
+          onClick: () => sorting(header, "id"),
+        };
+      },
+    },
     {
       title: "Customer Name",
       dataIndex: "full_name",
@@ -73,11 +110,16 @@ const UserList = () => {
           </div>
         );
       },
+      sorter: true,
+      onHeaderCell: (header) => {
+        return {
+          onClick: () => sorting(header, "full_name"),
+        };
+      },
     },
     {
       title: "Phone Number",
       dataIndex: "phone",
-      defaultSortOrder: "descend",
       render: (_, { phone, key }) => (
         <span
           className="cursor-pointer"
@@ -87,6 +129,7 @@ const UserList = () => {
         </span>
       ),
     },
+
     {
       title: "Shop Name",
       dataIndex: "shop",
@@ -128,6 +171,7 @@ const UserList = () => {
               setPage(page);
             },
           }}
+          showSorterTooltip={false}
         />
       )}
     </>

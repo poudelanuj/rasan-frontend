@@ -1,8 +1,7 @@
 import { Table, Tag, Button, Menu, Dropdown, Space, Input } from "antd";
 import { useMutation } from "react-query";
-import { SearchOutlined, DeleteOutlined } from "@ant-design/icons";
+import { DeleteOutlined, SearchOutlined } from "@ant-design/icons";
 import moment from "moment";
-import { useRef } from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -16,6 +15,7 @@ import DeleteOrder from "./components/DeleteOrder";
 import ButtonWPermission from "../../shared/ButtonWPermission";
 import { isEmpty, capitalize } from "lodash";
 import ConfirmDelete from "../../shared/ConfirmDelete";
+import { useRef } from "react";
 
 export const getOrderStatusColor = (status) => {
   switch (status) {
@@ -38,8 +38,10 @@ const OrdersList = ({
   setPage,
   pageSize,
   ordersCount,
+  sortingFn,
 }) => {
-  const searchInput = useRef(null);
+  const searchInput = useRef();
+
   const [isDeleteOrderOpen, setIsDeleteOrderOpen] = useState(false);
   const [deleteOrderId, setDeleteOrderId] = useState(0);
 
@@ -106,15 +108,17 @@ const OrdersList = ({
           </div>
         );
       },
-      ...getColumnSearchProps("order Id"),
-      sorter: (a, b) => a.id - b.id,
+      sorter: true,
+      onHeaderCell: (header) => {
+        return {
+          onClick: () => sortingFn(header, "created_at"),
+        };
+      },
     },
     {
       title: "Customer",
       dataIndex: "user",
       key: "user",
-      ...getColumnSearchProps("customer"),
-      sorter: (a, b) => a.user.localeCompare(b.user),
       render: (_, { user, id }) => {
         return (
           <div
@@ -125,6 +129,7 @@ const OrdersList = ({
           </div>
         );
       },
+      ...getColumnSearchProps(),
     },
     {
       title: "Total Paid Amount",
@@ -133,8 +138,12 @@ const OrdersList = ({
       render: (_, { total_paid_amount }) => {
         return <>Rs. {total_paid_amount}</>;
       },
-      ...getColumnSearchProps("price"),
-      sorter: (a, b) => a.total_paid_amount - b.total_paid_amount,
+      sorter: true,
+      onHeaderCell: (header) => {
+        return {
+          onClick: () => sortingFn(header, "total_paid_amount"),
+        };
+      },
     },
     {
       title: "Delivery Status",
@@ -149,7 +158,6 @@ const OrdersList = ({
           </>
         );
       },
-      ...getColumnSearchProps("delivery status"),
     },
     {
       title: "Payment Method",
@@ -158,7 +166,6 @@ const OrdersList = ({
       render: (_, { payment }) => {
         return <>{capitalize(payment?.payment_method?.replaceAll("_", " "))}</>;
       },
-      ...getColumnSearchProps("payment method"),
     },
     {
       title: "Ordered At",
@@ -167,8 +174,12 @@ const OrdersList = ({
       render: (_, { created_at }) => {
         return <>{moment(created_at).format("ll")}</>;
       },
-      sorter: (a, b) => a.created_at - b.created_at,
-      ...getColumnSearchProps("delivery date"),
+      sorter: true,
+      onHeaderCell: (header) => {
+        return {
+          onClick: () => sortingFn(header, "created_at"),
+        };
+      },
     },
     {
       title: "Actions",
@@ -291,6 +302,7 @@ const OrdersList = ({
           },
         }}
         rowSelection={{ ...rowSelection }}
+        showSorterTooltip={false}
       />
 
       <DeleteOrder

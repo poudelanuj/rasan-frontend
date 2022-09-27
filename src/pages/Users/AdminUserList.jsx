@@ -19,6 +19,14 @@ const AdminUserList = () => {
   const [page, setPage] = useState(1);
   const [users, setUsers] = useState([]);
 
+  const [sortObj, setSortObj] = useState({
+    sortType: {
+      id: true,
+      full_name: true,
+    },
+    sort: [],
+  });
+
   let timeout = 0;
 
   const { data, refetch, isLoading } = useQuery({
@@ -27,10 +35,17 @@ const AdminUserList = () => {
       page.toString() + pageSize.toString(),
       userGroupIds,
       searchText.current,
+      sortObj.sort,
     ],
     queryFn: () =>
       userGroupIds &&
-      getAdminUsers(userGroupIds, page, pageSize, searchText.current),
+      getAdminUsers(
+        userGroupIds,
+        page,
+        pageSize,
+        searchText.current,
+        sortObj.sort
+      ),
     enabled: !!userGroupIds,
   });
 
@@ -49,6 +64,7 @@ const AdminUserList = () => {
   const userColumns = users.map((user) => {
     return {
       key: user.id,
+      id: user.id,
       full_name: user.full_name || "N/A",
       phone: user.phone,
       profile_picture: user.profile_picture?.small_square_crop,
@@ -58,7 +74,34 @@ const AdminUserList = () => {
     };
   });
 
+  const sorting = (header, name) =>
+    setSortObj({
+      sortType: {
+        ...sortObj.sortType,
+        [name]: !sortObj.sortType[name],
+      },
+      sort: [`${sortObj.sortType[name] ? "" : "-"}${header.dataIndex}`],
+    });
+
   const columns = [
+    {
+      title: "ID",
+      dataIndex: "id",
+      render: (text, record) => (
+        <span
+          className="text-blue-500"
+          onClick={() => navigate(`/user/${record.key}`)}
+        >
+          #{text}
+        </span>
+      ),
+      sorter: true,
+      onHeaderCell: (header) => {
+        return {
+          onClick: () => sorting(header, "id"),
+        };
+      },
+    },
     {
       title: "Name",
       dataIndex: "full_name",
@@ -80,6 +123,12 @@ const AdminUserList = () => {
             <span>{text}</span>
           </div>
         );
+      },
+      sorter: true,
+      onHeaderCell: (header) => {
+        return {
+          onClick: () => sorting(header, "full_name"),
+        };
       },
     },
     {
@@ -135,6 +184,7 @@ const AdminUserList = () => {
               setPage(page);
             },
           }}
+          showSorterTooltip={false}
         />
       )}
     </>

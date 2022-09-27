@@ -16,16 +16,31 @@ const Orders = () => {
   const [orderStatus, setOrderStatus] = useState("all");
   const [orders, setOrders] = useState([]);
 
+  const [sortObj, setSortObj] = useState({
+    sortType: {
+      created_at: false,
+      total_paid_amount: false,
+    },
+    sort: [],
+  });
+
   const {
     data,
     status,
     isRefetching,
     refetch: refetchOrders,
   } = useQuery({
-    queryFn: () => getPaginatedOrders({ page, orderStatus, size: pageSize }),
+    queryFn: () =>
+      getPaginatedOrders({
+        page,
+        orderStatus,
+        size: pageSize,
+        sort: sortObj.sort,
+      }),
     queryKey: [
       GET_PAGINATED_ORDERS,
       orderStatus + page.toString() + pageSize.toString(),
+      sortObj.sort,
     ],
   });
 
@@ -37,7 +52,20 @@ const Orders = () => {
   useEffect(() => {
     refetchOrders();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, orderStatus]);
+  }, [page, orderStatus, sortObj]);
+
+  const sortingFn = (header, name) =>
+    setSortObj({
+      sortType: {
+        ...sortObj.sortType,
+        [name]: !sortObj.sortType[name],
+      },
+      sort: [
+        `${sortObj.sortType[name] ? "" : "-"}${
+          header.dataIndex === "id" ? "created_at" : header.dataIndex
+        }`,
+      ],
+    });
 
   return (
     <div>
@@ -58,6 +86,7 @@ const Orders = () => {
             pageSize={pageSize}
             refetchOrders={refetchOrders}
             setPage={setPage}
+            sortingFn={sortingFn}
             status={isRefetching ? "loading" : status}
           />
         </TabPane>
@@ -69,6 +98,7 @@ const Orders = () => {
             pageSize={pageSize}
             refetchOrders={refetchOrders}
             setPage={setPage}
+            sortingFn={sortingFn}
             status={isRefetching ? "loading" : status}
           />
         </TabPane>
@@ -80,6 +110,7 @@ const Orders = () => {
             pageSize={pageSize}
             refetchOrders={refetchOrders}
             setPage={setPage}
+            sortingFn={sortingFn}
             status={isRefetching ? "loading" : status}
           />
         </TabPane>
@@ -91,6 +122,7 @@ const Orders = () => {
             pageSize={pageSize}
             refetchOrders={refetchOrders}
             setPage={setPage}
+            sortingFn={sortingFn}
             status={isRefetching ? "loading" : status}
           />
         </TabPane>
