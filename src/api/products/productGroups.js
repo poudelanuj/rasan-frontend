@@ -10,11 +10,11 @@ export const getProductGroup = async (slug) => {
   return res.data.data;
 };
 
-export const getPaginatedProductGroups = async (page, pageSize) => {
+export const getPaginatedProductGroups = async (page, pageSize, search) => {
   const res = await axios.get(
     `/api/product/admin/product-groups/?page=${page || 1}&size=${
       pageSize || 20
-    }`
+    }&search=${search || ""}`
   );
   return res.data.data;
 };

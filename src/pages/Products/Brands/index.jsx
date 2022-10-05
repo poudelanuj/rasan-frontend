@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import { uniqBy } from "lodash";
-import { Pagination, Select } from "antd";
+import { Pagination, Select, Space, Spin } from "antd";
+import { SearchOutlined, LoadingOutlined } from "@ant-design/icons";
 
 import CategoryWidget from "../categories/shared/CategoryWidget";
-import SearchBox from "../subComponents/SearchBox";
 
 import ClearSelection from "../subComponents/ClearSelection";
 import {
@@ -18,7 +18,6 @@ import {
   bulkPublish,
   getPaginatedBrands,
 } from "../../../api/brands";
-import Loader from "../../../shared/Loader";
 import CustomPageHeader from "../../../shared/PageHeader";
 import Alert from "../../../shared/Alert";
 import AddBrand from "./AddBrand";
@@ -40,20 +39,30 @@ function BrandsScreen() {
   const [paginatedBrands, setPaginatedBrands] = useState([]);
   const [selectedBrands, setSelectedBrands] = useState([]);
 
+  const searchText = useRef();
+
+  let timeout = 0;
+
   const {
     data,
     status,
     refetch: refetchBrands,
     isRefetching,
   } = useQuery(
-    [GET_PAGINATED_BRANDS, page.toString() + pageSize.toString()],
-    () => getPaginatedBrands(page, pageSize)
+    [
+      GET_PAGINATED_BRANDS,
+      page.toString() + pageSize.toString(),
+      searchText.current,
+    ],
+    () => getPaginatedBrands(page, pageSize, searchText.current)
   );
 
   useEffect(() => {
-    if (data)
+    if (data && status === "success" && !isRefetching) {
+      setPaginatedBrands([]);
       setPaginatedBrands((prev) => uniqBy([...prev, ...data.results], "slug"));
-  }, [data]);
+    }
+  }, [data, isRefetching, status]);
 
   useEffect(() => {
     refetchBrands();
@@ -147,14 +156,30 @@ function BrandsScreen() {
 
   return (
     <>
-      {(status === "loading" || isRefetching) && <Loader isOpen />}
-
       {openAlert && renderAlert()}
       <CustomPageHeader title="Brands" isBasicHeader />
 
       <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[75vh]">
         <div className="flex justify-between mb-3">
-          <SearchBox placeholder="Search Brands..." />
+          <Space className="flex items-center">
+            <div className="py-[3px] px-3 min-w-[18rem] border-[1px] border-[#D9D9D9] rounded-lg flex items-center justify-between">
+              <SearchOutlined style={{ color: "#D9D9D9" }} />
+              <input
+                className="focus:outline-none w-full ml-1 placeholder:text-[#D9D9D9]"
+                placeholder={"Search categories..."}
+                type="text"
+                onChange={(e) => {
+                  searchText.current = e.target.value;
+                  if (timeout) clearTimeout(timeout);
+                  timeout = setTimeout(refetchBrands, 400);
+                }}
+              />
+            </div>
+
+            {(status === "loading" || isRefetching) && (
+              <Spin indicator={<LoadingOutlined />} />
+            )}
+          </Space>
           <div className="flex">
             <ClearSelection
               selectedCategories={selectedBrands}

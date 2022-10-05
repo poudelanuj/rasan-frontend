@@ -60,11 +60,11 @@ const CategoryList = () => {
   );
 
   useEffect(() => {
-    if (data) {
+    if (data && status === "success" && !isRefetching) {
       setCategories([]);
       setCategories((prev) => uniqBy([...prev, ...data.results], "slug"));
     }
-  }, [data]);
+  }, [data, status, isRefetching]);
 
   useEffect(() => {
     refetchCategories();

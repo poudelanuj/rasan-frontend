@@ -29,7 +29,7 @@ const AdminUserList = () => {
 
   let timeout = 0;
 
-  const { data, refetch, isLoading } = useQuery({
+  const { data, refetch, isRefetching, status } = useQuery({
     queryKey: [
       GET_ADMIN_USER,
       page.toString() + pageSize.toString(),
@@ -50,11 +50,11 @@ const AdminUserList = () => {
   });
 
   useEffect(() => {
-    if (data) {
+    if (data && status === "success" && !isRefetching) {
       setUsers([]);
       setUsers((prev) => uniqBy([...prev, ...data.results], "id"));
     }
-  }, [data]);
+  }, [data, status, isRefetching]);
 
   useEffect(() => {
     refetch();
@@ -171,7 +171,7 @@ const AdminUserList = () => {
         }}
       />
 
-      {isLoading && <Spin />}
+      {(status === "loading" || isRefetching) && <Spin />}
       {userColumns && (
         <Table
           columns={columns}

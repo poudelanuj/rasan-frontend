@@ -22,6 +22,14 @@ const LiveUserBasket = () => {
 
   const [basketList, setBasketList] = useState([]);
 
+  const [sortObj, setSortObj] = useState({
+    sortType: {
+      number_of_items: false,
+      last_edited_at: false,
+    },
+    sort: [],
+  });
+
   const searchText = useRef();
 
   let timeout = 0;
@@ -30,26 +38,28 @@ const LiveUserBasket = () => {
 
   const [page, setPage] = useState(1);
 
-  const { data, isLoading, refetch } = useQuery({
-    queryFn: () => getAllBaskets(page, pageSize, searchText.current),
+  const { data, isLoading, refetch, isRefetching, status } = useQuery({
+    queryFn: () =>
+      getAllBaskets(page, pageSize, searchText.current, sortObj.sort),
     queryKey: [
       GET_BASKETS,
       page.toString() + pageSize.toString(),
       searchText.current,
+      sortObj.sort,
     ],
   });
 
   useEffect(() => {
-    if (data) {
+    if (data && status === "success" && !isRefetching) {
       setBasketList([]);
       setBasketList((prev) => uniqBy([...prev, ...data.results], "basket_id"));
     }
-  }, [data]);
+  }, [data, status, isRefetching]);
 
   useEffect(() => {
     refetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  }, [page, sortObj]);
 
   const handleBulkDelete = useMutation(
     () => deleteBulkUserBasket(selectedRowKeys),
@@ -64,6 +74,19 @@ const LiveUserBasket = () => {
     }
   );
 
+  const sortingFn = (header, name) =>
+    setSortObj({
+      sortType: {
+        ...sortObj.sortType,
+        [name]: !sortObj.sortType[name],
+      },
+      sort: [
+        `${sortObj.sortType[name] ? "" : "-"}${
+          header.dataIndex === "id" ? "created_at" : header.dataIndex
+        }`,
+      ],
+    });
+
   const columns = [
     {
       title: "Customer",
@@ -77,16 +100,28 @@ const LiveUserBasket = () => {
     },
     {
       title: "Total Items",
-      dataIndex: "totalItems",
+      dataIndex: "number_of_items",
       render: (_, { number_of_items }) => (
         <BasketInfo itemsCount={number_of_items} />
       ),
+      sorter: true,
+      onHeaderCell: (header) => {
+        return {
+          onClick: () => sortingFn(header, "number_of_items"),
+        };
+      },
     },
     {
       title: "Updated At",
       dataIndex: "last_edited_at",
       render: (_, { last_edited_at }) => {
         return <>{moment(last_edited_at).format("ll")}</>;
+      },
+      sorter: true,
+      onHeaderCell: (header) => {
+        return {
+          onClick: () => sortingFn(header, "last_edited_at"),
+        };
       },
     },
   ];
@@ -142,7 +177,7 @@ const LiveUserBasket = () => {
         }}
       />
 
-      {isLoading && <Spin />}
+      {(status === "loading" || isRefetching) && <Spin />}
       <Table
         columns={columns}
         dataSource={basketList?.map((item) => ({
@@ -158,6 +193,7 @@ const LiveUserBasket = () => {
         }}
         rowClassName="cursor-pointer"
         rowSelection={{ ...rowSelection }}
+        showSorterTooltip={false}
         onRow={(record) => {
           return {
             onClick: () => {

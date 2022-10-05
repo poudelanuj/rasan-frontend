@@ -13,7 +13,6 @@ import {
   AccountBookOutlined,
 } from "@ant-design/icons";
 import { Avatar, Dropdown, Layout, Menu } from "antd";
-import React from "react";
 import { useQuery } from "react-query";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthProvider";

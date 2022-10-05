@@ -142,7 +142,7 @@ const CreateLoyaltyRedeem = () => {
             },
           ]}
         >
-          <Input type="number" />
+          <Input />
         </Form.Item>
 
         <Form.Item
@@ -155,7 +155,7 @@ const CreateLoyaltyRedeem = () => {
             },
           ]}
         >
-          <Input type="number" />
+          <Input />
         </Form.Item>
 
         <Form.Item className="col-span-full">

@@ -25,7 +25,7 @@ const UserList = () => {
 
   let timeout = 0;
 
-  const { data, refetch, isLoading } = useQuery({
+  const { data, refetch, isRefetching, status } = useQuery({
     queryKey: [
       "get-users",
       page.toString() + pageSize.toString(),
@@ -36,11 +36,11 @@ const UserList = () => {
   });
 
   useEffect(() => {
-    if (data) {
+    if (data && status === "success" && !isRefetching) {
       setUsers([]);
       setUsers((prev) => uniqBy([...prev, ...data.results], "id"));
     }
-  }, [data]);
+  }, [data, status, isRefetching]);
 
   useEffect(() => {
     refetch();
@@ -157,7 +157,7 @@ const UserList = () => {
         }}
       />
 
-      {isLoading && <Spin />}
+      {(status === "loading" || isRefetching) && <Spin />}
 
       {userColumns && (
         <Table

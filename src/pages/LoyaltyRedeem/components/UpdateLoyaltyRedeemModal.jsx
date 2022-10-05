@@ -122,7 +122,7 @@ const UpdateLoyaltyRedeemModal = ({
             },
           ]}
         >
-          <Input type="number" />
+          <Input />
         </Form.Item>
 
         <Form.Item
@@ -135,7 +135,7 @@ const UpdateLoyaltyRedeemModal = ({
             },
           ]}
         >
-          <Input type="number" />
+          <Input />
         </Form.Item>
       </Form>
     </Modal>

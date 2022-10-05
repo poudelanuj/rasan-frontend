@@ -1,11 +1,11 @@
-import { Pagination, Select } from "antd";
+import { Pagination, Select, Space, Spin } from "antd";
 import React, { useEffect, useState } from "react";
 import { uniqBy } from "lodash";
 import { useMutation, useQuery } from "react-query";
+import { SearchOutlined, LoadingOutlined } from "@ant-design/icons";
 
 import CategoryWidget from "../categories/shared/CategoryWidget";
 import ClearSelection from "../subComponents/ClearSelection";
-import SearchBox from "../subComponents/SearchBox";
 import {
   openErrorNotification,
   openSuccessNotification,
@@ -17,12 +17,12 @@ import {
   getPaginatedProductGroups,
 } from "../../../api/products/productGroups";
 import { GET_PAGINATED_PRODUCT_GROUPS } from "../../../constants/queryKeys";
-import Loader from "../../../shared/Loader";
 import CustomPageHeader from "../../../shared/PageHeader";
 import Alert from "../../../shared/Alert";
 import AddProductGroup from "./AddProductGroup";
 import EditProductGroup from "./EditProductGroup";
 import ButtonWPermission from "../../../shared/ButtonWPermission";
+import { useRef } from "react";
 
 const { Option } = Select;
 
@@ -33,6 +33,10 @@ function ProductGroupsScreen() {
   const [isAddGroupOpen, setIsAddGroupOpen] = useState(false);
   const [isEditGroupOpen, setIsEditGroupOpen] = useState(false);
   const [selectedGroupSlug, setSelectedGroupSlug] = useState(""); // * For Edit
+
+  const searchText = useRef();
+
+  let timeout = 0;
 
   const [page, setPage] = useState(1);
   const pageSize = 20;
@@ -45,15 +49,21 @@ function ProductGroupsScreen() {
     refetch: refetchProductGroups,
     isRefetching,
   } = useQuery(
-    [GET_PAGINATED_PRODUCT_GROUPS, page.toString() + pageSize.toString()],
-    () => getPaginatedProductGroups(page, pageSize)
+    [
+      GET_PAGINATED_PRODUCT_GROUPS,
+      page.toString() + pageSize.toString(),
+      searchText.current,
+    ],
+    () => getPaginatedProductGroups(page, pageSize, searchText.current)
   );
 
   useEffect(() => {
-    if (data && status === "success" && !isRefetching)
+    if (data && status === "success" && !isRefetching) {
+      setPaginatedProductGroups([]);
       setPaginatedProductGroups((prev) =>
         uniqBy([...prev, ...data.results], "slug")
       );
+    }
   }, [data, isRefetching, status]);
 
   useEffect(() => {
@@ -148,13 +158,29 @@ function ProductGroupsScreen() {
     <>
       {openAlert && renderAlert()}
 
-      {(status === "loading" || isRefetching) && <Loader isOpen />}
-
       <CustomPageHeader title="Rasan Choices" isBasicHeader />
 
       <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[75vh]">
         <div className="flex justify-between mb-3">
-          <SearchBox placeholder="Search Brands..." />
+          <Space className="flex items-center">
+            <div className="py-[3px] px-3 min-w-[18rem] border-[1px] border-[#D9D9D9] rounded-lg flex items-center justify-between">
+              <SearchOutlined style={{ color: "#D9D9D9" }} />
+              <input
+                className="focus:outline-none w-full ml-1 placeholder:text-[#D9D9D9]"
+                placeholder={"Search categories..."}
+                type="text"
+                onChange={(e) => {
+                  searchText.current = e.target.value;
+                  if (timeout) clearTimeout(timeout);
+                  timeout = setTimeout(refetchProductGroups, 400);
+                }}
+              />
+            </div>
+
+            {(status === "loading" || isRefetching) && (
+              <Spin indicator={<LoadingOutlined />} />
+            )}
+          </Space>
           <div className="flex">
             <ClearSelection
               selectedCategories={selectedProductGroups}
