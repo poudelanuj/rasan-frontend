@@ -112,16 +112,21 @@ function TabSKU({ slug }) {
     status: skuStatus,
     refetch: refetchProductSkus,
     isRefetching,
-  } = useQuery([GET_SINGLE_CATEGORY, slug], () => getCategory(slug));
+  } = useQuery({
+    queryKey: [GET_SINGLE_CATEGORY, slug],
+    queryFn: () => getCategory(slug),
+  });
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (data)
+    if (data && data.product_skus && skuStatus === "success" && !isRefetching) {
+      setProductSkus([]);
       setProductSkus((prev) =>
         uniqBy([...prev, ...data.product_skus.results], "slug")
       );
-  }, [data]);
+    }
+  }, [data, skuStatus, isRefetching]);
 
   useEffect(() => {
     refetchProductSkus();
@@ -246,7 +251,7 @@ function TabSKU({ slug }) {
             loading={skuStatus === "loading" || isRefetching}
             pagination={{
               pageSize,
-              total: data?.count,
+              total: data?.product_skus?.count,
 
               onChange: (page, pageSize) => {
                 setPage(page);

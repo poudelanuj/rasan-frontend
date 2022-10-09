@@ -102,35 +102,35 @@ const CreateOrder = () => {
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <Form.Item
-            label={
-              <div className="flex gap-3 items-center">
-                <span>User</span>
-                <ButtonWPermission
-                  className="p-0 m-0 bg-white"
-                  codename="add_user"
-                  size="small"
-                  type="primary"
-                  onClick={() => setIsCreateUserOpen(true)}
-                >
-                  + Add New User
-                </ButtonWPermission>
-              </div>
-            }
-            name="user"
-            rules={[
-              {
-                required: true,
-                message: "user is required",
-              },
-            ]}
+          <InfiniteScroll
+            hasMore={!!data?.next}
+            loadMore={() => {
+              setPage((prev) => prev + 1);
+              refetchUserList();
+            }}
           >
-            <InfiniteScroll
-              hasMore={!!data?.next}
-              loadMore={() => {
-                setPage((prev) => prev + 1);
-                refetchUserList();
-              }}
+            <Form.Item
+              label={
+                <div className="flex gap-3 items-center">
+                  <span>User</span>
+                  <ButtonWPermission
+                    className="p-0 m-0 bg-white"
+                    codename="add_user"
+                    size="small"
+                    type="primary"
+                    onClick={() => setIsCreateUserOpen(true)}
+                  >
+                    + Add New User
+                  </ButtonWPermission>
+                </div>
+              }
+              name="user"
+              rules={[
+                {
+                  required: true,
+                  message: "user is required",
+                },
+              ]}
             >
               <Select
                 className="w-full"
@@ -149,8 +149,8 @@ const CreateOrder = () => {
                   </Option>
                 ))}
               </Select>
-            </InfiniteScroll>
-          </Form.Item>
+            </Form.Item>
+          </InfiniteScroll>
 
           <Form.Item
             label={

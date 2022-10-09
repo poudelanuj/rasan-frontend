@@ -92,14 +92,14 @@ const AddUsersModal = ({ isOpen, onClose }) => {
         layout="vertical"
         name="form_in_modal"
       >
-        <Form.Item label="Users" name="users">
-          <InfiniteScroll
-            hasMore={!!data?.next}
-            loadMore={() => {
-              setPage((prev) => prev + 1);
-              refetch();
-            }}
-          >
+        <InfiniteScroll
+          hasMore={!!data?.next}
+          loadMore={() => {
+            setPage((prev) => prev + 1);
+            refetch();
+          }}
+        >
+          <Form.Item label="Users" name="users">
             <Select mode="multiple" placeholder="Select users" allowClear>
               {users &&
                 users.map((el) => (
@@ -108,8 +108,8 @@ const AddUsersModal = ({ isOpen, onClose }) => {
                   </Option>
                 ))}
             </Select>
-          </InfiniteScroll>
-        </Form.Item>
+          </Form.Item>
+        </InfiniteScroll>
       </Form>
     </Modal>
   );

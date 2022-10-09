@@ -28,25 +28,40 @@ function ProductListScreen() {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const navigate = useNavigate();
 
+  const [sortObj, setSortObj] = useState({
+    sortType: {
+      name: false,
+      published_at: false,
+      is_published: false,
+    },
+    sort: [],
+  });
+
   const {
     data,
     status: productsStatus,
     refetch: refetchProducts,
     isRefetching,
   } = useQuery(
-    [GET_PAGINATED_PRODUCTS, page.toString() + pageSize.toString()],
-    () => getPaginatedProducts(page, pageSize)
+    [
+      GET_PAGINATED_PRODUCTS,
+      page.toString() + pageSize.toString(),
+      sortObj.sort,
+    ],
+    () => getPaginatedProducts(page, pageSize, sortObj.sort)
   );
 
   useEffect(() => {
-    if (!isRefetching && productsStatus === "success" && data)
+    if (!isRefetching && productsStatus === "success" && data) {
+      setProducts([]);
       setProducts((prev) => uniqBy([...prev, ...data.results], "slug"));
+    }
   }, [data, isRefetching, productsStatus]);
 
   useEffect(() => {
     refetchProducts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  }, [page, sortObj]);
 
   const handleDeleteProduct = useMutation((slug) => deleteProduct(slug), {
     onSuccess: (data) => {
@@ -60,6 +75,15 @@ function ProductListScreen() {
       openErrorNotification(error);
     },
   });
+
+  const sortingFn = (header, name) =>
+    setSortObj({
+      sortType: {
+        ...sortObj.sortType,
+        [name]: !sortObj.sortType[name],
+      },
+      sort: [`${sortObj.sortType[name] ? "" : "-"}${header.dataIndex}`],
+    });
 
   const columns = [
     {
@@ -81,6 +105,12 @@ function ProductListScreen() {
           <span>{name}</span>
         </div>
       ),
+      sorter: true,
+      onHeaderCell: (header) => {
+        return {
+          onClick: () => sortingFn(header, "name"),
+        };
+      },
     },
     {
       title: "Brand",
@@ -110,6 +140,7 @@ function ProductListScreen() {
     },
     {
       title: "Status",
+      dataIndex: "is_published",
       // render jsx
       render: (text, record) => {
         return (
@@ -118,16 +149,29 @@ function ProductListScreen() {
           </Tag>
         );
       },
+      sorter: true,
+      onHeaderCell: (header) => {
+        return {
+          onClick: () => sortingFn(header, "published_at"),
+        };
+      },
     },
 
     {
       title: "Published Date",
+      dataIndex: "published_at",
       render: (_, { published_at }) => {
         return (
           <div className="text-center text-[14px] p-[2px_5px]">
             {published_at ? moment(published_at).format("ll") : "-"}
           </div>
         );
+      },
+      sorter: true,
+      onHeaderCell: (header) => {
+        return {
+          onClick: () => sortingFn(header, "published_at"),
+        };
       },
     },
     {
@@ -239,6 +283,7 @@ function ProductListScreen() {
               },
             }}
             rowSelection={rowSelection}
+            showSorterTooltip={false}
           />
         </div>
       </div>

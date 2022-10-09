@@ -27,27 +27,43 @@ function TabAll() {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [selectedSkuSlug, setSelectedSkuSlug] = useState(""); // * For Delete
 
+  const [sortObj, setSortObj] = useState({
+    sortType: {
+      name: false,
+      published_at: false,
+      is_published: false,
+    },
+    sort: [],
+  });
+
   const {
     data,
+    status,
     isLoading,
     refetch: refetchProductSkus,
     isRefetching,
   } = useQuery(
-    [GET_PAGINATED_PRODUCT_SKUS, page.toString() + pageSize.toString()],
-    () => getPaginatedProdctSkus(page, pageSize)
+    [
+      GET_PAGINATED_PRODUCT_SKUS,
+      page.toString() + pageSize.toString(),
+      sortObj.sort,
+    ],
+    () => getPaginatedProdctSkus(page, pageSize, sortObj.sort)
   );
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (data)
+    if (data && status === "success" && !isRefetching) {
+      setProductSkus([]);
       setProductSkus((prev) => uniqBy([...prev, ...data.results], "slug"));
-  }, [data]);
+    }
+  }, [data, isRefetching, status]);
 
   useEffect(() => {
     refetchProductSkus();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  }, [page, sortObj.sort]);
 
   const handleDeleteSku = useMutation((slug) => deleteProductSku(slug), {
     onSuccess: (data) => {
@@ -61,6 +77,15 @@ function TabAll() {
       openErrorNotification(error);
     },
   });
+
+  const sortingFn = (header, name) =>
+    setSortObj({
+      sortType: {
+        ...sortObj.sortType,
+        [name]: !sortObj.sortType[name],
+      },
+      sort: [`${sortObj.sortType[name] ? "" : "-"}${header.dataIndex}`],
+    });
 
   const columns = [
     {
@@ -82,28 +107,46 @@ function TabAll() {
           <span>{name}</span>
         </div>
       ),
+      sorter: true,
+      onHeaderCell: (header) => {
+        return {
+          onClick: () => sortingFn(header, "name"),
+        };
+      },
     },
     {
       title: "Quantity",
       dataIndex: "quantity",
+      sorter: true,
+      onHeaderCell: (header) => {
+        return {
+          onClick: () => sortingFn(header, "quantity"),
+        };
+      },
     },
     {
       title: "CP Per Piece",
       dataIndex: "cost_price_per_piece",
-      defaultSortOrder: "descend",
-      // sorter: (a, b) => a.address.length - b.address.length,
     },
     {
       title: "MRP Per Piece",
       dataIndex: "mrp_per_piece",
-      defaultSortOrder: "descend",
-      // sorter: (a, b) => a.address.length - b.address.length,
+      sorter: true,
+      onHeaderCell: (header) => {
+        return {
+          onClick: () => sortingFn(header, "mrp_per_piece"),
+        };
+      },
     },
     {
       title: "SP Per Piece",
       dataIndex: "price_per_piece",
-      defaultSortOrder: "descend",
-      // sorter: (a, b) => a.address.length - b.address.length,
+      sorter: true,
+      onHeaderCell: (header) => {
+        return {
+          onClick: () => sortingFn(header, "price_per_piece"),
+        };
+      },
     },
     {
       title: "Category",
@@ -139,13 +182,19 @@ function TabAll() {
     },
     {
       title: "Status",
-      // render jsx
+      dataIndex: "is_published",
       render: (text, record) => {
         return (
           <Tag color={record.is_published ? "green" : "orange"}>
             {record.is_published ? "PUBLISHED" : "UNPUBLISHED"}
           </Tag>
         );
+      },
+      sorter: true,
+      onHeaderCell: (header) => {
+        return {
+          onClick: () => sortingFn(header, "is_published"),
+        };
       },
     },
     {
@@ -255,6 +304,7 @@ function TabAll() {
               },
             }}
             rowSelection={rowSelection}
+            showSorterTooltip={false}
           />
         </div>
       </div>

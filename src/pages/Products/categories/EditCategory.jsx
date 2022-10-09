@@ -3,9 +3,10 @@ import { useMutation, useQuery, useQueryClient } from "react-query";
 import { Modal, Spin, Upload } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 
+import { getCategory } from "../../../api/categories";
+
 import {
   updateCategory,
-  getCategory,
   deleteCategory,
 } from "../../../context/CategoryContext";
 
@@ -39,14 +40,14 @@ function EditCategory({
   });
   const { data: categoryData, status: categoryStatus } = useQuery(
     [GET_SINGLE_CATEGORY, slug],
-    () => getCategory({ slug }),
+    () => getCategory(slug),
     {
       onSuccess: (data) => {
         setFormState({
           ...formState,
-          name: data.data.data.name,
-          name_np: data.data.data.name_np,
-          is_published: data.data.data.is_published,
+          name: data.name,
+          name_np: data.name_np,
+          is_published: data.is_published,
         });
       },
       onError: (error) => {

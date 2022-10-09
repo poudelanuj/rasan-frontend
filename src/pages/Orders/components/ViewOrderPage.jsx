@@ -342,17 +342,17 @@ const ViewOrderPage = () => {
             <Space>
               {data && (
                 <>
-                  <Form.Item
-                    initialValue={data?.assigned_to}
-                    label="Assign To"
-                    name="assigned_to"
+                  <InfiniteScroll
+                    hasMore={!!dataUser?.next}
+                    loadMore={() => {
+                      setPage((prev) => prev + 1);
+                      refetchUserList();
+                    }}
                   >
-                    <InfiniteScroll
-                      hasMore={!!dataUser?.next}
-                      loadMore={() => {
-                        setPage((prev) => prev + 1);
-                        refetchUserList();
-                      }}
+                    <Form.Item
+                      initialValue={data?.assigned_to}
+                      label="Assign To"
+                      name="assigned_to"
                     >
                       <Select
                         defaultValue={data?.assigned_to}
@@ -372,8 +372,8 @@ const ViewOrderPage = () => {
                             </Option>
                           ))}
                       </Select>
-                    </InfiniteScroll>
-                  </Form.Item>
+                    </Form.Item>
+                  </InfiniteScroll>
                   <Form.Item>
                     <Button
                       htmlType="submit"

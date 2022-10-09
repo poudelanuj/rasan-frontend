@@ -317,7 +317,6 @@ function ViewProductGroup() {
                 </div>
                 <div className="flex-1">
                   <Table
-                    className="w-[75%]"
                     columns={columns}
                     dataSource={productGroup?.product_skus?.results}
                     pagination={false}

@@ -3,11 +3,9 @@ import { useMutation, useQuery, useQueryClient } from "react-query";
 import { Modal, Spin, Upload } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 
-import {
-  updateBrand,
-  getBrand,
-  deleteBrand,
-} from "../../../context/CategoryContext";
+import { getBrand } from "../../../api/brands";
+
+import { updateBrand, deleteBrand } from "../../../context/CategoryContext";
 import {
   openErrorNotification,
   openSuccessNotification,
@@ -33,14 +31,14 @@ function EditBrand({ slug, isOpen, closeModal, setPaginatedBrandsList }) {
   });
   const { data, status: brandStatus } = useQuery(
     [GET_SINGLE_BRAND, slug],
-    () => getBrand({ slug }),
+    () => getBrand(slug),
     {
       onSuccess: (data) => {
         setFormState({
           ...formState,
-          name: data.data.data.name,
-          name_np: data.data.data.name_np,
-          is_published: data.data.data.is_published,
+          name: data.name,
+          name_np: data.name_np,
+          is_published: data.is_published,
         });
       },
       onError: (error) => {

@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 import { useMutation, useQuery } from "react-query";
 
-import { Breadcrumb, Descriptions, Image, Space, Tabs, Tag } from "antd";
+import { Breadcrumb, Image, Tabs, Tag } from "antd";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import TabAll from "./Tabs/TabAll";
 import TabSKU from "./Tabs/TabSKU";

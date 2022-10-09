@@ -175,17 +175,17 @@ const CreateSupportTicket = () => {
             </Form.Item>
 
             <div className="grid grid-cols-2 gap-2">
-              <Form.Item
-                label="Customer (Initiator)"
-                name="initiator"
-                rules={[{ required: true, message: "customer required" }]}
+              <InfiniteScroll
+                hasMore={!!dataGeneral?.next}
+                loadMore={() => {
+                  setGeneralPage((prev) => prev + 1);
+                  refetchGeneral();
+                }}
               >
-                <InfiniteScroll
-                  hasMore={!!dataGeneral?.next}
-                  loadMore={() => {
-                    setGeneralPage((prev) => prev + 1);
-                    refetchGeneral();
-                  }}
+                <Form.Item
+                  label="Customer (Initiator)"
+                  name="initiator"
+                  rules={[{ required: true, message: "customer required" }]}
                 >
                   <Select
                     loading={generalStatus === "loading"}
@@ -201,17 +201,17 @@ const CreateSupportTicket = () => {
                         </Select.Option>
                       ))}
                   </Select>
-                </InfiniteScroll>
-              </Form.Item>
+                </Form.Item>
+              </InfiniteScroll>
 
-              <Form.Item label="Assigned to" name="assigned_to">
-                <InfiniteScroll
-                  hasMore={!!dataAdmin?.next}
-                  loadMore={() => {
-                    setAdminPage((prev) => prev + 1);
-                    refetchAdmin();
-                  }}
-                >
+              <InfiniteScroll
+                hasMore={!!dataAdmin?.next}
+                loadMore={() => {
+                  setAdminPage((prev) => prev + 1);
+                  refetchAdmin();
+                }}
+              >
+                <Form.Item label="Assigned to" name="assigned_to">
                   <Select
                     loading={adminStatus === "loading"}
                     placeholder="Select Assigned To"
@@ -226,8 +226,8 @@ const CreateSupportTicket = () => {
                         </Select.Option>
                       ))}
                   </Select>
-                </InfiniteScroll>
-              </Form.Item>
+                </Form.Item>
+              </InfiniteScroll>
             </div>
 
             <div

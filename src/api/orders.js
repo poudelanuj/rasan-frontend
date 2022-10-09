@@ -27,7 +27,9 @@ export const getPaginatedOrders = async ({
   search,
 }) => {
   const res = await axios.get(
-    `/api/order/admin/orders/?status=${orderStatus}&page=${page}&size=${size}&sort=${sort}&user=${search}`
+    `/api/order/admin/orders/?status=${orderStatus}&page=${page}&size=${size}&sort=${sort}&user=${
+      search || ""
+    }`
   );
 
   return res.data.data;
