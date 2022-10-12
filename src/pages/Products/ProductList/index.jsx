@@ -2,12 +2,18 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
 import { Space, Table, Tag, Input, Select } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
+import { SearchOutlined, CaretDownOutlined } from "@ant-design/icons";
 import { uniqBy } from "lodash";
 import { useMutation, useQuery } from "react-query";
 import AddCategoryButton from "../subComponents/AddCategoryButton";
-import { GET_PAGINATED_PRODUCTS } from "../../../constants/queryKeys";
+import {
+  GET_PAGINATED_PRODUCTS,
+  GET_PAGINATED_BRANDS,
+  GET_PAGINATED_CATEGORIES,
+} from "../../../constants/queryKeys";
 import { deleteProduct, getPaginatedProducts } from "../../../api/products";
+import { getPaginatedBrands } from "../../../api/brands";
+import { getPaginatedCategories } from "../../../api/categories";
 import {
   openErrorNotification,
   openSuccessNotification,
@@ -18,9 +24,19 @@ import ConfirmDelete from "../../../shared/ConfirmDelete";
 import ButtonWPermission from "../../../shared/ButtonWPermission";
 
 function ProductListScreen() {
+  const { Option } = Select;
+
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [products, setProducts] = useState([]);
+
+  const [paginatedBrands, setPaginatedBrands] = useState([]);
+
+  const [brandPage, setBrandPage] = useState(1);
+
+  const [paginatedCategory, setPaginatedCategory] = useState([]);
+
+  const [categoryPage, setCategoryPage] = useState(1);
 
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [selectedProductSlug, setSelectedProductSlug] = useState(""); // * For Delete
@@ -37,7 +53,15 @@ function ProductListScreen() {
     sort: [],
   });
 
+  const [selectedBrands, setSelectedBrands] = useState([]);
+
+  const [selectedCategory, setSelectedCategory] = useState([]);
+
   const searchInput = useRef("");
+
+  const brandSearch = useRef("");
+
+  const categorySearch = useRef("");
 
   let timeout = 0;
 
@@ -51,9 +75,18 @@ function ProductListScreen() {
       GET_PAGINATED_PRODUCTS,
       page.toString() + pageSize.toString(),
       sortObj.sort,
+      selectedBrands,
+      selectedCategory,
     ],
     () =>
-      getPaginatedProducts(page, pageSize, sortObj.sort, searchInput.current)
+      getPaginatedProducts(
+        page,
+        pageSize,
+        sortObj.sort,
+        searchInput.current,
+        selectedBrands,
+        selectedCategory
+      )
   );
 
   useEffect(() => {
@@ -66,7 +99,53 @@ function ProductListScreen() {
   useEffect(() => {
     refetchProducts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, sortObj, pageSize]);
+  }, [page, sortObj, pageSize, selectedBrands]);
+
+  const {
+    data: dataBrand,
+    status: brandStatus,
+    refetch: refetchBrands,
+    isRefetching: isBrandRefetching,
+  } = useQuery(
+    [GET_PAGINATED_BRANDS, brandPage.toString(), brandSearch.current],
+    () => getPaginatedBrands(brandPage, 100, brandSearch.current)
+  );
+
+  useEffect(() => {
+    if (dataBrand && brandStatus === "success" && !isBrandRefetching) {
+      setPaginatedBrands((prev) =>
+        uniqBy([...prev, ...dataBrand.results], "slug")
+      );
+    }
+  }, [dataBrand, isBrandRefetching, brandStatus]);
+
+  useEffect(() => {
+    refetchBrands();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [brandPage]);
+
+  const {
+    data: dataCategory,
+    status: statusCategory,
+    refetch: refetchCategory,
+    isRefetching: isCategoryRefetching,
+  } = useQuery(
+    [GET_PAGINATED_CATEGORIES, categoryPage.toString(), categorySearch.current],
+    () => getPaginatedCategories(categoryPage, 100, categorySearch.current)
+  );
+
+  useEffect(() => {
+    if (dataCategory && statusCategory === "success" && !isCategoryRefetching) {
+      setPaginatedCategory((prev) =>
+        uniqBy([...prev, ...dataCategory.results], "slug")
+      );
+    }
+  }, [dataCategory, statusCategory, isCategoryRefetching]);
+
+  useEffect(() => {
+    refetchCategory();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categoryPage]);
 
   const handleDeleteProduct = useMutation((slug) => deleteProduct(slug), {
     onSuccess: (data) => {
@@ -120,7 +199,7 @@ function ProductListScreen() {
     ),
   });
 
-  const getSelectProps = (dataIndex) => ({
+  const getSelectBrandsProps = (dataIndex) => ({
     filterDropdown: () => (
       <div
         style={{
@@ -128,16 +207,73 @@ function ProductListScreen() {
         }}
       >
         <Select
+          dropdownClassName="!w-36"
+          mode="multiple"
           placeholder={`Select ${dataIndex}`}
           style={{
             marginBottom: 8,
             display: "block",
           }}
-        ></Select>
+          onDeselect={(val) =>
+            setSelectedBrands((prev) => prev.filter((brand) => brand !== val))
+          }
+          onPopupScroll={() =>
+            dataBrand?.next && setBrandPage((prev) => prev + 1)
+          }
+          onSelect={(val) => setSelectedBrands((prev) => [...prev, val])}
+        >
+          {paginatedBrands?.map(({ slug, name }) => (
+            <Option key={slug} value={slug}>
+              {name}
+            </Option>
+          ))}
+        </Select>
       </div>
     ),
     filterIcon: (filtered) => (
-      <SearchOutlined
+      <CaretDownOutlined
+        style={{
+          color: filtered ? "#1890ff" : undefined,
+        }}
+      />
+    ),
+  });
+
+  const getSelectcategoriesProps = (dataIndex) => ({
+    filterDropdown: () => (
+      <div
+        style={{
+          padding: 8,
+        }}
+      >
+        <Select
+          dropdownClassName="!w-36"
+          mode="multiple"
+          placeholder={`Select ${dataIndex}`}
+          style={{
+            marginBottom: 8,
+            display: "block",
+          }}
+          onDeselect={(val) =>
+            setSelectedCategory((prev) =>
+              prev.filter((category) => category !== val)
+            )
+          }
+          onPopupScroll={() =>
+            dataCategory?.next && setCategoryPage((prev) => prev + 1)
+          }
+          onSelect={(val) => setSelectedCategory((prev) => [...prev, val])}
+        >
+          {paginatedCategory?.map(({ slug, name }) => (
+            <Option key={slug} value={slug}>
+              {name}
+            </Option>
+          ))}
+        </Select>
+      </div>
+    ),
+    filterIcon: (filtered) => (
+      <CaretDownOutlined
         style={{
           color: filtered ? "#1890ff" : undefined,
         }}
@@ -182,7 +318,7 @@ function ProductListScreen() {
           </div>
         );
       },
-      ...getSelectProps("brands"),
+      ...getSelectBrandsProps("brands"),
     },
     {
       title: "Category",
@@ -199,6 +335,7 @@ function ProductListScreen() {
           </div>
         );
       },
+      ...getSelectcategoriesProps("category"),
     },
     {
       title: "Status",
