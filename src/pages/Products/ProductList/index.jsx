@@ -99,7 +99,7 @@ function ProductListScreen() {
   useEffect(() => {
     refetchProducts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, sortObj, pageSize, selectedBrands]);
+  }, [page, sortObj, pageSize, selectedBrands, selectedCategory]);
 
   const {
     data: dataBrand,
