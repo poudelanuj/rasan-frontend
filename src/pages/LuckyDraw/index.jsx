@@ -6,8 +6,6 @@ import { useNavigate } from "react-router-dom";
 import moment from "moment";
 import { uniqBy, isEmpty } from "lodash";
 import CustomPageHeader from "../../shared/PageHeader";
-// import ConfirmDelete from "../../shared/ConfirmDelete";
-import Loader from "../../shared/Loader";
 import { ACTIVE, INACTIVE } from "../../constants";
 import {
   activateLuckyDraw,
@@ -44,7 +42,7 @@ const LuckyDraw = () => {
 
   const [page, setPage] = useState(1);
 
-  const pageSize = 20;
+  const [pageSize, setPageSize] = useState(20);
 
   const [luckyDraw, setLuckyDraw] = useState([]);
 
@@ -59,16 +57,16 @@ const LuckyDraw = () => {
   });
 
   useEffect(() => {
-    if (data) {
+    if (data && status === "success" && !isRefetching) {
       setLuckyDraw([]);
       setLuckyDraw((prev) => uniqBy([...prev, ...data.results], "id"));
     }
-  }, [data]);
+  }, [data, status, isRefetching]);
 
   useEffect(() => {
     refetchLuckyDraw();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  }, [page, pageSize]);
 
   const handleActivateLuckyDraw = useMutation(
     ({ id, shouldActivate }) => activateLuckyDraw({ id, shouldActivate }),
@@ -104,7 +102,7 @@ const LuckyDraw = () => {
   const luckyDrawSource = luckyDraw?.map((el, index) => {
     return {
       id: el.id,
-      key: index + 1,
+      key: (page - 1) * pageSize + index + 1,
       campaign_title: el.title,
       coupons_generated: el.coupons_count,
       event_start_date: moment(el.event_date).utc().format("lll"),
@@ -270,24 +268,23 @@ const LuckyDraw = () => {
           </Dropdown>
         </div>
 
-        {status === "loading" ? (
-          <Loader isOpen={true} />
-        ) : (
-          <Table
-            columns={columns}
-            dataSource={luckyDrawSource}
-            loading={status === "loading" || isRefetching}
-            pagination={{
-              pageSize,
-              total: data?.count,
+        <Table
+          columns={columns}
+          dataSource={luckyDrawSource}
+          loading={status === "loading" || isRefetching}
+          pagination={{
+            showSizeChanger: true,
+            pageSize,
+            total: data?.count,
+            current: page,
 
-              onChange: (page, pageSize) => {
-                setPage(page);
-              },
-            }}
-            rowSelection={{ ...rowSelection }}
-          />
-        )}
+            onChange: (page, pageSize) => {
+              setPage(page);
+              setPageSize(pageSize);
+            },
+          }}
+          rowSelection={{ ...rowSelection }}
+        />
       </div>
 
       <ConfirmDelete

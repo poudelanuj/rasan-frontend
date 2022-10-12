@@ -34,7 +34,7 @@ const LiveUserBasket = () => {
 
   let timeout = 0;
 
-  const pageSize = 20;
+  const [pageSize, setPageSize] = useState(20);
 
   const [page, setPage] = useState(1);
 
@@ -59,7 +59,7 @@ const LiveUserBasket = () => {
   useEffect(() => {
     refetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, sortObj]);
+  }, [page, sortObj, pageSize]);
 
   const handleBulkDelete = useMutation(
     () => deleteBulkUserBasket(selectedRowKeys),
@@ -91,11 +91,17 @@ const LiveUserBasket = () => {
     {
       title: "Customer",
       dataIndex: "user",
-      render: (_, { user }) => <>{user?.full_name}</>,
+      width: "30%",
+      render: (_, { user }) => (
+        <span className="w-16" style={{ overflowWrap: "anywhere" }}>
+          {user?.full_name}
+        </span>
+      ),
     },
     {
       title: "Phone Number",
       dataIndex: "phone",
+      width: "30%",
       render: (_, { user }) => <>{user?.phone}</>,
     },
     {
@@ -186,10 +192,15 @@ const LiveUserBasket = () => {
         }))}
         loading={isLoading}
         pagination={{
+          showSizeChanger: true,
           pageSize,
           total: data?.count,
+          current: page,
 
-          onChange: (page, pageSize) => setPage(page),
+          onChange: (page, pageSize) => {
+            setPage(page);
+            setPageSize(pageSize);
+          },
         }}
         rowClassName="cursor-pointer"
         rowSelection={{ ...rowSelection }}

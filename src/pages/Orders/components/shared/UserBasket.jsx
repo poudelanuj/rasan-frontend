@@ -224,7 +224,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
         <Form key={basketForm.id} layout="horizontal">
           <Space>
             <Form.Item>
-              <span>Product Sku</span>
+              <span>Product SKU</span>
               <Select
                 loading={productsStatus === "loading"}
                 placeholder="Select Product SKU"
@@ -243,6 +243,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
             <Form.Item tooltip="Select Pack Size">
               <span>Pack Size</span>
               <Select
+                className="!w-36"
                 placeholder="Select Pack Size"
                 showSearch
                 onSelect={(value) => {
@@ -271,9 +272,10 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
               </Select>
             </Form.Item>
 
-            <Form.Item name="quantity">
+            <Form.Item className="relative" name="quantity">
               <span>Quantity</span>
               <Input
+                className="!w-20"
                 placeholder="Quantity"
                 type="number"
                 value={
@@ -290,6 +292,16 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
                   });
                 }}
               />
+              <span
+                className={`${
+                  forms[forms.findIndex((item) => item.id === basketForm.id)]
+                    .quantity < 0
+                    ? "block"
+                    : "hidden"
+                } absolute text-xs text-red-600`}
+              >
+                Negative value not allowed
+              </span>
             </Form.Item>
 
             <Form.Item>
@@ -353,6 +365,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
               {index + 1 === forms.length ? (
                 <ButtonWPermission
                   codename="add_basketitem"
+                  disabled={forms.some(({ quantity }) => quantity < 0)}
                   icon={<PlusOutlined />}
                   type="primary"
                   onClick={handleAddForm}
@@ -395,7 +408,10 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
 
           <ButtonWPermission
             codename="add_basketitem"
-            disabled={forms[0]?.product_pack === null}
+            disabled={
+              forms[0]?.product_pack === null ||
+              forms.some(({ quantity }) => quantity < 0)
+            }
             loading={handleBasketSubmit.status === "loading"}
             size="middle"
             type="primary"

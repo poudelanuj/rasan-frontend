@@ -55,6 +55,7 @@ function EditCategory({
       },
     }
   );
+
   const handleDeleteCategory = useMutation(() => deleteCategory({ slug }), {
     onSuccess: (data) => {
       openSuccessNotification(
@@ -156,7 +157,7 @@ function EditCategory({
             <Spin size="large" />
           </div>
         )}
-        {categoryData?.data?.data && (
+        {categoryData && (
           <form
             className="flex flex-col justify-between flex-1"
             onSubmit={handleSubmit}
@@ -169,7 +170,7 @@ function EditCategory({
                     className="h-[6rem] mx-auto"
                     src={
                       formState.image ||
-                      categoryData?.data.data.category_image.full_size ||
+                      categoryData.category_image.full_size ||
                       "/gallery-icon.svg"
                     }
                   />
@@ -229,7 +230,7 @@ function EditCategory({
 
               <button
                 className={`${
-                  categoryData?.data?.data?.is_published
+                  categoryData?.is_published
                     ? "bg-[#00B0C2] text-white border-[#00B0C2] hover:bg-[#0091a1] "
                     : "text-[#00B0C2] bg-white border-[#00B0C2] hover:bg-[#effdff] "
                 }

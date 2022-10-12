@@ -30,7 +30,7 @@ const TutorialTagsList = () => {
 
   const [page, setPage] = useState(1);
 
-  const pageSize = 20;
+  const [pageSize, setPageSize] = useState(20);
 
   const [tutorialTagList, setTutorialTagList] = useState([]);
 
@@ -45,16 +45,16 @@ const TutorialTagsList = () => {
   });
 
   useEffect(() => {
-    if (data) {
+    if (data && status === "success" && !isRefetching) {
       setTutorialTagList([]);
       setTutorialTagList((prev) => uniqBy([...prev, ...data], "id"));
     }
-  }, [data]);
+  }, [data, status, isRefetching]);
 
   useEffect(() => {
     refetchTags();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  }, [page, pageSize]);
 
   const handleDeleteTutorialTags = useMutation(
     () =>
@@ -168,15 +168,22 @@ const TutorialTagsList = () => {
       <Table
         columns={columns}
         dataSource={tutorialTagList?.map((el, index) => {
-          return { key: index + 1, title: el.tag, id: el.id };
+          return {
+            key: (page - 1) * pageSize + index + 1,
+            title: el.tag,
+            id: el.id,
+          };
         })}
         loading={status === "loading" || isRefetching}
         pagination={{
+          showSizeChanger: true,
           pageSize,
           total: data?.count,
+          current: page,
 
           onChange: (page, pageSize) => {
             setPage(page);
+            setPageSize(pageSize);
           },
         }}
         rowSelection={{ ...rowSelection }}

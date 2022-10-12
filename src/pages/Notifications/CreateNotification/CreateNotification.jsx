@@ -52,7 +52,7 @@ const CreateNotification = ({ isOpen, onClose, refetchNotifications }) => {
         <Form.Item
           label="Notification Title"
           name="title"
-          rules={[{ required: true, message: "notification title required" }]}
+          rules={[{ required: true, message: "Notification title required" }]}
         >
           <Input />
         </Form.Item>
@@ -71,7 +71,7 @@ const CreateNotification = ({ isOpen, onClose, refetchNotifications }) => {
           <Form.Item
             label="Notification Type"
             name="type"
-            rules={[{ required: true, message: "notification type required" }]}
+            rules={[{ required: true, message: "Notification type required" }]}
           >
             <Select
               placeholder="Select Type"
@@ -97,7 +97,7 @@ const CreateNotification = ({ isOpen, onClose, refetchNotifications }) => {
           <Form.Item
             label="User Groups"
             name="user_groups"
-            rules={[{ required: true, message: "user groups required" }]}
+            rules={[{ required: true, message: "User Group required" }]}
           >
             <Select
               loading={userGroupStatus === "loading"}

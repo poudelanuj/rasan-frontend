@@ -19,7 +19,6 @@ import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../utils/openNotification";
-import Loader from "../../shared/Loader";
 import { PUBLISHED, UNPUBLISHED } from "../../constants";
 import ConfirmDelete from "../../shared/ConfirmDelete";
 import ButtonWPermission from "../../shared/ButtonWPermission";
@@ -42,7 +41,7 @@ const Promotions = () => {
 
   const [page, setPage] = useState(1);
 
-  const pageSize = 20;
+  const [pageSize, setPageSize] = useState(20);
 
   const [dataSourcePromotions, setDataSourcePromotions] = useState([]);
 
@@ -65,18 +64,18 @@ const Promotions = () => {
   });
 
   useEffect(() => {
-    if (data) {
+    if (data && status === "success" && !isRefetching) {
       setDataSourcePromotions([]);
       setDataSourcePromotions((prev) =>
         uniqBy([...prev, ...data.results], "id")
       );
     }
-  }, [data]);
+  }, [data, status, isRefetching]);
 
   useEffect(() => {
     refetchPromotions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  }, [page, pageSize]);
 
   const handleDeletePromotions = useMutation(
     () =>
@@ -146,7 +145,7 @@ const Promotions = () => {
   const promotions = dataSourcePromotions?.map((el, index) => {
     return {
       id: el.id,
-      key: index + 1,
+      key: (page - 1) * pageSize + index + 1,
       title: el.title,
       type: capitalize(el.type).replaceAll("_", " "),
       context: el.brand || el.category || el.product_group,
@@ -258,61 +257,58 @@ const Promotions = () => {
 
   return (
     <>
-      {status === "loading" ? (
-        <Loader isOpen={true} />
-      ) : (
-        <>
-          <CustomPageHeader title="Promotions" isBasicHeader />
+      <CustomPageHeader title="Promotions" isBasicHeader />
 
-          <div className="py-5 px-4 bg-[#FFFFFF]">
-            <div className="mb-4 flex justify-between">
-              <ButtonWPermission
-                className="flex items-center"
-                codename="add_promotion"
-                type="primary"
-                ghost
-                onClick={() => navigate("create")}
-              >
-                Create Promotions
-              </ButtonWPermission>
+      <div className="py-5 px-4 bg-[#FFFFFF]">
+        <div className="mb-4 flex justify-between">
+          <ButtonWPermission
+            className="flex items-center"
+            codename="add_promotion"
+            type="primary"
+            ghost
+            onClick={() => navigate("create")}
+          >
+            Create Promotions
+          </ButtonWPermission>
 
-              <Dropdown overlay={bulkMenu}>
-                <Button className="bg-white" type="default">
-                  <Space>Bulk Actions</Space>
-                </Button>
-              </Dropdown>
-            </div>
+          <Dropdown overlay={bulkMenu}>
+            <Button className="bg-white" type="default">
+              <Space>Bulk Actions</Space>
+            </Button>
+          </Dropdown>
+        </div>
 
-            <Table
-              columns={columns}
-              dataSource={promotions}
-              loading={status === "loading" || isRefetching}
-              pagination={{
-                pageSize,
-                total: data?.count,
+        <Table
+          columns={columns}
+          dataSource={promotions}
+          loading={status === "loading" || isRefetching}
+          pagination={{
+            showSizeChanger: true,
+            pageSize,
+            total: data?.count,
+            current: page,
 
-                onChange: (page, pageSize) => {
-                  setPage(page);
-                },
-              }}
-              rowSelection={{ ...rowSelection }}
-            />
-          </div>
+            onChange: (page, pageSize) => {
+              setPage(page);
+              setPageSize(pageSize);
+            },
+          }}
+          rowSelection={{ ...rowSelection }}
+        />
+      </div>
 
-          <ConfirmDelete
-            closeModal={() =>
-              setIsDeletePromotionsModal({
-                ...isDeletePromotionsModal,
-                isOpen: false,
-              })
-            }
-            deleteMutation={() => handleDeletePromotions.mutate()}
-            isOpen={isDeletePromotionsModal.isOpen}
-            status={handleDeletePromotions.status}
-            title={isDeletePromotionsModal.title}
-          />
-        </>
-      )}
+      <ConfirmDelete
+        closeModal={() =>
+          setIsDeletePromotionsModal({
+            ...isDeletePromotionsModal,
+            isOpen: false,
+          })
+        }
+        deleteMutation={() => handleDeletePromotions.mutate()}
+        isOpen={isDeletePromotionsModal.isOpen}
+        status={handleDeletePromotions.status}
+        title={isDeletePromotionsModal.title}
+      />
     </>
   );
 };

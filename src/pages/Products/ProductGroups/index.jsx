@@ -39,7 +39,7 @@ function ProductGroupsScreen() {
   let timeout = 0;
 
   const [page, setPage] = useState(1);
-  const pageSize = 20;
+  const [pageSize, setPageSize] = useState(20);
   const [paginatedProductGroups, setPaginatedProductGroups] = useState([]);
   const [selectedProductGroups, setSelectedProductGroups] = useState([]);
 
@@ -69,7 +69,7 @@ function ProductGroupsScreen() {
   useEffect(() => {
     refetchProductGroups();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  }, [page, pageSize]);
 
   const handleBulkPublish = useMutation(
     ({ slugs, isPublish }) => bulkPublish({ slugs, isPublish }),
@@ -269,8 +269,10 @@ function ProductGroupsScreen() {
             pageSize={pageSize}
             showTotal={(total) => `Total ${total} items`}
             total={data?.count}
+            showSizeChanger
             onChange={(page, pageSize) => {
               setPage(page);
+              setPageSize(pageSize);
             }}
           />
         </div>

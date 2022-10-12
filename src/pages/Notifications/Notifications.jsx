@@ -15,7 +15,7 @@ const Notifications = () => {
   const [selectedNotification, setSelected] = useState();
   const [notifications, setNotifications] = useState([]);
 
-  const pageSize = 20;
+  const [pageSize, setPageSize] = useState(20);
   const [page, setPage] = useState(1);
 
   const {
@@ -29,16 +29,16 @@ const Notifications = () => {
   });
 
   useEffect(() => {
-    if (data) {
+    if (data && status === "success" && !isRefetching) {
       setNotifications([]);
       setNotifications((prev) => uniqBy([...prev, ...data.results], "id"));
     }
-  }, [data]);
+  }, [data, status, isRefetching]);
 
   useEffect(() => {
     refetchNotifications();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  }, [page, pageSize]);
 
   const columns = [
     {
@@ -103,15 +103,18 @@ const Notifications = () => {
           dataSource={notifications?.map((item, index) => ({
             ...item,
             key: item.id,
-            sn: index + 1,
+            sn: (page - 1) * pageSize + index + 1,
           }))}
           loading={status === "loading" || isRefetching}
           pagination={{
+            showSizeChanger: true,
             pageSize,
             total: data?.count,
+            current: page,
 
             onChange: (page, pageSize) => {
               setPage(page);
+              setPageSize(pageSize);
             },
           }}
           rowClassName="cursor-pointer"

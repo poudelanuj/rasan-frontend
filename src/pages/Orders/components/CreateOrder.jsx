@@ -1,8 +1,6 @@
 import { Form, Select } from "antd";
 import { capitalize, uniqBy } from "lodash";
-import { useEffect } from "react";
-import { useState } from "react";
-import InfiniteScroll from "react-infinite-scroller";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useQuery, useMutation } from "react-query";
 import { useNavigate } from "react-router-dom";
 import { getUsers } from "../../../api/users";
@@ -60,6 +58,22 @@ const CreateOrder = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
+  const observer = useRef();
+  const scrollRef = useCallback(
+    (node) => {
+      if (userListStatus === "loading") return;
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && data?.next) {
+          setPage((prev) => prev + 1);
+          refetchUserList();
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [userListStatus, data?.next, refetchUserList]
+  );
+
   const onFinish = useMutation(
     ({
       status: orderStatus,
@@ -102,55 +116,56 @@ const CreateOrder = () => {
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <InfiniteScroll
-            hasMore={!!data?.next}
-            loadMore={() => {
-              setPage((prev) => prev + 1);
-              refetchUserList();
-            }}
+          <Form.Item
+            label={
+              <div className="flex gap-3 items-center">
+                <span>User</span>
+                <ButtonWPermission
+                  className="p-0 m-0 bg-white"
+                  codename="add_user"
+                  size="small"
+                  type="primary"
+                  onClick={() => setIsCreateUserOpen(true)}
+                >
+                  + Add New User
+                </ButtonWPermission>
+              </div>
+            }
+            name="user"
+            rules={[
+              {
+                required: true,
+                message: "User required",
+              },
+            ]}
           >
-            <Form.Item
-              label={
-                <div className="flex gap-3 items-center">
-                  <span>User</span>
-                  <ButtonWPermission
-                    className="p-0 m-0 bg-white"
-                    codename="add_user"
-                    size="small"
-                    type="primary"
-                    onClick={() => setIsCreateUserOpen(true)}
-                  >
-                    + Add New User
-                  </ButtonWPermission>
-                </div>
-              }
-              name="user"
-              rules={[
-                {
-                  required: true,
-                  message: "user is required",
-                },
-              ]}
+            <Select
+              className="w-full"
+              loading={userListStatus === "loading" || refetchingUserList}
+              optionFilterProp="children"
+              placeholder="Select User"
+              showSearch
+              onPopupScroll={() => data?.next && setPage((prev) => prev + 1)}
+              onSelect={(value) => setSelectedUserPhone(value)}
             >
-              <Select
-                className="w-full"
-                disabled={userListStatus === "loading"}
-                loading={userListStatus === "loading" || refetchingUserList}
-                optionFilterProp="children"
-                placeholder="Select User"
-                showSearch
-                onSelect={(value) => setSelectedUserPhone(value)}
-              >
-                {userList?.map((user, index) => (
+              {userList?.map((user, index) => {
+                const isLastElement = userList?.length === index + 1;
+                return isLastElement ? (
+                  <Option key={user.id} ref={scrollRef} value={user.phone}>
+                    {user.full_name
+                      ? `${user.full_name} (${user.phone})`
+                      : user.phone}
+                  </Option>
+                ) : (
                   <Option key={user.id} value={user.phone}>
                     {user.full_name
                       ? `${user.full_name} (${user.phone})`
                       : user.phone}
                   </Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </InfiniteScroll>
+                );
+              })}
+            </Select>
+          </Form.Item>
 
           <Form.Item
             label={

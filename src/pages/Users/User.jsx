@@ -10,6 +10,8 @@ import { getLastLogin, getUser } from "../../context/UserContext";
 import Loyalty from "../../svgs/Loyalty";
 import Time from "../../svgs/Time";
 import UserTab from "./UserTab";
+import rasanDefault from "../../assets/images/rasan-default.png";
+import Loader from "../../shared/Loader";
 
 const User = () => {
   let { user_id } = useParams();
@@ -29,7 +31,7 @@ const User = () => {
   return (
     <div>
       <div className="text-3xl bg-white mb-3 p-5">User Details</div>
-      {isLoading && <div>Loading....</div>}
+      {isLoading && <Loader isOpen />}
       {isSuccess && (
         <div>
           <div className="flex text-text bg-white p-4 justify-between">
@@ -37,7 +39,7 @@ const User = () => {
               <img
                 alt={user.full_name}
                 className="image mr-3"
-                src={user.profile_picture.small_square_crop}
+                src={user.profile_picture.small_square_crop || rasanDefault}
               />
               <div>
                 <div className="font-medium text-lg">{user.full_name}</div>

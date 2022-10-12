@@ -68,6 +68,7 @@ export const GET_ORDERS_ASSIGNED = "orders-assigned-to-me";
 
 // * Addresses
 export const GET_ADDRESSES = "get-addresses";
+export const GET_ADDRESS_BY_ID = "get-address-by-id";
 
 // * Tutorials
 export const GET_TAGLISTS = "taglists";

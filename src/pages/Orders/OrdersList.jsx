@@ -36,6 +36,7 @@ const OrdersList = ({
   page,
   setPage,
   pageSize,
+  setPageSize,
   ordersCount,
   sortingFn,
   searchInput,
@@ -175,8 +176,11 @@ const OrdersList = ({
       render: (_, { id, status }) => {
         return (
           <>
-            <DeleteOutlined
-              className="ml-5"
+            <ButtonWPermission
+              className="!border-none !bg-inherit"
+              codename="delete_order"
+              disabled={status === IN_PROCESS || status === DELIVERED}
+              icon={<DeleteOutlined />}
               onClick={() => {
                 setIsDeleteOrderOpen((prev) => !prev);
                 setDeleteOrderId(id);
@@ -236,7 +240,14 @@ const OrdersList = ({
             <ButtonWPermission
               className="!border-none !bg-inherit !text-current"
               codename="delete_order"
-              disabled={isEmpty(checkedRows)}
+              disabled={
+                isEmpty(checkedRows) ||
+                !checkedRows.every(
+                  (id) =>
+                    dataSource?.find((item) => item.id === id).status ===
+                    CANCELLED
+                )
+              }
               onClick={() => setIsDeleteBulkOrderModal(true)}
             >
               Delete
@@ -256,7 +267,7 @@ const OrdersList = ({
           type="primary"
           ghost
           onClick={() => {
-            navigate("create-order");
+            navigate("/orders/create-order");
           }}
         >
           Create New Order
@@ -280,12 +291,14 @@ const OrdersList = ({
         dataSource={dataSource?.map((item) => ({ ...item, key: item.id }))}
         loading={status === "loading"}
         pagination={{
+          showSizeChanger: true,
           pageSize,
           total: ordersCount,
           current: page,
 
           onChange: (page, pageSize) => {
             setPage(page);
+            setPageSize(pageSize);
           },
         }}
         rowSelection={{ ...rowSelection }}

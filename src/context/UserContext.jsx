@@ -84,8 +84,10 @@ export const deleteAddress = async ({ key }) => {
   return response.data;
 };
 
-export const getOtpRequests = async () => {
-  const response = await axios.get(`/api/auth/otp-requests/`);
+export const getOtpRequests = async ({ pageSize, page, sort, phone }) => {
+  const response = await axios.get(
+    `/api/auth/otp-requests/?page=${page}&size=${pageSize}&sort=${sort}&phone=${phone}`
+  );
   return response.data.data;
 };
 

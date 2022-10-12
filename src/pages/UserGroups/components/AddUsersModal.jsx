@@ -13,7 +13,6 @@ import { useState } from "react";
 import { useEffect } from "react";
 import { uniqBy } from "lodash";
 import { useAuth } from "../../../AuthProvider";
-import InfiniteScroll from "react-infinite-scroller";
 
 const AddUsersModal = ({ isOpen, onClose }) => {
   const { userGroupIds } = useAuth();
@@ -92,24 +91,21 @@ const AddUsersModal = ({ isOpen, onClose }) => {
         layout="vertical"
         name="form_in_modal"
       >
-        <InfiniteScroll
-          hasMore={!!data?.next}
-          loadMore={() => {
-            setPage((prev) => prev + 1);
-            refetch();
-          }}
-        >
-          <Form.Item label="Users" name="users">
-            <Select mode="multiple" placeholder="Select users" allowClear>
-              {users &&
-                users.map((el) => (
-                  <Option key={el.id} value={el.phone}>
-                    {el.full_name ? `${el.full_name} (${el.phone})` : el.phone}
-                  </Option>
-                ))}
-            </Select>
-          </Form.Item>
-        </InfiniteScroll>
+        <Form.Item label="Users" name="users">
+          <Select
+            mode="multiple"
+            placeholder="Select users"
+            allowClear
+            onPopupScroll={() => data?.next && setPage((prev) => prev + 1)}
+          >
+            {users &&
+              users.map((el) => (
+                <Option key={el.id} value={el.phone}>
+                  {el.full_name ? `${el.full_name} (${el.phone})` : el.phone}
+                </Option>
+              ))}
+          </Select>
+        </Form.Item>
       </Form>
     </Modal>
   );

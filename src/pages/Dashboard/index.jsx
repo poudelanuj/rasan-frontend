@@ -22,6 +22,7 @@ import TicketsAssigned from "./shared/TicketsAssigned";
 import OrdersAssigned from "./shared/OrdersAssigned";
 import OrderMetrics from "./OrderMetrics";
 import TicketMetrics from "./TicketsMetrics";
+import { capitalize } from "lodash";
 
 const Dashboard = () => {
   const { logout } = useAuth();
@@ -94,7 +95,7 @@ const Dashboard = () => {
                   >
                     {DASHBOARD_TIME_KEYS.map((item) => (
                       <Select.Option key={item.value} value={item.value}>
-                        {item.name}
+                        {capitalize(item.name)}
                       </Select.Option>
                     ))}
                   </Select>
@@ -116,7 +117,7 @@ const Dashboard = () => {
                   >
                     {DASHBOARD_TIME_KEYS.map((item) => (
                       <Select.Option key={item.value} value={item.value}>
-                        {item.name}
+                        {capitalize(item.name)}
                       </Select.Option>
                     ))}
                   </Select>

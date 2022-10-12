@@ -10,7 +10,7 @@ import { GET_USER_ORDERS } from "../../constants/queryKeys";
 const OrderList = ({ user }) => {
   const { TabPane } = Tabs;
 
-  const pageSize = 20;
+  const [pageSize, setPageSize] = useState(20);
   const [page, setPage] = useState(1);
   const [orderStatus, setOrderStatus] = useState("all");
   const [orders, setOrders] = useState([]);
@@ -42,7 +42,7 @@ const OrderList = ({ user }) => {
   useEffect(() => {
     refetchOrders();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, orderStatus]);
+  }, [page, orderStatus, pageSize]);
   return (
     <Tabs
       defaultActiveKey="all"
@@ -59,6 +59,7 @@ const OrderList = ({ user }) => {
           pageSize={pageSize}
           refetchOrders={refetchOrders}
           setPage={setPage}
+          setPageSize={setPageSize}
           status={isRefetching ? "loading" : status}
         />
       </TabPane>
@@ -70,6 +71,7 @@ const OrderList = ({ user }) => {
           pageSize={pageSize}
           refetchOrders={refetchOrders}
           setPage={setPage}
+          setPageSize={setPageSize}
           status={isRefetching ? "loading" : status}
         />
       </TabPane>
@@ -81,6 +83,7 @@ const OrderList = ({ user }) => {
           pageSize={pageSize}
           refetchOrders={refetchOrders}
           setPage={setPage}
+          setPageSize={setPageSize}
           status={isRefetching ? "loading" : status}
         />
       </TabPane>
@@ -92,6 +95,7 @@ const OrderList = ({ user }) => {
           pageSize={pageSize}
           refetchOrders={refetchOrders}
           setPage={setPage}
+          setPageSize={setPageSize}
           status={isRefetching ? "loading" : status}
         />
       </TabPane>

@@ -1,4 +1,4 @@
-import { Button, Dropdown, Space, Menu, Card, Badge } from "antd";
+import { Button, Dropdown, Space, Menu, Card, Badge, Pagination } from "antd";
 import { useState } from "react";
 import { useQuery } from "react-query";
 import { getVideoLinks } from "../../../api/aboutus";
@@ -6,8 +6,16 @@ import { GET_VIDEO_LINKS } from "../../../constants/queryKeys";
 import CreateVideoLinksModal from "./components/CreateVideoLinksModal";
 import UpdateVideoLinksModal from "./components/UpdateVideoLinksModal";
 import Loader from "../../../shared/Loader";
+import { useEffect } from "react";
+import { uniqBy } from "lodash";
 
 const VideoLinks = () => {
+  const [page, setPage] = useState(1);
+
+  const [pageSize, setPageSize] = useState(20);
+
+  const [videoLinks, setVideoLinks] = useState([]);
+
   const [isCreateVideoLinkModalOpen, setIsCreateVideoLinkModalOpen] =
     useState(false);
 
@@ -17,13 +25,26 @@ const VideoLinks = () => {
   const [videoId, setVideoId] = useState(null);
 
   const {
-    data: videoLinks,
+    data,
     refetch: refetchVideoLinks,
-    isFetching,
+    status,
+    isRefetching,
   } = useQuery({
-    queryFn: () => getVideoLinks(),
-    queryKey: GET_VIDEO_LINKS,
+    queryFn: () => getVideoLinks({ page, pageSize }),
+    queryKey: [GET_VIDEO_LINKS],
   });
+
+  useEffect(() => {
+    if (data && status === "success" && !isRefetching) {
+      setVideoLinks([]);
+      setVideoLinks((prev) => uniqBy([...prev, ...data.results], "id"));
+    }
+  }, [data, status, isRefetching]);
+
+  useEffect(() => {
+    refetchVideoLinks();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, pageSize]);
 
   const bulkMenu = (
     <Menu
@@ -38,7 +59,7 @@ const VideoLinks = () => {
 
   return (
     <>
-      {isFetching ? (
+      {status === "loading" || isRefetching ? (
         <Loader isOpen={true} />
       ) : (
         <>
@@ -74,7 +95,7 @@ const VideoLinks = () => {
                       <img
                         alt="Thumbnail"
                         className="object-cover h-[170px]"
-                        src={el.image.thumbnail}
+                        src={el.image?.thumbnail}
                       />
                     }
                     style={{ height: 275 }}
@@ -84,10 +105,27 @@ const VideoLinks = () => {
                       setIsUpdateVideoLinkModalOpen(true);
                     }}
                   >
-                    <p className="font-semibold">{el.video_url}</p>
+                    <p
+                      className="font-semibold"
+                      style={{ overflowWrap: "anywhere" }}
+                    >
+                      {el.video_url}
+                    </p>
                   </Card>
                 </Badge.Ribbon>
               ))}
+
+            <Pagination
+              className="col-span-full w-full flex justify-end"
+              current={page}
+              pageSize={pageSize}
+              total={data?.count}
+              showSizeChanger
+              onChange={(page, pageSize) => {
+                setPage(page);
+                setPageSize(pageSize);
+              }}
+            />
           </div>
 
           <CreateVideoLinksModal

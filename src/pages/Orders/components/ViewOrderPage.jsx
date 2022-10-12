@@ -10,7 +10,12 @@ import {
   Table,
   Tag,
 } from "antd";
-import { DeleteOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  HomeOutlined,
+  PhoneOutlined,
+  EnvironmentOutlined,
+} from "@ant-design/icons";
 import { useMutation } from "react-query";
 import { useQuery } from "react-query";
 import moment from "moment";
@@ -42,7 +47,10 @@ import { CANCELLED, DELIVERED, IN_PROCESS } from "../../../constants";
 import { updateOrderStatus } from "../../../context/OrdersContext";
 import axios from "../../../axios";
 import { useAuth } from "../../../AuthProvider";
-import InfiniteScroll from "react-infinite-scroller";
+import { getUser } from "../../../context/UserContext";
+import rasanDefault from "../../../assets/images/rasan-default.png";
+import { getAddressById } from "../../../api/userAddresses";
+import { GET_ADDRESS_BY_ID } from "../../../constants/queryKeys";
 
 export const getOrderStatusColor = (status) => {
   switch (status) {
@@ -91,12 +99,24 @@ const ViewOrderPage = () => {
     queryKey: ["getProductSkus"],
   });
 
+  const { data: user, status: userStatus } = useQuery({
+    queryFn: () => data && getUser(data && data.user),
+    queryKey: ["get-user", data && data.user],
+    enabled: !!data,
+  });
+
+  /* const { data: address } = useQuery({
+    queryFn: () => data && getAddressById(data && data.shipping_address),
+    queryKey: [GET_ADDRESS_BY_ID, data && data.shipping_address],
+    enabled: !!data,
+  });*/
+
   const {
     data: dataUser,
     status: usersStatus,
     refetch: refetchUserList,
   } = useQuery({
-    queryFn: () => userGroupIds && getAdminUsers(userGroupIds, page, "", 100),
+    queryFn: () => userGroupIds && getAdminUsers(userGroupIds, page, 100, ""),
     queryKey: ["getUserList", userGroupIds, page.toString()],
     enabled: !!userGroupIds,
   });
@@ -301,6 +321,39 @@ const ViewOrderPage = () => {
           onClose={() => setOpenChangePayment(false)}
         />
 
+        {userStatus === "loading" ? (
+          <Spin />
+        ) : (
+          user && (
+            <div className="details flex pb-4">
+              <img
+                alt={user.full_name}
+                className="image mr-3"
+                src={user.profile_picture.small_square_crop || rasanDefault}
+              />
+              <div>
+                <div className="font-medium text-lg">
+                  {user.full_name || "User"}
+                </div>
+                <div className="flex items-center text-light_text">
+                  <div className="flex items-center pr-4">
+                    <HomeOutlined className="mr-1" />
+                    {user.shop.name}
+                  </div>
+                  <div className="flex items-center pr-4">
+                    <PhoneOutlined className="mr-1" />
+                    {user.phone}
+                  </div>
+                  <div className="flex items-center pr-4">
+                    <EnvironmentOutlined className="mr-1" />
+                    Delivered at: {user.addresses[0]?.detail_address}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )
+        )}
+
         <div className="flex justify-between items-center">
           <Space className="mb-4" size="middle">
             {/* <Tag color={getOrderStatusColor(data?.status)}>
@@ -342,38 +395,34 @@ const ViewOrderPage = () => {
             <Space>
               {data && (
                 <>
-                  <InfiniteScroll
-                    hasMore={!!dataUser?.next}
-                    loadMore={() => {
-                      setPage((prev) => prev + 1);
-                      refetchUserList();
-                    }}
+                  <Form.Item
+                    initialValue={data?.assigned_to}
+                    label="Assign To"
+                    name="assigned_to"
                   >
-                    <Form.Item
-                      initialValue={data?.assigned_to}
-                      label="Assign To"
-                      name="assigned_to"
+                    <Select
+                      defaultValue={data?.assigned_to}
+                      loading={usersStatus === "loading"}
+                      mode="multiple"
+                      optionFilterProp="children"
+                      placeholder="Select Users"
+                      style={{ width: 300 }}
+                      showSearch
+                      onPopupScroll={() =>
+                        data?.next && setPage((prev) => prev + 1)
+                      }
                     >
-                      <Select
-                        defaultValue={data?.assigned_to}
-                        loading={usersStatus === "loading"}
-                        mode="multiple"
-                        optionFilterProp="children"
-                        placeholder="Select Users"
-                        style={{ width: 300 }}
-                        showSearch
-                      >
-                        {userList &&
-                          userList.map((user) => (
-                            <Option key={user.id} value={user.phone}>
-                              {user.full_name
-                                ? `${user.full_name} (${user.phone})`
-                                : user.phone}
-                            </Option>
-                          ))}
-                      </Select>
-                    </Form.Item>
-                  </InfiniteScroll>
+                      {userList &&
+                        userList.map((user) => (
+                          <Option key={user.id} value={user.phone}>
+                            {user.full_name
+                              ? `${user.full_name} (${user.phone})`
+                              : user.phone}
+                          </Option>
+                        ))}
+                    </Select>
+                  </Form.Item>
+
                   <Form.Item>
                     <Button
                       htmlType="submit"
@@ -430,6 +479,15 @@ const ViewOrderPage = () => {
                 ? moment(data.payment.completed_at).format("ll hh:mm a")
                 : "-"}
             </Descriptions.Item>
+            <Descriptions.Item label="Total Amount" span={1}>
+              {data.total_amount}
+            </Descriptions.Item>
+            <Descriptions.Item label="Cashback Applied" span={1}>
+              {data.previous_cashback_applied}
+            </Descriptions.Item>
+            <Descriptions.Item label="Cashback Earned" span={1}>
+              {data.total_cashback_earned}
+            </Descriptions.Item>
             <Descriptions.Item label="PID" span={3}>
               {data.payment.pid || "-"}
             </Descriptions.Item>
@@ -469,7 +527,7 @@ const ViewOrderPage = () => {
           <Form layout="horizontal">
             <Space>
               <Form.Item>
-                <span>Product Sku</span>
+                <span>Product SKU</span>
                 <Select
                   placeholder="Select Product SKU"
                   style={{ width: 200 }}
@@ -487,6 +545,7 @@ const ViewOrderPage = () => {
               <Form.Item tooltip="Select Pack Size">
                 <span>Pack Size</span>
                 <Select
+                  className="!w-36"
                   placeholder="Select Pack Size"
                   showSearch
                   onSelect={(value) =>
@@ -509,15 +568,24 @@ const ViewOrderPage = () => {
                 </Select>
               </Form.Item>
 
-              <Form.Item name="quantity">
+              <Form.Item className="relative" name="quantity">
                 <span>Quantity</span>
                 <Input
+                  className="!w-20"
                   placeholder="Quantity"
                   type="number"
+                  value={quantity}
                   onChange={(e) => {
                     setQuantity(e.target.value);
                   }}
                 />
+                <span
+                  className={`${
+                    quantity < 0 ? "block" : "hidden"
+                  } absolute text-xs text-red-600`}
+                >
+                  Negative value not allowed
+                </span>
               </Form.Item>
 
               <Form.Item>
@@ -577,7 +645,7 @@ const ViewOrderPage = () => {
                 <Button
                   className="bg-blue-500"
                   disabled={
-                    !(selectedProductPack && selectedProductSku && quantity)
+                    !(selectedProductPack && selectedProductSku && quantity > 0)
                   }
                   type="primary"
                   onClick={() => handleAddItem.mutate()}

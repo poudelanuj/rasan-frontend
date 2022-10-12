@@ -1,7 +1,7 @@
 import { Upload, Form, Input, Select, Button, Space, Tag } from "antd";
 import { capitalize, uniqBy } from "lodash";
 import { useState, useEffect } from "react";
-import { useQuery, useMutation } from "react-query";
+import { useQuery, useMutation, useQueryClient } from "react-query";
 import { useNavigate } from "react-router-dom";
 import { createTicket } from "../../../../api/crm/tickets";
 import { getOrders } from "../../../../api/orders";
@@ -26,7 +26,6 @@ import {
   openSuccessNotification,
 } from "../../../../utils/openNotification";
 import { useAuth } from "../../../../AuthProvider";
-import InfiniteScroll from "react-infinite-scroller";
 
 const CreateSupportTicket = () => {
   const { userGroupIds } = useAuth();
@@ -34,6 +33,8 @@ const CreateSupportTicket = () => {
   const [selectedType, setSelectedType] = useState("");
   const { Dragger } = Upload;
   const navigate = useNavigate();
+
+  const queryClient = new useQueryClient();
 
   const fileUploadOptions = {
     maxCount: 6,
@@ -126,6 +127,7 @@ const CreateSupportTicket = () => {
       onSuccess: (data) => {
         openSuccessNotification(data.message || "Ticket Created");
         navigate(-1);
+        queryClient.refetchQueries(["get-all-tickets"]);
       },
       onError: (error) => {
         openErrorNotification(error);
@@ -175,59 +177,49 @@ const CreateSupportTicket = () => {
             </Form.Item>
 
             <div className="grid grid-cols-2 gap-2">
-              <InfiniteScroll
-                hasMore={!!dataGeneral?.next}
-                loadMore={() => {
-                  setGeneralPage((prev) => prev + 1);
-                  refetchGeneral();
-                }}
+              <Form.Item
+                label="Customer (Initiator)"
+                name="initiator"
+                rules={[{ required: true, message: "customer required" }]}
               >
-                <Form.Item
-                  label="Customer (Initiator)"
-                  name="initiator"
-                  rules={[{ required: true, message: "customer required" }]}
+                <Select
+                  loading={generalStatus === "loading"}
+                  placeholder="Select Initiator"
+                  allowClear
+                  onPopupScroll={() =>
+                    dataGeneral?.next && setGeneralPage((prev) => prev + 1)
+                  }
                 >
-                  <Select
-                    loading={generalStatus === "loading"}
-                    placeholder="Select Initiator"
-                    allowClear
-                  >
-                    {generalUsers &&
-                      generalUsers.map((user) => (
-                        <Select.Option key={user.id} value={user.phone}>
-                          {user.full_name
-                            ? `${user.full_name} (${user.phone})`
-                            : user.phone}
-                        </Select.Option>
-                      ))}
-                  </Select>
-                </Form.Item>
-              </InfiniteScroll>
+                  {generalUsers &&
+                    generalUsers.map((user) => (
+                      <Select.Option key={user.id} value={user.phone}>
+                        {user.full_name
+                          ? `${user.full_name} (${user.phone})`
+                          : user.phone}
+                      </Select.Option>
+                    ))}
+                </Select>
+              </Form.Item>
 
-              <InfiniteScroll
-                hasMore={!!dataAdmin?.next}
-                loadMore={() => {
-                  setAdminPage((prev) => prev + 1);
-                  refetchAdmin();
-                }}
-              >
-                <Form.Item label="Assigned to" name="assigned_to">
-                  <Select
-                    loading={adminStatus === "loading"}
-                    placeholder="Select Assigned To"
-                    allowClear
-                  >
-                    {adminUsers &&
-                      adminUsers.map((user) => (
-                        <Select.Option key={user.id} value={user.phone}>
-                          {user.full_name
-                            ? `${user.full_name} (${user.phone})`
-                            : user.phone}
-                        </Select.Option>
-                      ))}
-                  </Select>
-                </Form.Item>
-              </InfiniteScroll>
+              <Form.Item label="Assigned to" name="assigned_to">
+                <Select
+                  loading={adminStatus === "loading"}
+                  placeholder="Select Assigned To"
+                  allowClear
+                  onPopupScroll={() =>
+                    dataAdmin?.next && setAdminPage((prev) => prev + 1)
+                  }
+                >
+                  {adminUsers &&
+                    adminUsers.map((user) => (
+                      <Select.Option key={user.id} value={user.phone}>
+                        {user.full_name
+                          ? `${user.full_name} (${user.phone})`
+                          : user.phone}
+                      </Select.Option>
+                    ))}
+                </Select>
+              </Form.Item>
             </div>
 
             <div

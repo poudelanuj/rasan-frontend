@@ -149,7 +149,7 @@ function EditBrand({ slug, isOpen, closeModal, setPaginatedBrandsList }) {
           </div>
         )}
 
-        {data?.data?.data && (
+        {data && (
           <form
             className="flex flex-col justify-between flex-1"
             onSubmit={handleSubmit}
@@ -162,7 +162,7 @@ function EditBrand({ slug, isOpen, closeModal, setPaginatedBrandsList }) {
                     className="h-[6rem] mx-auto"
                     src={
                       formState.image ||
-                      data.data.data.brand_image.full_size ||
+                      data.brand_image.full_size ||
                       "/gallery-icon.svg"
                     }
                   />
@@ -221,7 +221,7 @@ function EditBrand({ slug, isOpen, closeModal, setPaginatedBrandsList }) {
 
               <button
                 className={`${
-                  data?.data?.data?.is_published
+                  data?.is_published
                     ? "bg-[#00B0C2] text-white border-[#00B0C2] hover:bg-[#0091a1] "
                     : "text-[#00B0C2] bg-white border-[#00B0C2] hover:bg-[#effdff] "
                 }

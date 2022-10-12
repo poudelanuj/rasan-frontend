@@ -4,7 +4,7 @@ export const getUsers = async (page, search, pageSize, sort) => {
   const res = await axios.get(
     `/api/profile/admin/user-list/?page=${page || 1}&search=${
       search || ""
-    }&size=${pageSize || 20}&sort=${sort}`
+    }&size=${pageSize || 20}&sort=${sort || []}`
   );
 
   return res.data.data;
@@ -24,7 +24,7 @@ export const getAdminUsers = async (groupIds, page, pageSize, search, sort) => {
   const res = await axios.get(
     `/api/profile/admin/user-list/?group_ids=${groupIds}&page=${page}&size=${
       pageSize || 20
-    }&search=${search || ""}&sort=${sort}`
+    }&search=${search || ""}&sort=${sort || []}`
   );
 
   return res.data.data;

@@ -15,7 +15,7 @@ const LiveUserBasket = ({ user }) => {
 
   const [basketList, setBasketList] = useState([]);
 
-  const pageSize = 20;
+  const [pageSize, setPageSize] = useState(20);
 
   const [page, setPage] = useState(1);
 
@@ -35,7 +35,7 @@ const LiveUserBasket = ({ user }) => {
   useEffect(() => {
     refetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  }, [page, pageSize]);
 
   const columns = [
     {
@@ -86,10 +86,15 @@ const LiveUserBasket = ({ user }) => {
         }))}
         loading={status === "loading"}
         pagination={{
+          showSizeChanger: true,
           pageSize,
           total: data?.count,
+          current: page,
 
-          onChange: (page, pageSize) => setPage(page),
+          onChange: (page, pageSize) => {
+            setPage(page);
+            setPageSize(pageSize);
+          },
         }}
         rowClassName="cursor-pointer"
         rowSelection={{ ...rowSelection }}

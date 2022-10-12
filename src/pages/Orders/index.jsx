@@ -13,7 +13,7 @@ const Orders = () => {
 
   const searchInput = useRef();
 
-  const pageSize = 20;
+  const [pageSize, setPageSize] = useState(20);
   const [page, setPage] = useState(1);
   const [orderStatus, setOrderStatus] = useState("all");
   const [orders, setOrders] = useState([]);
@@ -56,7 +56,7 @@ const Orders = () => {
   useEffect(() => {
     refetchOrders();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, orderStatus, sortObj]);
+  }, [page, orderStatus, sortObj, pageSize]);
 
   const sortingFn = (header, name) =>
     setSortObj({
@@ -91,6 +91,7 @@ const Orders = () => {
             refetchOrders={refetchOrders}
             searchInput={searchInput}
             setPage={setPage}
+            setPageSize={setPageSize}
             sortingFn={sortingFn}
             status={isRefetching ? "loading" : status}
           />
@@ -104,6 +105,7 @@ const Orders = () => {
             refetchOrders={refetchOrders}
             searchInput={searchInput}
             setPage={setPage}
+            setPageSize={setPageSize}
             sortingFn={sortingFn}
             status={isRefetching ? "loading" : status}
           />
@@ -117,6 +119,7 @@ const Orders = () => {
             refetchOrders={refetchOrders}
             searchInput={searchInput}
             setPage={setPage}
+            setPageSize={setPageSize}
             sortingFn={sortingFn}
             status={isRefetching ? "loading" : status}
           />
@@ -130,6 +133,7 @@ const Orders = () => {
             refetchOrders={refetchOrders}
             searchInput={searchInput}
             setPage={setPage}
+            setPageSize={setPageSize}
             sortingFn={sortingFn}
             status={isRefetching ? "loading" : status}
           />

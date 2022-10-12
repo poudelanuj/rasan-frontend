@@ -26,7 +26,6 @@ import {
   parseSlug,
 } from "../../utils";
 
-import Loader from "../../shared/Loader";
 import ButtonWPermission from "../../shared/ButtonWPermission";
 
 const Deals = ({ type, isArchived, queryKey }) => {
@@ -42,7 +41,7 @@ const Deals = ({ type, isArchived, queryKey }) => {
 
   const [page, setPage] = useState(1);
 
-  const pageSize = 20;
+  const [pageSize, setPageSize] = useState(20);
 
   const [dealsId, setDealsId] = useState([]);
 
@@ -60,16 +59,16 @@ const Deals = ({ type, isArchived, queryKey }) => {
   });
 
   useEffect(() => {
-    if (data) {
+    if (data && status === "success" && !isRefetching) {
       setDeals([]);
       setDeals((prev) => uniqBy([...prev, ...data.results], "id"));
     }
-  }, [data]);
+  }, [data, status, isRefetching]);
 
   useEffect(() => {
     refetchLoyaltyRedeem();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  }, [page, pageSize]);
 
   const handleDeleteLoyaltyRedeem = useMutation(
     () =>
@@ -108,7 +107,7 @@ const Deals = ({ type, isArchived, queryKey }) => {
   const dealsDataSource = deals?.map((el, index) => {
     return {
       id: el.id,
-      key: index + 1,
+      key: (page - 1) * pageSize + index + 1,
       product_sku: capitalize(parseSlug(el.product_sku)),
       loyalty_points: el.loyalty_points + " points",
       total_quota: el.quota,
@@ -160,17 +159,15 @@ const Deals = ({ type, isArchived, queryKey }) => {
       key: "status",
       render: (_, { is_published, status }) => {
         return (
-          <>
-            <Tag
-              color={
-                is_published
-                  ? getStatusColor(PUBLISHED)
-                  : getStatusColor(UNPUBLISHED)
-              }
-            >
-              {status.toUpperCase()}
-            </Tag>
-          </>
+          <Tag
+            color={
+              is_published
+                ? getStatusColor(PUBLISHED)
+                : getStatusColor(UNPUBLISHED)
+            }
+          >
+            {status.toUpperCase()}
+          </Tag>
         );
       },
     },
@@ -278,24 +275,24 @@ const Deals = ({ type, isArchived, queryKey }) => {
           </Button>
         </Dropdown>
       </div>
-      {status === "loading" ? (
-        <Loader isOpen={true} />
-      ) : (
-        <Table
-          columns={columns}
-          dataSource={dealsDataSource}
-          loading={status === "loading" || isRefetching}
-          pagination={{
-            pageSize,
-            total: data?.count,
 
-            onChange: (page, pageSize) => {
-              setPage(page);
-            },
-          }}
-          rowSelection={{ ...rowSelection }}
-        />
-      )}
+      <Table
+        columns={columns}
+        dataSource={dealsDataSource}
+        loading={status === "loading" || isRefetching}
+        pagination={{
+          showSizeChanger: true,
+          pageSize,
+          total: data?.count,
+          current: page,
+
+          onChange: (page, pageSize) => {
+            setPage(page);
+            setPageSize(pageSize);
+          },
+        }}
+        rowSelection={{ ...rowSelection }}
+      />
 
       <ConfirmDelete
         closeModal={() =>

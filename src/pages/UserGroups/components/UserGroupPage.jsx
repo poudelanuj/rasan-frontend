@@ -16,6 +16,7 @@ import { openErrorNotification, openSuccessNotification } from "../../../utils";
 import ConfirmDelete from "../../../shared/ConfirmDelete";
 import UpdateUserGroupModal from "./UpdateUserGroupModal";
 import ButtonWPermission from "../../../shared/ButtonWPermission";
+import { isEmpty } from "lodash";
 
 const UserGroupPage = () => {
   const { groupId } = useParams();
@@ -118,6 +119,7 @@ const UserGroupPage = () => {
             <ButtonWPermission
               className="!text-current !bg-inherit !border-none"
               codename="delete_user"
+              disabled={isEmpty(users)}
               onClick={() => setIsRemoveUserModal(true)}
             >
               Delete

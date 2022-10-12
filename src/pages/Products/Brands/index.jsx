@@ -35,7 +35,7 @@ function BrandsScreen() {
   const [selectedBrandSlug, setSelectedBrandSlug] = useState(""); // * For Edit
 
   const [page, setPage] = useState(1);
-  const pageSize = 20;
+  const [pageSize, setPageSize] = useState(20);
   const [paginatedBrands, setPaginatedBrands] = useState([]);
   const [selectedBrands, setSelectedBrands] = useState([]);
 
@@ -67,7 +67,7 @@ function BrandsScreen() {
   useEffect(() => {
     refetchBrands();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  }, [page, pageSize]);
 
   const queryClient = useQueryClient();
 
@@ -233,30 +233,23 @@ function BrandsScreen() {
           </div>
         </div>
         <div className="grid gap-8 grid-cols-[repeat(auto-fill,_minmax(200px,_1fr))]">
-          {paginatedBrands
-            .filter((item, index) => {
-              const initPage = (page - 1) * pageSize;
-              const endPage = page * pageSize;
-              if (index >= initPage && index < endPage) return true;
-              return false;
-            })
-            .map((brand, index) => (
-              <CategoryWidget
-                key={brand.slug}
-                completeLink={`/brands/${brand.slug}`}
-                editClick={() => {
-                  setIsEditBrandOpen(true);
-                  setSelectedBrandSlug(brand.slug);
-                }}
-                id={brand.sn}
-                image={brand.brand_image.thumbnail || DEFAULT_RASAN_IMAGE}
-                is_published={brand.is_published}
-                selectedCategories={selectedBrands}
-                setSelectedCategories={setSelectedBrands}
-                slug={brand.slug}
-                title={brand.name}
-              />
-            ))}
+          {paginatedBrands.map((brand, index) => (
+            <CategoryWidget
+              key={brand.slug}
+              completeLink={`/brands/${brand.slug}`}
+              editClick={() => {
+                setIsEditBrandOpen(true);
+                setSelectedBrandSlug(brand.slug);
+              }}
+              id={brand.sn}
+              image={brand.brand_image.thumbnail || DEFAULT_RASAN_IMAGE}
+              is_published={brand.is_published}
+              selectedCategories={selectedBrands}
+              setSelectedCategories={setSelectedBrands}
+              slug={brand.slug}
+              title={brand.name}
+            />
+          ))}
         </div>
         <div className="flex justify-end bg-white w-full mt-10">
           <Pagination
@@ -264,8 +257,10 @@ function BrandsScreen() {
             pageSize={pageSize}
             showTotal={(total) => `Total ${total} items`}
             total={data?.count}
+            showSizeChanger
             onChange={(page, pageSize) => {
               setPage(page);
+              setPageSize(pageSize);
             }}
           />
         </div>

@@ -6,9 +6,11 @@ export const postVideoLink = async (data) => {
   return res.data;
 };
 
-export const getVideoLinks = async () => {
-  const res = await axios.get("/api/about/admin/videos");
-  return res.data.data.results;
+export const getVideoLinks = async ({ page, pageSize }) => {
+  const res = await axios.get(
+    `/api/about/admin/videos/?page=${page}&size=${pageSize}`
+  );
+  return res.data.data;
 };
 
 export const getVideoLinkById = async (id) => {
@@ -37,9 +39,11 @@ export const deleteVideoLink = async (id) => {
 };
 
 // *Customer Stories
-export const getCustomerStories = async () => {
-  const res = await axios.get("/api/about/admin/stories/");
-  return res.data.data.results;
+export const getCustomerStories = async ({ page, pageSize }) => {
+  const res = await axios.get(
+    `/api/about/admin/stories/?page=${page}&size=${pageSize}`
+  );
+  return res.data.data;
 };
 
 export const postCustomerStories = async (data) => {

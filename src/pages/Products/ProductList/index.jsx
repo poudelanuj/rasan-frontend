@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
-import { Space, Table, Tag } from "antd";
+import { Space, Table, Tag, Input, Select } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
 import { uniqBy } from "lodash";
 import { useMutation, useQuery } from "react-query";
 import AddCategoryButton from "../subComponents/AddCategoryButton";
@@ -19,7 +19,7 @@ import ButtonWPermission from "../../../shared/ButtonWPermission";
 
 function ProductListScreen() {
   const [page, setPage] = useState(1);
-  const pageSize = 20;
+  const [pageSize, setPageSize] = useState(20);
   const [products, setProducts] = useState([]);
 
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -37,6 +37,10 @@ function ProductListScreen() {
     sort: [],
   });
 
+  const searchInput = useRef("");
+
+  let timeout = 0;
+
   const {
     data,
     status: productsStatus,
@@ -48,7 +52,8 @@ function ProductListScreen() {
       page.toString() + pageSize.toString(),
       sortObj.sort,
     ],
-    () => getPaginatedProducts(page, pageSize, sortObj.sort)
+    () =>
+      getPaginatedProducts(page, pageSize, sortObj.sort, searchInput.current)
   );
 
   useEffect(() => {
@@ -61,7 +66,7 @@ function ProductListScreen() {
   useEffect(() => {
     refetchProducts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, sortObj]);
+  }, [page, sortObj, pageSize]);
 
   const handleDeleteProduct = useMutation((slug) => deleteProduct(slug), {
     onSuccess: (data) => {
@@ -84,6 +89,61 @@ function ProductListScreen() {
       },
       sort: [`${sortObj.sortType[name] ? "" : "-"}${header.dataIndex}`],
     });
+
+  const getColumnSearchProps = (dataIndex) => ({
+    filterDropdown: () => (
+      <div
+        style={{
+          padding: 8,
+        }}
+      >
+        <Input
+          placeholder={`Search ${dataIndex}`}
+          style={{
+            marginBottom: 8,
+            display: "block",
+          }}
+          onChange={(e) => {
+            searchInput.current = e.target.value;
+            if (timeout) clearTimeout(timeout);
+            timeout = setTimeout(refetchProducts, 1000);
+          }}
+        />
+      </div>
+    ),
+    filterIcon: (filtered) => (
+      <SearchOutlined
+        style={{
+          color: filtered ? "#1890ff" : undefined,
+        }}
+      />
+    ),
+  });
+
+  const getSelectProps = (dataIndex) => ({
+    filterDropdown: () => (
+      <div
+        style={{
+          padding: 8,
+        }}
+      >
+        <Select
+          placeholder={`Select ${dataIndex}`}
+          style={{
+            marginBottom: 8,
+            display: "block",
+          }}
+        ></Select>
+      </div>
+    ),
+    filterIcon: (filtered) => (
+      <SearchOutlined
+        style={{
+          color: filtered ? "#1890ff" : undefined,
+        }}
+      />
+    ),
+  });
 
   const columns = [
     {
@@ -111,6 +171,7 @@ function ProductListScreen() {
           onClick: () => sortingFn(header, "name"),
         };
       },
+      ...getColumnSearchProps("product"),
     },
     {
       title: "Brand",
@@ -121,6 +182,7 @@ function ProductListScreen() {
           </div>
         );
       },
+      ...getSelectProps("brands"),
     },
     {
       title: "Category",
@@ -275,11 +337,14 @@ function ProductListScreen() {
             }))}
             loading={productsStatus === "loading" || isRefetching}
             pagination={{
+              showSizeChanger: true,
               pageSize,
               total: data?.count,
+              current: page,
 
               onChange: (page, pageSize) => {
                 setPage(page);
+                setPageSize(pageSize);
               },
             }}
             rowSelection={rowSelection}

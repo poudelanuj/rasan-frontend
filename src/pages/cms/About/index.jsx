@@ -10,7 +10,7 @@ const About = () => {
     <>
       <CustomPageHeader title="About Us" isBasicHeader />
       <div className="py-5 px-4 bg-[#FFFFFF]">
-        <Tabs defaultActiveKey="all">
+        <Tabs defaultActiveKey="faqs">
           <TabPane key="faqs" tab="FAQS">
             <FAQS />
           </TabPane>

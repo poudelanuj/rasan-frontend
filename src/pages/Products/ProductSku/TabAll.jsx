@@ -21,7 +21,7 @@ import ButtonWPermission from "../../../shared/ButtonWPermission";
 
 function TabAll() {
   const [page, setPage] = useState(1);
-  const pageSize = 20;
+  const [pageSize, setPageSize] = useState(20);
   const [productSkus, setProductSkus] = useState([]);
 
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -63,7 +63,7 @@ function TabAll() {
   useEffect(() => {
     refetchProductSkus();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, sortObj.sort]);
+  }, [page, sortObj.sort, pageSize]);
 
   const handleDeleteSku = useMutation((slug) => deleteProductSku(slug), {
     onSuccess: (data) => {
@@ -296,11 +296,14 @@ function TabAll() {
             }
             loading={isLoading || isRefetching}
             pagination={{
+              showSizeChanger: true,
               pageSize,
               total: data?.count,
+              current: page,
 
               onChange: (page, pageSize) => {
                 setPage(page);
+                setPageSize(pageSize);
               },
             }}
             rowSelection={rowSelection}

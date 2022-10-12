@@ -48,7 +48,7 @@ const TutorialList = () => {
 
   const [slugs, setSlugs] = useState([]);
 
-  const pageSize = 20;
+  const [pageSize, setPageSize] = useState(20);
 
   const [tutorialList, setTutorialList] = useState([]);
 
@@ -63,16 +63,16 @@ const TutorialList = () => {
   });
 
   useEffect(() => {
-    if (data) {
+    if (data && status === "success" && !isRefetching) {
       setTutorialList([]);
       setTutorialList((prev) => uniqBy([...prev, ...data.results], "slug"));
     }
-  }, [data]);
+  }, [data, status, isRefetching]);
 
   useEffect(() => {
     refetchTutorials();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  }, [page, pageSize]);
 
   const handleDeleteTutorial = useMutation(
     () =>
@@ -230,7 +230,7 @@ const TutorialList = () => {
 
   const dataSourceTutorials = tutorialList?.map((el, index) => {
     return {
-      key: index + 1,
+      key: (page - 1) * pageSize + index + 1,
       title: el.title,
       page_location: capitalize(el.page_location).replaceAll("_", " "),
       type: capitalize(el.type),
@@ -268,11 +268,14 @@ const TutorialList = () => {
         dataSource={dataSourceTutorials}
         loading={status === "loading" || isRefetching}
         pagination={{
+          showSizeChanger: true,
           pageSize,
           total: data?.count,
+          current: page,
 
           onChange: (page, pageSize) => {
             setPage(page);
+            setPageSize(pageSize);
           },
         }}
         rowSelection={{ ...rowSelection }}

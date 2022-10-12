@@ -39,7 +39,7 @@ const CategoryList = () => {
   const [selectedCategorySlug, setSelectedCategorySlug] = useState(""); // * For Edit
 
   const [page, setPage] = useState(1);
-  const pageSize = 20;
+  const [pageSize, setPageSize] = useState(20);
   const [categories, setCategories] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
 
@@ -69,7 +69,7 @@ const CategoryList = () => {
   useEffect(() => {
     refetchCategories();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  }, [page, pageSize]);
 
   const handleBulkPublish = useMutation(
     ({ slugs, isPublish }) => bulkPublish({ slugs, isPublish }),
@@ -239,32 +239,25 @@ const CategoryList = () => {
         {categories && (
           <>
             <div className="grid gap-8 grid-cols-[repeat(auto-fill,_minmax(200px,_1fr))]">
-              {categories
-                .filter((item, index) => {
-                  const initPage = (page - 1) * pageSize;
-                  const endPage = page * pageSize;
-                  if (index >= initPage && index < endPage) return true;
-                  return false;
-                })
-                .map((category, index) => (
-                  <CategoryWidget
-                    key={category.slug}
-                    completeLink={`/category-list/${category.slug}`}
-                    editClick={() => {
-                      setIsEditCategoryOpen(true);
-                      setSelectedCategorySlug(category.slug);
-                    }}
-                    id={index + 1}
-                    image={
-                      category.category_image.thumbnail || DEFAULT_RASAN_IMAGE
-                    }
-                    is_published={category.is_published}
-                    selectedCategories={selectedCategories}
-                    setSelectedCategories={setSelectedCategories}
-                    slug={category.slug}
-                    title={category.name}
-                  />
-                ))}
+              {categories.map((category, index) => (
+                <CategoryWidget
+                  key={category.slug}
+                  completeLink={`/category-list/${category.slug}`}
+                  editClick={() => {
+                    setIsEditCategoryOpen(true);
+                    setSelectedCategorySlug(category.slug);
+                  }}
+                  id={index + 1}
+                  image={
+                    category.category_image.thumbnail || DEFAULT_RASAN_IMAGE
+                  }
+                  is_published={category.is_published}
+                  selectedCategories={selectedCategories}
+                  setSelectedCategories={setSelectedCategories}
+                  slug={category.slug}
+                  title={category.name}
+                />
+              ))}
             </div>
             <div className="flex justify-end bg-white w-full mt-10">
               <Pagination
@@ -272,8 +265,10 @@ const CategoryList = () => {
                 pageSize={pageSize}
                 showTotal={(total) => `Total ${total} items`}
                 total={data?.count}
+                showSizeChanger
                 onChange={(page, pageSize) => {
                   setPage(page);
+                  setPageSize(pageSize);
                 }}
               />
             </div>

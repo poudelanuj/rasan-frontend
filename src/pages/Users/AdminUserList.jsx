@@ -15,7 +15,7 @@ const AdminUserList = () => {
   const { userGroupIds } = useAuth();
 
   const searchText = useRef();
-  const pageSize = 20;
+  const [pageSize, setPageSize] = useState(20);
   const [page, setPage] = useState(1);
   const [users, setUsers] = useState([]);
 
@@ -59,7 +59,7 @@ const AdminUserList = () => {
   useEffect(() => {
     refetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  }, [page, pageSize]);
 
   const userColumns = users.map((user) => {
     return {
@@ -105,6 +105,7 @@ const AdminUserList = () => {
     {
       title: "Name",
       dataIndex: "full_name",
+      width: "25%",
       render: (text, record) => {
         return (
           <div
@@ -120,7 +121,9 @@ const AdminUserList = () => {
                 width={50}
               />
             )}{" "}
-            <span>{text}</span>
+            <span className="w-16" style={{ overflowWrap: "anywhere" }}>
+              {text}
+            </span>
           </div>
         );
       },
@@ -147,10 +150,22 @@ const AdminUserList = () => {
     {
       title: "Shop Name",
       dataIndex: "shop",
+      width: "18%",
+      render: (_, { shop }) => (
+        <span className="w-20" style={{ overflowWrap: "anywhere" }}>
+          {shop}
+        </span>
+      ),
     },
     {
       title: "Address",
       dataIndex: "address",
+      width: "18%",
+      render: (_, { address }) => (
+        <span className="w-20" style={{ overflowWrap: "anywhere" }}>
+          {address}
+        </span>
+      ),
     },
     {
       title: "Loyalty Points",
@@ -177,11 +192,14 @@ const AdminUserList = () => {
           columns={columns}
           dataSource={userColumns}
           pagination={{
+            showSizeChanger: true,
             pageSize,
             total: data?.count,
+            current: page,
 
             onChange: (page, pageSize) => {
               setPage(page);
+              setPageSize(pageSize);
             },
           }}
           showSorterTooltip={false}
