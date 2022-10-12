@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { Space, Table, Tag } from "antd";
+import { Space, Table, Tag, Input } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
 import { useMutation, useQuery } from "react-query";
 import AddCategoryButton from "../subComponents/AddCategoryButton";
 
@@ -36,6 +37,10 @@ function TabAll() {
     sort: [],
   });
 
+  const searchInput = useRef("");
+
+  let timeout = 0;
+
   const {
     data,
     status,
@@ -47,8 +52,10 @@ function TabAll() {
       GET_PAGINATED_PRODUCT_SKUS,
       page.toString() + pageSize.toString(),
       sortObj.sort,
+      searchInput.current,
     ],
-    () => getPaginatedProdctSkus(page, pageSize, sortObj.sort)
+    () =>
+      getPaginatedProdctSkus(page, pageSize, sortObj.sort, searchInput.current)
   );
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const navigate = useNavigate();
@@ -64,6 +71,36 @@ function TabAll() {
     refetchProductSkus();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, sortObj.sort, pageSize]);
+
+  const getColumnSearchProps = (dataIndex) => ({
+    filterDropdown: () => (
+      <div
+        style={{
+          padding: 8,
+        }}
+      >
+        <Input
+          placeholder={`Search ${dataIndex}`}
+          style={{
+            marginBottom: 8,
+            display: "block",
+          }}
+          onChange={(e) => {
+            searchInput.current = e.target.value;
+            if (timeout) clearTimeout(timeout);
+            timeout = setTimeout(refetchProductSkus, 1000);
+          }}
+        />
+      </div>
+    ),
+    filterIcon: (filtered) => (
+      <SearchOutlined
+        style={{
+          color: filtered ? "#1890ff" : undefined,
+        }}
+      />
+    ),
+  });
 
   const handleDeleteSku = useMutation((slug) => deleteProductSku(slug), {
     onSuccess: (data) => {
@@ -91,7 +128,7 @@ function TabAll() {
     {
       title: "Product Name",
       dataIndex: "name",
-      defaultSortOrder: "descend",
+      width: "15%",
       render: (_, { name, product_sku_image, slug }) => (
         <div
           className="flex items-center gap-3 cursor-pointer text-blue-500 hover:underline"
@@ -113,6 +150,7 @@ function TabAll() {
           onClick: () => sortingFn(header, "name"),
         };
       },
+      ...getColumnSearchProps("product"),
     },
     {
       title: "Quantity",
@@ -150,6 +188,7 @@ function TabAll() {
     },
     {
       title: "Category",
+      width: "10%",
       render: (text, record) => {
         return (
           <div className="flex items-center capitalize">
@@ -162,6 +201,7 @@ function TabAll() {
     },
     {
       title: "Product",
+      width: "10%",
       render: (text, record) => {
         return (
           <div className="flex items-center capitalize">
@@ -172,6 +212,7 @@ function TabAll() {
     },
     {
       title: "Brand",
+      width: "10%",
       render: (text, record) => {
         return (
           <div className="flex items-center capitalize">

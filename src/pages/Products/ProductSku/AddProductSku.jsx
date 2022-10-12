@@ -204,6 +204,12 @@ const AddProductSku = () => {
                 name="cost_price_per_piece"
                 rules={[
                   { required: true, message: "Cost price/piece is required" },
+                  {
+                    validator: (_, value) =>
+                      value < 0
+                        ? Promise.reject("Negative values not allowed")
+                        : Promise.resolve(),
+                  },
                 ]}
               >
                 <Input type="number" />
@@ -212,14 +218,30 @@ const AddProductSku = () => {
               <Form.Item
                 label="Price/Piece"
                 name="price_per_piece"
-                rules={[{ required: true, message: "Price/piece is required" }]}
+                rules={[
+                  { required: true, message: "Price/piece is required" },
+                  {
+                    validator: (_, value) =>
+                      value < 0
+                        ? Promise.reject("Negative values not allowed")
+                        : Promise.resolve(),
+                  },
+                ]}
               >
-                <Input />
+                <Input type="number" />
               </Form.Item>
               <Form.Item
                 label="MRP/Piece"
                 name="mrp_per_piece"
-                rules={[{ required: true, message: "MRP/piece is required" }]}
+                rules={[
+                  { required: true, message: "MRP/piece is required" },
+                  {
+                    validator: (_, value) =>
+                      value < 0
+                        ? Promise.reject("Negative values not allowed")
+                        : Promise.resolve(),
+                  },
+                ]}
               >
                 <Input type="number" />
               </Form.Item>

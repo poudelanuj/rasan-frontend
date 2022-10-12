@@ -18,11 +18,11 @@ export const getDropdownProductSkus = async () => {
   return res1.data.data.results;
 };
 
-export const getPaginatedProdctSkus = async (page, pageSize, sort) => {
+export const getPaginatedProdctSkus = async (page, pageSize, sort, search) => {
   const res = await axios.get(
     `/api/product/admin/product-skus/?page=${page || 1}&size=${
       pageSize || 20
-    }&sort=${sort || []}`
+    }&sort=${sort || []}&name_icontains=${search || ""}`
   );
   return res.data.data;
 };

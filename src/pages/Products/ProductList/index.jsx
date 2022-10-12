@@ -285,7 +285,7 @@ function ProductListScreen() {
     {
       title: "Product Name",
       dataIndex: "name",
-      defaultSortOrder: "descend",
+      width: "20%",
       render: (_, { name, product_image, slug }) => (
         <div
           className="flex items-center gap-3 cursor-pointer text-blue-500 hover:underline"
@@ -311,6 +311,7 @@ function ProductListScreen() {
     },
     {
       title: "Brand",
+      width: "15%",
       render: (text, record) => {
         return (
           <div className="flex items-center capitalize">
@@ -322,6 +323,7 @@ function ProductListScreen() {
     },
     {
       title: "Category",
+      width: "15%",
       render: (text, record) => {
         return (
           <div className="flex items-center capitalize">

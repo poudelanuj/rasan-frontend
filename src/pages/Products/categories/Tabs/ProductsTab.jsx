@@ -83,7 +83,7 @@ function TabAll({ slug }) {
   const [alertType, setAlertType] = useState("");
 
   const [page, setPage] = useState(1);
-  const pageSize = 10;
+  const [pageSize, setPageSize] = useState(20);
   const [products, setProducts] = useState([]);
 
   const {
@@ -97,13 +97,16 @@ function TabAll({ slug }) {
   );
 
   useEffect(() => {
-    if (data) setProducts((prev) => uniqBy([...prev, ...data.results], "slug"));
-  }, [data]);
+    if (data && productsStatus === "success" && !isRefetching) {
+      setProducts([]);
+      setProducts((prev) => uniqBy([...prev, ...data.results], "slug"));
+    }
+  }, [data, productsStatus, isRefetching]);
 
   useEffect(() => {
     refetchProducts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  }, [page, pageSize]);
 
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const navigate = useNavigate();
@@ -234,11 +237,14 @@ function TabAll({ slug }) {
             }))}
             loading={productsStatus === "loading" || isRefetching}
             pagination={{
+              showSizeChanger: true,
               pageSize,
               total: data?.count,
+              current: page,
 
               onChange: (page, pageSize) => {
                 setPage(page);
+                setPageSize(pageSize);
               },
             }}
             rowClassName="cursor-pointer"
