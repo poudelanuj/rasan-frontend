@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useQuery } from "react-query";
 import { getNotificationGroups } from "../../api/notifications";
 import { GET_NOTIFICATION_GROUPS } from "../../constants/queryKeys";
+import CustomPageHeader from "../../shared/PageHeader";
 import CreateNotification from "./CreateNotification";
 import ViewNotification from "./ViewNotification";
 
@@ -73,7 +74,7 @@ const Notifications = () => {
   ];
 
   return (
-    <div className="py-5">
+    <>
       <ViewNotification
         isOpen={isViewModalOpen}
         notification={selectedNotification}
@@ -91,44 +92,42 @@ const Notifications = () => {
         }}
       />
 
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl">Notifications</h2>
+      <CustomPageHeader title="Notifications" isBasicHeader>
         <Button type="primary" onClick={() => setIsCreateModalOpen(true)}>
           Create New Notification
         </Button>
-      </div>
-      <div className="my-5">
-        <Table
-          columns={columns}
-          dataSource={notifications?.map((item, index) => ({
-            ...item,
-            key: item.id,
-            sn: (page - 1) * pageSize + index + 1,
-          }))}
-          loading={status === "loading" || isRefetching}
-          pagination={{
-            showSizeChanger: true,
-            pageSize,
-            total: data?.count,
-            current: page,
+      </CustomPageHeader>
 
-            onChange: (page, pageSize) => {
-              setPage(page);
-              setPageSize(pageSize);
+      <Table
+        columns={columns}
+        dataSource={notifications?.map((item, index) => ({
+          ...item,
+          key: item.id,
+          sn: (page - 1) * pageSize + index + 1,
+        }))}
+        loading={status === "loading" || isRefetching}
+        pagination={{
+          showSizeChanger: true,
+          pageSize,
+          total: data?.count,
+          current: page,
+
+          onChange: (page, pageSize) => {
+            setPage(page);
+            setPageSize(pageSize);
+          },
+        }}
+        rowClassName="cursor-pointer"
+        onRow={(record) => {
+          return {
+            onClick: () => {
+              setIsViewModalOpen(true);
+              setSelected(record);
             },
-          }}
-          rowClassName="cursor-pointer"
-          onRow={(record) => {
-            return {
-              onClick: () => {
-                setIsViewModalOpen(true);
-                setSelected(record);
-              },
-            };
-          }}
-        />
-      </div>
-    </div>
+          };
+        }}
+      />
+    </>
   );
 };
 

@@ -76,8 +76,6 @@ const LiveUserBasket = ({ user }) => {
 
   return (
     <div>
-      <h2 className="text-2xl my-3">Live User Basket</h2>
-
       <Table
         columns={columns}
         dataSource={basketList?.map((item) => ({

@@ -131,7 +131,7 @@ const AddProduct = () => {
       />
 
       <>
-        <div>
+        <div className="p-6 rounded-lg bg-white">
           <Form
             layout="vertical"
             onFinish={(values) => onFormSubmit.mutate(values)}

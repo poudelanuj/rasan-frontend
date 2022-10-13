@@ -1,6 +1,6 @@
 import { Table, Tag, Button, Menu, Dropdown, Space, Input } from "antd";
 import { useMutation } from "react-query";
-import { DeleteOutlined, SearchOutlined } from "@ant-design/icons";
+import { DeleteOutlined } from "@ant-design/icons";
 import moment from "moment";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -51,36 +51,6 @@ const OrdersList = ({
   const [checkedRows, setCheckedRows] = useState([]);
   const navigate = useNavigate();
 
-  const getColumnSearchProps = (dataIndex) => ({
-    filterDropdown: () => (
-      <div
-        style={{
-          padding: 8,
-        }}
-      >
-        <Input
-          placeholder={`Search ${dataIndex}`}
-          style={{
-            marginBottom: 8,
-            display: "block",
-          }}
-          onChange={(e) => {
-            searchInput.current = e.target.value;
-            if (timeout) clearTimeout(timeout);
-            timeout = setTimeout(refetchOrders, 1000);
-          }}
-        />
-      </div>
-    ),
-    filterIcon: (filtered) => (
-      <SearchOutlined
-        style={{
-          color: filtered ? "#1890ff" : undefined,
-        }}
-      />
-    ),
-  });
-
   const columns = [
     {
       title: "Order ID",
@@ -117,7 +87,6 @@ const OrdersList = ({
           </div>
         );
       },
-      ...getColumnSearchProps("customer"),
     },
     {
       title: "Total Paid Amount",
@@ -154,6 +123,17 @@ const OrdersList = ({
       render: (_, { payment }) => {
         return <>{capitalize(payment?.payment_method?.replaceAll("_", " "))}</>;
       },
+    },
+    {
+      title: "Shop Name",
+      dataIndex: "shop_name",
+      key: "shop_name",
+      width: "15%",
+      render: (_, { shop_name }) => (
+        <span className="w-16" style={{ overflowWrap: "anywhere" }}>
+          {capitalize(shop_name?.replaceAll("_", " "))}
+        </span>
+      ),
     },
     {
       title: "Ordered At",
@@ -259,31 +239,42 @@ const OrdersList = ({
   );
 
   return (
-    <div className="">
-      <div className="mb-4 flex justify-between">
-        <ButtonWPermission
-          className="flex items-center"
-          codename="add_order"
-          type="primary"
-          ghost
-          onClick={() => {
-            navigate("/orders/create-order");
-          }}
-        >
-          Create New Order
-        </ButtonWPermission>
+    <div>
+      <div className="mb-4 flex gap-5 justify-between">
+        <Space>
+          <ButtonWPermission
+            className="flex items-center"
+            codename="add_order"
+            type="primary"
+            ghost
+            onClick={() => {
+              navigate("/orders/create-order");
+            }}
+          >
+            Create New Order
+          </ButtonWPermission>
 
-        <div>
+          <Input.Search
+            placeholder="Search user, contact, shop"
+            onChange={(e) => {
+              searchInput.current = e.target.value;
+              if (timeout) clearTimeout(timeout);
+              timeout = setTimeout(refetchOrders, 400);
+            }}
+          />
+        </Space>
+
+        <Space>
           <Dropdown overlay={bulkMenu}>
             <Button className="bg-white" type="default">
               <Space>Bulk Actions</Space>
             </Button>
           </Dropdown>
 
-          <Button className="ml-4 bg-cyan-500 text-white" type="default">
+          <Button className="bg-cyan-500 text-white" type="default">
             <Space>Export</Space>
           </Button>
-        </div>
+        </Space>
       </div>
 
       <Table

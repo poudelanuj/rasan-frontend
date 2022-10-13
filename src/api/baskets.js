@@ -2,9 +2,9 @@ import axios from "../axios";
 
 export const getAllBaskets = async (page, pageSize, search, sort) => {
   const res = await axios.get(
-    `/api/order/admin/baskets/?page=${page || 1}&size=${pageSize || 20}&user=${
-      search || ""
-    }&sort=${sort || []}`
+    `/api/order/admin/baskets/?page=${page || 1}&size=${
+      pageSize || 20
+    }&search=${search || ""}&sort=${sort || []}`
   );
   return res.data.data;
 };

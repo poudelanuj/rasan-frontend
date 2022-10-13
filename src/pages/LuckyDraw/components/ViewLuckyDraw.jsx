@@ -156,7 +156,7 @@ const ViewLuckyDraw = () => {
       ) : (
         luckyDraw && (
           <>
-            <div className="bg-[#FFFFFF] p-6 flex gap-6 items-start">
+            <div className="bg-[#FFFFFF] p-6 rounded-lg flex gap-6 items-start">
               <Image
                 height={190}
                 src={luckyDraw.event_banner.full_size}
@@ -212,7 +212,7 @@ const ViewLuckyDraw = () => {
               </div>
             </div>
 
-            <div className="flex flex-col py-8 gap-3">
+            <div className="flex flex-col bg-white rounded-lg p-6 my-8 gap-3">
               <Dropdown className="w-fit" overlay={bulkMenu}>
                 <Button className="bg-white" type="default">
                   <Space>Bulk Actions</Space>

@@ -313,7 +313,7 @@ const ViewOrderPage = () => {
     <>
       <CustomPageHeader title={`Order #${orderId}`} />
 
-      <div className="p-5 bg-[#FFFFFF]">
+      <div className="p-6 rounded-lg bg-[#FFFFFF]">
         <ChangePayment
           isOpen={openChangePayment}
           orderType={data?.type}

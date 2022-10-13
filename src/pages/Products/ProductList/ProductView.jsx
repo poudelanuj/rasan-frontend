@@ -1,9 +1,10 @@
-import { EditOutlined } from "@ant-design/icons";
-import { Descriptions, Divider, Tag, Spin, Space, Breadcrumb } from "antd";
-import moment from "moment";
 import React, { useCallback } from "react";
+import { Descriptions, Divider, Tag, Spin, Space, Breadcrumb } from "antd";
+import { EditOutlined } from "@ant-design/icons";
 import { useQuery, useMutation } from "react-query";
 import { Link, useParams } from "react-router-dom";
+import moment from "moment";
+import { capitalize } from "lodash";
 import {
   getProduct,
   publishProduct,
@@ -19,7 +20,7 @@ import {
 } from "../../../utils/openNotification";
 import ProductSkuList from "./shared/ProductSkuList";
 import ButtonWPermission from "../../../shared/ButtonWPermission";
-import { capitalize } from "lodash";
+import rasanDefault from "../../../assets/images/rasan-default.png";
 
 function ViewProduct() {
   const { slug } = useParams();
@@ -62,14 +63,14 @@ function ViewProduct() {
             title={product.name}
           />
 
-          <div className="flex flex-col bg-white p-6 rounded">
+          <div className="flex flex-col bg-white p-6 rounded-lg">
             <div>
               <div className="flex justify-start relative">
                 <div className="w-[200px] h-[200px] rounded ">
                   <img
                     alt="product"
                     className="w-[100%] h-[100%] rounded object-cover"
-                    src={product?.product_image?.full_size}
+                    src={product?.product_image?.full_size || rasanDefault}
                   />
                 </div>
 

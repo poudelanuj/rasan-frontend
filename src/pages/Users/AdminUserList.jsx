@@ -34,7 +34,6 @@ const AdminUserList = () => {
       GET_ADMIN_USER,
       page.toString() + pageSize.toString(),
       userGroupIds,
-      searchText.current,
       sortObj.sort,
     ],
     queryFn: () =>

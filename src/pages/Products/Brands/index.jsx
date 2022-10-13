@@ -49,11 +49,7 @@ function BrandsScreen() {
     refetch: refetchBrands,
     isRefetching,
   } = useQuery(
-    [
-      GET_PAGINATED_BRANDS,
-      page.toString() + pageSize.toString(),
-      searchText.current,
-    ],
+    [GET_PAGINATED_BRANDS, page.toString() + pageSize.toString()],
     () => getPaginatedBrands(page, pageSize, searchText.current)
   );
 

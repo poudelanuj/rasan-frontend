@@ -192,6 +192,7 @@ const LuckyDraw = () => {
             <ButtonWPermission
               className="!border-none"
               codename="delete_luckydrawevent"
+              disabled={is_active}
               icon={
                 <DeleteOutlined
                   onClick={() => {
@@ -249,7 +250,7 @@ const LuckyDraw = () => {
     <>
       <CustomPageHeader title="Lucky Draw Campaigns" isBasicHeader />
 
-      <div className="py-5 px-4 bg-[#FFFFFF]">
+      <div className="p-6 rounded-lg bg-[#FFFFFF]">
         <div className="mb-4 flex justify-between">
           <ButtonWPermission
             className="flex items-center"

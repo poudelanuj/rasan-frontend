@@ -259,7 +259,7 @@ const Promotions = () => {
     <>
       <CustomPageHeader title="Promotions" isBasicHeader />
 
-      <div className="py-5 px-4 bg-[#FFFFFF]">
+      <div className="p-6 rounded-lg bg-[#FFFFFF]">
         <div className="mb-4 flex justify-between">
           <ButtonWPermission
             className="flex items-center"

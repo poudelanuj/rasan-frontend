@@ -134,7 +134,7 @@ function Brands() {
         slug={slug}
       />
 
-      <div>
+      <div className="bg-white p-6 rounded-lg">
         <Tabs defaultActiveKey="1">
           <TabPane key="1" tab="Products">
             <TabAll slug={slug} />

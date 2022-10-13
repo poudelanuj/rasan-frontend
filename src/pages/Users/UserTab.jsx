@@ -8,7 +8,7 @@ const { TabPane } = Tabs;
 
 const UserTab = ({ user }) => {
   return (
-    <Tabs className="bg-white !px-6" defaultActiveKey="1">
+    <Tabs className="bg-white !px-6 rounded-b-lg" defaultActiveKey="1">
       <TabPane key="1" tab="User Information">
         <UserInformation user={user} />
       </TabPane>

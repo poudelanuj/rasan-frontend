@@ -6,7 +6,6 @@ import { getOrderMetrics } from "../../api/orders";
 import { getEndUser } from "../../api/users";
 import { useAuth } from "../../AuthProvider";
 import {
-  GET_ORDERS_ASSIGNED,
   GET_ORDER_METRICS,
   GET_TICKETS_ASSIGNED,
   GET_TICKET_METRICS,
@@ -14,15 +13,13 @@ import {
 import Loader from "../../shared/Loader";
 import WelcomeCard from "./shared/WelcomeCard";
 import { DASHBOARD_TIME_KEYS } from "../../constants";
-import {
-  getOrdersAssignedToMe,
-  getTicketsAssignedToMe,
-} from "../../api/dashboard";
+import { getTicketsAssignedToMe } from "../../api/dashboard";
 import TicketsAssigned from "./shared/TicketsAssigned";
 import OrdersAssigned from "./shared/OrdersAssigned";
 import OrderMetrics from "./OrderMetrics";
 import TicketMetrics from "./TicketsMetrics";
 import { capitalize } from "lodash";
+import CustomPageHeader from "../../shared/PageHeader";
 
 const Dashboard = () => {
   const { logout } = useAuth();
@@ -48,11 +45,6 @@ const Dashboard = () => {
     queryKey: GET_TICKETS_ASSIGNED,
   });
 
-  const { data: ordersAssigned, status: ordersAssignedStatus } = useQuery({
-    queryFn: getOrdersAssignedToMe,
-    queryKey: GET_ORDERS_ASSIGNED,
-  });
-
   const { data: userInfo } = useQuery(["get-end-user"], getEndUser, {
     retry: false,
     onError: (err) => {
@@ -65,10 +57,8 @@ const Dashboard = () => {
       {(orderMetricsStatus === "loading" ||
         ticketsMetricsStatus === "loading") && <Loader isOpen />}
 
-      <div className="py-4">
-        <div>
-          <h2 className="text-2xl mb-6 text-gray-600">Dashboard</h2>
-        </div>
+      <div>
+        <CustomPageHeader title="Dashboard" isBasicHeader />
 
         <div className="flex gap-3">
           <WelcomeCard
@@ -82,7 +72,7 @@ const Dashboard = () => {
           />
 
           <div className="grow flex flex-col gap-3">
-            <Card bodyStyle={{ padding: 10 }} className="grow">
+            <Card bodyStyle={{ padding: 10 }} className="grow !rounded-lg">
               <div className="flex mb-2 justify-between items-center">
                 <h4 className="m-0">Tickets</h4>
                 <Space>
@@ -104,7 +94,7 @@ const Dashboard = () => {
 
               <TicketMetrics ticketMetrics={ticketMetrics} />
             </Card>
-            <Card bodyStyle={{ padding: 10 }} className="grow">
+            <Card bodyStyle={{ padding: 10 }} className="grow !rounded-lg">
               <div className="flex mb-2 justify-between items-center">
                 <h4 className="m-0">Orders</h4>
                 <Space>
@@ -129,14 +119,18 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <h3 className="text-xl mt-8">My Orders</h3>
-        <OrdersAssigned orders={ordersAssigned} status={ordersAssignedStatus} />
+        <div className="bg-white p-6 mt-8 rounded-lg">
+          <h3 className="text-xl">My Orders</h3>
+          <OrdersAssigned />
+        </div>
 
-        <h3 className="text-xl mt-8">My Tickets</h3>
-        <TicketsAssigned
-          status={ticketsAssignedStatus}
-          tickets={ticketsAssigned}
-        />
+        <div className="bg-white p-6 mt-8 rounded-lg">
+          <h3 className="text-xl">My Tickets</h3>
+          <TicketsAssigned
+            status={ticketsAssignedStatus}
+            tickets={ticketsAssigned}
+          />
+        </div>
       </div>
     </>
   );

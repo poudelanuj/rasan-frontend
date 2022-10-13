@@ -16,7 +16,7 @@ export const getPaginatedProducts = async (
   const res = await axios.get(
     `/api/product/admin/products/?page=${page || 1}&size=${
       pageSize || 20
-    }&sort=${sort}&name_icontains=${search || ""}&brand=${
+    }&sort=${sort}&name__icontains=${search || ""}&brand=${
       brand || []
     }&category=${category || []}`
   );

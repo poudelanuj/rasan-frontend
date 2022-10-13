@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
-import { Space, Table, Tag, Input, Select } from "antd";
-import { SearchOutlined, CaretDownOutlined } from "@ant-design/icons";
+import { Space, Table, Tag, Select } from "antd";
+import { CaretDownOutlined, SearchOutlined } from "@ant-design/icons";
 import { uniqBy } from "lodash";
 import { useMutation, useQuery } from "react-query";
 import AddCategoryButton from "../subComponents/AddCategoryButton";
@@ -169,36 +169,6 @@ function ProductListScreen() {
       sort: [`${sortObj.sortType[name] ? "" : "-"}${header.dataIndex}`],
     });
 
-  const getColumnSearchProps = (dataIndex) => ({
-    filterDropdown: () => (
-      <div
-        style={{
-          padding: 8,
-        }}
-      >
-        <Input
-          placeholder={`Search ${dataIndex}`}
-          style={{
-            marginBottom: 8,
-            display: "block",
-          }}
-          onChange={(e) => {
-            searchInput.current = e.target.value;
-            if (timeout) clearTimeout(timeout);
-            timeout = setTimeout(refetchProducts, 1000);
-          }}
-        />
-      </div>
-    ),
-    filterIcon: (filtered) => (
-      <SearchOutlined
-        style={{
-          color: filtered ? "#1890ff" : undefined,
-        }}
-      />
-    ),
-  });
-
   const getSelectBrandsProps = (dataIndex) => ({
     filterDropdown: () => (
       <div
@@ -307,16 +277,13 @@ function ProductListScreen() {
           onClick: () => sortingFn(header, "name"),
         };
       },
-      ...getColumnSearchProps("product"),
     },
     {
       title: "Brand",
       width: "15%",
-      render: (text, record) => {
+      render: (_, { brand }) => {
         return (
-          <div className="flex items-center capitalize">
-            {parseSlug(record.brand)}
-          </div>
+          <div className="flex items-center capitalize">{parseSlug(brand)}</div>
         );
       },
       ...getSelectBrandsProps("brands"),
@@ -324,15 +291,15 @@ function ProductListScreen() {
     {
       title: "Category",
       width: "15%",
-      render: (text, record) => {
+      render: (_, { category }) => {
         return (
           <div className="flex items-center capitalize">
-            {record.category.map((item, index) => {
-              if (index === 0) {
-                return <div>{parseSlug(item)}</div>;
-              } else {
-                return <div>, {parseSlug(item)}</div>;
-              }
+            {category.map((item, index) => {
+              return index !== category.length - 1 ? (
+                <div key={item}>{parseSlug(item)}, &nbsp;</div>
+              ) : (
+                <div key={item}>{parseSlug(item)}</div>
+              );
             })}
           </div>
         );
@@ -343,7 +310,7 @@ function ProductListScreen() {
       title: "Status",
       dataIndex: "is_published",
       // render jsx
-      render: (text, record) => {
+      render: (_, record) => {
         return (
           <Tag color={record.is_published ? "green" : "orange"}>
             {record.is_published ? "PUBLISHED" : "UNPUBLISHED"}
@@ -456,15 +423,27 @@ function ProductListScreen() {
     <>
       <CustomPageHeader title="Products" isBasicHeader />
 
-      <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[70vh]">
-        <div className="flex justify-end mb-3">
-          <div>
-            <AddCategoryButton
-              codename="add_product"
-              linkText="Add Products"
-              linkTo={`add`}
+      <div className="flex flex-col bg-white p-6 rounded-lg min-h-[70vh]">
+        <div className="flex items-center justify-between mb-3">
+          <div className="py-[3px] px-3 min-w-[18rem] border-[1px] border-[#D9D9D9] rounded-lg flex items-center justify-between">
+            <SearchOutlined style={{ color: "#D9D9D9" }} />
+            <input
+              className="focus:outline-none w-full ml-1 placeholder:text-[#D9D9D9]"
+              placeholder={"Search product..."}
+              type="text"
+              onChange={(e) => {
+                searchInput.current = e.target.value;
+                if (timeout) clearTimeout(timeout);
+                timeout = setTimeout(refetchProducts, 400);
+              }}
             />
           </div>
+
+          <AddCategoryButton
+            codename="add_product"
+            linkText="Add Products"
+            linkTo={`add`}
+          />
         </div>
 
         <div className="flex-1">

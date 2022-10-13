@@ -211,7 +211,7 @@ function TabAll({ slug }) {
     <>
       {openAlert && renderAlert()}
 
-      <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[70vh]">
+      <div className="flex flex-col bg-white min-h-[70vh]">
         <div className="flex justify-end mb-3">
           <div className="flex">
             {selectedRowKeys.length > 0 && (

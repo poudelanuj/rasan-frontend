@@ -51,11 +51,7 @@ const CategoryList = () => {
     refetch: refetchCategories,
     isRefetching,
   } = useQuery(
-    [
-      GET_PAGINATED_CATEGORIES,
-      page.toString() + pageSize.toString(),
-      searchText.current,
-    ],
+    [GET_PAGINATED_CATEGORIES, page.toString() + pageSize.toString()],
     () => getPaginatedCategories(page, pageSize, searchText.current)
   );
 

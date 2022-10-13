@@ -133,7 +133,7 @@ function Category() {
         isOpen={isEditCategory}
         slug={slug}
       />
-      <div>
+      <div className="p-6 bg-white rounded-lg">
         <Tabs defaultActiveKey="1">
           <TabPane key="1" tab="Products">
             <ProductsTab slug={slug} />

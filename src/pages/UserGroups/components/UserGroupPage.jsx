@@ -138,7 +138,7 @@ const UserGroupPage = () => {
         <>
           <CustomPageHeader title={userGroup && userGroup[0].data.data.name} />
 
-          <div className="py-5 px-4 bg-[#FFFFFF]">
+          <div className="p-6 rounded-lg bg-[#FFFFFF]">
             <div className="flex items-center justify-between mb-6">
               <Space>
                 <ButtonWPermission

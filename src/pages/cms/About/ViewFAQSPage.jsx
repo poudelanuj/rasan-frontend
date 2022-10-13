@@ -167,7 +167,7 @@ const ViewFAQSPage = () => {
             <>
               <CustomPageHeader title={dataSource?.name} />
 
-              <div className="relative bg-white px-5 py-4 flex flex-col gap-5">
+              <div className="relative bg-white p-6 rounded-lg flex flex-col gap-5">
                 <span className="absolute right-5">
                   <Dropdown overlay={bulkMenu}>
                     <Button className="bg-white" type="default">

@@ -46,9 +46,9 @@ const UserGroups = () => {
 
   return (
     <>
-      <CustomPageHeader title="User Groups" isBasic />
+      <CustomPageHeader title="User Groups" isBasicHeader />
 
-      <div className="py-5 px-4 bg-[#FFFFFF]">
+      <div className="p-6 rounded-lg bg-[#FFFFFF]">
         <ButtonWPermission
           className="mb-6"
           codename="add_group"

@@ -44,7 +44,6 @@ const Orders = () => {
       GET_PAGINATED_ORDERS,
       orderStatus + page.toString() + pageSize.toString(),
       sortObj.sort,
-      searchInput.current,
     ],
   });
 
@@ -76,6 +75,7 @@ const Orders = () => {
       <CustomPageHeader title="Orders" isBasicHeader />
 
       <Tabs
+        className="bg-white !p-6 rounded-lg"
         defaultActiveKey="all"
         onTabClick={(tabKey) => {
           setPage(1);

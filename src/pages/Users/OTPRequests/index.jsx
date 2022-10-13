@@ -7,6 +7,7 @@ import { useRef } from "react";
 import { useState } from "react";
 import { useQuery } from "react-query";
 import { getOtpRequests } from "../../../context/UserContext";
+import CustomPageHeader from "../../../shared/PageHeader";
 
 const OTPRequests = () => {
   const { Search } = Input;
@@ -100,46 +101,48 @@ const OTPRequests = () => {
 
   return (
     <>
-      <div className="text-3xl bg-white mb-3 p-5">OTP List</div>
+      <CustomPageHeader title="OTP List" isBasicHeader />
 
-      <Search
-        className="mb-4"
-        enterButton="Search"
-        placeholder="Search User"
-        size="large"
-        onChange={(e) => {
-          searchText.current = e.target.value;
-          if (timeout) clearTimeout(timeout);
-          timeout = setTimeout(refetch, 400);
-        }}
-      />
-
-      {(status === "loading" || isRefetching) && <Spin />}
-      {otpList && (
-        <Table
-          // onRow={(record) => {
-          //   return {
-          //     onDoubleClick: (_) => {
-          //       navigate("/user/" + record.key);
-          //     }, // double click row
-          //   };
-          // }}
-          columns={columns}
-          dataSource={otpList}
-          pagination={{
-            showSizeChanger: true,
-            pageSize,
-            total: data?.count,
-            current: page,
-
-            onChange: (page, pageSize) => {
-              setPage(page);
-              setPageSize(pageSize);
-            },
+      <div className="bg-white p-6 rounded-lg">
+        <Search
+          className="mb-4"
+          enterButton="Search"
+          placeholder="Search User"
+          size="large"
+          onChange={(e) => {
+            searchText.current = e.target.value;
+            if (timeout) clearTimeout(timeout);
+            timeout = setTimeout(refetch, 400);
           }}
-          showSorterTooltip={false}
         />
-      )}
+
+        {(status === "loading" || isRefetching) && <Spin />}
+        {otpList && (
+          <Table
+            // onRow={(record) => {
+            //   return {
+            //     onDoubleClick: (_) => {
+            //       navigate("/user/" + record.key);
+            //     }, // double click row
+            //   };
+            // }}
+            columns={columns}
+            dataSource={otpList}
+            pagination={{
+              showSizeChanger: true,
+              pageSize,
+              total: data?.count,
+              current: page,
+
+              onChange: (page, pageSize) => {
+                setPage(page);
+                setPageSize(pageSize);
+              },
+            }}
+            showSorterTooltip={false}
+          />
+        )}
+      </div>
     </>
   );
 };

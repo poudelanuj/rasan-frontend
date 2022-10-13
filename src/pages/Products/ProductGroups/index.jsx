@@ -49,11 +49,7 @@ function ProductGroupsScreen() {
     refetch: refetchProductGroups,
     isRefetching,
   } = useQuery(
-    [
-      GET_PAGINATED_PRODUCT_GROUPS,
-      page.toString() + pageSize.toString(),
-      searchText.current,
-    ],
+    [GET_PAGINATED_PRODUCT_GROUPS, page.toString() + pageSize.toString()],
     () => getPaginatedProductGroups(page, pageSize, searchText.current)
   );
 
@@ -167,7 +163,7 @@ function ProductGroupsScreen() {
               <SearchOutlined style={{ color: "#D9D9D9" }} />
               <input
                 className="focus:outline-none w-full ml-1 placeholder:text-[#D9D9D9]"
-                placeholder={"Search categories..."}
+                placeholder={"Search rasan choices..."}
                 type="text"
                 onChange={(e) => {
                   searchText.current = e.target.value;

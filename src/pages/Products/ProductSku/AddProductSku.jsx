@@ -10,7 +10,7 @@ import {
   Breadcrumb,
 } from "antd";
 import { useCallback, useState } from "react";
-import { useQuery, useMutation } from "react-query";
+import { useQuery, useMutation, useQueryClient } from "react-query";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { getAllBrands } from "../../../api/brands";
 import { getAllCategories } from "../../../api/categories";
@@ -30,6 +30,8 @@ import {
   GET_ALL_LOYALTIES,
   GET_ALL_PRODUCTS,
   GET_ALL_PRODUCT_GROUPS,
+  GET_PAGINATED_PRODUCT_SKUS,
+  GET_PRODUCT_SKU,
 } from "../../../constants/queryKeys";
 import CreateCategoryModal from "../shared/CreateCategoryModal";
 import CreateBrandModal from "../shared/CreateBrandModal";
@@ -43,6 +45,8 @@ const AddProductSku = () => {
 
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+
+  const queryClient = useQueryClient();
 
   const fileUploadOptions = {
     maxCount: 1,
@@ -102,6 +106,8 @@ const AddProductSku = () => {
     {
       onSuccess: (data) => {
         openSuccessNotification(data.message || "Product Created");
+        queryClient.refetchQueries([GET_PRODUCT_SKU]);
+        queryClient.refetchQueries([GET_PAGINATED_PRODUCT_SKUS]);
         navigate(-1);
       },
       onError: (error) => {
@@ -142,7 +148,7 @@ const AddProductSku = () => {
       />
 
       <>
-        <div>
+        <div className="p-6 bg-white rounded-lg">
           <Form
             layout="vertical"
             onFinish={(values) => onFormSubmit.mutate(values)}

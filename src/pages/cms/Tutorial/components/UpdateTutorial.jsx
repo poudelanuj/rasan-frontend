@@ -145,7 +145,7 @@ const UpdateTutorial = () => {
       ) : (
         <>
           <CustomPageHeader title={dataSource.title} />
-          <div className="px-4 bg-[#FFFFFF]">
+          <div className="px-6 rounded-lg bg-[#FFFFFF]">
             <div className="flex items-center justify-between mb-2">
               <ButtonWPermission
                 codename="change_tutorial"

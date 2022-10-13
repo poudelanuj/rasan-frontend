@@ -22,7 +22,7 @@ export const getPaginatedProdctSkus = async (page, pageSize, sort, search) => {
   const res = await axios.get(
     `/api/product/admin/product-skus/?page=${page || 1}&size=${
       pageSize || 20
-    }&sort=${sort || []}&name_icontains=${search || ""}`
+    }&sort=${sort || []}&name__icontains=${search || ""}`
   );
   return res.data.data;
 };

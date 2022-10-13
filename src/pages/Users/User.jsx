@@ -12,6 +12,7 @@ import Time from "../../svgs/Time";
 import UserTab from "./UserTab";
 import rasanDefault from "../../assets/images/rasan-default.png";
 import Loader from "../../shared/Loader";
+import CustomPageHeader from "../../shared/PageHeader";
 
 const User = () => {
   let { user_id } = useParams();
@@ -30,11 +31,11 @@ const User = () => {
   );
   return (
     <div>
-      <div className="text-3xl bg-white mb-3 p-5">User Details</div>
+      <CustomPageHeader title="User Details" />
       {isLoading && <Loader isOpen />}
       {isSuccess && (
-        <div>
-          <div className="flex text-text bg-white p-4 justify-between">
+        <>
+          <div className="flex text-text bg-white p-5 rounded-lg justify-between">
             <div className="details flex w-6/12">
               <img
                 alt={user.full_name}
@@ -82,7 +83,7 @@ const User = () => {
             </div>
           </div>
           <UserTab user={user} />
-        </div>
+        </>
       )}
     </div>
   );

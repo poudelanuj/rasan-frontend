@@ -10,6 +10,7 @@ import { deleteBulkUserBasket, getAllBaskets } from "../../api/baskets";
 import { GET_BASKETS } from "../../constants/queryKeys";
 import { openErrorNotification, openSuccessNotification } from "../../utils";
 import ConfirmDelete from "../../shared/ConfirmDelete";
+import CustomPageHeader from "../../shared/PageHeader";
 
 const LiveUserBasket = () => {
   const { Search } = Input;
@@ -44,7 +45,6 @@ const LiveUserBasket = () => {
     queryKey: [
       GET_BASKETS,
       page.toString() + pageSize.toString(),
-      searchText.current,
       sortObj.sort,
     ],
   });
@@ -161,76 +161,77 @@ const LiveUserBasket = () => {
   };
 
   return (
-    <div>
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl my-3">Live User Basket</h2>
-
+    <>
+      <CustomPageHeader title="Live User Basket" isBasicHeader>
         <Dropdown overlay={bulkMenu}>
           <Button className="bg-white" type="default">
             <Space>Bulk Actions</Space>
           </Button>
         </Dropdown>
-      </div>
-      <Search
-        className="mb-4"
-        enterButton="Search"
-        placeholder="Search User"
-        size="large"
-        onChange={(e) => {
-          searchText.current = e.target.value;
-          if (timeout) clearTimeout(timeout);
-          timeout = setTimeout(refetch, 400);
-        }}
-      />
+      </CustomPageHeader>
 
-      {(status === "loading" || isRefetching) && <Spin />}
-      <Table
-        columns={columns}
-        dataSource={basketList?.map((item) => ({
-          ...item,
-          key: item.basket_id,
-        }))}
-        loading={isLoading}
-        pagination={{
-          showSizeChanger: true,
-          pageSize,
-          total: data?.count,
-          current: page,
-
-          onChange: (page, pageSize) => {
-            setPage(page);
-            setPageSize(pageSize);
-          },
-        }}
-        rowClassName="cursor-pointer"
-        rowSelection={{ ...rowSelection }}
-        showSorterTooltip={false}
-        onRow={(record) => {
-          return {
-            onClick: () => {
-              setModalBasket(record);
-              setIsModalOpen(true);
-            },
-          };
-        }}
-      />
-
-      <ConfirmDelete
-        closeModal={() => setIsBulkDeleteModalOpen(false)}
-        deleteMutation={() => handleBulkDelete.mutate()}
-        isOpen={isBulkDeleteModalOpen}
-        status={() => handleBulkDelete.status}
-        title="Delete selected basket?"
-      />
-
-      {modalBasket && (
-        <BasketModal
-          basket={modalBasket}
-          isModalOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+      <div className="bg-white p-6 rounded-lg">
+        <Search
+          className="mb-4"
+          enterButton="Search"
+          placeholder="Search User"
+          size="large"
+          onChange={(e) => {
+            searchText.current = e.target.value;
+            if (timeout) clearTimeout(timeout);
+            timeout = setTimeout(refetch, 400);
+          }}
         />
-      )}
-    </div>
+
+        {(status === "loading" || isRefetching) && <Spin />}
+        <Table
+          columns={columns}
+          dataSource={basketList?.map((item) => ({
+            ...item,
+            key: item.basket_id,
+          }))}
+          loading={isLoading}
+          pagination={{
+            showSizeChanger: true,
+            pageSize,
+            total: data?.count,
+            current: page,
+
+            onChange: (page, pageSize) => {
+              setPage(page);
+              setPageSize(pageSize);
+            },
+          }}
+          rowClassName="cursor-pointer"
+          rowSelection={{ ...rowSelection }}
+          showSorterTooltip={false}
+          onRow={(record) => {
+            return {
+              onClick: () => {
+                setModalBasket(record);
+                setIsModalOpen(true);
+              },
+            };
+          }}
+        />
+
+        <ConfirmDelete
+          closeModal={() => setIsBulkDeleteModalOpen(false)}
+          deleteMutation={() => handleBulkDelete.mutate()}
+          isOpen={isBulkDeleteModalOpen}
+          status={() => handleBulkDelete.status}
+          title="Delete selected basket?"
+        />
+
+        {modalBasket && (
+          <BasketModal
+            basket={modalBasket}
+            isModalOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+          />
+        )}
+      </div>
+    </>
   );
 };
 

@@ -1,12 +1,13 @@
 import { Tabs } from "antd";
 import UserList from "./UserList";
 import AdminUserList from "./AdminUserList";
+import CustomPageHeader from "../../shared/PageHeader";
 
 const Users = () => {
   return (
     <div>
-      <div className="text-3xl bg-white mb-3 p-5">Users List</div>
-      <Tabs className="bg-white !px-5 !py-3" defaultActiveKey="general">
+      <CustomPageHeader title="Users List" isBasicHeader />
+      <Tabs className="bg-white !p-6 rounded-lg" defaultActiveKey="general">
         <Tabs.TabPane key="general" tab="Customer">
           <UserList />
         </Tabs.TabPane>

@@ -26,7 +26,7 @@ const LoyaltyRedeem = () => {
   return (
     <>
       <CustomPageHeader title="Loyalty Redeem" isBasicHeader />
-      <div className="py-5 px-4 bg-[#FFFFFF]">
+      <div className="p-6 bg-[#FFFFFF] rounded-lg">
         <Tabs defaultActiveKey="all">
           {/* Todo Right Align*/}
           <TabPane key="unarchived" tab="Active">

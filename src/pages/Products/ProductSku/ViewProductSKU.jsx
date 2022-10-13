@@ -63,7 +63,7 @@ function ProductSKU() {
             title={productSku.name}
           />
 
-          <div className="flex flex-col bg-white p-6 rounded ">
+          <div className="flex flex-col bg-white p-6 rounded-lg">
             <div>
               <div className="flex justify-start relative">
                 <div className="w-[200px] h-[200px] rounded ">

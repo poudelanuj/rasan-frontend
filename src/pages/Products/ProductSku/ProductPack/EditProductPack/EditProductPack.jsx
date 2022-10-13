@@ -73,6 +73,7 @@ function EditProductPack({
                 defaultValue={productSku.slug}
                 loading={productSkuStatus === "loading"}
                 placeholder="Select Product Sku"
+                disabled
               >
                 <Select.Option key={productSku.slug} value={productSku.slug}>
                   {productSku.name}

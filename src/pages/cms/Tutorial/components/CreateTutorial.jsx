@@ -82,179 +82,181 @@ const CreateTutorial = () => {
   );
 
   return (
-    <div className="px-4 bg-[#FFFFFF]">
+    <>
       <CustomPageHeader title="Create Tutorial" />
-      <p className="font-semibold text-lg">Details</p>
 
-      <Form
-        autoComplete="off"
-        className="w-full grid grid-cols-2 gap-x-8"
-        form={form}
-        initialValues={{ remember: true }}
-        layout="vertical"
-        name="basic"
-        onFinish={() =>
-          form.validateFields().then((values) => onFormSubmit.mutate(values))
-        }
-      >
-        <Form.Item
-          label="Type"
-          name="type"
-          rules={[
-            {
-              required: true,
-            },
-          ]}
+      <div className="p-6 rounded-lg bg-[#FFFFFF]">
+        <p className="font-semibold text-lg">Details</p>
+        <Form
+          autoComplete="off"
+          className="w-full grid grid-cols-2 gap-x-8"
+          form={form}
+          initialValues={{ remember: true }}
+          layout="vertical"
+          name="basic"
+          onFinish={() =>
+            form.validateFields().then((values) => onFormSubmit.mutate(values))
+          }
         >
-          <Select
-            placeholder="Select a option (Video or Text)"
-            allowClear
-            onChange={(value) => setType(value)}
+          <Form.Item
+            label="Type"
+            name="type"
+            rules={[
+              {
+                required: true,
+              },
+            ]}
           >
-            <Option value="text">Text</Option>
-            <Option value="video">Video</Option>
-          </Select>
-        </Form.Item>
-
-        <Form.Item
-          label="Page Location"
-          name="page_location"
-          rules={[
-            {
-              required: true,
-            },
-          ]}
-        >
-          <Select placeholder="Select page location" allowClear>
-            <Option value="general">General</Option>
-            <Option value="market_intelligence">Market Intelligence</Option>
-          </Select>
-        </Form.Item>
-
-        <Form.Item className="col-span-full" label="Tags" name="tags">
-          <Select mode="multiple" placeholder="Select a tag" allowClear>
-            {tagList?.map((el) => (
-              <Option key={el.id} value={el.id}>
-                {el.tag}
-              </Option>
-            ))}
-          </Select>
-        </Form.Item>
-
-        <Form.Item
-          className="col-span-full"
-          label="Title"
-          name="title"
-          rules={[{ required: true, message: "Please input title!" }]}
-        >
-          <Input placeholder="Enter a title" />
-        </Form.Item>
-
-        <Form.Item
-          className="col-span-full"
-          label="Subtitle"
-          name="subtitle"
-          rules={[{ required: true, message: "Please input subtitle!" }]}
-        >
-          <Input placeholder="Enter a subtitle" />
-        </Form.Item>
-
-        {type === "video" && (
-          <>
-            <Form.Item
-              className="col-span-full"
-              label="Video Link"
-              name="video_link"
-              rules={[
-                { required: true, message: "Please input video link!" },
-                () => ({
-                  validator(_, value) {
-                    if (value.includes("youtube.com")) {
-                      return Promise.resolve();
-                    }
-
-                    return Promise.reject(
-                      new Error("Only Youtube video links allowed!")
-                    );
-                  },
-                }),
-              ]}
+            <Select
+              placeholder="Select a option (Video or Text)"
+              allowClear
+              onChange={(value) => setType(value)}
             >
-              <Input
-                placeholder="Enter video link"
-                onChange={(e) => setIframeLink(e.target.value)}
-              />
-            </Form.Item>
+              <Option value="text">Text</Option>
+              <Option value="video">Video</Option>
+            </Select>
+          </Form.Item>
 
-            {iframeLink && (
-              <iframe
-                className="col-span-full mb-5"
-                height="330"
-                src={iframeLink.replace("watch?v=", "embed/")}
-                title="Thumbnail Video"
-                width="604"
-              ></iframe>
-            )}
-          </>
-        )}
+          <Form.Item
+            label="Page Location"
+            name="page_location"
+            rules={[
+              {
+                required: true,
+              },
+            ]}
+          >
+            <Select placeholder="Select page location" allowClear>
+              <Option value="general">General</Option>
+              <Option value="market_intelligence">Market Intelligence</Option>
+            </Select>
+          </Form.Item>
 
-        {type === "text" && (
-          <div className="col-span-full flex justify-between">
-            <Form.Item
-              className="w-[49%]"
-              label="Content"
-              name="content"
-              rules={[{ required: true, message: "Please input content" }]}
-            >
-              <TextArea
-                style={{
-                  height: 180,
-                }}
-                showCount
-                onChange={(e) => setGetMarkdown(e.target.value)}
-              />
-            </Form.Item>
-            <div className="w-[45%]">
-              <p>Preview</p>
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {getMarkdown}
-              </ReactMarkdown>
+          <Form.Item className="col-span-full" label="Tags" name="tags">
+            <Select mode="multiple" placeholder="Select a tag" allowClear>
+              {tagList?.map((el) => (
+                <Option key={el.id} value={el.id}>
+                  {el.tag}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            className="col-span-full"
+            label="Title"
+            name="title"
+            rules={[{ required: true, message: "Please input title!" }]}
+          >
+            <Input placeholder="Enter a title" />
+          </Form.Item>
+
+          <Form.Item
+            className="col-span-full"
+            label="Subtitle"
+            name="subtitle"
+            rules={[{ required: true, message: "Please input subtitle!" }]}
+          >
+            <Input placeholder="Enter a subtitle" />
+          </Form.Item>
+
+          {type === "video" && (
+            <>
+              <Form.Item
+                className="col-span-full"
+                label="Video Link"
+                name="video_link"
+                rules={[
+                  { required: true, message: "Please input video link!" },
+                  () => ({
+                    validator(_, value) {
+                      if (value.includes("youtube.com")) {
+                        return Promise.resolve();
+                      }
+
+                      return Promise.reject(
+                        new Error("Only Youtube video links allowed!")
+                      );
+                    },
+                  }),
+                ]}
+              >
+                <Input
+                  placeholder="Enter video link"
+                  onChange={(e) => setIframeLink(e.target.value)}
+                />
+              </Form.Item>
+
+              {iframeLink && (
+                <iframe
+                  className="col-span-full mb-5"
+                  height="330"
+                  src={iframeLink.replace("watch?v=", "embed/")}
+                  title="Thumbnail Video"
+                  width="604"
+                ></iframe>
+              )}
+            </>
+          )}
+
+          {type === "text" && (
+            <div className="col-span-full flex justify-between">
+              <Form.Item
+                className="w-[49%]"
+                label="Content"
+                name="content"
+                rules={[{ required: true, message: "Please input content" }]}
+              >
+                <TextArea
+                  style={{
+                    height: 180,
+                  }}
+                  showCount
+                  onChange={(e) => setGetMarkdown(e.target.value)}
+                />
+              </Form.Item>
+              <div className="w-[45%]">
+                <p>Preview</p>
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {getMarkdown}
+                </ReactMarkdown>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        <Form.Item label="Thumbnail">
-          <Dragger {...fileUploadOptions}>
-            <p className="ant-upload-drag-icon">
-              <img
-                alt="gallery"
-                className="h-[4rem] mx-auto"
-                src={
-                  selectedImage
-                    ? URL.createObjectURL(selectedImage)
-                    : "/gallery-icon.svg"
-                }
-              />
-            </p>
-            <p className="ant-upload-text">
-              <span className="text-gray-500">
-                click or drag file to this area to upload
-              </span>
-            </p>
-          </Dragger>
-        </Form.Item>
+          <Form.Item label="Thumbnail">
+            <Dragger {...fileUploadOptions}>
+              <p className="ant-upload-drag-icon">
+                <img
+                  alt="gallery"
+                  className="h-[4rem] mx-auto"
+                  src={
+                    selectedImage
+                      ? URL.createObjectURL(selectedImage)
+                      : "/gallery-icon.svg"
+                  }
+                />
+              </p>
+              <p className="ant-upload-text">
+                <span className="text-gray-500">
+                  click or drag file to this area to upload
+                </span>
+              </p>
+            </Dragger>
+          </Form.Item>
 
-        <Form.Item className="col-span-full">
-          <Button
-            htmlType="submit"
-            loading={onFormSubmit.isLoading}
-            type="primary"
-          >
-            Submit
-          </Button>
-        </Form.Item>
-      </Form>
-    </div>
+          <Form.Item className="col-span-full">
+            <Button
+              htmlType="submit"
+              loading={onFormSubmit.isLoading}
+              type="primary"
+            >
+              Submit
+            </Button>
+          </Form.Item>
+        </Form>
+      </div>
+    </>
   );
 };
 

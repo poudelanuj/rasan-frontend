@@ -131,7 +131,7 @@ const ViewPromotionsPage = () => {
             <>
               <CustomPageHeader title={promotions.title} />
 
-              <div className="py-5 px-4 bg-[#FFFFFF]">
+              <div className="p-6 rounded-lg bg-[#FFFFFF]">
                 <div className="flex w-full justify-between items-start">
                   <div className="flex flex-col">
                     <p className="text-lg font-semibold">Promotion Details</p>
@@ -222,7 +222,7 @@ const ViewPromotionsPage = () => {
                 </div>
               </div>
 
-              <div className="my-5 py-5 px-4 bg-[#FFFFFF] flex flex-col">
+              <div className="my-5 p-6 rounded-lg bg-[#FFFFFF] flex flex-col">
                 <p className="text-lg font-semibold">Banners</p>
 
                 <Form

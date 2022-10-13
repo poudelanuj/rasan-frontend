@@ -67,7 +67,7 @@ const ViewLoyaltyRedeemPage = () => {
                 title={loyaltyRedeem.product_sku.replaceAll("-", " ")}
               />
 
-              <div className="py-5 px-4 bg-[#FFFFFF]">
+              <div className="p-6 rounded-lg bg-[#FFFFFF]">
                 <div className="flex w-full justify-between items-start">
                   <div className="flex gap-7">
                     <Image

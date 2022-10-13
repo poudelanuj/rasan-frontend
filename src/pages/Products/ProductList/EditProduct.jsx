@@ -129,7 +129,7 @@ const EditProduct = () => {
         title={`Edit ${product?.name}`}
       />
 
-      <div className="py-5">
+      <div className="p-6 bg-white rounded-lg">
         {productStatus === "success" && product && product.name && (
           <div>
             <Form

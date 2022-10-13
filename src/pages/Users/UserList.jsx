@@ -29,7 +29,6 @@ const UserList = () => {
     queryKey: [
       "get-users",
       page.toString() + pageSize.toString(),
-      searchText.current,
       sortObj.sort,
     ],
     queryFn: () => getUsers(page, searchText.current, pageSize, sortObj.sort),
