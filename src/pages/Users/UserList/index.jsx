@@ -1,7 +1,7 @@
 import { Tabs } from "antd";
 import UserList from "./UserList";
 import AdminUserList from "./AdminUserList";
-import CustomPageHeader from "../../shared/PageHeader";
+import CustomPageHeader from "../../../shared/PageHeader";
 
 const Users = () => {
   return (

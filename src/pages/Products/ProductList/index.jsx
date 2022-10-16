@@ -296,7 +296,9 @@ function ProductListScreen() {
           <div className="flex items-center capitalize">
             {category.map((item, index) => {
               return index !== category.length - 1 ? (
-                <div key={item}>{parseSlug(item)}, &nbsp;</div>
+                <div key={item} className="mr-1">
+                  {parseSlug(item)},
+                </div>
               ) : (
                 <div key={item}>{parseSlug(item)}</div>
               );

@@ -4,6 +4,8 @@ import UserInformation from "./UserInformation";
 
 import LiveUserBasket from "./BasketList";
 import OrderList from "./OrderList";
+import UserAnalytics from "../Analytics";
+
 const { TabPane } = Tabs;
 
 const UserTab = ({ user }) => {
@@ -17,6 +19,9 @@ const UserTab = ({ user }) => {
       </TabPane>
       <TabPane key="3" tab="User Basket">
         <LiveUserBasket user={user} />
+      </TabPane>
+      <TabPane key="4" tab="Analytics">
+        <UserAnalytics user={user} />
       </TabPane>
     </Tabs>
   );

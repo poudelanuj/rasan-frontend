@@ -71,6 +71,10 @@ function ProductSkuScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, sortObj.sort, pageSize]);
 
+  /* console.log(
+    productSkus.map(({ product_packs }) => product_packs.map(({ id }) => id))
+  );*/
+
   const getColumnSearchProps = (dataIndex) => ({
     filterDropdown: () => (
       <div

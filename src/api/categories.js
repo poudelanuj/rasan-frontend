@@ -76,7 +76,20 @@ export const getProductsFromCategory = async ({
   const res = await axios.get(
     `/api/product/admin/categories/products/${categorySlug}/?page=${
       page || 1
-    }&size=${pageSize || 10}`
+    }&size=${pageSize || 20}`
   );
   return res.data.data.products;
+};
+
+export const getProductSkusFromCategory = async (
+  categorySlug,
+  page,
+  pageSize
+) => {
+  const res = await axios.get(
+    `/api/product/admin/category/product-skus/${categorySlug}/?page=${
+      page || 1
+    }&size=${pageSize || 20}`
+  );
+  return res.data.data.product_skus;
 };

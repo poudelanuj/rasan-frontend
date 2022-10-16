@@ -250,6 +250,7 @@ const BasketModal = ({ isModalOpen, onClose, basket }) => {
             <Form.Item className="relative" name="quantity">
               <span>Quantity</span>
               <Input
+                defaultValue={1}
                 placeholder="Quantity"
                 type="number"
                 onChange={(e) => {

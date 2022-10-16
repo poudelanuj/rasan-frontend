@@ -4,7 +4,9 @@ import React, { useState, useEffect, useRef } from "react";
 import { useQuery } from "react-query";
 import { Input, Spin } from "antd";
 import { uniqBy } from "lodash";
-import { getUsers } from "../../api/users";
+import { getUsers } from "../../../api/users";
+import ButtonWPermission from "../../../shared/ButtonWPermission";
+import CreateUserModal from "./CreateUserModal";
 const { Search } = Input;
 
 const UserList = () => {
@@ -14,6 +16,8 @@ const UserList = () => {
   const [pageSize, setPageSize] = useState(20);
   const [page, setPage] = useState(1);
   const [users, setUsers] = useState([]);
+
+  const [isCreateUserOpen, setIsCreateUserOpen] = useState(false);
 
   const [sortObj, setSortObj] = useState({
     sortType: {
@@ -159,17 +163,24 @@ const UserList = () => {
   ];
   return (
     <>
-      <Search
-        className="mb-4"
-        enterButton="Search"
-        placeholder="Search User"
-        size="large"
-        onChange={(e) => {
-          searchText.current = e.target.value;
-          if (timeout) clearTimeout(timeout);
-          timeout = setTimeout(refetch, 400);
-        }}
-      />
+      <span className="flex mb-4 gap-2">
+        <Search
+          placeholder="Search User"
+          onChange={(e) => {
+            searchText.current = e.target.value;
+            if (timeout) clearTimeout(timeout);
+            timeout = setTimeout(refetch, 400);
+          }}
+        />
+
+        <ButtonWPermission
+          codename="add_user"
+          type="primary"
+          onClick={() => setIsCreateUserOpen(true)}
+        >
+          Add User
+        </ButtonWPermission>
+      </span>
 
       {(status === "loading" || isRefetching) && <Spin />}
 
@@ -191,6 +202,12 @@ const UserList = () => {
           showSorterTooltip={false}
         />
       )}
+
+      <CreateUserModal
+        isCreateUserOpen={isCreateUserOpen}
+        refetchUserList={refetch}
+        setIsCreateUserOpen={setIsCreateUserOpen}
+      />
     </>
   );
 };

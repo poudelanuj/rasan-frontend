@@ -99,7 +99,7 @@ function TabAll({ slug }) {
     refetch: refetchProducts,
     isRefetching: refetchingProducts,
   } = useQuery(
-    [GET_PRODUCTS_FROM_BRAND, page.toString() + pageSize.toString()],
+    [GET_PRODUCTS_FROM_BRAND, slug, page.toString() + pageSize.toString()],
     () => getProductsFromBrand(slug, page, pageSize)
   );
 
@@ -107,7 +107,7 @@ function TabAll({ slug }) {
     if (data && productsStatus === "success" && !refetchingProducts) {
       setPaginatedProducts([]);
       setPaginatedProducts((prev) =>
-        uniqBy([...prev, ...data.products.results], "slug")
+        uniqBy([...prev, ...data.results], "slug")
       );
     }
   }, [data, productsStatus, refetchingProducts]);
@@ -248,7 +248,7 @@ function TabAll({ slug }) {
             pagination={{
               showSizeChanger: true,
               pageSize,
-              total: data?.products?.count,
+              total: data?.count,
               current: page,
 
               onChange: (page, pageSize) => {

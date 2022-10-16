@@ -4,9 +4,9 @@ import React, { useState, useEffect, useRef } from "react";
 import { useQuery } from "react-query";
 import { Input, Spin } from "antd";
 import { uniqBy } from "lodash";
-import { getAdminUsers } from "../../api/users";
-import { useAuth } from "../../AuthProvider";
-import { GET_ADMIN_USER } from "../../constants/queryKeys";
+import { getAdminUsers } from "../../../api/users";
+import { useAuth } from "../../../AuthProvider";
+import { GET_ADMIN_USER } from "../../../constants/queryKeys";
 const { Search } = Input;
 
 const AdminUserList = () => {

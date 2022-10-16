@@ -20,7 +20,7 @@ export const getProductsFromBrand = async (brandSlug, page, pageSize) => {
       pageSize || 20
     }`
   );
-  return res.data.data;
+  return res.data.data.products;
 };
 
 export const getProductSkusFromBrand = async (brandSlug, page, pageSize) => {
@@ -29,7 +29,7 @@ export const getProductSkusFromBrand = async (brandSlug, page, pageSize) => {
       page || 1
     }&size=${pageSize || 20}`
   );
-  return res.data.data;
+  return res.data.data.product_skus;
 };
 
 export const getBrand = async (slug) => {

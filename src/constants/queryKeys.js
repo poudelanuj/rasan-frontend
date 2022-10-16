@@ -29,6 +29,7 @@ export const GET_ALL_CATEGORIES = "all-categories";
 export const GET_PAGINATED_CATEGORIES = "paginated-categories";
 export const GET_SINGLE_CATEGORY = "single-category";
 export const GET_CATEGORY_PRODUCTS = "category-products";
+export const GET_CATEGORY_PRODUCT_SKU = "category-product-sku";
 
 //* Loyalty Policies
 export const GET_ALL_LOYALTIES = "all-loyalties";
@@ -117,3 +118,10 @@ export const GET_LOYALTY_REDEEM_BY_ID = "loyalty-redeem-by-id";
 export const GET_LUCKY_DRAW = "lucky-draw";
 export const GET_PAGINATED_LUCKY_DRAW = "lucky-draw-paginated";
 export const GET_LUCKY_DRAW_BY_ID = "lucky-draw-by-id";
+
+// *Analytics
+export const GET_PRODUCT_ANALYTICS = "product-analytics";
+export const GET_BRAND_ANALYTICS = "brand-analytics";
+export const GET_CATEGORY_ANALYTICS = "category-analytics";
+export const GET_PRODUCTSKU_ANALYTICS = "productsku-analytics";
+export const GET_ORDER_ANALYTICS = "order-analytics";

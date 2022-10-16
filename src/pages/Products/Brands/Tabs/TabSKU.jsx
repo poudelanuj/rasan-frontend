@@ -98,7 +98,7 @@ function TabSKU({ slug }) {
   const [alertType, setAlertType] = useState("");
 
   const [page, setPage] = useState(1);
-  const pageSize = 20;
+  const [pageSize, setPageSize] = useState(20);
   const [paginatedProductSkus, setPaginatedProductSkus] = useState([]);
 
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
@@ -109,21 +109,23 @@ function TabSKU({ slug }) {
     refetch: refetchProductSkus,
     isRefetching: refetchingProductSkus,
   } = useQuery(
-    [GET_PRODUCT_SKUS_FROM_BRAND, page.toString() + pageSize.toString()],
+    [GET_PRODUCT_SKUS_FROM_BRAND, slug, page.toString() + pageSize.toString()],
     () => getProductSkusFromBrand(slug, page, pageSize)
   );
 
   useEffect(() => {
-    if (data)
+    if (data && productSkuStatus === "success" && !refetchingProductSkus) {
+      setPaginatedProductSkus([]);
       setPaginatedProductSkus((prev) =>
-        uniqBy([...prev, ...data.products.results], "slug")
+        uniqBy([...prev, ...data.results], "slug")
       );
-  }, [data]);
+    }
+  }, [data, productSkuStatus, refetchingProductSkus]);
 
   useEffect(() => {
     refetchProductSkus();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  }, [page, pageSize]);
 
   const onSelectChange = (selectedRowKeys) => {
     setSelectedRowKeys(selectedRowKeys);
@@ -255,11 +257,14 @@ function TabSKU({ slug }) {
             }
             loading={productSkuStatus === "loading" || refetchingProductSkus}
             pagination={{
+              showSizeChanger: true,
               pageSize,
-              total: data?.products?.count,
+              total: data?.count,
+              current: page,
 
               onChange: (page, pageSize) => {
                 setPage(page);
+                setPageSize(pageSize);
               },
             }}
             rowClassName="cursor-pointer"

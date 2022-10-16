@@ -92,7 +92,7 @@ function TabAll({ slug }) {
     refetch: refetchProducts,
     isRefetching,
   } = useQuery(
-    [GET_CATEGORY_PRODUCTS, slug + page.toString() + pageSize.toString()],
+    [GET_CATEGORY_PRODUCTS, slug, page.toString() + pageSize.toString()],
     () => getProductsFromCategory({ categorySlug: slug, page, pageSize })
   );
 

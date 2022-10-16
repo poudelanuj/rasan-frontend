@@ -3,10 +3,10 @@ import { Table } from "antd";
 import { useQuery } from "react-query";
 import { uniqBy } from "lodash";
 import moment from "moment";
-import BasketInfo from "../../pages/LiveUserBasket/BasketInfo";
-import BasketModal from "../../pages/LiveUserBasket/BasketModal";
-import { getUserBasket } from "../../api/baskets";
-import { GET_USER_BASKET } from "../../constants/queryKeys";
+import BasketInfo from "../../LiveUserBasket/BasketInfo";
+import BasketModal from "../../LiveUserBasket/BasketModal";
+import { getUserBasket } from "../../../api/baskets";
+import { GET_USER_BASKET } from "../../../constants/queryKeys";
 
 const LiveUserBasket = ({ user }) => {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);

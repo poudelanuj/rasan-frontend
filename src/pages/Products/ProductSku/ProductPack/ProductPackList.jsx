@@ -1,12 +1,8 @@
 import React from "react";
 import { useMutation } from "react-query";
 import { useState } from "react";
-import { Input, Space, Table, Tag, Button, Modal } from "antd";
-import {
-  EditOutlined,
-  DeleteOutlined,
-  ExclamationCircleOutlined,
-} from "@ant-design/icons";
+import { Input, Space, Table, Tag, Button, Popconfirm } from "antd";
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import {
   deleteProductPack,
   publishProductPack,
@@ -20,6 +16,7 @@ import {
 import AddProductPack from "./AddProductPack";
 import EditProductPack from "./EditProductPack";
 import ButtonWPermission from "../../../../shared/ButtonWPermission";
+import { useEffect } from "react";
 
 function ProductPackList({ productSkuSlug, productPacks, refetchProductSku }) {
   const [openAddPack, setOpenAddPack] = useState(false);
@@ -30,14 +27,18 @@ function ProductPackList({ productSkuSlug, productPacks, refetchProductSku }) {
 
   const [isProductEditable, setIsProductEditable] = useState(false);
 
-  const [editableProductData, setEditableProductData] = useState(
-    productPacks.map((product) => ({
-      id: product.id,
-      number_of_items: product.number_of_items,
-      price_per_piece: product.price_per_piece,
-      mrp_per_piece: product.mrp_per_piece,
-    }))
-  );
+  const [editableProductData, setEditableProductData] = useState([]);
+
+  useEffect(() => {
+    setEditableProductData(
+      productPacks.map((product) => ({
+        id: product.id,
+        number_of_items: product.number_of_items,
+        price_per_piece: product.price_per_piece,
+        mrp_per_piece: product.mrp_per_piece,
+      }))
+    );
+  }, [productPacks]);
 
   const handleProductChange = (event) => {
     const { id, name, value } = event.target;
@@ -90,7 +91,7 @@ function ProductPackList({ productSkuSlug, productPacks, refetchProductSku }) {
           name="number_of_items"
           value={
             editableProductData.find((product) => product.id === id)
-              .number_of_items
+              ?.number_of_items
           }
           onChange={handleProductChange}
         />
@@ -110,7 +111,7 @@ function ProductPackList({ productSkuSlug, productPacks, refetchProductSku }) {
           name="price_per_piece"
           value={
             editableProductData.find((product) => product.id === id)
-              .price_per_piece
+              ?.price_per_piece
           }
           onChange={handleProductChange}
         />
@@ -130,7 +131,7 @@ function ProductPackList({ productSkuSlug, productPacks, refetchProductSku }) {
           name="mrp_per_piece"
           value={
             editableProductData.find((product) => product.id === id)
-              .mrp_per_piece
+              ?.mrp_per_piece
           }
           onChange={handleProductChange}
         />
@@ -257,22 +258,21 @@ function ProductPackList({ productSkuSlug, productPacks, refetchProductSku }) {
         dataSource={productPacks}
         pagination={{
           showTotal: () => (
-            <ButtonWPermission
-              codename="change_productpack"
-              disabled={!isProductEditable}
-              type="primary"
-              onClick={() =>
-                Modal.confirm({
-                  title: "Are you sure save this detail?",
-                  icon: <ExclamationCircleOutlined />,
-                  okText: "Yes",
-                  cancelText: "Cancel",
-                  onOk() {},
-                })
-              }
+            <Popconfirm
+              cancelText="No"
+              okText="Yes"
+              title="Are you sure save this detail?"
+              onCancel={() => {}}
+              onConfirm={() => {}}
             >
-              Save
-            </ButtonWPermission>
+              <ButtonWPermission
+                codename="change_productpack"
+                disabled={!isProductEditable}
+                type="primary"
+              >
+                Save
+              </ButtonWPermission>
+            </Popconfirm>
           ),
         }}
       />

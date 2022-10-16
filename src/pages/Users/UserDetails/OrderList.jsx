@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import { useQuery } from "react-query";
 import { uniqBy } from "lodash";
 import { Tabs } from "antd";
-import OrdersList from "../Orders/OrdersList";
-import { getUserOrder } from "../../api/orders";
-import { IN_PROCESS, DELIVERED, CANCELLED } from "../../constants";
-import { GET_USER_ORDERS } from "../../constants/queryKeys";
+import OrdersList from "../../Orders/OrdersList";
+import { getUserOrder } from "../../../api/orders";
+import { IN_PROCESS, DELIVERED, CANCELLED } from "../../../constants";
+import { GET_USER_ORDERS } from "../../../constants/queryKeys";
 
 const OrderList = ({ user }) => {
   const { TabPane } = Tabs;

@@ -29,8 +29,8 @@ import RequireAuth from "./RequireAuth";
 import "antd/dist/antd.min.css";
 
 // * Users
-import Users from "./pages/Users";
-import User from "./pages/Users/User";
+import Users from "./pages/Users/UserList";
+import User from "./pages/Users/UserDetails/User";
 import OTPRequests from "./pages/Users/OTPRequests";
 
 // *User Groups

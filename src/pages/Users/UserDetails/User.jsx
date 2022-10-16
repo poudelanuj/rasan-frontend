@@ -6,13 +6,13 @@ import Icon, {
 import { useQuery } from "react-query";
 import { useParams } from "react-router-dom";
 import moment from "moment";
-import { getLastLogin, getUser } from "../../context/UserContext";
-import Loyalty from "../../svgs/Loyalty";
-import Time from "../../svgs/Time";
+import { getLastLogin, getUser } from "../../../context/UserContext";
+import Loyalty from "../../../svgs/Loyalty";
+import Time from "../../../svgs/Time";
 import UserTab from "./UserTab";
-import rasanDefault from "../../assets/images/rasan-default.png";
-import Loader from "../../shared/Loader";
-import CustomPageHeader from "../../shared/PageHeader";
+import rasanDefault from "../../../assets/images/rasan-default.png";
+import Loader from "../../../shared/Loader";
+import CustomPageHeader from "../../../shared/PageHeader";
 
 const User = () => {
   let { user_id } = useParams();
