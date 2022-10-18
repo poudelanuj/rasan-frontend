@@ -11,6 +11,7 @@ export const GET_PAGINATED_PRODUCT_SKUS = "paginated-product-skus";
 
 //* Product Packs
 export const GET_PRODUCT_PACK = "product-pack";
+export const GET_PRODUCT_PACK_CSV = "product-pack-csv";
 
 //* Product Groups
 export const GET_ALL_PRODUCT_GROUPS = "all-product-groups";
@@ -70,6 +71,7 @@ export const GET_ORDERS_ASSIGNED = "orders-assigned-to-me";
 // * Addresses
 export const GET_ADDRESSES = "get-addresses";
 export const GET_ADDRESS_BY_ID = "get-address-by-id";
+export const GET_META_CITY_ADDRESS = "get-meta-city-address";
 
 // * Tutorials
 export const GET_TAGLISTS = "taglists";

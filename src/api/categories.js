@@ -87,7 +87,7 @@ export const getProductSkusFromCategory = async (
   pageSize
 ) => {
   const res = await axios.get(
-    `/api/product/admin/category/product-skus/${categorySlug}/?page=${
+    `/api/product/admin/categories/product-skus/?category=${categorySlug}&page=${
       page || 1
     }&size=${pageSize || 20}`
   );

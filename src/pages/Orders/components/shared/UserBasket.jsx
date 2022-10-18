@@ -17,9 +17,7 @@ import { GET_DROPDOWN_PRODUCT_SKUS } from "../../../../constants/queryKeys";
 import { STATUS } from "../../../../constants";
 import ButtonWPermission from "../../../../shared/ButtonWPermission";
 
-const UserBasket = ({ user, setBasketItemsStatus }) => {
-  const { basket_id } = user;
-
+const UserBasket = ({ user, basket_id, setBasketItemsStatus }) => {
   // *********** FORM ************ //
   const [selectedProductSku, setSelectedSku] = useState();
 

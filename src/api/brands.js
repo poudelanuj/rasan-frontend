@@ -25,7 +25,7 @@ export const getProductsFromBrand = async (brandSlug, page, pageSize) => {
 
 export const getProductSkusFromBrand = async (brandSlug, page, pageSize) => {
   const res = await axios.get(
-    `/api/product/admin/brands/product-skus/${brandSlug}/?page=${
+    `/api/product/admin/brands/product-skus/?brand=${brandSlug}&page=${
       page || 1
     }&size=${pageSize || 20}`
   );

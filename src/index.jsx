@@ -24,6 +24,7 @@ import AddProduct from "./pages/Products/ProductList/AddProduct";
 import EditProduct from "./pages/Products/ProductList/EditProduct";
 import AddProductSku from "./pages/Products/ProductSku/AddProductSku";
 import EditProductSku from "./pages/Products/ProductSku/EditProductSku";
+import ProductPack from "./pages/Products/ProductPack";
 
 import RequireAuth from "./RequireAuth";
 import "antd/dist/antd.min.css";
@@ -144,6 +145,10 @@ root.render(
                 <Route element={<AddProduct />} path="add" />
                 <Route element={<ProductList />} path=":slug" />
                 <Route element={<EditProduct />} path=":slug/edit" />
+              </Route>
+
+              <Route path="product-pack">
+                <Route element={<ProductPack />} index />
               </Route>
 
               <Route path="product-sku">

@@ -3,6 +3,7 @@ import { capitalize, uniqBy } from "lodash";
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useQuery, useMutation } from "react-query";
 import { useNavigate } from "react-router-dom";
+import { createNewBasket } from "../../../api/baskets";
 import { getUsers } from "../../../api/users";
 import {
   CANCELLED,
@@ -35,6 +36,8 @@ const CreateOrder = () => {
   const [selectedShippingAddress, setSelectedShippingAddress] = useState(null);
   const [page, setPage] = useState(1);
 
+  const [basketId, setBasketId] = useState();
+
   const [userList, setUserList] = useState([]);
 
   const navigate = useNavigate();
@@ -57,6 +60,11 @@ const CreateOrder = () => {
     refetchUserList();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
+
+  const handleCreateBasket = useMutation((id) => createNewBasket(id), {
+    onSuccess: (res) => setBasketId(res.data.basket_id),
+    onError: (err) => openErrorNotification(err),
+  });
 
   const observer = useRef();
   const scrollRef = useCallback(
@@ -82,6 +90,7 @@ const CreateOrder = () => {
       shipping_address,
       payment_amount,
       user,
+      total_cashback_earned,
     }) =>
       createOrder({
         status: orderStatus,
@@ -92,6 +101,7 @@ const CreateOrder = () => {
         },
         user,
         shipping_address,
+        total_cashback_earned,
       }),
     {
       onSuccess: (data) => {
@@ -145,7 +155,12 @@ const CreateOrder = () => {
                 placeholder="Select User"
                 showSearch
                 onPopupScroll={() => data?.next && setPage((prev) => prev + 1)}
-                onSelect={(value) => setSelectedUserPhone(value)}
+                onSelect={(value) => {
+                  handleCreateBasket.mutate(
+                    userList.find((user) => user.phone === value)?.id
+                  );
+                  setSelectedUserPhone(value);
+                }}
               >
                 {userList?.map((user, index) => {
                   const isLastElement = userList?.length === index + 1;
@@ -202,21 +217,23 @@ const CreateOrder = () => {
                 showSearch
                 onSelect={(value) => setSelectedShippingAddress(value)}
               >
-                {userList
-                  ?.find((user) => user.phone === selectedUserPhone)
-                  ?.addresses?.map((address) => (
-                    <Option key={address.id} value={address.id}>{`${
-                      address.detail_address || ""
-                    } ${address.area.name} - ${address.city.name}, ${
-                      address.province.name
-                    }`}</Option>
-                  ))}
+                {userList &&
+                  userList
+                    .find((user) => user.phone === selectedUserPhone)
+                    ?.addresses?.map((address) => (
+                      <Option key={address.id} value={address.id}>{`${
+                        address.detail_address || ""
+                      } ${address.area.name} - ${address.city.name}, ${
+                        address.province.name
+                      }`}</Option>
+                    ))}
               </Select>
             </Form.Item>
           </div>
 
-          {!!selectedUserPhone && (
+          {!!selectedUserPhone && !!basketId && (
             <UserBasket
+              basket_id={basketId}
               setBasketItemsStatus={setBasketItemsStatus}
               user={userList?.find((el) => el.phone === selectedUserPhone)}
             />

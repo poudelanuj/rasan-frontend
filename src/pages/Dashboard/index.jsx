@@ -7,13 +7,11 @@ import { getEndUser } from "../../api/users";
 import { useAuth } from "../../AuthProvider";
 import {
   GET_ORDER_METRICS,
-  GET_TICKETS_ASSIGNED,
   GET_TICKET_METRICS,
 } from "../../constants/queryKeys";
 import Loader from "../../shared/Loader";
 import WelcomeCard from "./shared/WelcomeCard";
 import { DASHBOARD_TIME_KEYS } from "../../constants";
-import { getTicketsAssignedToMe } from "../../api/dashboard";
 import TicketsAssigned from "./shared/TicketsAssigned";
 import OrdersAssigned from "./shared/OrdersAssigned";
 import OrderMetrics from "./OrderMetrics";
@@ -38,11 +36,6 @@ const Dashboard = () => {
   const { data: ticketMetrics, status: ticketsMetricsStatus } = useQuery({
     queryFn: () => getTicketMetrics(ticketTimeKey),
     queryKey: [GET_TICKET_METRICS, ticketTimeKey],
-  });
-
-  const { data: ticketsAssigned, status: ticketsAssignedStatus } = useQuery({
-    queryFn: getTicketsAssignedToMe,
-    queryKey: GET_TICKETS_ASSIGNED,
   });
 
   const { data: userInfo } = useQuery(["get-end-user"], getEndUser, {
@@ -126,10 +119,7 @@ const Dashboard = () => {
 
         <div className="bg-white p-6 mt-8 rounded-lg">
           <h3 className="text-xl">My Tickets</h3>
-          <TicketsAssigned
-            status={ticketsAssignedStatus}
-            tickets={ticketsAssigned}
-          />
+          <TicketsAssigned />
         </div>
       </div>
     </>

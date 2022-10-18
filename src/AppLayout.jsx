@@ -51,6 +51,7 @@ const sidebarItems = [
       { label: "Categories", key: "category-list" },
       { label: "Brands", key: "brands" },
       { label: "Products", key: "product-list" },
+      { label: "Product Pack", key: "product-pack" },
       { label: "Product SKU", key: "product-sku" },
       { label: "Rasan Choices", key: "product-groups" },
     ],

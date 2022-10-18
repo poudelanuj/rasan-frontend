@@ -14,3 +14,8 @@ export const getAddressById = async (id) => {
   const res = await axios.get(`/api/profile/admin/address/${id}/`);
   return res.data;
 };
+
+export const getMetaCityAddress = async (id) => {
+  const res = await axios.get(`/api/profile/admin/address-meta-city/${id}/`);
+  return res.data;
+};

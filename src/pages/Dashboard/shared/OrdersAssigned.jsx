@@ -46,6 +46,7 @@ const OrdersAssigned = () => {
     data,
     status,
     refetch: refetchOrders,
+    isRefetching,
   } = useQuery({
     queryFn: () =>
       getOrdersAssignedToMe({
@@ -63,14 +64,16 @@ const OrdersAssigned = () => {
   });
 
   useEffect(() => {
-    setOrders([]);
-    if (data) setOrders((prev) => uniqBy([...prev, ...data.results], "id"));
-  }, [data]);
+    if (data && status === "success" && !isRefetching) {
+      setOrders([]);
+      setOrders((prev) => uniqBy([...prev, ...data.results], "id"));
+    }
+  }, [data, status, isRefetching]);
 
   useEffect(() => {
     refetchOrders();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, status, sortObj, pageSize]);
+  }, [page, sortObj, pageSize]);
 
   const sortingFn = (header, name) =>
     setSortObj({

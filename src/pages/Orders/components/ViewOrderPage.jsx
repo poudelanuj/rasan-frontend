@@ -49,8 +49,8 @@ import axios from "../../../axios";
 import { useAuth } from "../../../AuthProvider";
 import { getUser } from "../../../context/UserContext";
 import rasanDefault from "../../../assets/images/rasan-default.png";
-import { getAddressById } from "../../../api/userAddresses";
-import { GET_ADDRESS_BY_ID } from "../../../constants/queryKeys";
+import { getMetaCityAddress } from "../../../api/userAddresses";
+import { GET_META_CITY_ADDRESS } from "../../../constants/queryKeys";
 
 export const getOrderStatusColor = (status) => {
   switch (status) {
@@ -105,11 +105,11 @@ const ViewOrderPage = () => {
     enabled: !!data,
   });
 
-  /* const { data: address } = useQuery({
-    queryFn: () => data && getAddressById(data && data.shipping_address),
-    queryKey: [GET_ADDRESS_BY_ID, data && data.shipping_address],
+  const { data: address } = useQuery({
+    queryFn: () => data && getMetaCityAddress(data && data.shipping_address),
+    queryKey: [GET_META_CITY_ADDRESS, data && data.shipping_address],
     enabled: !!data,
-  });*/
+  });
 
   const {
     data: dataUser,
@@ -346,7 +346,7 @@ const ViewOrderPage = () => {
                   </div>
                   <div className="flex items-center pr-4">
                     <EnvironmentOutlined className="mr-1" />
-                    Delivered at: {user.addresses[0]?.detail_address}
+                    Delivered at: {address?.name}
                   </div>
                 </div>
               </div>

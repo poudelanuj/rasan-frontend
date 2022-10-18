@@ -15,7 +15,11 @@ export const getOrdersAssignedToMe = async ({
   return res.data.data;
 };
 
-export const getTicketsAssignedToMe = async () => {
-  const res = await axios.get("/api/crm/admin/ticket/assigned/");
-  return res.data.data.results;
+export const getTicketsAssignedToMe = async ({ page, pageSize, sort }) => {
+  const res = await axios.get(
+    `/api/crm/admin/ticket/assigned/?page=${page | 1}&size=${
+      pageSize || 20
+    }&sort=${sort || []}`
+  );
+  return res.data.data;
 };

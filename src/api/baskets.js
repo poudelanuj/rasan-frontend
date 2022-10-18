@@ -27,3 +27,8 @@ export const deleteBulkUserBasket = async (ids) => {
 
   return res.data;
 };
+
+export const createNewBasket = async (user_id) => {
+  const res = await axios.post(`/api/order/admin/basket/`, { user_id });
+  return res.data;
+};
