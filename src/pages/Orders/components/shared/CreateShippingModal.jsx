@@ -34,7 +34,6 @@ const CreateShippingModal = ({
         openSuccessNotification(data.message);
         setIsCreateShippingOpen(false);
         refetchUserList();
-
         setSelectedShippingAddress(data.data.id);
       },
       onError: (error) => {

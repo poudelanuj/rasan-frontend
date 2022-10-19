@@ -53,7 +53,14 @@ const CreateOrder = () => {
   });
 
   useEffect(() => {
-    if (data) setUserList((prev) => uniqBy([...prev, ...data.results], "id"));
+    if (data) {
+      selectedUserPhone &&
+        setUserList((prev) =>
+          prev.filter((user) => user.phone !== selectedUserPhone)
+        );
+      setUserList((prev) => uniqBy([...prev, ...data.results], "id"));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   useEffect(() => {
