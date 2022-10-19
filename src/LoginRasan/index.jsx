@@ -1,7 +1,7 @@
 import { Button, Form, InputNumber, message } from "antd";
 import React, { useState } from "react";
 import { useMutation, useQueryClient } from "react-query";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthProvider";
 import { GET_USER_GROUPS, GET_USER_GROUPS_BY_ID } from "../constants/queryKeys";
 import { login, otpRequest } from "../context/LoginContext";
@@ -13,12 +13,9 @@ const LoginRasan = () => {
   const [onOTPReceived, setOnOTPReceived] = useState(false);
   const [number, setNumber] = useState("");
   const { loginFinalise } = useAuth();
-  let location = useLocation();
   let navigate = useNavigate();
 
   const queryClient = useQueryClient();
-
-  let from = location.state?.from?.pathname || "/";
 
   const { mutate: otpRequestMutate } = useMutation(otpRequest, {
     onSuccess: (data) => {
@@ -41,7 +38,7 @@ const LoginRasan = () => {
           // when they get to the protected page and click the back button, they
           // won't end up back on the login page, which is also really nice for the
           // user experience.
-          navigate(from, { replace: true });
+          navigate("/");
         }
       );
       queryClient.refetchQueries(["get-end-user"]);
