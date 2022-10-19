@@ -31,7 +31,7 @@ const CreateOrder = () => {
   const [isCreateShippingOpen, setIsCreateShippingOpen] = useState(false);
   const { Option } = Select;
   const [form] = Form.useForm();
-  const [selectedUserPhone, setSelectedUserPhone] = useState(0);
+  const [selectedUserPhone, setSelectedUserPhone] = useState();
   const [basketItemsStatus, setBasketItemsStatus] = useState(STATUS.idle);
   const [selectedShippingAddress, setSelectedShippingAddress] = useState(null);
   const [page, setPage] = useState(1);
@@ -100,6 +100,7 @@ const CreateOrder = () => {
           status: payment_status,
         },
         user,
+        basket_instance: basketId,
         shipping_address,
         total_cashback_earned,
       }),

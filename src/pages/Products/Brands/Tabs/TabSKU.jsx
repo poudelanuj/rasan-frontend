@@ -21,19 +21,16 @@ const columns = [
   {
     title: "S.N.",
     dataIndex: "index",
-    defaultSortOrder: "ascend",
-    sorter: (a, b) => a.sn - b.sn,
   },
   {
     title: "Product Name",
     dataIndex: "name",
-    defaultSortOrder: "descend",
-    render: (_, { name, product_image }) => (
+    render: (_, { name, product_sku_image }) => (
       <div className="flex items-center gap-3">
         <img
           alt=""
           className="h-[40px] w-[40px] object-cover rounded"
-          src={product_image?.thumbnail || "/rasan-default.png"}
+          src={product_sku_image?.thumbnail || "/rasan-default.png"}
         />
         <span>{name}</span>
       </div>
@@ -46,17 +43,14 @@ const columns = [
   {
     title: "CP Per Piece (रु)",
     dataIndex: "cost_price_per_piece",
-    sorter: (a, b) => a.cost_price_per_piece - b.cost_price_per_piece,
   },
   {
     title: "MRP Per Piece (रु)",
     dataIndex: "mrp_per_piece",
-    sorter: (a, b) => a.mrp_per_piece - b.mrp_per_piece,
   },
   {
     title: "SP Per Piece (रु)",
     dataIndex: "price_per_piece",
-    sorter: (a, b) => a.price_per_piece - b.price_per_piece,
   },
   {
     title: "Category",
@@ -251,7 +245,7 @@ function TabSKU({ slug }) {
             dataSource={
               paginatedProductSkus?.map((item, index) => ({
                 ...item,
-                index: index + 1,
+                index: (page - 1) * pageSize + index + 1,
                 key: item.slug,
               })) || []
             }

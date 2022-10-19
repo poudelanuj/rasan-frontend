@@ -22,16 +22,17 @@ const columns = [
   {
     title: "S.N.",
     dataIndex: "sn",
+    key: "index",
   },
   {
     title: "Product Name",
     dataIndex: "name",
-    render: (_, { name, product_image }) => (
+    render: (_, { name, product_sku_image }) => (
       <div className="flex items-center gap-3">
         <img
           alt=""
           className="h-[40px] w-[40px] object-cover rounded"
-          src={product_image?.thumbnail || "/rasan-default.png"}
+          src={product_sku_image?.thumbnail || "/rasan-default.png"}
         />
         <span>{name}</span>
       </div>
@@ -240,8 +241,9 @@ function TabSKU({ slug }) {
         <div className="flex-1">
           <Table
             columns={columns}
-            dataSource={productSkus.map((item) => ({
+            dataSource={productSkus.map((item, index) => ({
               ...item,
+              index: (page - 1) * pageSize + index + 1,
               key: item.id || item.slug,
             }))}
             loading={skuStatus === "loading" || isRefetching}

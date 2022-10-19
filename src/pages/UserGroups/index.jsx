@@ -64,24 +64,26 @@ const UserGroups = () => {
         ) : (
           <div className="w-full grid grid-cols-4 gap-4">
             {userGroup &&
-              userGroup.map((el) => (
+              userGroup.map(({ name, id }) => (
                 <div
-                  key={el.id}
+                  key={id}
                   className="p-4 border flex items-center justify-between text-primary cursor-pointer"
                 >
-                  <div onClick={() => navigate(`${el.id}`)}>
+                  <div onClick={() => navigate(`${id}`)}>
                     <IoIosPeople className="inline mr-3 text-3xl" />
-                    {el.name}
+                    {name}
                   </div>
 
                   <ButtonWPermission
+                    className="!border-none !bg-inherit"
                     codename="delete_group"
+                    disabled={name === "superadmin"}
                     icon={<DeleteOutlined />}
                     onClick={() =>
                       setIsDeleteUserGroupModal({
                         ...isDeleteUserGroupModal,
                         isOpen: true,
-                        id: el.id,
+                        id,
                       })
                     }
                   />

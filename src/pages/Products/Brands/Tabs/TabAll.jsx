@@ -23,14 +23,11 @@ const columns = [
   {
     title: "S.N.",
     dataIndex: "index",
-    defaultSortOrder: "ascend",
-    sorter: (a, b) => a.sn - b.sn,
   },
 
   {
     title: "Product Name",
     dataIndex: "name",
-    defaultSortOrder: "descend",
     render: (_, { name, product_image }) => (
       <div className="flex items-center gap-3">
         <img
@@ -240,7 +237,7 @@ function TabAll({ slug }) {
             dataSource={
               paginatedProducts?.map((item, index) => ({
                 ...item,
-                index: index + 1,
+                index: (page - 1) * pageSize + index + 1,
                 key: item.slug,
               })) || []
             }

@@ -77,13 +77,14 @@ const OrdersList = ({
       title: "Customer",
       dataIndex: "user",
       key: "user",
-      render: (_, { user, id }) => {
+      width: "20%",
+      render: (_, { user, customer_name, id }) => {
         return (
           <div
             className="text-blue-500 cursor-pointer hover:underline"
             onClick={() => navigate(`/orders/view-order/${id}`)}
           >
-            {user}
+            {customer_name ? `${customer_name} (${user})` : user}
           </div>
         );
       },

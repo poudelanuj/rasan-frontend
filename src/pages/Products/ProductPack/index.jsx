@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Table, Button, Space, Input, Upload, message, Modal } from "antd";
+import { Table, Button, Input, Upload, message, Modal } from "antd";
 import { csvParse } from "d3";
 import {
   SearchOutlined,
@@ -116,7 +116,7 @@ const ProductPack = () => {
     beforeUpload: (file) => {
       const isCSV = file.type.startsWith("text/csv");
       if (!isCSV) {
-        message.error(`${file.name} is not an image file`);
+        message.error(`${file.name} is not a csv file`);
         return isCSV || Upload.LIST_IGNORE;
       }
 
@@ -239,35 +239,35 @@ const ProductPack = () => {
             </Button>
           </Upload>
 
-          <Button className="bg-cyan-500 text-white" type="default">
-            <Space
-              onClick={async () => {
-                const data = await getProductPackCSV({
-                  shouldPaginate: false,
-                });
-                const blob = new Blob(
-                  [
-                    JSONToCSV(
-                      data.map((product, index) => ({
-                        sn: index + 1,
-                        ...product,
-                      }))
-                    ),
-                  ],
-                  { type: "text/csv;charset=utf-8;" }
-                );
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement("a");
-                link.setAttribute("href", url);
-                link.setAttribute("download", "export.csv");
-                link.style.visibility = "hidden";
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-              }}
-            >
-              Export
-            </Space>
+          <Button
+            className="bg-cyan-500 text-white"
+            type="default"
+            onClick={async () => {
+              const data = await getProductPackCSV({
+                shouldPaginate: false,
+              });
+              const blob = new Blob(
+                [
+                  JSONToCSV(
+                    data.map((product, index) => ({
+                      sn: index + 1,
+                      ...product,
+                    }))
+                  ),
+                ],
+                { type: "text/csv;charset=utf-8;" }
+              );
+              const url = URL.createObjectURL(blob);
+              const link = document.createElement("a");
+              link.setAttribute("href", url);
+              link.setAttribute("download", "export.csv");
+              link.style.visibility = "hidden";
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+            }}
+          >
+            Export
           </Button>
         </div>
 
