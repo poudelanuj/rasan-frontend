@@ -532,7 +532,11 @@ const ViewOrderPage = () => {
                   placeholder="Select Product SKU"
                   style={{ width: 200 }}
                   showSearch
-                  onSelect={(value) => setSelectedSku(value)}
+                  onSelect={(value) => {
+                    setSelectedSku(value);
+                    setSelectedPack();
+                    setQuantity(1);
+                  }}
                 >
                   {productSkus &&
                     productSkus.map((item) => (

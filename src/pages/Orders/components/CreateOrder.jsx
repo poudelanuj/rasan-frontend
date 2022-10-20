@@ -160,6 +160,8 @@ const CreateOrder = () => {
                   handleCreateBasket.mutate(
                     userList.find((user) => user.phone === value)?.id
                   );
+                  setSelectedShippingAddress(null);
+                  form.resetFields(["shipping_address"]);
                   setSelectedUserPhone(value);
                 }}
               >
@@ -202,7 +204,7 @@ const CreateOrder = () => {
               rules={[
                 {
                   required: true,
-                  message: "shipping address is required",
+                  message: "Shipping address is required",
                 },
               ]}
             >
@@ -248,7 +250,7 @@ const CreateOrder = () => {
               rules={[
                 {
                   required: true,
-                  message: "order status is required",
+                  message: "Order status is required",
                 },
               ]}
             >
@@ -275,7 +277,7 @@ const CreateOrder = () => {
               rules={[
                 {
                   required: true,
-                  message: "payment method is required",
+                  message: "Payment method is required",
                 },
               ]}
             >
@@ -304,7 +306,7 @@ const CreateOrder = () => {
               rules={[
                 {
                   required: true,
-                  message: "payment status is required",
+                  message: "Payment status is required",
                 },
               ]}
             >

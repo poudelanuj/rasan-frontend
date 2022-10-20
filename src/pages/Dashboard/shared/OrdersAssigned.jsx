@@ -112,10 +112,18 @@ const OrdersAssigned = () => {
     },
     {
       title: "Customer",
-      dataIndex: "user",
-      key: "user",
-      render: (_, { user }) => {
-        return <>{user}</>;
+      dataIndex: "phone",
+      key: "phone",
+      width: "20%",
+      render: (_, { phone, customer_name, id }) => {
+        return (
+          <div
+            className="text-blue-500 cursor-pointer hover:underline"
+            onClick={() => navigate(`/orders/view-order/${id}`)}
+          >
+            {customer_name ? `${customer_name} (${phone})` : phone}
+          </div>
+        );
       },
     },
     {
@@ -157,6 +165,17 @@ const OrdersAssigned = () => {
       render: (_, { payment }) => {
         return <>{capitalize(payment?.payment_method?.replaceAll("_", " "))}</>;
       },
+    },
+    {
+      title: "Shop Name",
+      dataIndex: "shop_name",
+      key: "shop_name",
+      width: "15%",
+      render: (_, { shop_name }) => (
+        <span className="w-16" style={{ overflowWrap: "anywhere" }}>
+          {capitalize(shop_name?.replaceAll("_", " "))}
+        </span>
+      ),
     },
     {
       title: "Ordered At",
