@@ -100,7 +100,7 @@ const ViewOrderPage = () => {
   });
 
   const { data: user, status: userStatus } = useQuery({
-    queryFn: () => data && getUser(data && data.user),
+    queryFn: () => data && getUser(data && data.user_profile_id),
     queryKey: ["get-user", data && data.user],
     enabled: !!data,
   });

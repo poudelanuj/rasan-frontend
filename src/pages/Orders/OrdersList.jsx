@@ -4,7 +4,6 @@ import { DeleteOutlined } from "@ant-design/icons";
 import moment from "moment";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
 import { deleteBulkOrders } from "../../api/orders";
 import {
   openErrorNotification,
@@ -75,16 +74,16 @@ const OrdersList = ({
     },
     {
       title: "Customer",
-      dataIndex: "user",
-      key: "user",
+      dataIndex: "phone",
+      key: "phone",
       width: "20%",
-      render: (_, { user, customer_name, id }) => {
+      render: (_, { phone, customer_name, id }) => {
         return (
           <div
             className="text-blue-500 cursor-pointer hover:underline"
             onClick={() => navigate(`/orders/view-order/${id}`)}
           >
-            {customer_name ? `${customer_name} (${user})` : user}
+            {customer_name ? `${customer_name} (${phone})` : phone}
           </div>
         );
       },
