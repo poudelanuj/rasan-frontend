@@ -24,13 +24,14 @@ import AddProduct from "./pages/Products/ProductList/AddProduct";
 import EditProduct from "./pages/Products/ProductList/EditProduct";
 import AddProductSku from "./pages/Products/ProductSku/AddProductSku";
 import EditProductSku from "./pages/Products/ProductSku/EditProductSku";
+import ProductPack from "./pages/Products/ProductPack";
 
 import RequireAuth from "./RequireAuth";
 import "antd/dist/antd.min.css";
 
 // * Users
-import Users from "./pages/Users";
-import User from "./pages/Users/User";
+import Users from "./pages/Users/UserList";
+import User from "./pages/Users/UserDetails/User";
 import OTPRequests from "./pages/Users/OTPRequests";
 
 // *User Groups
@@ -144,6 +145,10 @@ root.render(
                 <Route element={<AddProduct />} path="add" />
                 <Route element={<ProductList />} path=":slug" />
                 <Route element={<EditProduct />} path=":slug/edit" />
+              </Route>
+
+              <Route path="product-pack">
+                <Route element={<ProductPack />} index />
               </Route>
 
               <Route path="product-sku">

@@ -9,8 +9,8 @@ const About = () => {
   return (
     <>
       <CustomPageHeader title="About Us" isBasicHeader />
-      <div className="py-5 px-4 bg-[#FFFFFF]">
-        <Tabs defaultActiveKey="all">
+      <div className="p-6 bg-[#FFFFFF] rounded-lg">
+        <Tabs defaultActiveKey="faqs">
           <TabPane key="faqs" tab="FAQS">
             <FAQS />
           </TabPane>

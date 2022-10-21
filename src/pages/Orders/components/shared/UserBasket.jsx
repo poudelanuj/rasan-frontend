@@ -15,10 +15,9 @@ import {
 import { getDropdownProductSkus } from "../../../../api/products/productSku";
 import { GET_DROPDOWN_PRODUCT_SKUS } from "../../../../constants/queryKeys";
 import { STATUS } from "../../../../constants";
+import ButtonWPermission from "../../../../shared/ButtonWPermission";
 
-const UserBasket = ({ user, setBasketItemsStatus }) => {
-  const { basket_id } = user;
-
+const UserBasket = ({ user, basket_id, setBasketItemsStatus }) => {
   // *********** FORM ************ //
   const [selectedProductSku, setSelectedSku] = useState();
 
@@ -223,7 +222,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
         <Form key={basketForm.id} layout="horizontal">
           <Space>
             <Form.Item>
-              <span>Product Sku</span>
+              <span>Product SKU</span>
               <Select
                 loading={productsStatus === "loading"}
                 placeholder="Select Product SKU"
@@ -242,6 +241,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
             <Form.Item tooltip="Select Pack Size">
               <span>Pack Size</span>
               <Select
+                className="!w-36"
                 placeholder="Select Pack Size"
                 showSearch
                 onSelect={(value) => {
@@ -270,10 +270,11 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
               </Select>
             </Form.Item>
 
-            <Form.Item name="quantity">
+            <Form.Item className="relative" name="quantity">
               <span>Quantity</span>
               <Input
-                placeholder="quantity"
+                className="!w-20"
+                placeholder="Quantity"
                 type="number"
                 value={
                   forms.find((item) => item.id === basketForm.id)?.quantity
@@ -289,12 +290,22 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
                   });
                 }}
               />
+              <span
+                className={`${
+                  forms[forms.findIndex((item) => item.id === basketForm.id)]
+                    .quantity < 0
+                    ? "block"
+                    : "hidden"
+                } absolute text-xs text-red-600`}
+              >
+                Negative value not allowed
+              </span>
             </Form.Item>
 
             <Form.Item>
               <span>Price Per Piece</span>
               <Input
-                placeholder="price"
+                placeholder="Price"
                 type="number"
                 value={
                   forms.find((item) => item.id === basketForm.id)?.product_pack
@@ -307,7 +318,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
             <Form.Item>
               <span>Total Amount</span>
               <Input
-                placeholder="total amount"
+                placeholder="Total amount"
                 type="number"
                 value={getTotalAmount(basketForm.id)}
                 disabled
@@ -317,7 +328,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
             <Form.Item>
               <span>Loyalty</span>
               <Input
-                placeholder="loyalty points"
+                placeholder="Loyalty points"
                 type="number"
                 value={
                   parseInt(
@@ -333,7 +344,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
             <Form.Item>
               <span>Cashback</span>
               <Input
-                placeholder="cashback"
+                placeholder="Cashback"
                 type="number"
                 value={
                   parseInt(
@@ -350,7 +361,9 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
             <Form.Item>
               <div style={{ height: 20 }} />
               {index + 1 === forms.length ? (
-                <Button
+                <ButtonWPermission
+                  codename="add_basketitem"
+                  disabled={forms.some(({ quantity }) => quantity < 0)}
                   icon={<PlusOutlined />}
                   type="primary"
                   onClick={handleAddForm}
@@ -391,15 +404,19 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
             Clear
           </Button>
 
-          <Button
-            disabled={forms[0]?.product_pack === null}
+          <ButtonWPermission
+            codename="add_basketitem"
+            disabled={
+              forms[0]?.product_pack === null ||
+              forms.some(({ quantity }) => quantity < 0)
+            }
             loading={handleBasketSubmit.status === "loading"}
             size="middle"
             type="primary"
             onClick={() => handleBasketSubmit.mutate()}
           >
             Save Items To Basket
-          </Button>
+          </ButtonWPermission>
         </Space>
       </div>
     </div>

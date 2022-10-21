@@ -132,7 +132,7 @@ const EditProductSku = () => {
         title={`Edit ${productSku?.name}`}
       />
 
-      <div className="py-1">
+      <div className="p-6 bg-white rounded-lg">
         {productSkuStatus === "success" && productSku && (
           <div>
             <Form
@@ -166,7 +166,9 @@ const EditProductSku = () => {
                   initialValue={productSku.name}
                   label="Product Name"
                   name="name"
-                  rules={[{ required: true, message: "product name required" }]}
+                  rules={[
+                    { required: true, message: "Product name is required" },
+                  ]}
                 >
                   <Input defaultValue={productSku.name} />
                 </Form.Item>
@@ -175,7 +177,9 @@ const EditProductSku = () => {
                   initialValue={productSku.name_np}
                   label="Product Name (In Nepali)"
                   name="name_np"
-                  rules={[{ required: true, message: "product name required" }]}
+                  rules={[
+                    { required: true, message: "Product name is required" },
+                  ]}
                 >
                   <Input defaultValue={productSku.name_np} />
                 </Form.Item>
@@ -186,7 +190,7 @@ const EditProductSku = () => {
                   initialValue={productSku.quantity}
                   label="Quantity"
                   name="quantity"
-                  rules={[{ required: true, message: "quantity required" }]}
+                  rules={[{ required: true, message: "Quantity is required" }]}
                 >
                   <Input defaultValue={productSku.quantity} />
                 </Form.Item>
@@ -196,7 +200,7 @@ const EditProductSku = () => {
                   label="Cost Price/Piece"
                   name="cost_price_per_piece"
                   rules={[
-                    { required: true, message: "cost price/piece required" },
+                    { required: true, message: "Cost price/piece is required" },
                   ]}
                 >
                   <Input
@@ -209,7 +213,9 @@ const EditProductSku = () => {
                   initialValue={productSku.price_per_piece}
                   label="Price/Piece"
                   name="price_per_piece"
-                  rules={[{ required: true, message: "price/piece required" }]}
+                  rules={[
+                    { required: true, message: "Price/piece us required" },
+                  ]}
                 >
                   <Input defaultValue={productSku.price_per_piece} />
                 </Form.Item>
@@ -217,7 +223,7 @@ const EditProductSku = () => {
                   initialValue={productSku.mrp_per_piece}
                   label="MRP/Piece"
                   name="mrp_per_piece"
-                  rules={[{ required: true, message: "MRP/piece required" }]}
+                  rules={[{ required: true, message: "MRP/piece is required" }]}
                 >
                   <Input
                     defaultValue={productSku.mrp_per_piece}
@@ -230,7 +236,9 @@ const EditProductSku = () => {
                 initialValue={productSku.description}
                 label="Product SKU Description"
                 name="description"
-                rules={[{ required: true, message: "product name required" }]}
+                rules={[
+                  { required: true, message: "Product name is required" },
+                ]}
               >
                 <Input.TextArea
                   defaultValue={productSku.description}
@@ -244,7 +252,7 @@ const EditProductSku = () => {
                   initialValue={productSku.category}
                   label="Product Category"
                   name="category"
-                  rules={[{ required: true, message: "category required" }]}
+                  rules={[{ required: true, message: "Category is required" }]}
                 >
                   <Select
                     defaultValue={productSku.category}
@@ -269,7 +277,7 @@ const EditProductSku = () => {
                   initialValue={productSku.brand}
                   label="Product Brand"
                   name="brand"
-                  rules={[{ required: true, message: "brand required" }]}
+                  rules={[{ required: true, message: "Brand is required" }]}
                 >
                   <Select
                     defaultValue={productSku.brand}
@@ -293,7 +301,7 @@ const EditProductSku = () => {
                   initialValue={productSku.product}
                   label="Product"
                   name="product"
-                  rules={[{ required: true, message: "product required" }]}
+                  rules={[{ required: true, message: "Product is required" }]}
                 >
                   <Select
                     defaultValue={productSku.product}

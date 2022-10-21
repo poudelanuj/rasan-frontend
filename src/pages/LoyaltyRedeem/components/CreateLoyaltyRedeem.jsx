@@ -49,126 +49,128 @@ const CreateLoyaltyRedeem = () => {
   );
 
   return (
-    <div className="px-4 bg-[#FFFFFF]">
+    <>
       <CustomPageHeader title="Create Loyalty Redeem" />
 
-      <Form
-        autoComplete="off"
-        className="w-full grid grid-cols-2 gap-x-8"
-        form={form}
-        initialValues={{ remember: true }}
-        layout="vertical"
-        name="basic"
-        onFinish={() =>
-          form
-            .validateFields()
-            .then((values) => handleCreateLoyaltyRedeem.mutate(values))
-        }
-      >
-        <Form.Item
-          className="col-span-full"
-          label="Product Sku"
-          name="product_sku"
-          rules={[
-            {
-              required: true,
-              message: "Please select product sku",
-            },
-          ]}
+      <div className="p-6 rounded-lg bg-[#FFFFFF]">
+        <Form
+          autoComplete="off"
+          className="w-full grid grid-cols-2 gap-x-8"
+          form={form}
+          initialValues={{ remember: true }}
+          layout="vertical"
+          name="basic"
+          onFinish={() =>
+            form
+              .validateFields()
+              .then((values) => handleCreateLoyaltyRedeem.mutate(values))
+          }
         >
-          <Select
-            placeholder="Select an option"
-            onChange={(value) => {
-              form.resetFields(["product_pack"]);
-              setProductPack(
-                dropdownProductSku &&
-                  dropdownProductSku.filter((el) => el.slug === value)[0]
-                    .product_packs
-              );
-            }}
+          <Form.Item
+            className="col-span-full"
+            label="Product Sku"
+            name="product_sku"
+            rules={[
+              {
+                required: true,
+                message: "Please select product sku",
+              },
+            ]}
           >
-            {dropdownProductSku &&
-              dropdownProductSku.map((el) => (
-                <Option key={el.id} value={el.slug}>
-                  {el.name}
-                </Option>
-              ))}
-          </Select>
-        </Form.Item>
+            <Select
+              placeholder="Select an option"
+              onChange={(value) => {
+                form.resetFields(["product_pack"]);
+                setProductPack(
+                  dropdownProductSku &&
+                    dropdownProductSku.filter((el) => el.slug === value)[0]
+                      .product_packs
+                );
+              }}
+            >
+              {dropdownProductSku &&
+                dropdownProductSku.map((el) => (
+                  <Option key={el.id} value={el.slug}>
+                    {el.name}
+                  </Option>
+                ))}
+            </Select>
+          </Form.Item>
 
-        <Form.Item
-          label="Redeem Type"
-          name="redeem_type"
-          rules={[
-            {
-              required: true,
-              message: "Please select redeem type",
-            },
-          ]}
-        >
-          <Select placeholder="Select an option" allowClear>
-            <Option value="rasan_deal">Rasan Deals</Option>
-            <Option value="special_deal">Special Deals</Option>
-          </Select>
-        </Form.Item>
-
-        <Form.Item
-          label="Product Pack"
-          name="product_pack"
-          rules={[
-            {
-              required: true,
-              message: "Please input product pack",
-            },
-          ]}
-        >
-          <Select placeholder="Select an option" allowClear>
-            {productPack &&
-              productPack.map((el) => (
-                <Option key={el.sn} value={el.number_of_items}>
-                  {el.number_of_items}
-                </Option>
-              ))}
-          </Select>
-        </Form.Item>
-
-        <Form.Item
-          label="Loyalty Points"
-          name="loyalty_points"
-          rules={[
-            {
-              required: true,
-              message: "Please input loyalty points",
-            },
-          ]}
-        >
-          <Input type="number" />
-        </Form.Item>
-
-        <Form.Item
-          label="Quota"
-          name="quota"
-          rules={[
-            {
-              required: true,
-              message: "Please input quota",
-            },
-          ]}
-        >
-          <Input type="number" />
-        </Form.Item>
-
-        <Form.Item className="col-span-full">
-          <Button
-            htmlType="submit"
-            loading={handleCreateLoyaltyRedeem.isLoading}
-            type="primary"
+          <Form.Item
+            label="Redeem Type"
+            name="redeem_type"
+            rules={[
+              {
+                required: true,
+                message: "Please select redeem type",
+              },
+            ]}
           >
-            Submit
-          </Button>
-        </Form.Item>
-      </Form>
-    </div>
+            <Select placeholder="Select an option" allowClear>
+              <Option value="rasan_deal">Rasan Deals</Option>
+              <Option value="special_deal">Special Deals</Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            label="Product Pack"
+            name="product_pack"
+            rules={[
+              {
+                required: true,
+                message: "Please input product pack",
+              },
+            ]}
+          >
+            <Select placeholder="Select an option" allowClear>
+              {productPack &&
+                productPack.map((el) => (
+                  <Option key={el.sn} value={el.number_of_items}>
+                    {el.number_of_items}
+                  </Option>
+                ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            label="Loyalty Points"
+            name="loyalty_points"
+            rules={[
+              {
+                required: true,
+                message: "Please input loyalty points",
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+
+          <Form.Item
+            label="Quota"
+            name="quota"
+            rules={[
+              {
+                required: true,
+                message: "Please input quota",
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+
+          <Form.Item className="col-span-full">
+            <Button
+              htmlType="submit"
+              loading={handleCreateLoyaltyRedeem.isLoading}
+              type="primary"
+            >
+              Submit
+            </Button>
+          </Form.Item>
+        </Form>
+      </div>
+    </>
   );
 };
 

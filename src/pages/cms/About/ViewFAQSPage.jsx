@@ -24,6 +24,8 @@ import {
   openSuccessNotification,
   openErrorNotification,
 } from "../../../utils/openNotification";
+import ButtonWPermission from "../../../shared/ButtonWPermission";
+import { isEmpty } from "lodash";
 
 export const getStatusColor = (status) => {
   switch (status) {
@@ -101,7 +103,7 @@ const ViewFAQSPage = () => {
 
   const handleDeleteFAQS = useMutation((id) => deleteFAQS(id), {
     onSuccess: (data) => {
-      openSuccessNotification(data[0].data.message);
+      openSuccessNotification(data.message);
       setIsDeleteFAQsModalOpen(false);
       refetchFAQS();
       setDeletetIds([]);
@@ -139,13 +141,16 @@ const ViewFAQSPage = () => {
         {
           key: "1",
           label: (
-            <div
+            <ButtonWPermission
+              className="!border-none !bg-inherit !text-current"
+              codename="delete_faq"
+              disabled={isEmpty(deleteIds)}
               onClick={() => {
                 setIsDeleteFAQsModalOpen(true);
               }}
             >
               Delete
-            </div>
+            </ButtonWPermission>
           ),
         },
       ]}
@@ -162,7 +167,7 @@ const ViewFAQSPage = () => {
             <>
               <CustomPageHeader title={dataSource?.name} />
 
-              <div className="relative bg-white px-5 py-4 flex flex-col gap-5">
+              <div className="relative bg-white p-6 rounded-lg flex flex-col gap-5">
                 <span className="absolute right-5">
                   <Dropdown overlay={bulkMenu}>
                     <Button className="bg-white" type="default">
@@ -171,8 +176,9 @@ const ViewFAQSPage = () => {
                   </Dropdown>
                 </span>
 
-                <span
-                  className="bg-[rgb(244,247,251)] w-[36%] ml-9 border-dashed border-2 text-center py-5 cursor-pointer hover:bg-slate-100"
+                <ButtonWPermission
+                  className="!bg-[rgb(244,247,251)] !w-[36%] !ml-9 !border-dashed !border-2 !py-8 !flex items-center justify-center"
+                  codename="add_faq"
                   onClick={() => {
                     setPostPutFAQS({
                       title: "",
@@ -185,7 +191,7 @@ const ViewFAQSPage = () => {
                   }}
                 >
                   Add New FAQ
-                </span>
+                </ButtonWPermission>
 
                 {isAddFAQFormOpen && (
                   <form
@@ -347,31 +353,42 @@ const ViewFAQSPage = () => {
                             </Button>
                           </>
                         ) : (
-                          <EditOutlined
-                            className="text-xl cursor-pointer"
-                            onClick={() => {
-                              setPostPutFAQS({
-                                title: el.title,
-                                content: el.content,
-                                title_np: el.title_np,
-                                content_np: el.content_np,
-                                group: groupId,
-                              });
-                              setIsAddFAQFormOpen(false);
-                              setEditId(el.id);
-                            }}
+                          <ButtonWPermission
+                            codename="change_faq"
+                            icon={
+                              <EditOutlined
+                                className="text-xl cursor-pointer"
+                                onClick={() => {
+                                  setPostPutFAQS({
+                                    title: el.title,
+                                    content: el.content,
+                                    title_np: el.title_np,
+                                    content_np: el.content_np,
+                                    group: groupId,
+                                  });
+                                  setIsAddFAQFormOpen(false);
+                                  setEditId(el.id);
+                                }}
+                              />
+                            }
                           />
                         )}
-                        <DeleteOutlined
-                          className="text-xl cursor-pointer"
-                          onClick={() => {
-                            setIsDeleteFAQsModalOpen(true);
-                            setDeletetIds([el.id]);
-                          }}
+                        <ButtonWPermission
+                          codename="delete_faq"
+                          icon={
+                            <DeleteOutlined
+                              className="text-xl cursor-pointer"
+                              onClick={() => {
+                                setIsDeleteFAQsModalOpen(true);
+                                setDeletetIds([el.id]);
+                              }}
+                            />
+                          }
                         />
                         {!(editId === el.id) && (
-                          <Button
+                          <ButtonWPermission
                             className="w-24 text-center"
+                            codename="change_faq"
                             danger={el.is_published}
                             loading={
                               handlePublishFAQS.variables &&
@@ -387,7 +404,7 @@ const ViewFAQSPage = () => {
                             }
                           >
                             {el.is_published ? "Unpublish" : "Publish"}
-                          </Button>
+                          </ButtonWPermission>
                         )}
                       </span>
                     </div>

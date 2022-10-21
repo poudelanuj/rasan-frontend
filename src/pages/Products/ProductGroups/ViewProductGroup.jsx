@@ -2,23 +2,28 @@ import { DeleteOutlined } from "@ant-design/icons";
 import React, { useCallback, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { Breadcrumb, Button, Select, Space, Table, Tag } from "antd";
+import { Breadcrumb, Select, Space, Table, Tag } from "antd";
+import moment from "moment/moment";
 import {
   getProductGroup,
   updateProductSKU,
 } from "../../../context/CategoryContext";
+import { deleteProductSku } from "../../../api/products/productSku";
 import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../../utils/openNotification";
 import { getAllProductSkus } from "../../../api/products/productSku";
 import { GET_ALL_PRODUCT_SKUS } from "../../../constants/queryKeys";
-import { getDate, parseArray } from "../../../utils";
+import { parseArray } from "../../../utils";
 import { DEFAULT_RASAN_IMAGE } from "../../../constants";
 import CustomPageHeader from "../../../shared/PageHeader";
 import { publishProductGroup } from "../../../api/products/productGroups";
 import Loader from "../../../shared/Loader";
 import EditProductGroup from "./EditProductGroup";
+import ButtonWPermission from "../../../shared/ButtonWPermission";
+import ConfirmDelete from "../../../shared/ConfirmDelete";
+import { useEffect } from "react";
 
 const { Option } = Select;
 
@@ -27,6 +32,12 @@ function ViewProductGroup() {
 
   const [isEditGroupOpen, setIsEditGroupOpen] = useState(false);
   const { slug } = useParams();
+
+  const [isDeleteProductSkuModal, setIsDeleteProductSkuModal] = useState({
+    isOpen: false,
+    slug: null,
+    title: null,
+  });
 
   const [productGroup, setProductGroup] = useState({
     sn: "",
@@ -43,17 +54,20 @@ function ViewProductGroup() {
     status: productGroupStatus,
     refetch: refetchProductGroup,
   } = useQuery(["get-product-group", slug], () => getProductGroup({ slug }), {
-    onSuccess: (data) => {
-      let newData = data.data.data;
-      newData.product_skus.results.forEach((productSku) => {
-        productSku["key"] = productSku.slug;
-      });
-      setProductGroup(newData);
-    },
     onError: (error) => {
       openErrorNotification(error);
     },
   });
+
+  useEffect(() => {
+    if (productGroupData) {
+      let newData = productGroupData.data.data;
+      newData.product_skus.results.forEach((productSku) => {
+        productSku["key"] = productSku.slug;
+      });
+      setProductGroup(newData);
+    }
+  }, [productGroupData]);
 
   const { mutate: productSKUGroupUpdate } = useMutation(updateProductSKU, {
     onSuccess: (data) => {
@@ -89,6 +103,15 @@ function ViewProductGroup() {
     }
   );
 
+  const handleDeleteProductSku = useMutation((slug) => deleteProductSku(slug), {
+    onSuccess: (data) => {
+      openSuccessNotification(data.message);
+      setIsDeleteProductSkuModal({ isOpen: false, slug: null, title: null });
+      refetchProductGroup();
+    },
+    onError: (err) => openErrorNotification(err),
+  });
+
   const { data: productSkus } = useQuery({
     queryFn: () => getAllProductSkus(),
     queryKey: GET_ALL_PRODUCT_SKUS,
@@ -107,10 +130,16 @@ function ViewProductGroup() {
       title: "Product Name",
       render: (text, record) => {
         return (
-          <div className="flex items-center gap-3">
+          <div
+            className="flex items-center gap-3 text-blue-500"
+            onClick={() => {
+              const pageHeaderPath = `/product-groups/${productGroup.slug}`;
+              navigate(`/product-sku/${record.slug}?path=${pageHeaderPath}`);
+            }}
+          >
             <img
               alt={"text"}
-              className="h-[40px] rounded"
+              className="h-[40px] w-9 rounded"
               src={record?.product_sku_image?.full_size || "/rasan-default.png"}
             />
             {record.name}
@@ -144,13 +173,18 @@ function ViewProductGroup() {
       render: (text, record) => {
         return (
           <div className="flex items-center">
-            <button
-              className="text-red-500 text-xl p-4 flex items-center justify-center"
-              type="button"
-              onClick={() => {}}
-            >
-              <DeleteOutlined />
-            </button>
+            <ButtonWPermission
+              codename="delete_productsku"
+              icon={<DeleteOutlined />}
+              onClick={() => {
+                setIsDeleteProductSkuModal({
+                  ...isDeleteProductSkuModal,
+                  slug: record.slug,
+                  isOpen: true,
+                  title: record.name,
+                });
+              }}
+            />
           </div>
         );
       },
@@ -181,7 +215,7 @@ function ViewProductGroup() {
         />
       )}
 
-      {productGroupData && (
+      {productGroupStatus === "success" && productGroupData && (
         <>
           <CustomPageHeader
             breadcrumb={getHeaderBreadcrumb()}
@@ -212,7 +246,8 @@ function ViewProductGroup() {
                 </div>
                 <div className="absolute top-0 right-0">
                   <Space>
-                    <Button
+                    <ButtonWPermission
+                      codename="change_productgroup"
                       loading={onPublishProductGroup.status === "loading"}
                       type={productGroup.is_published ? "danger" : "primary"}
                       onClick={() =>
@@ -223,14 +258,15 @@ function ViewProductGroup() {
                       }
                     >
                       {productGroup.is_published ? "Unpublish" : "Publish"}
-                    </Button>
+                    </ButtonWPermission>
 
-                    <Button
+                    <ButtonWPermission
+                      codename="change_productgroup"
                       type="ghost"
                       onClick={() => setIsEditGroupOpen(true)}
                     >
                       Edit Details
-                    </Button>
+                    </ButtonWPermission>
                   </Space>
                 </div>
               </div>
@@ -258,7 +294,7 @@ function ViewProductGroup() {
                       </p>
                       <p className="text-[#596579] font-bold mb-0">
                         {productGroup.published_at
-                          ? getDate(productGroup.published_at)
+                          ? moment(productGroup.published_at).format("ll")
                           : "-"}
                       </p>
                     </div>
@@ -281,21 +317,10 @@ function ViewProductGroup() {
                 </div>
                 <div className="flex-1">
                   <Table
-                    className="w-[75%]"
                     columns={columns}
                     dataSource={productGroup?.product_skus?.results}
                     pagination={false}
                     rowClassName="h-[3rem] cursor-pointer"
-                    onRow={(record) => {
-                      return {
-                        onClick: () => {
-                          const pageHeaderPath = `/product-groups/${productGroup.slug}`;
-                          navigate(
-                            `/product-sku/${record.slug}?path=${pageHeaderPath}`
-                          );
-                        },
-                      };
-                    }}
                   />
                 </div>
                 <div>
@@ -326,6 +351,23 @@ function ViewProductGroup() {
               </div>
             </div>
           </div>
+
+          <ConfirmDelete
+            closeModal={() =>
+              setIsDeleteProductSkuModal({
+                ...isDeleteProductSkuModal,
+                slug: null,
+                isOpen: false,
+                title: null,
+              })
+            }
+            deleteMutation={() =>
+              handleDeleteProductSku.mutate(isDeleteProductSkuModal.slug)
+            }
+            isOpen={isDeleteProductSkuModal.isOpen}
+            status={handleDeleteProductSku.status}
+            title={isDeleteProductSkuModal.title}
+          />
         </>
       )}
     </>

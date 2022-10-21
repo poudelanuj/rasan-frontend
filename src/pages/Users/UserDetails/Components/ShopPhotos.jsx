@@ -1,8 +1,8 @@
 import { PlusOutlined } from "@ant-design/icons";
 import { message, Modal, Upload } from "antd";
 import React, { useEffect, useState } from "react";
-import { useMutation } from "react-query";
-import { updateUser } from "../../context/UserContext";
+import { useMutation, useQueryClient } from "react-query";
+import { updateShop } from "../../../../context/UserContext";
 
 const getBase64 = (file) =>
   new Promise((resolve, reject) => {
@@ -14,27 +14,27 @@ const getBase64 = (file) =>
     reader.onerror = (error) => reject(error);
   });
 
-const ProfilePicture = ({ user }) => {
+const ShopPhotos = ({ name, url, label, id }) => {
   const [previewVisible, setPreviewVisible] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [previewTitle, setPreviewTitle] = useState("");
   const [fileList, setFileList] = useState([]);
   useEffect(() => {
-    if (user?.profile_picture?.small_square_crop) {
+    if (!!url && !!name) {
       setFileList([
         {
-          name: user.full_name,
+          name: name,
           status: "done",
-          url: user.profile_picture.small_square_crop,
+          url: url,
         },
       ]);
     }
-  }, [user]);
-  //   const queryClient = useQueryClient();
-  const { mutate: updateProfileMutation } = useMutation(updateUser, {
+  }, [url, name]);
+  const queryClient = useQueryClient();
+  const { mutate: updateShopMutation } = useMutation(updateShop, {
     onSuccess: (data) => {
       message.success(data.message);
-      //   queryClient.invalidateQueries(["get-user", `${user.id}`]);
+      queryClient.invalidateQueries(["get-user", `${id}`]);
     },
     onError: (data) => {
       message.error(data.message);
@@ -44,8 +44,9 @@ const ProfilePicture = ({ user }) => {
 
   const handlePreview = async (file) => {
     if (!file.url && !file.preview) {
-      file.preview = await getBase64(file?.originFileObj);
+      file.preview = await getBase64(file.originFileObj);
     }
+
     setPreviewImage(file.url || file.preview);
     setPreviewVisible(true);
     setPreviewTitle(
@@ -58,8 +59,8 @@ const ProfilePicture = ({ user }) => {
     // add one or more of your files in FormData
     // again, the original file is located at the `originFileObj` key
     setFileList(newFileList);
-    formData.append("profile_picture", newFileList[0].originFileObj);
-    updateProfileMutation({ data: formData, key: user.id });
+    formData.append(name, newFileList[0].originFileObj);
+    updateShopMutation({ data: formData, key: id });
   };
 
   const uploadButton = (
@@ -76,6 +77,7 @@ const ProfilePicture = ({ user }) => {
   );
   return (
     <>
+      <div className="text-xl bg-white mb-3">{label}</div>
       <Upload
         beforeUpload={() => false}
         fileList={fileList}
@@ -104,4 +106,4 @@ const ProfilePicture = ({ user }) => {
   );
 };
 
-export default ProfilePicture;
+export default ShopPhotos;

@@ -2,7 +2,7 @@ import { Button, Dropdown, Space, Table, Menu, Tag } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient, useMutation, useQuery } from "react-query";
 import { useState, useEffect } from "react";
-import { capitalize, uniqBy } from "lodash";
+import { capitalize, isEmpty, uniqBy } from "lodash";
 import { DeleteOutlined } from "@ant-design/icons";
 import ConfirmDelete from "../../../shared/ConfirmDelete";
 import {
@@ -10,6 +10,7 @@ import {
   openErrorNotification,
 } from "../../../utils/openNotification";
 import {
+  deleteBulkTutorials,
   deleteTutorials,
   getPaginatedTutorials,
   publishTutorial,
@@ -19,6 +20,7 @@ import {
   GET_PAGINATED_TUTORIALS,
   GET_TUTORIALS_BY_ID,
 } from "../../../constants/queryKeys";
+import ButtonWPermission from "../../../shared/ButtonWPermission";
 
 export const getStatusColor = (status) => {
   switch (status) {
@@ -36,17 +38,17 @@ const TutorialList = () => {
 
   const queryClient = useQueryClient();
 
-  const [isDeleteTutorialsModalOpen, setIsDeleteTutorialsModalOpen] =
-    useState(false);
-
-  const [deleteTutorialsModalTitle, setDeleteTutorialsModalTitle] =
-    useState("");
+  const [isDeleteTutorialsModal, setIsDeleteTutorialsModal] = useState({
+    isOpen: false,
+    type: "",
+    title: "",
+  });
 
   const [page, setPage] = useState(1);
 
   const [slugs, setSlugs] = useState([]);
 
-  const pageSize = 20;
+  const [pageSize, setPageSize] = useState(20);
 
   const [tutorialList, setTutorialList] = useState([]);
 
@@ -61,26 +63,32 @@ const TutorialList = () => {
   });
 
   useEffect(() => {
-    if (data) {
+    if (data && status === "success" && !isRefetching) {
       setTutorialList([]);
       setTutorialList((prev) => uniqBy([...prev, ...data.results], "slug"));
     }
-  }, [data]);
+  }, [data, status, isRefetching]);
 
   useEffect(() => {
     refetchTutorials();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  }, [page, pageSize]);
 
-  const handleDeleteTutorial = useMutation(() => deleteTutorials(slugs), {
-    onSuccess: (res) => {
-      openSuccessNotification(res[0].data.message);
-      refetchTutorials();
-      setIsDeleteTutorialsModalOpen(false);
-      setSlugs([]);
-    },
-    onError: (err) => openErrorNotification(err),
-  });
+  const handleDeleteTutorial = useMutation(
+    () =>
+      isDeleteTutorialsModal.type === "bulk"
+        ? deleteBulkTutorials(slugs)
+        : deleteTutorials(slugs),
+    {
+      onSuccess: (res) => {
+        openSuccessNotification(res.message);
+        refetchTutorials();
+        setIsDeleteTutorialsModal({ isOpen: false, title: "", type: "" });
+        setSlugs([]);
+      },
+      onError: (err) => openErrorNotification(err),
+    }
+  );
 
   const handlePublishTutorial = useMutation(
     ({ slug, shouldPublish }) => publishTutorial({ slug, shouldPublish }),
@@ -141,12 +149,13 @@ const TutorialList = () => {
       title: "Actions",
       dataIndex: "action",
       key: "action",
-      width: "15%",
+      width: "13%",
       render: (_, { slug, title, is_published }) => {
         return (
           <div className="flex items-center justify-between">
-            <Button
+            <ButtonWPermission
               className="w-20 text-center"
+              codename="change_tutorial"
               danger={is_published} //* TODO
               loading={
                 handlePublishTutorial.variables &&
@@ -163,14 +172,23 @@ const TutorialList = () => {
               }
             >
               {is_published ? "Unpublish" : "Publish"}
-            </Button>
-            <DeleteOutlined
-              className="ml-5"
-              onClick={() => {
-                setIsDeleteTutorialsModalOpen(true);
-                setDeleteTutorialsModalTitle(`Delete ${title}?`);
-                setSlugs([slug]);
-              }}
+            </ButtonWPermission>
+
+            <ButtonWPermission
+              className="!border-none"
+              codename="delete_tutorial"
+              icon={
+                <DeleteOutlined
+                  onClick={() => {
+                    setIsDeleteTutorialsModal({
+                      isOpen: true,
+                      title: `Delete ${title}?`,
+                      type: "single",
+                    });
+                    setSlugs([slug]);
+                  }}
+                />
+              }
             />
           </div>
         );
@@ -184,14 +202,20 @@ const TutorialList = () => {
         {
           key: "1",
           label: (
-            <div
-              onClick={() => {
-                setIsDeleteTutorialsModalOpen(true);
-                setDeleteTutorialsModalTitle(`Delete all tutorials?`);
-              }}
+            <ButtonWPermission
+              className="!border-none !bg-inherit !text-current"
+              codename="delete_tutorial"
+              disabled={isEmpty(slugs)}
+              onClick={() =>
+                setIsDeleteTutorialsModal({
+                  isOpen: true,
+                  title: "Delete all tutorials?",
+                  type: "bulk",
+                })
+              }
             >
               Delete
-            </div>
+            </ButtonWPermission>
           ),
         },
       ]}
@@ -206,7 +230,7 @@ const TutorialList = () => {
 
   const dataSourceTutorials = tutorialList?.map((el, index) => {
     return {
-      key: index + 1,
+      key: (page - 1) * pageSize + index + 1,
       title: el.title,
       page_location: capitalize(el.page_location).replaceAll("_", " "),
       type: capitalize(el.type),
@@ -220,8 +244,9 @@ const TutorialList = () => {
   return (
     <div className="">
       <div className="mb-4 flex justify-between">
-        <Button
+        <ButtonWPermission
           className="flex items-center"
+          codename="add_tutorial"
           type="primary"
           ghost
           onClick={() => {
@@ -229,7 +254,7 @@ const TutorialList = () => {
           }}
         >
           Create Tutorial
-        </Button>
+        </ButtonWPermission>
 
         <Dropdown overlay={bulkMenu}>
           <Button className="bg-white" type="default">
@@ -243,22 +268,30 @@ const TutorialList = () => {
         dataSource={dataSourceTutorials}
         loading={status === "loading" || isRefetching}
         pagination={{
+          showSizeChanger: true,
           pageSize,
           total: data?.count,
+          current: page,
 
           onChange: (page, pageSize) => {
             setPage(page);
+            setPageSize(pageSize);
           },
         }}
         rowSelection={{ ...rowSelection }}
       />
 
       <ConfirmDelete
-        closeModal={() => setIsDeleteTutorialsModalOpen(false)}
+        closeModal={() =>
+          setIsDeleteTutorialsModal({
+            ...isDeleteTutorialsModal,
+            isOpen: false,
+          })
+        }
         deleteMutation={() => handleDeleteTutorial.mutate()}
-        isOpen={isDeleteTutorialsModalOpen}
+        isOpen={isDeleteTutorialsModal.isOpen}
         status={handleDeleteTutorial.status}
-        title={deleteTutorialsModalTitle}
+        title={isDeleteTutorialsModal.title}
       />
     </div>
   );

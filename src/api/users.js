@@ -1,16 +1,13 @@
 import axios from "../axios";
 
-export const getUsers = async () => {
-  const res1 = await axios.get("/api/profile/admin/user-list/");
+export const getUsers = async (page, search, pageSize, sort) => {
+  const res = await axios.get(
+    `/api/profile/admin/user-list/?page=${page || 1}&search=${
+      search || ""
+    }&size=${pageSize || 20}&sort=${sort || []}`
+  );
 
-  if (res1.data.data.next !== null) {
-    const res2 = await axios.get(
-      `/api/profile/admin/user-list/?page=1&size=${res1.data.data.count}`
-    );
-    return res2.data.data.results;
-  }
-
-  return res1.data.data.results;
+  return res.data.data;
 };
 
 export const getEndUser = async () => {
@@ -21,4 +18,14 @@ export const getEndUser = async () => {
 export const createUser = async (data) => {
   const response = await axios.post("/api/auth/create-user/admin/", data);
   return response.data;
+};
+
+export const getAdminUsers = async (groupIds, page, pageSize, search, sort) => {
+  const res = await axios.get(
+    `/api/profile/admin/user-list/?group_ids=${groupIds}&page=${page}&size=${
+      pageSize || 20
+    }&search=${search || ""}&sort=${sort || []}`
+  );
+
+  return res.data.data;
 };

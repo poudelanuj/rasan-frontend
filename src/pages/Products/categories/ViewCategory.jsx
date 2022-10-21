@@ -1,11 +1,12 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { useMutation, useQuery } from "react-query";
-import { Breadcrumb, Button, Image, Tabs, Tag } from "antd";
+import { Breadcrumb, Image, Tabs, Tag } from "antd";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import ProductsTab from "./Tabs/ProductsTab";
 import SkuTab from "./Tabs/SkuTab";
 import CustomPageHeader from "../../../shared/PageHeader";
+import EditCategory from "./EditCategory";
 import { getCategory, publishCategory } from "../../../api/categories";
 import { GET_SINGLE_CATEGORY } from "../../../constants/queryKeys";
 import {
@@ -14,12 +15,15 @@ import {
   parseSlug,
 } from "../../../utils";
 import { DEFAULT_RASAN_IMAGE } from "../../../constants";
+import ButtonWPermission from "../../../shared/ButtonWPermission";
 
 const { TabPane } = Tabs;
 
 function Category() {
   const { slug } = useParams();
   const navigate = useNavigate();
+
+  const [isEditCategory, setIsEditcategory] = useState(false);
 
   const {
     data: category,
@@ -42,7 +46,8 @@ function Category() {
 
   const PublishCategory = () => {
     return (
-      <Button
+      <ButtonWPermission
+        codename="change_category"
         disabled={status === "loading"}
         loading={onPublishCategory.status === "loading"}
         type={category?.is_published ? "danger" : "primary"}
@@ -54,7 +59,7 @@ function Category() {
         }
       >
         {category?.is_published ? "Unpublish" : "Publish"}
-      </Button>
+      </ButtonWPermission>
     );
   };
 
@@ -102,22 +107,33 @@ function Category() {
         breadcrumb={getHeaderBreadcrumb()}
         extra={[
           <PublishCategory key="1" />,
-          <Button
+          <ButtonWPermission
             key="2"
+            codename="add_product"
             onClick={() => navigate(`/product-list/add?category=${slug}`)}
           >
             Add New Products
-          </Button>,
-          <Button key="3" type="primary">
+          </ButtonWPermission>,
+          <ButtonWPermission
+            key="3"
+            codename="change_category"
+            type="primary"
+            onClick={() => setIsEditcategory(true)}
+          >
             Edit Category
-          </Button>,
+          </ButtonWPermission>,
         ]}
         path="/category-list"
         subTitle={getPublishTag()}
         title={category?.name || parseSlug(slug)}
       />
 
-      <div>
+      <EditCategory
+        closeModal={() => setIsEditcategory(false)}
+        isOpen={isEditCategory}
+        slug={slug}
+      />
+      <div className="p-6 bg-white rounded-lg">
         <Tabs defaultActiveKey="1">
           <TabPane key="1" tab="Products">
             <ProductsTab slug={slug} />

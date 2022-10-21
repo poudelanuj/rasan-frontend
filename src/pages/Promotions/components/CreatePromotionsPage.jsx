@@ -61,116 +61,118 @@ const CreatePromotionsPage = () => {
   });
 
   return (
-    <div className="px-4 bg-[#FFFFFF]">
+    <>
       <CustomPageHeader title="Create Promotion" />
 
-      <Form
-        autoComplete="off"
-        className="w-full grid grid-cols-2 gap-x-8"
-        form={form}
-        initialValues={{ remember: true }}
-        layout="vertical"
-        name="basic"
-        onFinish={() =>
-          form
-            .validateFields()
-            .then((values) => handlePostPromotions.mutate(values))
-        }
-      >
-        <Form.Item
-          className="col-span-full"
-          label="Title"
-          name="title"
-          rules={[{ required: true, message: "Please input title!" }]}
+      <div className="p-6 rounded-lg bg-[#FFFFFF]">
+        <Form
+          autoComplete="off"
+          className="w-full grid grid-cols-2 gap-x-8"
+          form={form}
+          initialValues={{ remember: true }}
+          layout="vertical"
+          name="basic"
+          onFinish={() =>
+            form
+              .validateFields()
+              .then((values) => handlePostPromotions.mutate(values))
+          }
         >
-          <Input placeholder="Enter a title" />
-        </Form.Item>
-
-        <Form.Item
-          className="col-span-full"
-          label="Detail"
-          name="detail"
-          rules={[{ required: true, message: "Please input detail!" }]}
-        >
-          <TextArea placeholder="Enter detail" allowClear autoSize />
-        </Form.Item>
-
-        <Form.Item
-          label="Type"
-          name="type"
-          rules={[
-            {
-              required: true,
-            },
-          ]}
-        >
-          <Select
-            placeholder="Select an option"
-            allowClear
-            onChange={(value) => setType(value)}
+          <Form.Item
+            className="col-span-full"
+            label="Title"
+            name="title"
+            rules={[{ required: true, message: "Please input title!" }]}
           >
-            <Option value="brand">Brand</Option>
-            <Option value="category">Category</Option>
-            <Option value="product_group">Product Group</Option>
-          </Select>
-        </Form.Item>
+            <Input placeholder="Enter a title" />
+          </Form.Item>
 
-        <Form.Item
-          label="Context"
-          name={type}
-          rules={[
-            {
-              required: true,
-            },
-          ]}
-        >
-          <Select placeholder="Select user groups" allowClear>
-            {type === "brand" &&
-              brands &&
-              brands.map((el) => (
-                <Option key={el.slug} value={el.slug}>
-                  {el.name}
-                </Option>
-              ))}
-            {type === "category" &&
-              category &&
-              category.map((el) => (
-                <Option key={el.slug} value={el.slug}>
-                  {el.name}
-                </Option>
-              ))}
-            {type === "product_group" &&
-              productGroup &&
-              productGroup.map((el) => (
-                <Option key={el.slug} value={el.slug}>
-                  {el.name}
-                </Option>
-              ))}
-          </Select>
-        </Form.Item>
-
-        <Form.Item label="User Groups" name="user_groups">
-          <Select mode="multiple" placeholder="Select user groups" allowClear>
-            {userGroups &&
-              userGroups.map((el) => (
-                <Option key={el.id} value={el.id}>
-                  {el.name}
-                </Option>
-              ))}
-          </Select>
-        </Form.Item>
-
-        <Form.Item className="col-span-full">
-          <Button
-            htmlType="submit"
-            loading={handlePostPromotions.isLoading}
-            type="primary"
+          <Form.Item
+            className="col-span-full"
+            label="Detail"
+            name="detail"
+            rules={[{ required: true, message: "Please input detail!" }]}
           >
-            Submit
-          </Button>
-        </Form.Item>
-      </Form>
-    </div>
+            <TextArea placeholder="Enter detail" allowClear autoSize />
+          </Form.Item>
+
+          <Form.Item
+            label="Type"
+            name="type"
+            rules={[
+              {
+                required: true,
+              },
+            ]}
+          >
+            <Select
+              placeholder="Select an option"
+              allowClear
+              onChange={(value) => setType(value)}
+            >
+              <Option value="brand">Brand</Option>
+              <Option value="category">Category</Option>
+              <Option value="product_group">Product Group</Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            label="Context"
+            name={type}
+            rules={[
+              {
+                required: true,
+              },
+            ]}
+          >
+            <Select placeholder="Select user groups" allowClear>
+              {type === "brand" &&
+                brands &&
+                brands.map((el) => (
+                  <Option key={el.slug} value={el.slug}>
+                    {el.name}
+                  </Option>
+                ))}
+              {type === "category" &&
+                category &&
+                category.map((el) => (
+                  <Option key={el.slug} value={el.slug}>
+                    {el.name}
+                  </Option>
+                ))}
+              {type === "product_group" &&
+                productGroup &&
+                productGroup.map((el) => (
+                  <Option key={el.slug} value={el.slug}>
+                    {el.name}
+                  </Option>
+                ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item label="User Groups" name="user_groups">
+            <Select mode="multiple" placeholder="Select user groups" allowClear>
+              {userGroups &&
+                userGroups.map((el) => (
+                  <Option key={el.id} value={el.id}>
+                    {el.name}
+                  </Option>
+                ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item className="col-span-full">
+            <Button
+              htmlType="submit"
+              loading={handlePostPromotions.isLoading}
+              type="primary"
+            >
+              Submit
+            </Button>
+          </Form.Item>
+        </Form>
+      </div>
+    </>
   );
 };
 

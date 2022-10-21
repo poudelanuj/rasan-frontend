@@ -1,7 +1,7 @@
 import { Button, Form, Input, message } from "antd";
 import React, { useEffect } from "react";
 import { useMutation } from "react-query";
-import { updateShop } from "../../context/UserContext";
+import { updateShop } from "../../../../context/UserContext";
 import ShopPhotos from "./ShopPhotos";
 
 const Shop = ({ user }) => {

@@ -131,7 +131,7 @@ const AddProduct = () => {
       />
 
       <>
-        <div>
+        <div className="p-6 rounded-lg bg-white">
           <Form
             layout="vertical"
             onFinish={(values) => onFormSubmit.mutate(values)}
@@ -160,7 +160,7 @@ const AddProduct = () => {
             <Form.Item
               label="Product Name"
               name="name"
-              rules={[{ required: true, message: "product name required" }]}
+              rules={[{ required: true, message: "Product name is required" }]}
             >
               <Input />
             </Form.Item>
@@ -179,7 +179,7 @@ const AddProduct = () => {
                   </Space>
                 }
                 name="category"
-                rules={[{ required: true, message: "category required" }]}
+                rules={[{ required: true, message: "Category is required" }]}
               >
                 <Select
                   loading={categoriesStatus === "loading"}
@@ -209,7 +209,7 @@ const AddProduct = () => {
                   </Space>
                 }
                 name="brand"
-                rules={[{ required: true, message: "brand required" }]}
+                rules={[{ required: true, message: "Brand is required" }]}
               >
                 <Select
                   loading={brandsStatus === "loading"}

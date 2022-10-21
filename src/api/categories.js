@@ -5,9 +5,11 @@ export const getAllCategories = async () => {
   return res.data.data.results;
 };
 
-export const getPaginatedCategories = async (page, pageSize) => {
+export const getPaginatedCategories = async (page, pageSize, search) => {
   const res = await axios.get(
-    `/api/product/admin/categories/?page=${page || 1}&size=${pageSize || 20}`
+    `/api/product/admin/categories/?page=${page || 1}&size=${
+      pageSize || 20
+    }&search=${search || ""}`
   );
   return res.data.data;
 };
@@ -60,12 +62,9 @@ export const bulkPublish = async ({ slugs = [], isPublish }) => {
   }
 };
 
-export const bulkDelete = async (slugs = []) => {
-  const res = await Promise.all(
-    slugs.map(async (slug) => {
-      return await axios.delete(`/api/product/admin/categories/${slug}/`);
-    })
-  );
+export const bulkDelete = async (slugs) => {
+  const res = await axios.delete(`/api/product/admin/categories/${slugs}/`);
+
   return res.data;
 };
 
@@ -77,7 +76,20 @@ export const getProductsFromCategory = async ({
   const res = await axios.get(
     `/api/product/admin/categories/products/${categorySlug}/?page=${
       page || 1
-    }&size=${pageSize || 10}`
+    }&size=${pageSize || 20}`
   );
   return res.data.data.products;
+};
+
+export const getProductSkusFromCategory = async (
+  categorySlug,
+  page,
+  pageSize
+) => {
+  const res = await axios.get(
+    `/api/product/admin/product-skus/?category=${categorySlug}&page=${
+      page || 1
+    }&size=${pageSize || 20}`
+  );
+  return res.data.data;
 };

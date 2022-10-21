@@ -1,7 +1,7 @@
 import React from "react";
 import { useMutation } from "react-query";
 import { useState } from "react";
-import { Space, Table, Tag, Button } from "antd";
+import { Input, Space, Table, Tag, Button, Popconfirm } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import {
   deleteProductPack,
@@ -15,6 +15,8 @@ import {
 } from "../../../../utils/openNotification";
 import AddProductPack from "./AddProductPack";
 import EditProductPack from "./EditProductPack";
+import ButtonWPermission from "../../../../shared/ButtonWPermission";
+import { useEffect } from "react";
 
 function ProductPackList({ productSkuSlug, productPacks, refetchProductSku }) {
   const [openAddPack, setOpenAddPack] = useState(false);
@@ -22,6 +24,31 @@ function ProductPackList({ productSkuSlug, productPacks, refetchProductSku }) {
   const [openConfirmDelete, setConfirmDelete] = useState(false);
 
   const [selectedPack, setSelectedPack] = useState(null);
+
+  const [isProductEditable, setIsProductEditable] = useState(false);
+
+  const [editableProductData, setEditableProductData] = useState([]);
+
+  useEffect(() => {
+    setEditableProductData(
+      productPacks.map((product) => ({
+        id: product.id,
+        number_of_items: product.number_of_items,
+        price_per_piece: product.price_per_piece,
+        mrp_per_piece: product.mrp_per_piece,
+      }))
+    );
+  }, [productPacks]);
+
+  const handleProductChange = (event) => {
+    const { id, name, value } = event.target;
+    setEditableProductData((prev) =>
+      prev.map((product) => ({
+        ...product,
+        [Number(id) === product.id && name]: value,
+      }))
+    );
+  };
 
   const handleDelete = useMutation((id) => deleteProductPack(id), {
     onSuccess: (data) => {
@@ -54,16 +81,61 @@ function ProductPackList({ productSkuSlug, productPacks, refetchProductSku }) {
       title: "Number Of Items",
       dataIndex: "number_of_items",
       key: "number_of_items",
+      render: (_, { id }) => (
+        <Input
+          className={`!bg-inherit !text-black  ${
+            !isProductEditable && "!border-none"
+          }`}
+          disabled={!isProductEditable}
+          id={id}
+          name="number_of_items"
+          value={
+            editableProductData.find((product) => product.id === id)
+              ?.number_of_items
+          }
+          onChange={handleProductChange}
+        />
+      ),
     },
     {
       title: "Price/Piece",
       dataIndex: "price_per_piece",
       key: "price_per_piece",
+      render: (_, { id }) => (
+        <Input
+          className={`!bg-inherit !text-black  ${
+            !isProductEditable && "!border-none"
+          }`}
+          disabled={!isProductEditable}
+          id={id}
+          name="price_per_piece"
+          value={
+            editableProductData.find((product) => product.id === id)
+              ?.price_per_piece
+          }
+          onChange={handleProductChange}
+        />
+      ),
     },
     {
       title: "MRP/Piece",
       dataIndex: "mrp_per_piece",
       key: "mrp_per_piece",
+      render: (_, { id }) => (
+        <Input
+          className={`!bg-inherit !text-black  ${
+            !isProductEditable && "!border-none"
+          }`}
+          disabled={!isProductEditable}
+          id={id}
+          name="mrp_per_piece"
+          value={
+            editableProductData.find((product) => product.id === id)
+              ?.mrp_per_piece
+          }
+          onChange={handleProductChange}
+        />
+      ),
     },
     {
       title: "Published",
@@ -82,22 +154,25 @@ function ProductPackList({ productSkuSlug, productPacks, refetchProductSku }) {
       key: "action",
       render: (_, record) => (
         <Space size="middle">
-          <Button
+          <ButtonWPermission
+            codename="delete_productpack"
             icon={<DeleteOutlined />}
             onClick={() => {
               setSelectedPack(record);
               setConfirmDelete(true);
             }}
           />
-          <Button
+          <ButtonWPermission
+            codename="change_productpack"
             icon={<EditOutlined />}
             onClick={() => {
               setOpenEditPack(true);
               setSelectedPack(record);
             }}
           />
-          <Button
+          <ButtonWPermission
             className="rounded"
+            codename="change_productpack"
             disabled={handlePublish.status === "loading"}
             type={record.is_published ? "danger" : "primary"}
             onClick={() =>
@@ -108,7 +183,7 @@ function ProductPackList({ productSkuSlug, productPacks, refetchProductSku }) {
             }
           >
             {record.is_published ? "Unpublish" : "Publish"}
-          </Button>
+          </ButtonWPermission>
         </Space>
       ),
     },
@@ -139,18 +214,66 @@ function ProductPackList({ productSkuSlug, productPacks, refetchProductSku }) {
 
       <div className="flex justify-between">
         <h3 className="text-xl text-[#374253] mb-4">Product Pack Details</h3>
-        <Button type="primary" onClick={() => setOpenAddPack(true)}>
-          Add New
-        </Button>
+
+        <Space>
+          {isProductEditable ? (
+            <Button
+              onClick={() => {
+                setIsProductEditable(false);
+                setEditableProductData(
+                  productPacks.map((product) => ({
+                    id: product.id,
+                    number_of_items: product.number_of_items,
+                    price_per_piece: product.price_per_piece,
+                    mrp_per_piece: product.mrp_per_piece,
+                  }))
+                );
+              }}
+            >
+              Cancel
+            </Button>
+          ) : (
+            <ButtonWPermission
+              codename="change_productpack"
+              type="primary"
+              ghost
+              onClick={() => setIsProductEditable(true)}
+            >
+              Edit
+            </ButtonWPermission>
+          )}
+
+          <ButtonWPermission
+            codename="add_productpack"
+            type="primary"
+            onClick={() => setOpenAddPack(true)}
+          >
+            Add New
+          </ButtonWPermission>
+        </Space>
       </div>
 
       <Table
         columns={columns}
         dataSource={productPacks}
-        onRow={(record) => {
-          return {
-            onClick: () => {},
-          };
+        pagination={{
+          showTotal: () => (
+            <Popconfirm
+              cancelText="No"
+              okText="Yes"
+              title="Are you sure save this detail?"
+              onCancel={() => {}}
+              onConfirm={() => {}}
+            >
+              <ButtonWPermission
+                codename="change_productpack"
+                disabled={!isProductEditable}
+                type="primary"
+              >
+                Save
+              </ButtonWPermission>
+            </Popconfirm>
+          ),
         }}
       />
     </>

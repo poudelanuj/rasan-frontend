@@ -1,9 +1,11 @@
 import moment from "moment";
 import axios from "../axios";
 
-export const getUsers = async () => {
-  const response = await axios.get("/api/profile/admin/user-list/");
-  return response.data.data.results;
+export const getUsers = async (page, pageSize) => {
+  const response = await axios.get(
+    `/api/profile/admin/user-list/?page=${page}&size=${pageSize}`
+  );
+  return response.data.data;
 };
 
 export const getUser = async (user_id) => {
@@ -82,8 +84,10 @@ export const deleteAddress = async ({ key }) => {
   return response.data;
 };
 
-export const getOtpRequests = async () => {
-  const response = await axios.get(`/api/auth/otp-requests/`);
+export const getOtpRequests = async ({ pageSize, page, sort, phone }) => {
+  const response = await axios.get(
+    `/api/auth/otp-requests/?page=${page}&size=${pageSize}&sort=${sort}&phone=${phone}`
+  );
   return response.data.data;
 };
 

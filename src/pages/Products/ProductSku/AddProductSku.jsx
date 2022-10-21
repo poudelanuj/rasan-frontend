@@ -10,7 +10,7 @@ import {
   Breadcrumb,
 } from "antd";
 import { useCallback, useState } from "react";
-import { useQuery, useMutation } from "react-query";
+import { useQuery, useMutation, useQueryClient } from "react-query";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { getAllBrands } from "../../../api/brands";
 import { getAllCategories } from "../../../api/categories";
@@ -30,6 +30,8 @@ import {
   GET_ALL_LOYALTIES,
   GET_ALL_PRODUCTS,
   GET_ALL_PRODUCT_GROUPS,
+  GET_PAGINATED_PRODUCT_SKUS,
+  GET_PRODUCT_SKU,
 } from "../../../constants/queryKeys";
 import CreateCategoryModal from "../shared/CreateCategoryModal";
 import CreateBrandModal from "../shared/CreateBrandModal";
@@ -43,6 +45,8 @@ const AddProductSku = () => {
 
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+
+  const queryClient = useQueryClient();
 
   const fileUploadOptions = {
     maxCount: 1,
@@ -102,6 +106,8 @@ const AddProductSku = () => {
     {
       onSuccess: (data) => {
         openSuccessNotification(data.message || "Product Created");
+        queryClient.refetchQueries([GET_PRODUCT_SKU]);
+        queryClient.refetchQueries([GET_PAGINATED_PRODUCT_SKUS]);
         navigate(-1);
       },
       onError: (error) => {
@@ -142,7 +148,7 @@ const AddProductSku = () => {
       />
 
       <>
-        <div>
+        <div className="p-6 bg-white rounded-lg">
           <Form
             layout="vertical"
             onFinish={(values) => onFormSubmit.mutate(values)}
@@ -172,7 +178,9 @@ const AddProductSku = () => {
               <Form.Item
                 label="Product Name"
                 name="name"
-                rules={[{ required: true, message: "product name required" }]}
+                rules={[
+                  { required: true, message: "Product name is required" },
+                ]}
               >
                 <Input />
               </Form.Item>
@@ -180,7 +188,9 @@ const AddProductSku = () => {
               <Form.Item
                 label="Product Name (In Nepali)"
                 name="name_np"
-                rules={[{ required: true, message: "product name required" }]}
+                rules={[
+                  { required: true, message: "Product name is required" },
+                ]}
               >
                 <Input />
               </Form.Item>
@@ -190,7 +200,7 @@ const AddProductSku = () => {
               <Form.Item
                 label="Quantity"
                 name="quantity"
-                rules={[{ required: true, message: "quantity required" }]}
+                rules={[{ required: true, message: "Quantity is required" }]}
               >
                 <Input />
               </Form.Item>
@@ -199,7 +209,13 @@ const AddProductSku = () => {
                 label="Cost Price/Piece"
                 name="cost_price_per_piece"
                 rules={[
-                  { required: true, message: "cost price/piece required" },
+                  { required: true, message: "Cost price/piece is required" },
+                  {
+                    validator: (_, value) =>
+                      value < 0
+                        ? Promise.reject("Negative values not allowed")
+                        : Promise.resolve(),
+                  },
                 ]}
               >
                 <Input type="number" />
@@ -208,14 +224,30 @@ const AddProductSku = () => {
               <Form.Item
                 label="Price/Piece"
                 name="price_per_piece"
-                rules={[{ required: true, message: "price/piece required" }]}
+                rules={[
+                  { required: true, message: "Price/piece is required" },
+                  {
+                    validator: (_, value) =>
+                      value < 0
+                        ? Promise.reject("Negative values not allowed")
+                        : Promise.resolve(),
+                  },
+                ]}
               >
-                <Input />
+                <Input type="number" />
               </Form.Item>
               <Form.Item
                 label="MRP/Piece"
                 name="mrp_per_piece"
-                rules={[{ required: true, message: "MRP/piece required" }]}
+                rules={[
+                  { required: true, message: "MRP/piece is required" },
+                  {
+                    validator: (_, value) =>
+                      value < 0
+                        ? Promise.reject("Negative values not allowed")
+                        : Promise.resolve(),
+                  },
+                ]}
               >
                 <Input type="number" />
               </Form.Item>
@@ -224,7 +256,7 @@ const AddProductSku = () => {
             <Form.Item
               label="Product SKU Description"
               name="description"
-              rules={[{ required: true, message: "product name required" }]}
+              rules={[{ required: true, message: "Product name is required" }]}
             >
               <Input.TextArea placeholder="Description" rows={4} />
             </Form.Item>
@@ -244,7 +276,7 @@ const AddProductSku = () => {
                   </Space>
                 }
                 name="category"
-                rules={[{ required: true, message: "category required" }]}
+                rules={[{ required: true, message: "Category is required" }]}
               >
                 <Select
                   loading={categoriesStatus === "loading"}
@@ -275,7 +307,7 @@ const AddProductSku = () => {
                   </Space>
                 }
                 name="brand"
-                rules={[{ required: true, message: "brand required" }]}
+                rules={[{ required: true, message: "Brand is required" }]}
               >
                 <Select
                   loading={brandsStatus === "loading"}
@@ -309,7 +341,7 @@ const AddProductSku = () => {
                   </Space>
                 }
                 name="product"
-                rules={[{ required: true, message: "product required" }]}
+                rules={[{ required: true, message: "Product is required" }]}
               >
                 <Select
                   defaultValue={searchParams.get("product")}

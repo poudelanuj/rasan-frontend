@@ -36,14 +36,21 @@ export const updateRedeemableProduct = async ({ id, data }) => {
   return res.data;
 };
 
-export const deleteRedeemableProduct = async (ids = []) => {
-  const res = await Promise.all(
-    ids.map(
-      async (id) =>
-        await axios.delete(`/api/loyalty-redeem/admin/product/${id}/`)
-    )
+export const deleteRedeemableProduct = async (ids) => {
+  const res = await axios.delete(`/api/loyalty-redeem/admin/product/${ids}/`);
+
+  return res.data;
+};
+
+export const deleteBulkRedeemableProduct = async (ids) => {
+  const res = await axios.post(
+    "/api/loyalty-redeem/admin/product/bulk-action/",
+    {
+      ids,
+      action_type: "delete",
+    }
   );
-  return res;
+  return res.data;
 };
 
 export const publishRedeemableProduct = async ({ id, shouldPublish }) => {

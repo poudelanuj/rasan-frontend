@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { Button, Pagination, Select } from "antd";
+import React, { useEffect, useState, useRef } from "react";
+import { Pagination, Select, Space, Spin } from "antd";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 
 import Alert from "../../../shared/Alert";
-
-import SearchBox from "../subComponents/SearchBox";
+import { SearchOutlined, LoadingOutlined } from "@ant-design/icons";
 
 import ClearSelection from "../subComponents/ClearSelection";
 import {
@@ -13,7 +12,6 @@ import {
 } from "../../../utils/openNotification";
 import CategoryWidget from "./shared/CategoryWidget";
 import { ALERT_TYPE, DEFAULT_RASAN_IMAGE } from "../../../constants";
-import Loader from "../../../shared/Loader";
 import {
   bulkDelete,
   bulkPublish,
@@ -24,6 +22,7 @@ import { uniqBy } from "lodash";
 import CustomPageHeader from "../../../shared/PageHeader";
 import AddCategory from "./AddCategory";
 import EditCategory from "./EditCategory";
+import ButtonWPermission from "../../../shared/ButtonWPermission";
 
 const { Option } = Select;
 
@@ -33,14 +32,18 @@ const CategoryList = () => {
   const [openAlert, setOpenAlert] = useState(false);
   const [alertType, setAlertType] = useState("");
 
+  const searchText = useRef();
+
   const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
   const [isEditCategoryOpen, setIsEditCategoryOpen] = useState(false);
   const [selectedCategorySlug, setSelectedCategorySlug] = useState(""); // * For Edit
 
   const [page, setPage] = useState(1);
-  const pageSize = 20;
+  const [pageSize, setPageSize] = useState(20);
   const [categories, setCategories] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
+
+  let timeout = 0;
 
   const {
     data,
@@ -49,18 +52,20 @@ const CategoryList = () => {
     isRefetching,
   } = useQuery(
     [GET_PAGINATED_CATEGORIES, page.toString() + pageSize.toString()],
-    () => getPaginatedCategories(page, pageSize)
+    () => getPaginatedCategories(page, pageSize, searchText.current)
   );
 
   useEffect(() => {
-    if (data)
+    if (data && status === "success" && !isRefetching) {
+      setCategories([]);
       setCategories((prev) => uniqBy([...prev, ...data.results], "slug"));
-  }, [data]);
+    }
+  }, [data, status, isRefetching]);
 
   useEffect(() => {
     refetchCategories();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  }, [page, pageSize]);
 
   const handleBulkPublish = useMutation(
     ({ slugs, isPublish }) => bulkPublish({ slugs, isPublish }),
@@ -149,15 +154,31 @@ const CategoryList = () => {
 
   return (
     <>
-      {(status === "loading" || isRefetching) && <Loader isOpen />}
-
       {openAlert && renderAlert()}
 
       <CustomPageHeader title="Categories" isBasicHeader />
 
       <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[75vh]">
         <div className="flex justify-between mb-3">
-          <SearchBox placeholder="Search Category..." />
+          <Space className="flex items-center">
+            <div className="py-[3px] px-3 min-w-[18rem] border-[1px] border-[#D9D9D9] rounded-lg flex items-center justify-between">
+              <SearchOutlined style={{ color: "#D9D9D9" }} />
+              <input
+                className="focus:outline-none w-full ml-1 placeholder:text-[#D9D9D9]"
+                placeholder={"Search categories..."}
+                type="text"
+                onChange={(e) => {
+                  searchText.current = e.target.value;
+                  if (timeout) clearTimeout(timeout);
+                  timeout = setTimeout(refetchCategories, 400);
+                }}
+              />
+            </div>
+
+            {(status === "loading" || isRefetching) && (
+              <Spin indicator={<LoadingOutlined />} />
+            )}
+          </Space>
           <div className="flex">
             <ClearSelection
               selectedCategories={selectedCategories}
@@ -175,46 +196,64 @@ const CategoryList = () => {
                   setAlertType(value);
                 }}
               >
-                <Option value={ALERT_TYPE.publish}>Publish</Option>
-                <Option value={ALERT_TYPE.unpublish}>Unpublish</Option>
-                <Option value={ALERT_TYPE.delete}>Delete</Option>
+                <Option value={ALERT_TYPE.publish}>
+                  <ButtonWPermission
+                    className="!border-none !text-current !bg-inherit"
+                    codename="change_category"
+                  >
+                    Publish
+                  </ButtonWPermission>
+                </Option>
+                <Option value={ALERT_TYPE.unpublish}>
+                  <ButtonWPermission
+                    className="!border-none !text-current !bg-inherit"
+                    codename="change_category"
+                  >
+                    Unpublish
+                  </ButtonWPermission>
+                </Option>
+                <Option value={ALERT_TYPE.delete}>
+                  <ButtonWPermission
+                    className="!border-none !text-current !bg-inherit"
+                    codename="delete_category"
+                  >
+                    Delete
+                  </ButtonWPermission>
+                </Option>
               </Select>
             )}
 
-            <Button type="primary" onClick={() => setIsAddCategoryOpen(true)}>
+            <ButtonWPermission
+              codename="add_category"
+              type="primary"
+              onClick={() => setIsAddCategoryOpen(true)}
+            >
               Add New Category
-            </Button>
+            </ButtonWPermission>
           </div>
         </div>
         {categories && (
           <>
             <div className="grid gap-8 grid-cols-[repeat(auto-fill,_minmax(200px,_1fr))]">
-              {categories
-                .filter((item, index) => {
-                  const initPage = (page - 1) * pageSize;
-                  const endPage = page * pageSize;
-                  if (index >= initPage && index < endPage) return true;
-                  return false;
-                })
-                .map((category, index) => (
-                  <CategoryWidget
-                    key={category.slug}
-                    completeLink={`/category-list/${category.slug}`}
-                    editClick={() => {
-                      setIsEditCategoryOpen(true);
-                      setSelectedCategorySlug(category.slug);
-                    }}
-                    id={index + 1}
-                    image={
-                      category.category_image.thumbnail || DEFAULT_RASAN_IMAGE
-                    }
-                    is_published={category.is_published}
-                    selectedCategories={selectedCategories}
-                    setSelectedCategories={setSelectedCategories}
-                    slug={category.slug}
-                    title={category.name}
-                  />
-                ))}
+              {categories.map((category, index) => (
+                <CategoryWidget
+                  key={category.slug}
+                  completeLink={`/category-list/${category.slug}`}
+                  editClick={() => {
+                    setIsEditCategoryOpen(true);
+                    setSelectedCategorySlug(category.slug);
+                  }}
+                  id={index + 1}
+                  image={
+                    category.category_image.thumbnail || DEFAULT_RASAN_IMAGE
+                  }
+                  is_published={category.is_published}
+                  selectedCategories={selectedCategories}
+                  setSelectedCategories={setSelectedCategories}
+                  slug={category.slug}
+                  title={category.name}
+                />
+              ))}
             </div>
             <div className="flex justify-end bg-white w-full mt-10">
               <Pagination
@@ -222,8 +261,10 @@ const CategoryList = () => {
                 pageSize={pageSize}
                 showTotal={(total) => `Total ${total} items`}
                 total={data?.count}
+                showSizeChanger
                 onChange={(page, pageSize) => {
                   setPage(page);
+                  setPageSize(pageSize);
                 }}
               />
             </div>

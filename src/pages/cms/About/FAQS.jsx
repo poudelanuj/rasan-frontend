@@ -2,15 +2,15 @@ import { Dropdown, Space, Button, Menu, Table, Tag } from "antd";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { useState, useEffect } from "react";
 import { useMutation, useQuery } from "react-query";
-import { uniqBy } from "lodash";
+import { isEmpty, uniqBy } from "lodash";
 import moment from "moment";
 import {
+  deleteBulkFAQGroups,
   deleteFAQGroups,
   getPaginatedFAQGroups,
   publishFAQGroups,
 } from "../../../api/aboutus";
 import { GET_PAGINATED_FAQ_GROUPS } from "../../../constants/queryKeys";
-import Loader from "../../../shared/Loader";
 import { PUBLISHED, UNPUBLISHED } from "../../../constants";
 import { useNavigate } from "react-router-dom";
 import ConfirmDelete from "../../../shared/ConfirmDelete";
@@ -20,6 +20,7 @@ import {
 } from "../../../utils/openNotification";
 import CreateFAQGroupsModal from "./components/CreateFAQGroupsModal";
 import UpdateFAQGroupsModal from "./components/UpdateFAQGroupsModal";
+import ButtonWPermission from "../../../shared/ButtonWPermission";
 
 export const getStatusColor = (status) => {
   switch (status) {
@@ -40,17 +41,20 @@ const FAQS = () => {
   const [isDeleteFAQModal, setIsDeleteFAQModal] = useState({
     isOpen: false,
     title: "",
+    type: "",
   });
 
   const [isCreateFAQGroupsModalOpen, setIsCreateFAQGroupsModalOpen] =
     useState(false);
 
-  const [isUpdateFAQGroupsModalOpen, setIsUpdateFAQGroupsModalOpen] =
-    useState(false);
+  const [isUpdateFAQGroupsModal, setIsUpdateFAQGroupsModal] = useState({
+    isOpen: false,
+    id: "",
+  });
 
   const [page, setPage] = useState(1);
 
-  const pageSize = 20;
+  const [pageSize, setPageSize] = useState(20);
 
   const [faqGroups, setFaqGroups] = useState([]);
 
@@ -65,26 +69,32 @@ const FAQS = () => {
   });
 
   useEffect(() => {
-    if (data) {
+    if (data && status === "success" && !isRefetching) {
       setFaqGroups([]);
       setFaqGroups((prev) => uniqBy([...prev, ...data.results], "id"));
     }
-  }, [data]);
+  }, [data, status, isRefetching]);
 
   useEffect(() => {
     refetchFAQGroups();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  }, [page, pageSize]);
 
-  const handleDeleteFAQGroups = useMutation(() => deleteFAQGroups(faqIds), {
-    onSuccess: (data) => {
-      openSuccessNotification(data[0].data.message);
-      setIsDeleteFAQModal({ ...isDeleteFAQModal, isOpen: false });
-      refetchFAQGroups();
-      setFaqIds([]);
-    },
-    onError: (err) => openErrorNotification(err),
-  });
+  const handleDeleteFAQGroups = useMutation(
+    () =>
+      isDeleteFAQModal.type === "bulk"
+        ? deleteBulkFAQGroups(faqIds)
+        : deleteFAQGroups(faqIds),
+    {
+      onSuccess: (data) => {
+        openSuccessNotification(data.message);
+        setIsDeleteFAQModal({ ...isDeleteFAQModal, isOpen: false });
+        refetchFAQGroups();
+        setFaqIds([]);
+      },
+      onError: (err) => openErrorNotification(err),
+    }
+  );
 
   const handlePublishFAQGroups = useMutation(
     ({ id, shouldPublish }) => publishFAQGroups({ id, shouldPublish }),
@@ -148,8 +158,9 @@ const FAQS = () => {
       render: (_, { id, name, is_published }) => {
         return (
           <div className="flex items-center justify-between">
-            <Button
+            <ButtonWPermission
               className="w-20 text-center"
+              codename="change_faqgroup"
               danger={is_published}
               loading={
                 handlePublishFAQGroups.variables &&
@@ -166,22 +177,36 @@ const FAQS = () => {
               }
             >
               {is_published ? "Unpublish" : "Publish"}
-            </Button>
-            <EditOutlined
-              onClick={() => {
-                setIsUpdateFAQGroupsModalOpen(true);
-                setFaqIds([id]);
-              }}
+            </ButtonWPermission>
+
+            <ButtonWPermission
+              className="!border-none"
+              codename="change_faqgroup"
+              icon={
+                <EditOutlined
+                  onClick={() => {
+                    setIsUpdateFAQGroupsModal({ isOpen: true, id });
+                  }}
+                />
+              }
             />
-            <DeleteOutlined
-              onClick={() => {
-                setIsDeleteFAQModal({
-                  ...isDeleteFAQModal,
-                  isOpen: true,
-                  title: `Delete ${name}?`,
-                });
-                setFaqIds([id]);
-              }}
+
+            <ButtonWPermission
+              className="!border-none"
+              codename="delete_faqgroup"
+              icon={
+                <DeleteOutlined
+                  onClick={() => {
+                    setIsDeleteFAQModal({
+                      ...isDeleteFAQModal,
+                      isOpen: true,
+                      title: `Delete ${name}?`,
+                      type: "single",
+                    });
+                    setFaqIds([id]);
+                  }}
+                />
+              }
             />
           </div>
         );
@@ -195,17 +220,21 @@ const FAQS = () => {
         {
           key: "1",
           label: (
-            <div
+            <ButtonWPermission
+              className="!border-none !bg-inherit !text-current"
+              codename="delete_faqgroup"
+              disabled={isEmpty(faqIds)}
               onClick={() => {
                 setIsDeleteFAQModal({
                   ...isDeleteFAQModal,
                   isOpen: true,
                   title: "Delete all FAQ Groups?",
+                  type: "bulk",
                 });
               }}
             >
               Delete
-            </div>
+            </ButtonWPermission>
           ),
         },
       ]}
@@ -221,7 +250,7 @@ const FAQS = () => {
   const FAQGroups = faqGroups?.map((el, index) => {
     return {
       id: el.id,
-      key: index + 1,
+      key: (page - 1) * pageSize + index + 1,
       name: el.name,
       name_np: el.name_np,
       published_at: el.published_at
@@ -234,65 +263,63 @@ const FAQS = () => {
 
   return (
     <>
-      {status === "loading" ? (
-        <Loader isOpen={true} />
-      ) : (
-        <>
-          <div className="mb-4 flex justify-between">
-            <Button
-              className="flex items-center"
-              type="primary"
-              ghost
-              onClick={() => setIsCreateFAQGroupsModalOpen(true)}
-            >
-              Create FAQ Groups
-            </Button>
+      <div className="mb-4 flex justify-between">
+        <ButtonWPermission
+          className="flex items-center"
+          codename="add_faqgroup"
+          type="primary"
+          ghost
+          onClick={() => setIsCreateFAQGroupsModalOpen(true)}
+        >
+          Create FAQ Groups
+        </ButtonWPermission>
 
-            <Dropdown overlay={bulkMenu}>
-              <Button className="bg-white" type="default">
-                <Space>Bulk Actions</Space>
-              </Button>
-            </Dropdown>
-          </div>
+        <Dropdown overlay={bulkMenu}>
+          <Button className="bg-white" type="default">
+            <Space>Bulk Actions</Space>
+          </Button>
+        </Dropdown>
+      </div>
 
-          <Table
-            columns={columns}
-            dataSource={FAQGroups}
-            loading={status === "loading" || isRefetching}
-            pagination={{
-              pageSize,
-              total: data?.count,
+      <Table
+        columns={columns}
+        dataSource={FAQGroups}
+        loading={status === "loading" || isRefetching}
+        pagination={{
+          showSizeChanger: true,
+          pageSize,
+          total: data?.count,
+          current: page,
 
-              onChange: (page, pageSize) => {
-                setPage(page);
-              },
-            }}
-            rowSelection={{ ...rowSelection }}
-          />
+          onChange: (page, pageSize) => {
+            setPage(page);
+            setPageSize(pageSize);
+          },
+        }}
+        rowSelection={{ ...rowSelection }}
+      />
 
-          <CreateFAQGroupsModal
-            isCreateFAQGroupsModalOpen={isCreateFAQGroupsModalOpen}
-            refetchFAQGroups={refetchFAQGroups}
-            setIsCreateFAQGroupsModalOpen={setIsCreateFAQGroupsModalOpen}
-          />
-          <UpdateFAQGroupsModal
-            faqIds={faqIds}
-            isUpdateFAQGroupsModalOpen={isUpdateFAQGroupsModalOpen}
-            refetchFAQGroups={refetchFAQGroups}
-            setIsUpdateFAQGroupsModalOpen={setIsUpdateFAQGroupsModalOpen}
-          />
+      <CreateFAQGroupsModal
+        isCreateFAQGroupsModalOpen={isCreateFAQGroupsModalOpen}
+        refetchFAQGroups={refetchFAQGroups}
+        setIsCreateFAQGroupsModalOpen={setIsCreateFAQGroupsModalOpen}
+      />
+      <UpdateFAQGroupsModal
+        faqIds={isUpdateFAQGroupsModal.id}
+        isUpdateFAQGroupsModalOpen={isUpdateFAQGroupsModal.isOpen}
+        refetchFAQGroups={refetchFAQGroups}
+        setIsUpdateFAQGroupsModalOpen={setIsUpdateFAQGroupsModal}
+      />
 
-          <ConfirmDelete
-            closeModal={() =>
-              setIsDeleteFAQModal({ ...isDeleteFAQModal, isOpen: false })
-            }
-            deleteMutation={() => handleDeleteFAQGroups.mutate()}
-            isOpen={isDeleteFAQModal.isOpen}
-            status={handleDeleteFAQGroups.status}
-            title={isDeleteFAQModal.title}
-          />
-        </>
-      )}
+      <ConfirmDelete
+        closeModal={() =>
+          setIsDeleteFAQModal({ ...isDeleteFAQModal, isOpen: false })
+        }
+        deleteMutation={() => handleDeleteFAQGroups.mutate()}
+        isOpen={isDeleteFAQModal.isOpen}
+        status={handleDeleteFAQGroups.status}
+        title={isDeleteFAQModal.title}
+      />
     </>
   );
 };

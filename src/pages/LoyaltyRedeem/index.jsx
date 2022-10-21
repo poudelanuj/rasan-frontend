@@ -26,14 +26,14 @@ const LoyaltyRedeem = () => {
   return (
     <>
       <CustomPageHeader title="Loyalty Redeem" isBasicHeader />
-      <div className="py-5 px-4 bg-[#FFFFFF]">
+      <div className="p-6 bg-[#FFFFFF] rounded-lg">
         <Tabs defaultActiveKey="all">
           {/* Todo Right Align*/}
           <TabPane key="unarchived" tab="Active">
             <Tabs>
               <TabPane key="rasan_deals_unarchived" tab="Rasan Deals">
                 <Deals
-                  isArchived={"False"}
+                  isArchived={false}
                   queryKey={GET_LOYALTY_REDEEM_UNARCHIVED_RASAN}
                   type="rasan_deal"
                 />
@@ -41,7 +41,7 @@ const LoyaltyRedeem = () => {
 
               <TabPane key="special_deals_unarchived" tab="Special Deals">
                 <Deals
-                  isArchived={"False"}
+                  isArchived={false}
                   queryKey={GET_LOYALTY_REDEEM_UNARCHIVED_SPECIAL}
                   type="special_deal"
                 />
@@ -52,7 +52,7 @@ const LoyaltyRedeem = () => {
             <Tabs>
               <TabPane key="rasan_deals_archived" tab="Rasan Deals">
                 <Deals
-                  isArchived={"True"}
+                  isArchived={true}
                   queryKey={GET_LOYALTY_REDEEM_ARCHIVED_RASAN}
                   type="rasan_deal"
                 />
@@ -60,7 +60,7 @@ const LoyaltyRedeem = () => {
 
               <TabPane key="special_deals_archived" tab="Special Deals">
                 <Deals
-                  isArchived={"True"}
+                  isArchived={true}
                   queryKey={GET_LOYALTY_REDEEM_ARCHIVED_SPECIAL}
                   type="special_deal"
                 />

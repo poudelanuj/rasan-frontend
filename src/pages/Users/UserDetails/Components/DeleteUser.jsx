@@ -2,8 +2,8 @@ import { Button, message, Modal, Space, Spin } from "antd";
 import { useState } from "react";
 import { useMutation } from "react-query";
 import { useNavigate } from "react-router-dom";
-import { ReactComponent as DeleteModal } from "../../assets/images/DeleteModal.svg";
-import { deleteUser } from "../../context/UserContext";
+import { ReactComponent as DeleteModal } from "../../../../assets/images/DeleteModal.svg";
+import { deleteUser } from "../../../../context/UserContext";
 
 const DeleteUser = ({ title, phone }) => {
   let navigate = useNavigate();

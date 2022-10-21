@@ -3,12 +3,13 @@ import { useNavigate } from "react-router-dom";
 
 import { Table, Select, Tag } from "antd";
 import { useMutation, useQuery } from "react-query";
+import moment from "moment/moment";
 
 import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../../../utils/openNotification";
-import { getDate, parseArray } from "../../../../utils";
+import { parseArray } from "../../../../utils";
 import { ALERT_TYPE } from "../../../../constants";
 import Alert from "../../../../shared/Alert";
 import { GET_PRODUCTS_FROM_BRAND } from "../../../../constants/queryKeys";
@@ -22,14 +23,11 @@ const columns = [
   {
     title: "S.N.",
     dataIndex: "index",
-    defaultSortOrder: "ascend",
-    sorter: (a, b) => a.sn - b.sn,
   },
 
   {
     title: "Product Name",
     dataIndex: "name",
-    defaultSortOrder: "descend",
     render: (_, { name, product_image }) => (
       <div className="flex items-center gap-3">
         <img
@@ -70,11 +68,11 @@ const columns = [
     title: "Published At",
     render: (text, record) => {
       return (
-        <div className="text-center">
+        <div>
           {record.published_at?.length > 0 ? (
-            getDate(record.published_at)
+            moment(record.published_at).format("ll")
           ) : (
-            <div className="text-center">-</div>
+            <div>-</div>
           )}
         </div>
       );
@@ -86,7 +84,7 @@ function TabAll({ slug }) {
   const [alertType, setAlertType] = useState("");
 
   const [page, setPage] = useState(1);
-  const pageSize = 20;
+  const [pageSize, setPageSize] = useState(20);
   const [paginatedProducts, setPaginatedProducts] = useState([]);
 
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
@@ -98,21 +96,23 @@ function TabAll({ slug }) {
     refetch: refetchProducts,
     isRefetching: refetchingProducts,
   } = useQuery(
-    [GET_PRODUCTS_FROM_BRAND, page.toString() + pageSize.toString()],
+    [GET_PRODUCTS_FROM_BRAND, slug, page.toString() + pageSize.toString()],
     () => getProductsFromBrand(slug, page, pageSize)
   );
 
   useEffect(() => {
-    if (data)
+    if (data && productsStatus === "success" && !refetchingProducts) {
+      setPaginatedProducts([]);
       setPaginatedProducts((prev) =>
-        uniqBy([...prev, ...data.products.results], "slug")
+        uniqBy([...prev, ...data.results], "slug")
       );
-  }, [data]);
+    }
+  }, [data, productsStatus, refetchingProducts]);
 
   useEffect(() => {
     refetchProducts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  }, [page, pageSize]);
 
   const onSelectChange = (newSelectedRowKeys) => {
     setSelectedRowKeys(newSelectedRowKeys);
@@ -208,7 +208,7 @@ function TabAll({ slug }) {
     <>
       {openAlert && renderAlert()}
 
-      <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[70vh]">
+      <div className="flex flex-col bg-white min-h-[70vh]">
         <div className="flex justify-end mb-3">
           <div className="flex">
             {selectedRowKeys.length > 0 && (
@@ -237,17 +237,20 @@ function TabAll({ slug }) {
             dataSource={
               paginatedProducts?.map((item, index) => ({
                 ...item,
-                index: index + 1,
+                index: (page - 1) * pageSize + index + 1,
                 key: item.slug,
               })) || []
             }
             loading={productsStatus === "loading" || refetchingProducts}
             pagination={{
+              showSizeChanger: true,
               pageSize,
-              total: data?.products?.count,
+              total: data?.count,
+              current: page,
 
               onChange: (page, pageSize) => {
                 setPage(page);
+                setPageSize(pageSize);
               },
             }}
             rowClassName="cursor-pointer"

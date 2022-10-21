@@ -1,5 +1,6 @@
-import { Button, Dropdown, Space, Card, Badge, Menu } from "antd";
-import { useState } from "react";
+import { Button, Dropdown, Space, Card, Badge, Menu, Pagination } from "antd";
+import { useState, useEffect } from "react";
+import { uniqBy } from "lodash";
 import { useQuery } from "react-query";
 import { getCustomerStories } from "../../../api/aboutus";
 import { GET_CUSTOMER_STORIES } from "../../../constants/queryKeys";
@@ -9,6 +10,12 @@ import UpdateCustomerStoriesModal from "./components/UpdateCustomerStoriesModal"
 
 const CustomerStories = () => {
   const { Meta } = Card;
+
+  const [page, setPage] = useState(1);
+
+  const [pageSize, setPageSize] = useState(20);
+
+  const [customerStories, setCustomerStories] = useState([]);
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
@@ -20,13 +27,26 @@ const CustomerStories = () => {
   ] = useState(false);
 
   const {
-    data: customerStories,
+    data,
+    status,
     refetch: refetchCustomerStories,
-    isFetching,
+    isRefetching,
   } = useQuery({
-    queryFn: () => getCustomerStories(),
-    queryKey: GET_CUSTOMER_STORIES,
+    queryFn: () => getCustomerStories({ page, pageSize }),
+    queryKey: [GET_CUSTOMER_STORIES],
   });
+
+  useEffect(() => {
+    if (data && status === "success" && !isRefetching) {
+      setCustomerStories([]);
+      setCustomerStories((prev) => uniqBy([...prev, ...data.results], "id"));
+    }
+  }, [data, status, isRefetching]);
+
+  useEffect(() => {
+    refetchCustomerStories();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, pageSize]);
 
   const bulkMenu = (
     <Menu
@@ -41,7 +61,7 @@ const CustomerStories = () => {
 
   return (
     <>
-      {isFetching ? (
+      {status === "loading" || isRefetching ? (
         <Loader isOpen={true} />
       ) : (
         <>
@@ -91,6 +111,18 @@ const CustomerStories = () => {
                   </Card>
                 </Badge.Ribbon>
               ))}
+
+            <Pagination
+              className="col-span-full w-full flex justify-end"
+              current={page}
+              pageSize={pageSize}
+              total={data?.count}
+              showSizeChanger
+              onChange={(page, pageSize) => {
+                setPage(page);
+                setPageSize(pageSize);
+              }}
+            />
           </div>
 
           <CreateCustomerStoriesModal

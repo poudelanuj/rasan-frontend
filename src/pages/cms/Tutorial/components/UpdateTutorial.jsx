@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
-import { Tag, Form, Select, Upload, Input, Button, Card, Image } from "antd";
+import { Tag, Form, Select, Upload, Input, Card, Image } from "antd";
 import { EyeOutlined, LikeOutlined } from "@ant-design/icons";
 import moment from "moment";
 import ReactMarkdown from "react-markdown";
@@ -26,6 +26,7 @@ import {
 } from "../../../../utils";
 import Loader from "../../../../shared/Loader";
 import { publishTutorial } from "../../../../api/tutorial";
+import ButtonWPermission from "../../../../shared/ButtonWPermission";
 
 export const getStatusColor = (status) => {
   switch (status) {
@@ -144,9 +145,10 @@ const UpdateTutorial = () => {
       ) : (
         <>
           <CustomPageHeader title={dataSource.title} />
-          <div className="px-4 bg-[#FFFFFF]">
+          <div className="px-6 rounded-lg bg-[#FFFFFF]">
             <div className="flex items-center justify-between mb-2">
-              <Button
+              <ButtonWPermission
+                codename="change_tutorial"
                 danger={dataSource.is_published}
                 loading={handlePublishTutorial.isLoading}
                 type="primary"
@@ -158,7 +160,7 @@ const UpdateTutorial = () => {
                 }
               >
                 {dataSource.is_published ? "Unpublish" : "Publish"}
-              </Button>
+              </ButtonWPermission>
             </div>
 
             <div className="flex w-full justify-between">
@@ -410,13 +412,14 @@ const UpdateTutorial = () => {
               </Form.Item>
 
               <Form.Item className="col-span-full">
-                <Button
+                <ButtonWPermission
+                  codename="change_tutorial"
                   htmlType="submit"
                   loading={onFormSubmit.isLoading}
                   type="primary"
                 >
                   Submit
-                </Button>
+                </ButtonWPermission>
               </Form.Item>
             </Form>
           </div>

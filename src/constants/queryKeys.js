@@ -11,6 +11,7 @@ export const GET_PAGINATED_PRODUCT_SKUS = "paginated-product-skus";
 
 //* Product Packs
 export const GET_PRODUCT_PACK = "product-pack";
+export const GET_PRODUCT_PACK_CSV = "product-pack-csv";
 
 //* Product Groups
 export const GET_ALL_PRODUCT_GROUPS = "all-product-groups";
@@ -29,6 +30,7 @@ export const GET_ALL_CATEGORIES = "all-categories";
 export const GET_PAGINATED_CATEGORIES = "paginated-categories";
 export const GET_SINGLE_CATEGORY = "single-category";
 export const GET_CATEGORY_PRODUCTS = "category-products";
+export const GET_CATEGORY_PRODUCT_SKU = "category-product-sku";
 
 //* Loyalty Policies
 export const GET_ALL_LOYALTIES = "all-loyalties";
@@ -40,6 +42,7 @@ export const GET_TICKET_METRICS = "ticket-metrics";
 
 //* Users
 export const GET_USERS = "all-users";
+export const GET_ADMIN_USER = "admin-users";
 
 // * User Groups
 export const GET_USER_GROUPS = "all-user-groups";
@@ -50,9 +53,12 @@ export const GET_PERMISSIONS = "permissions";
 export const GET_ORDERS = "all-orders";
 export const GET_ORDER_METRICS = "order-metrics";
 export const GET_PAGINATED_ORDERS = "paginated-orders";
+export const GET_ASSIGNED_ORDERS = "assigned-orders";
+export const GET_USER_ORDERS = "user-orders";
 
 //* Baskets
 export const GET_BASKETS = "all-baskets";
+export const GET_USER_BASKET = "user-basket";
 
 // * Notifications
 export const GET_NOTIFICATIONS = "all-notifications";
@@ -64,6 +70,8 @@ export const GET_ORDERS_ASSIGNED = "orders-assigned-to-me";
 
 // * Addresses
 export const GET_ADDRESSES = "get-addresses";
+export const GET_ADDRESS_BY_ID = "get-address-by-id";
+export const GET_META_CITY_ADDRESS = "get-meta-city-address";
 
 // * Tutorials
 export const GET_TAGLISTS = "taglists";
@@ -112,3 +120,10 @@ export const GET_LOYALTY_REDEEM_BY_ID = "loyalty-redeem-by-id";
 export const GET_LUCKY_DRAW = "lucky-draw";
 export const GET_PAGINATED_LUCKY_DRAW = "lucky-draw-paginated";
 export const GET_LUCKY_DRAW_BY_ID = "lucky-draw-by-id";
+
+// *Analytics
+export const GET_PRODUCT_ANALYTICS = "product-analytics";
+export const GET_BRAND_ANALYTICS = "brand-analytics";
+export const GET_CATEGORY_ANALYTICS = "category-analytics";
+export const GET_PRODUCTSKU_ANALYTICS = "productsku-analytics";
+export const GET_ORDER_ANALYTICS = "order-analytics";

@@ -206,7 +206,7 @@ const BasketModal = ({ isModalOpen, onClose, basket }) => {
         <Form layout="horizontal">
           <Space>
             <Form.Item>
-              <span>Product Sku</span>
+              <span>Product SKU</span>
               <Select
                 placeholder="Select Product SKU"
                 style={{ width: 200 }}
@@ -224,6 +224,7 @@ const BasketModal = ({ isModalOpen, onClose, basket }) => {
             <Form.Item tooltip="Select Pack Size">
               <span>Pack Size</span>
               <Select
+                className="!w-24"
                 placeholder="Select Pack Size"
                 showSearch
                 onSelect={(value) =>
@@ -246,21 +247,29 @@ const BasketModal = ({ isModalOpen, onClose, basket }) => {
               </Select>
             </Form.Item>
 
-            <Form.Item name="quantity">
+            <Form.Item className="relative" name="quantity">
               <span>Quantity</span>
               <Input
-                placeholder="quantity"
+                defaultValue={1}
+                placeholder="Quantity"
                 type="number"
                 onChange={(e) => {
                   setQuantity(e.target.value);
                 }}
               />
+              <span
+                className={`${
+                  quantity < 0 ? "block" : "hidden"
+                } absolute text-xs text-red-600`}
+              >
+                Negative value not allowed
+              </span>
             </Form.Item>
 
             <Form.Item>
               <span>Price Per Piece</span>
               <Input
-                placeholder="price"
+                placeholder="Price"
                 type="number"
                 value={selectedProductPack?.price_per_piece}
                 disabled
@@ -270,7 +279,7 @@ const BasketModal = ({ isModalOpen, onClose, basket }) => {
             <Form.Item>
               <span>Total Amount</span>
               <Input
-                placeholder="total amount"
+                placeholder="Total amount"
                 type="number"
                 value={getTotalAmount()}
                 disabled
@@ -280,7 +289,7 @@ const BasketModal = ({ isModalOpen, onClose, basket }) => {
             <Form.Item>
               <span>Loyalty</span>
               <Input
-                placeholder="loyalty points"
+                placeholder="Loyalty points"
                 type="number"
                 value={
                   parseInt(
@@ -296,7 +305,7 @@ const BasketModal = ({ isModalOpen, onClose, basket }) => {
             <Form.Item>
               <span>Cashback</span>
               <Input
-                placeholder="cashback"
+                placeholder="Cashback"
                 type="number"
                 value={
                   parseInt(
@@ -313,6 +322,9 @@ const BasketModal = ({ isModalOpen, onClose, basket }) => {
               <div style={{ height: 20 }} />
               <Button
                 className="bg-blue-500"
+                disabled={
+                  !(selectedProductPack && selectedProductSku && quantity > 0)
+                }
                 type="primary"
                 onClick={() => handleAddItem.mutate()}
               >

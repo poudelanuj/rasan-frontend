@@ -6,9 +6,11 @@ export const postVideoLink = async (data) => {
   return res.data;
 };
 
-export const getVideoLinks = async () => {
-  const res = await axios.get("/api/about/admin/videos");
-  return res.data.data.results;
+export const getVideoLinks = async ({ page, pageSize }) => {
+  const res = await axios.get(
+    `/api/about/admin/videos/?page=${page}&size=${pageSize}`
+  );
+  return res.data.data;
 };
 
 export const getVideoLinkById = async (id) => {
@@ -37,9 +39,11 @@ export const deleteVideoLink = async (id) => {
 };
 
 // *Customer Stories
-export const getCustomerStories = async () => {
-  const res = await axios.get("/api/about/admin/stories/");
-  return res.data.data.results;
+export const getCustomerStories = async ({ page, pageSize }) => {
+  const res = await axios.get(
+    `/api/about/admin/stories/?page=${page}&size=${pageSize}`
+  );
+  return res.data.data;
 };
 
 export const postCustomerStories = async (data) => {
@@ -96,12 +100,18 @@ export const getFAQGroupsById = async (id) => {
 };
 
 export const deleteFAQGroups = async (ids = []) => {
-  const res = await Promise.all(
-    ids.map(
-      async (id) => await axios.delete(`/api/about/admin/faq-groups/${id}/`)
-    )
-  );
+  const res = await axios.delete(`/api/about/admin/faq-groups/${ids}/`);
+
   return res;
+};
+
+export const deleteBulkFAQGroups = async (ids) => {
+  const res = await axios.post("/api/about/admin/faq-groups/bulk-action/", {
+    ids,
+    action_type: "delete",
+  });
+
+  return res.data;
 };
 
 export const updateFAQGroups = async ({ id, data }) => {
@@ -142,11 +152,10 @@ export const updateFAQS = async ({ id, data }) => {
   return res.data;
 };
 
-export const deleteFAQS = async (ids = []) => {
-  const res = await Promise.all(
-    ids.map(async (id) => await axios.delete(`/api/about/admin/faqs/${id}/`))
-  );
-  return res;
+export const deleteFAQS = async (ids) => {
+  const res = await axios.delete(`/api/about/admin/faqs/${ids}/`);
+
+  return res.data;
 };
 
 export const publishFAQS = async ({ id, shouldPublish }) => {

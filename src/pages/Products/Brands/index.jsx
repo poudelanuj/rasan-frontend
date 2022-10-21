@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import { uniqBy } from "lodash";
-import { Button, Pagination, Select } from "antd";
+import { Pagination, Select, Space, Spin } from "antd";
+import { SearchOutlined, LoadingOutlined } from "@ant-design/icons";
 
 import CategoryWidget from "../categories/shared/CategoryWidget";
-import SearchBox from "../subComponents/SearchBox";
 
 import ClearSelection from "../subComponents/ClearSelection";
 import {
@@ -18,11 +18,11 @@ import {
   bulkPublish,
   getPaginatedBrands,
 } from "../../../api/brands";
-import Loader from "../../../shared/Loader";
 import CustomPageHeader from "../../../shared/PageHeader";
 import Alert from "../../../shared/Alert";
 import AddBrand from "./AddBrand";
 import EditBrand from "./EditBrand";
+import ButtonWPermission from "../../../shared/ButtonWPermission";
 
 const { Option } = Select;
 
@@ -35,9 +35,13 @@ function BrandsScreen() {
   const [selectedBrandSlug, setSelectedBrandSlug] = useState(""); // * For Edit
 
   const [page, setPage] = useState(1);
-  const pageSize = 20;
+  const [pageSize, setPageSize] = useState(20);
   const [paginatedBrands, setPaginatedBrands] = useState([]);
   const [selectedBrands, setSelectedBrands] = useState([]);
+
+  const searchText = useRef();
+
+  let timeout = 0;
 
   const {
     data,
@@ -46,18 +50,20 @@ function BrandsScreen() {
     isRefetching,
   } = useQuery(
     [GET_PAGINATED_BRANDS, page.toString() + pageSize.toString()],
-    () => getPaginatedBrands(page, pageSize)
+    () => getPaginatedBrands(page, pageSize, searchText.current)
   );
 
   useEffect(() => {
-    if (data)
+    if (data && status === "success" && !isRefetching) {
+      setPaginatedBrands([]);
       setPaginatedBrands((prev) => uniqBy([...prev, ...data.results], "slug"));
-  }, [data]);
+    }
+  }, [data, isRefetching, status]);
 
   useEffect(() => {
     refetchBrands();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  }, [page, pageSize]);
 
   const queryClient = useQueryClient();
 
@@ -146,14 +152,30 @@ function BrandsScreen() {
 
   return (
     <>
-      {(status === "loading" || isRefetching) && <Loader isOpen />}
-
       {openAlert && renderAlert()}
       <CustomPageHeader title="Brands" isBasicHeader />
 
       <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[75vh]">
         <div className="flex justify-between mb-3">
-          <SearchBox placeholder="Search Brands..." />
+          <Space className="flex items-center">
+            <div className="py-[3px] px-3 min-w-[18rem] border-[1px] border-[#D9D9D9] rounded-lg flex items-center justify-between">
+              <SearchOutlined style={{ color: "#D9D9D9" }} />
+              <input
+                className="focus:outline-none w-full ml-1 placeholder:text-[#D9D9D9]"
+                placeholder={"Search categories..."}
+                type="text"
+                onChange={(e) => {
+                  searchText.current = e.target.value;
+                  if (timeout) clearTimeout(timeout);
+                  timeout = setTimeout(refetchBrands, 400);
+                }}
+              />
+            </div>
+
+            {(status === "loading" || isRefetching) && (
+              <Spin indicator={<LoadingOutlined />} />
+            )}
+          </Space>
           <div className="flex">
             <ClearSelection
               selectedCategories={selectedBrands}
@@ -171,41 +193,59 @@ function BrandsScreen() {
                   setAlertType(value);
                 }}
               >
-                <Option value={ALERT_TYPE.publish}>Publish</Option>
-                <Option value={ALERT_TYPE.unpublish}>Unpublish</Option>
-                <Option value={ALERT_TYPE.delete}>Delete</Option>
+                <Option value={ALERT_TYPE.publish}>
+                  <ButtonWPermission
+                    className="!border-none !text-current !bg-inherit"
+                    codename="change_brand"
+                  >
+                    Publish
+                  </ButtonWPermission>
+                </Option>
+                <Option value={ALERT_TYPE.unpublish}>
+                  <ButtonWPermission
+                    className="!border-none !text-current !bg-inherit"
+                    codename="change_brand"
+                  >
+                    Unpublish
+                  </ButtonWPermission>
+                </Option>
+                <Option value={ALERT_TYPE.delete}>
+                  <ButtonWPermission
+                    className="!border-none !text-current !bg-inherit"
+                    codename="delete_brand"
+                  >
+                    Delete
+                  </ButtonWPermission>
+                </Option>
               </Select>
             )}
-            <Button type="primary" onClick={() => setIsAddBrandOpen(true)}>
+            <ButtonWPermission
+              codename="add_brand"
+              type="primary"
+              onClick={() => setIsAddBrandOpen(true)}
+            >
               Add New Brand
-            </Button>
+            </ButtonWPermission>
           </div>
         </div>
         <div className="grid gap-8 grid-cols-[repeat(auto-fill,_minmax(200px,_1fr))]">
-          {paginatedBrands
-            .filter((item, index) => {
-              const initPage = (page - 1) * pageSize;
-              const endPage = page * pageSize;
-              if (index >= initPage && index < endPage) return true;
-              return false;
-            })
-            .map((brand, index) => (
-              <CategoryWidget
-                key={brand.slug}
-                completeLink={`/brands/${brand.slug}`}
-                editClick={() => {
-                  setIsEditBrandOpen(true);
-                  setSelectedBrandSlug(brand.slug);
-                }}
-                id={brand.sn}
-                image={brand.brand_image.thumbnail || DEFAULT_RASAN_IMAGE}
-                is_published={brand.is_published}
-                selectedCategories={selectedBrands}
-                setSelectedCategories={setSelectedBrands}
-                slug={brand.slug}
-                title={brand.name}
-              />
-            ))}
+          {paginatedBrands.map((brand, index) => (
+            <CategoryWidget
+              key={brand.slug}
+              completeLink={`/brands/${brand.slug}`}
+              editClick={() => {
+                setIsEditBrandOpen(true);
+                setSelectedBrandSlug(brand.slug);
+              }}
+              id={brand.sn}
+              image={brand.brand_image.thumbnail || DEFAULT_RASAN_IMAGE}
+              is_published={brand.is_published}
+              selectedCategories={selectedBrands}
+              setSelectedCategories={setSelectedBrands}
+              slug={brand.slug}
+              title={brand.name}
+            />
+          ))}
         </div>
         <div className="flex justify-end bg-white w-full mt-10">
           <Pagination
@@ -213,8 +253,10 @@ function BrandsScreen() {
             pageSize={pageSize}
             showTotal={(total) => `Total ${total} items`}
             total={data?.count}
+            showSizeChanger
             onChange={(page, pageSize) => {
               setPage(page);
+              setPageSize(pageSize);
             }}
           />
         </div>

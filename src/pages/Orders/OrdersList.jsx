@@ -1,18 +1,19 @@
 import { Table, Tag, Button, Menu, Dropdown, Space, Input } from "antd";
 import { useMutation } from "react-query";
-import { SearchOutlined, DeleteOutlined } from "@ant-design/icons";
+import { DeleteOutlined } from "@ant-design/icons";
 import moment from "moment";
-import { useRef } from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-import { deleteBulkOrders } from "../../context/OrdersContext";
+import { deleteBulkOrders } from "../../api/orders";
 import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../utils/openNotification";
 import { CANCELLED, DELIVERED, IN_PROCESS } from "../../constants";
 import DeleteOrder from "./components/DeleteOrder";
+import ButtonWPermission from "../../shared/ButtonWPermission";
+import { isEmpty, capitalize } from "lodash";
+import ConfirmDelete from "../../shared/ConfirmDelete";
 
 export const getOrderStatusColor = (status) => {
   switch (status) {
@@ -34,57 +35,20 @@ const OrdersList = ({
   page,
   setPage,
   pageSize,
+  setPageSize,
   ordersCount,
+  sortingFn,
+  searchInput,
 }) => {
-  const searchInput = useRef(null);
+  let timeout = 0;
+
   const [isDeleteOrderOpen, setIsDeleteOrderOpen] = useState(false);
   const [deleteOrderId, setDeleteOrderId] = useState(0);
 
+  const [isDeleteBulkOrderModal, setIsDeleteBulkOrderModal] = useState(false);
+
   const [checkedRows, setCheckedRows] = useState([]);
   const navigate = useNavigate();
-
-  const getColumnSearchProps = (dataIndex) => ({
-    filterDropdown: ({
-      setSelectedKeys,
-      selectedKeys,
-      confirm,
-      clearFilters,
-    }) => (
-      <div
-        style={{
-          padding: 8,
-        }}
-      >
-        <Input
-          ref={searchInput}
-          placeholder={`Search ${dataIndex}`}
-          style={{
-            marginBottom: 8,
-            display: "block",
-          }}
-          value={selectedKeys[0]}
-          onChange={(e) =>
-            setSelectedKeys(e.target.value ? [e.target.value] : [])
-          }
-          onPressEnter={() => {}}
-        />
-      </div>
-    ),
-    filterIcon: (filtered) => (
-      <SearchOutlined
-        style={{
-          color: filtered ? "#1890ff" : undefined,
-        }}
-      />
-    ),
-    onFilter: (value, record) =>
-      record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
-    onFilterDropdownVisibleChange: (visible) => {
-      if (visible) {
-        setTimeout(() => searchInput.current?.select(), 100);
-      }
-    },
-  });
 
   const columns = [
     {
@@ -95,28 +59,31 @@ const OrdersList = ({
         return (
           <div
             className="text-blue-500 cursor-pointer hover:underline"
-            onClick={() => navigate(`view-order/${id}`)}
+            onClick={() => navigate(`/orders/view-order/${id}`)}
           >
             #{id}
           </div>
         );
       },
-      ...getColumnSearchProps("order Id"),
-      sorter: (a, b) => a.id - b.id,
+      sorter: true,
+      onHeaderCell: (header) => {
+        return {
+          onClick: () => sortingFn(header, "created_at"),
+        };
+      },
     },
     {
       title: "Customer",
-      dataIndex: "user",
-      key: "user",
-      ...getColumnSearchProps("customer"),
-      sorter: (a, b) => a.user.localeCompare(b.user),
-      render: (_, { user, id }) => {
+      dataIndex: "phone",
+      key: "phone",
+      width: "20%",
+      render: (_, { phone, customer_name, id }) => {
         return (
           <div
             className="text-blue-500 cursor-pointer hover:underline"
-            onClick={() => navigate(`view-order/${id}`)}
+            onClick={() => navigate(`/orders/view-order/${id}`)}
           >
-            {user}
+            {customer_name ? `${customer_name} (${phone})` : phone}
           </div>
         );
       },
@@ -128,8 +95,12 @@ const OrdersList = ({
       render: (_, { total_paid_amount }) => {
         return <>Rs. {total_paid_amount}</>;
       },
-      ...getColumnSearchProps("price"),
-      sorter: (a, b) => a.total_paid_amount - b.total_paid_amount,
+      sorter: true,
+      onHeaderCell: (header) => {
+        return {
+          onClick: () => sortingFn(header, "total_paid_amount"),
+        };
+      },
     },
     {
       title: "Delivery Status",
@@ -144,16 +115,25 @@ const OrdersList = ({
           </>
         );
       },
-      ...getColumnSearchProps("delivery status"),
     },
     {
       title: "Payment Method",
       dataIndex: "payment",
       key: "payment",
       render: (_, { payment }) => {
-        return <>{payment?.payment_method?.replaceAll("_", " ")}</>;
+        return <>{capitalize(payment?.payment_method?.replaceAll("_", " "))}</>;
       },
-      ...getColumnSearchProps("payment method"),
+    },
+    {
+      title: "Shop Name",
+      dataIndex: "shop_name",
+      key: "shop_name",
+      width: "15%",
+      render: (_, { shop_name }) => (
+        <span className="w-16" style={{ overflowWrap: "anywhere" }}>
+          {capitalize(shop_name?.replaceAll("_", " "))}
+        </span>
+      ),
     },
     {
       title: "Ordered At",
@@ -162,8 +142,12 @@ const OrdersList = ({
       render: (_, { created_at }) => {
         return <>{moment(created_at).format("ll")}</>;
       },
-      sorter: (a, b) => a.created_at - b.created_at,
-      ...getColumnSearchProps("delivery date"),
+      sorter: true,
+      onHeaderCell: (header) => {
+        return {
+          onClick: () => sortingFn(header, "created_at"),
+        };
+      },
     },
     {
       title: "Actions",
@@ -172,8 +156,11 @@ const OrdersList = ({
       render: (_, { id, status }) => {
         return (
           <>
-            <DeleteOutlined
-              className="ml-5"
+            <ButtonWPermission
+              className="!border-none !bg-inherit"
+              codename="delete_order"
+              disabled={status === IN_PROCESS || status === DELIVERED}
+              icon={<DeleteOutlined />}
               onClick={() => {
                 setIsDeleteOrderOpen((prev) => !prev);
                 setDeleteOrderId(id);
@@ -215,8 +202,9 @@ const OrdersList = ({
 
   const handleDeleteBulk = useMutation(() => deleteBulkOrders(checkedRows), {
     onSuccess: (data) => {
-      if (checkedRows.length) openSuccessNotification("Orders Deleted");
+      openSuccessNotification(data.message || "Orders Deleted");
       refetchOrders();
+      setIsDeleteBulkOrderModal(false);
     },
     onError: (error) => {
       openErrorNotification(error);
@@ -228,37 +216,65 @@ const OrdersList = ({
       items={[
         {
           key: "1",
-          label: <div onClick={() => handleDeleteBulk.mutate()}>Delete</div>,
+          label: (
+            <ButtonWPermission
+              className="!border-none !bg-inherit !text-current"
+              codename="delete_order"
+              disabled={
+                isEmpty(checkedRows) ||
+                !checkedRows.every(
+                  (id) =>
+                    dataSource?.find((item) => item.id === id).status ===
+                    CANCELLED
+                )
+              }
+              onClick={() => setIsDeleteBulkOrderModal(true)}
+            >
+              Delete
+            </ButtonWPermission>
+          ),
         },
       ]}
     />
   );
 
   return (
-    <div className="">
-      <div className="mb-4 flex justify-between">
-        <Button
-          className="flex items-center"
-          type="primary"
-          ghost
-          onClick={() => {
-            navigate("create-order");
-          }}
-        >
-          Create New Order
-        </Button>
+    <div>
+      <div className="mb-4 flex gap-5 justify-between">
+        <Space>
+          <ButtonWPermission
+            className="flex items-center"
+            codename="add_order"
+            type="primary"
+            ghost
+            onClick={() => {
+              navigate("/orders/create-order");
+            }}
+          >
+            Create New Order
+          </ButtonWPermission>
 
-        <div>
+          <Input.Search
+            placeholder="Search user, contact, shop"
+            onChange={(e) => {
+              searchInput.current = e.target.value;
+              if (timeout) clearTimeout(timeout);
+              timeout = setTimeout(refetchOrders, 400);
+            }}
+          />
+        </Space>
+
+        <Space>
           <Dropdown overlay={bulkMenu}>
             <Button className="bg-white" type="default">
               <Space>Bulk Actions</Space>
             </Button>
           </Dropdown>
 
-          <Button className="ml-4 bg-cyan-500 text-white" type="default">
+          <Button className="bg-cyan-500 text-white" type="default">
             <Space>Export</Space>
           </Button>
-        </div>
+        </Space>
       </div>
 
       <Table
@@ -266,15 +282,18 @@ const OrdersList = ({
         dataSource={dataSource?.map((item) => ({ ...item, key: item.id }))}
         loading={status === "loading"}
         pagination={{
+          showSizeChanger: true,
           pageSize,
           total: ordersCount,
           current: page,
 
           onChange: (page, pageSize) => {
             setPage(page);
+            setPageSize(pageSize);
           },
         }}
         rowSelection={{ ...rowSelection }}
+        showSorterTooltip={false}
       />
 
       <DeleteOrder
@@ -283,6 +302,14 @@ const OrdersList = ({
         orderId={deleteOrderId}
         refetchOrders={refetchOrders}
         title={"Order #" + deleteOrderId}
+      />
+
+      <ConfirmDelete
+        closeModal={() => setIsDeleteBulkOrderModal(false)}
+        deleteMutation={() => handleDeleteBulk.mutate()}
+        isOpen={isDeleteBulkOrderModal}
+        status={handleDeleteBulk.status}
+        title="Delete selected orders?"
       />
     </div>
   );

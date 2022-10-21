@@ -3,6 +3,7 @@ import { Image, Tag, Menu, Dropdown, Button, Space, Table } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery } from "react-query";
 import moment from "moment";
+import { isEmpty } from "lodash";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { deleteCoupon, getLuckyDrawById } from "../../../api/luckyDraw";
 import { GET_LUCKY_DRAW_BY_ID } from "../../../constants/queryKeys";
@@ -12,6 +13,7 @@ import { getStatusColor } from "..";
 import ConfirmDelete from "../../../shared/ConfirmDelete";
 import { ACTIVE, INACTIVE } from "../../../constants";
 import { openErrorNotification, openSuccessNotification } from "../../../utils";
+import ButtonWPermission from "../../../shared/ButtonWPermission";
 
 const ViewLuckyDraw = () => {
   const { eventId } = useParams();
@@ -93,15 +95,20 @@ const ViewLuckyDraw = () => {
       key: "action",
       render: (_, { id, user }) => {
         return (
-          <DeleteOutlined
-            onClick={() => {
-              setDeleteCouponModal({
-                ...deleteCouponModal,
-                isOpen: true,
-                title: `Delete ${user}?`,
-              });
-              setCouponId([id]);
-            }}
+          <ButtonWPermission
+            codename="delete_luckydrawcoupon"
+            icon={
+              <DeleteOutlined
+                onClick={() => {
+                  setDeleteCouponModal({
+                    ...deleteCouponModal,
+                    isOpen: true,
+                    title: `Delete ${user}?`,
+                  });
+                  setCouponId([id]);
+                }}
+              />
+            }
           />
         );
       },
@@ -120,7 +127,10 @@ const ViewLuckyDraw = () => {
         {
           key: "1",
           label: (
-            <div
+            <ButtonWPermission
+              className="!border-none !bg-inherit !text-current"
+              codename="delete_luckydrawcoupon"
+              disabled={isEmpty(couponId)}
               onClick={() => {
                 setDeleteCouponModal({
                   ...deleteCouponModal,
@@ -130,7 +140,7 @@ const ViewLuckyDraw = () => {
               }}
             >
               Delete
-            </div>
+            </ButtonWPermission>
           ),
         },
       ]}
@@ -146,7 +156,7 @@ const ViewLuckyDraw = () => {
       ) : (
         luckyDraw && (
           <>
-            <div className="bg-[#FFFFFF] p-6 flex gap-6 items-start">
+            <div className="bg-[#FFFFFF] p-6 rounded-lg flex gap-6 items-start">
               <Image
                 height={190}
                 src={luckyDraw.event_banner.full_size}
@@ -192,16 +202,17 @@ const ViewLuckyDraw = () => {
                   </Tag>
                 </div>
 
-                <div
-                  className="text-[#00A0B0] cursor-pointer flex items-center gap-1.5"
+                <ButtonWPermission
+                  className="!text-[#00A0B0] !border-none !bg-inherit !flex items-center"
+                  codename="change_luckydrawevent"
                   onClick={() => navigate(`/lucky-draw/update/${eventId}`)}
                 >
                   <EditOutlined /> Edit Details
-                </div>
+                </ButtonWPermission>
               </div>
             </div>
 
-            <div className="flex flex-col py-8 gap-3">
+            <div className="flex flex-col bg-white rounded-lg p-6 my-8 gap-3">
               <Dropdown className="w-fit" overlay={bulkMenu}>
                 <Button className="bg-white" type="default">
                   <Space>Bulk Actions</Space>

@@ -3,9 +3,10 @@ import { useMutation, useQuery, useQueryClient } from "react-query";
 import { Modal, Spin, Upload } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 
+import { getCategory } from "../../../api/categories";
+
 import {
   updateCategory,
-  getCategory,
   deleteCategory,
 } from "../../../context/CategoryContext";
 
@@ -39,14 +40,14 @@ function EditCategory({
   });
   const { data: categoryData, status: categoryStatus } = useQuery(
     [GET_SINGLE_CATEGORY, slug],
-    () => getCategory({ slug }),
+    () => getCategory(slug),
     {
       onSuccess: (data) => {
         setFormState({
           ...formState,
-          name: data.data.data.name,
-          name_np: data.data.data.name_np,
-          is_published: data.data.data.is_published,
+          name: data.name,
+          name_np: data.name_np,
+          is_published: data.is_published,
         });
       },
       onError: (error) => {
@@ -54,6 +55,7 @@ function EditCategory({
       },
     }
   );
+
   const handleDeleteCategory = useMutation(() => deleteCategory({ slug }), {
     onSuccess: (data) => {
       openSuccessNotification(
@@ -155,7 +157,7 @@ function EditCategory({
             <Spin size="large" />
           </div>
         )}
-        {categoryData?.data?.data && (
+        {categoryData && (
           <form
             className="flex flex-col justify-between flex-1"
             onSubmit={handleSubmit}
@@ -168,7 +170,7 @@ function EditCategory({
                     className="h-[6rem] mx-auto"
                     src={
                       formState.image ||
-                      categoryData?.data.data.category_image.full_size ||
+                      categoryData.category_image.full_size ||
                       "/gallery-icon.svg"
                     }
                   />
@@ -228,7 +230,7 @@ function EditCategory({
 
               <button
                 className={`${
-                  categoryData?.data?.data?.is_published
+                  categoryData?.is_published
                     ? "bg-[#00B0C2] text-white border-[#00B0C2] hover:bg-[#0091a1] "
                     : "text-[#00B0C2] bg-white border-[#00B0C2] hover:bg-[#effdff] "
                 }

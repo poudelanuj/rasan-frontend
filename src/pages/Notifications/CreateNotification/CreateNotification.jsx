@@ -1,5 +1,6 @@
 import { Button, Form, Input, Modal, Select, Space } from "antd";
 import { useState } from "react";
+import { capitalize } from "lodash";
 import { useMutation, useQuery } from "react-query";
 import { createNotificationGroup } from "../../../api/notifications";
 import { getUserGroups } from "../../../api/userGroups";
@@ -51,7 +52,7 @@ const CreateNotification = ({ isOpen, onClose, refetchNotifications }) => {
         <Form.Item
           label="Notification Title"
           name="title"
-          rules={[{ required: true, message: "notification title required" }]}
+          rules={[{ required: true, message: "Notification title required" }]}
         >
           <Input />
         </Form.Item>
@@ -70,7 +71,7 @@ const CreateNotification = ({ isOpen, onClose, refetchNotifications }) => {
           <Form.Item
             label="Notification Type"
             name="type"
-            rules={[{ required: true, message: "notification type required" }]}
+            rules={[{ required: true, message: "Notification type required" }]}
           >
             <Select
               placeholder="Select Type"
@@ -79,7 +80,7 @@ const CreateNotification = ({ isOpen, onClose, refetchNotifications }) => {
             >
               {NOTIFICATION_TYPES.map((type) => (
                 <Select.Option key={type.name} value={type.value}>
-                  {type.name.replaceAll("_", " ")}
+                  {capitalize(type.name.replaceAll("_", " "))}
                 </Select.Option>
               ))}
             </Select>
@@ -96,7 +97,7 @@ const CreateNotification = ({ isOpen, onClose, refetchNotifications }) => {
           <Form.Item
             label="User Groups"
             name="user_groups"
-            rules={[{ required: true, message: "user groups required" }]}
+            rules={[{ required: true, message: "User Group required" }]}
           >
             <Select
               loading={userGroupStatus === "loading"}

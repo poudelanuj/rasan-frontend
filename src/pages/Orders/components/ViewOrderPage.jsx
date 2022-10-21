@@ -10,10 +10,17 @@ import {
   Table,
   Tag,
 } from "antd";
-import { DeleteOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  HomeOutlined,
+  PhoneOutlined,
+  EnvironmentOutlined,
+} from "@ant-design/icons";
 import { useMutation } from "react-query";
 import { useQuery } from "react-query";
 import moment from "moment";
+import { useEffect } from "react";
+import { uniqBy } from "lodash";
 import { saveAs } from "file-saver";
 import {
   addOrderItem,
@@ -27,8 +34,7 @@ import {
 } from "../../../utils/openNotification";
 import CustomPageHeader from "../../../shared/PageHeader";
 import { useState } from "react";
-import { getUsers } from "../../../api/users";
-import { GET_USERS } from "../../../constants/queryKeys";
+import { getAdminUsers } from "../../../api/users";
 import { updateOrder } from "../../../api/orders";
 import {
   DEFAULT_CARD_IMAGE,
@@ -40,6 +46,11 @@ import { useParams } from "react-router-dom";
 import { CANCELLED, DELIVERED, IN_PROCESS } from "../../../constants";
 import { updateOrderStatus } from "../../../context/OrdersContext";
 import axios from "../../../axios";
+import { useAuth } from "../../../AuthProvider";
+import { getUser } from "../../../context/UserContext";
+import rasanDefault from "../../../assets/images/rasan-default.png";
+import { getMetaCityAddress } from "../../../api/userAddresses";
+import { GET_META_CITY_ADDRESS } from "../../../constants/queryKeys";
 
 export const getOrderStatusColor = (status) => {
   switch (status) {
@@ -55,7 +66,9 @@ export const getOrderStatusColor = (status) => {
 };
 
 const ViewOrderPage = () => {
+  const { userGroupIds } = useAuth();
   const { orderId } = useParams();
+  const { Option } = Select;
   const [selectedProductSku, setSelectedSku] = useState();
   const [selectedProductPack, setSelectedPack] = useState();
   const [quantity, setQuantity] = useState(1);
@@ -65,6 +78,10 @@ const ViewOrderPage = () => {
     orderId: orderId,
     orderStatus: null,
   });
+
+  const [page, setPage] = useState(1);
+
+  const [userList, setUserList] = useState([]);
 
   const {
     data,
@@ -82,10 +99,38 @@ const ViewOrderPage = () => {
     queryKey: ["getProductSkus"],
   });
 
-  const { data: usersList, status: usersStatus } = useQuery({
-    queryFn: () => getUsers(),
-    queryKey: [GET_USERS],
+  const { data: user, status: userStatus } = useQuery({
+    queryFn: () => data && getUser(data && data.user_profile_id),
+    queryKey: ["get-user", data && data.user],
+    enabled: !!data,
   });
+
+  const { data: address } = useQuery({
+    queryFn: () => data && getMetaCityAddress(data && data.shipping_address),
+    queryKey: [GET_META_CITY_ADDRESS, data && data.shipping_address],
+    enabled: !!data,
+  });
+
+  const {
+    data: dataUser,
+    status: usersStatus,
+    refetch: refetchUserList,
+  } = useQuery({
+    queryFn: () => userGroupIds && getAdminUsers(userGroupIds, page, 100, ""),
+    queryKey: ["getUserList", userGroupIds, page.toString()],
+    enabled: !!userGroupIds,
+  });
+
+  useEffect(() => {
+    if (dataUser) {
+      setUserList((prev) => uniqBy([...prev, ...dataUser.results], "id"));
+    }
+  }, [dataUser]);
+
+  useEffect(() => {
+    refetchUserList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   const handleAddItem = useMutation(
     () =>
@@ -268,13 +313,46 @@ const ViewOrderPage = () => {
     <>
       <CustomPageHeader title={`Order #${orderId}`} />
 
-      <div className="p-5 bg-[#FFFFFF]">
+      <div className="p-6 rounded-lg bg-[#FFFFFF]">
         <ChangePayment
           isOpen={openChangePayment}
           orderType={data?.type}
           payment={data?.payment}
           onClose={() => setOpenChangePayment(false)}
         />
+
+        {userStatus === "loading" ? (
+          <Spin />
+        ) : (
+          user && (
+            <div className="details flex pb-4">
+              <img
+                alt={user.full_name}
+                className="image mr-3"
+                src={user.profile_picture.small_square_crop || rasanDefault}
+              />
+              <div>
+                <div className="font-medium text-lg">
+                  {user.full_name || "User"}
+                </div>
+                <div className="flex items-center text-light_text">
+                  <div className="flex items-center pr-4">
+                    <HomeOutlined className="mr-1" />
+                    {user.shop.name}
+                  </div>
+                  <div className="flex items-center pr-4">
+                    <PhoneOutlined className="mr-1" />
+                    {user.phone}
+                  </div>
+                  <div className="flex items-center pr-4">
+                    <EnvironmentOutlined className="mr-1" />
+                    Delivered at: {address?.name}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )
+        )}
 
         <div className="flex justify-between items-center">
           <Space className="mb-4" size="middle">
@@ -326,18 +404,25 @@ const ViewOrderPage = () => {
                       defaultValue={data?.assigned_to}
                       loading={usersStatus === "loading"}
                       mode="multiple"
+                      optionFilterProp="children"
                       placeholder="Select Users"
                       style={{ width: 300 }}
                       showSearch
+                      onPopupScroll={() =>
+                        data?.next && setPage((prev) => prev + 1)
+                      }
                     >
-                      {usersList &&
-                        usersList.map((user) => (
-                          <Select.Option key={user.id} value={user.phone}>
-                            {user.full_name || user.phone}
-                          </Select.Option>
+                      {userList &&
+                        userList.map((user) => (
+                          <Option key={user.id} value={user.phone}>
+                            {user.full_name
+                              ? `${user.full_name} (${user.phone})`
+                              : user.phone}
+                          </Option>
                         ))}
                     </Select>
                   </Form.Item>
+
                   <Form.Item>
                     <Button
                       htmlType="submit"
@@ -394,6 +479,15 @@ const ViewOrderPage = () => {
                 ? moment(data.payment.completed_at).format("ll hh:mm a")
                 : "-"}
             </Descriptions.Item>
+            <Descriptions.Item label="Total Amount" span={1}>
+              {data.total_amount}
+            </Descriptions.Item>
+            <Descriptions.Item label="Cashback Applied" span={1}>
+              {data.previous_cashback_applied}
+            </Descriptions.Item>
+            <Descriptions.Item label="Cashback Earned" span={1}>
+              {data.total_cashback_earned}
+            </Descriptions.Item>
             <Descriptions.Item label="PID" span={3}>
               {data.payment.pid || "-"}
             </Descriptions.Item>
@@ -433,12 +527,16 @@ const ViewOrderPage = () => {
           <Form layout="horizontal">
             <Space>
               <Form.Item>
-                <span>Product Sku</span>
+                <span>Product SKU</span>
                 <Select
                   placeholder="Select Product SKU"
                   style={{ width: 200 }}
                   showSearch
-                  onSelect={(value) => setSelectedSku(value)}
+                  onSelect={(value) => {
+                    setSelectedSku(value);
+                    setSelectedPack();
+                    setQuantity(1);
+                  }}
                 >
                   {productSkus &&
                     productSkus.map((item) => (
@@ -451,6 +549,7 @@ const ViewOrderPage = () => {
               <Form.Item tooltip="Select Pack Size">
                 <span>Pack Size</span>
                 <Select
+                  className="!w-36"
                   placeholder="Select Pack Size"
                   showSearch
                   onSelect={(value) =>
@@ -473,21 +572,30 @@ const ViewOrderPage = () => {
                 </Select>
               </Form.Item>
 
-              <Form.Item name="quantity">
+              <Form.Item className="relative" name="quantity">
                 <span>Quantity</span>
                 <Input
-                  placeholder="quantity"
+                  className="!w-20"
+                  placeholder="Quantity"
                   type="number"
+                  value={quantity}
                   onChange={(e) => {
                     setQuantity(e.target.value);
                   }}
                 />
+                <span
+                  className={`${
+                    quantity < 0 ? "block" : "hidden"
+                  } absolute text-xs text-red-600`}
+                >
+                  Negative value not allowed
+                </span>
               </Form.Item>
 
               <Form.Item>
                 <span>Price Per Piece</span>
                 <Input
-                  placeholder="price"
+                  placeholder="Price"
                   type="number"
                   value={selectedProductPack?.price_per_piece}
                   disabled
@@ -497,7 +605,7 @@ const ViewOrderPage = () => {
               <Form.Item>
                 <span>Total Amount</span>
                 <Input
-                  placeholder="total amount"
+                  placeholder="Total amount"
                   type="number"
                   value={getTotalAmount()}
                   disabled
@@ -507,7 +615,7 @@ const ViewOrderPage = () => {
               <Form.Item>
                 <span>Loyalty</span>
                 <Input
-                  placeholder="loyalty points"
+                  placeholder="Loyalty points"
                   type="number"
                   value={
                     parseInt(
@@ -523,7 +631,7 @@ const ViewOrderPage = () => {
               <Form.Item>
                 <span>Cashback</span>
                 <Input
-                  placeholder="cashback"
+                  placeholder="Cashback"
                   type="number"
                   value={
                     parseInt(
@@ -540,6 +648,9 @@ const ViewOrderPage = () => {
                 <div style={{ height: 20 }} />
                 <Button
                   className="bg-blue-500"
+                  disabled={
+                    !(selectedProductPack && selectedProductSku && quantity > 0)
+                  }
                   type="primary"
                   onClick={() => handleAddItem.mutate()}
                 >

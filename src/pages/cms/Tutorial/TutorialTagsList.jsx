@@ -2,28 +2,35 @@ import { Button, Dropdown, Space, Table, Menu } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 import { useMutation, useQuery } from "react-query";
 import { useState, useEffect } from "react";
-import { uniqBy } from "lodash";
+import { isEmpty, uniqBy } from "lodash";
 import ConfirmDelete from "../../../shared/ConfirmDelete";
 import CreateTutorialTagsModal from "./components/CreateTutorialTagsModal";
-import { deleteTutorialTags, getPaginatedTags } from "../../../api/tutorial";
+import {
+  deleteBulkTutorialTags,
+  deleteTutorialTags,
+  getPaginatedTags,
+} from "../../../api/tutorial";
 import {
   openSuccessNotification,
   openErrorNotification,
 } from "../../../utils/openNotification";
 import { GET_PAGINATED_TAGLISTS } from "../../../constants/queryKeys";
+import ButtonWPermission from "../../../shared/ButtonWPermission";
 
 const TutorialTagsList = () => {
   const [isCreateTagsModalOpen, setIsCreateTagsModalOpen] = useState(false);
 
-  const [isDeleteTagsModalOpen, setIsDeleteTagsModalOpen] = useState(false);
-
-  const [deleteTagsModalTitle, setDeleteTagsModalTitle] = useState("");
+  const [isDeleteTagsModal, setIsDeleteTagsModal] = useState({
+    isOpen: false,
+    title: "",
+    type: "",
+  });
 
   const [tagIds, setTagsIds] = useState([]);
 
   const [page, setPage] = useState(1);
 
-  const pageSize = 20;
+  const [pageSize, setPageSize] = useState(20);
 
   const [tutorialTagList, setTutorialTagList] = useState([]);
 
@@ -38,24 +45,27 @@ const TutorialTagsList = () => {
   });
 
   useEffect(() => {
-    if (data) {
+    if (data && status === "success" && !isRefetching) {
       setTutorialTagList([]);
       setTutorialTagList((prev) => uniqBy([...prev, ...data], "id"));
     }
-  }, [data]);
+  }, [data, status, isRefetching]);
 
   useEffect(() => {
     refetchTags();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  }, [page, pageSize]);
 
   const handleDeleteTutorialTags = useMutation(
-    () => deleteTutorialTags(tagIds),
+    () =>
+      isDeleteTagsModal.type === "bulk"
+        ? deleteBulkTutorialTags(tagIds)
+        : deleteTutorialTags(tagIds),
     {
       onSuccess: (res) => {
-        openSuccessNotification(res[0].data.message);
+        openSuccessNotification(res.message);
         refetchTags();
-        setIsDeleteTagsModalOpen(false);
+        setIsDeleteTagsModal({ ...isDeleteTagsModal, isOpen: false });
         setTagsIds([]);
       },
       onError: (err) => openErrorNotification(err),
@@ -81,13 +91,21 @@ const TutorialTagsList = () => {
       width: "10%",
       render: (_, { id, title }) => {
         return (
-          <DeleteOutlined
-            className="ml-5"
-            onClick={() => {
-              setIsDeleteTagsModalOpen(true);
-              setDeleteTagsModalTitle(`Delete ${title}?`);
-              setTagsIds([id]);
-            }}
+          <ButtonWPermission
+            className="!border-none"
+            codename="delete_tutorialtag"
+            icon={
+              <DeleteOutlined
+                onClick={() => {
+                  setTagsIds([id]);
+                  setIsDeleteTagsModal({
+                    isOpen: true,
+                    title: `Delete ${title}?`,
+                    type: "single",
+                  });
+                }}
+              />
+            }
           />
         );
       },
@@ -100,14 +118,20 @@ const TutorialTagsList = () => {
         {
           key: "1",
           label: (
-            <div
+            <ButtonWPermission
+              className="!border-none !text-current !bg-inherit"
+              codename="delete_tutorialtag"
+              disabled={isEmpty(tagIds)}
               onClick={() => {
-                setIsDeleteTagsModalOpen(true);
-                setDeleteTagsModalTitle(`Delete all tags?`);
+                setIsDeleteTagsModal({
+                  isOpen: true,
+                  title: "Delete all tags?",
+                  type: "bulk",
+                });
               }}
             >
               Delete
-            </div>
+            </ButtonWPermission>
           ),
         },
       ]}
@@ -144,15 +168,22 @@ const TutorialTagsList = () => {
       <Table
         columns={columns}
         dataSource={tutorialTagList?.map((el, index) => {
-          return { key: index + 1, title: el.tag, id: el.id };
+          return {
+            key: (page - 1) * pageSize + index + 1,
+            title: el.tag,
+            id: el.id,
+          };
         })}
         loading={status === "loading" || isRefetching}
         pagination={{
+          showSizeChanger: true,
           pageSize,
           total: data?.count,
+          current: page,
 
           onChange: (page, pageSize) => {
             setPage(page);
+            setPageSize(pageSize);
           },
         }}
         rowSelection={{ ...rowSelection }}
@@ -165,11 +196,13 @@ const TutorialTagsList = () => {
       />
 
       <ConfirmDelete
-        closeModal={() => setIsDeleteTagsModalOpen(false)}
+        closeModal={() =>
+          setIsDeleteTagsModal({ ...isDeleteTagsModal, isOpen: false })
+        }
         deleteMutation={() => handleDeleteTutorialTags.mutate()}
-        isOpen={isDeleteTagsModalOpen}
+        isOpen={isDeleteTagsModal.isOpen}
         status={handleDeleteTutorialTags.status}
-        title={deleteTagsModalTitle}
+        title={isDeleteTagsModal.title}
       />
     </div>
   );

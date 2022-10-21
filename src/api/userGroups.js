@@ -28,16 +28,21 @@ export const updateUserGroup = async ({ id, data }) => {
 };
 
 export const getPermission = async () => {
-  const res1 = await axios.get("/api/auth/permission/");
+  const res = await axios.get("/api/auth/permission/?page=1&size=100");
 
-  if (res1.data.data.next !== null) {
-    const res2 = await axios.get(
-      `/api/auth/permission/?page=1&size=${res1.data.data.count}`
-    );
-    return res2.data.data.results;
+  let nextUrl = `${res.data.data.next}`;
+
+  const allResData = [...res.data.data.results];
+
+  while (nextUrl !== null) {
+    const res = await axios.get(nextUrl);
+    nextUrl = res.data.data.next;
+    allResData.push(...res.data.data.results);
   }
 
-  return res1.data.data.results;
+  if (allResData) return allResData;
+
+  return res.data.data.results;
 };
 
 export const addUser = async ({ id, data }) => {

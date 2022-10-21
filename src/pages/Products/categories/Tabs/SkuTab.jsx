@@ -9,8 +9,8 @@ import {
   openSuccessNotification,
   parseSlug,
 } from "../../../../utils";
-import { getCategory } from "../../../../api/categories";
-import { GET_SINGLE_CATEGORY } from "../../../../constants/queryKeys";
+import { getProductSkusFromCategory } from "../../../../api/categories";
+import { GET_CATEGORY_PRODUCT_SKU } from "../../../../constants/queryKeys";
 import { uniqBy } from "lodash";
 import Alert from "../../../../shared/Alert";
 import { ALERT_TYPE } from "../../../../constants";
@@ -22,19 +22,17 @@ const columns = [
   {
     title: "S.N.",
     dataIndex: "sn",
-    defaultSortOrder: "ascend",
-    sorter: (a, b) => a.sn - b.sn,
+    key: "index",
   },
   {
     title: "Product Name",
     dataIndex: "name",
-    defaultSortOrder: "descend",
-    render: (_, { name, product_image }) => (
+    render: (_, { name, product_sku_image }) => (
       <div className="flex items-center gap-3">
         <img
           alt=""
           className="h-[40px] w-[40px] object-cover rounded"
-          src={product_image?.thumbnail || "/rasan-default.png"}
+          src={product_sku_image?.thumbnail || "/rasan-default.png"}
         />
         <span>{name}</span>
       </div>
@@ -47,17 +45,14 @@ const columns = [
   {
     title: "CP Per Piece (रु)",
     dataIndex: "cost_price_per_piece",
-    sorter: (a, b) => a.cost_price_per_piece - b.cost_price_per_piece,
   },
   {
     title: "MRP Per Piece (रु)",
     dataIndex: "mrp_per_piece",
-    sorter: (a, b) => a.mrp_per_piece - b.mrp_per_piece,
   },
   {
     title: "SP Per Piece (रु)",
     dataIndex: "price_per_piece",
-    sorter: (a, b) => a.price_per_piece - b.price_per_piece,
   },
 
   {
@@ -94,7 +89,7 @@ function TabSKU({ slug }) {
   const [alertType, setAlertType] = useState("");
 
   const [page, setPage] = useState(1);
-  const pageSize = 10;
+  const [pageSize, setPageSize] = useState(20);
   const [productSkus, setProductSkus] = useState([]);
 
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
@@ -112,21 +107,28 @@ function TabSKU({ slug }) {
     status: skuStatus,
     refetch: refetchProductSkus,
     isRefetching,
-  } = useQuery([GET_SINGLE_CATEGORY, slug], () => getCategory(slug));
+  } = useQuery({
+    queryKey: [
+      GET_CATEGORY_PRODUCT_SKU,
+      slug,
+      pageSize.toString() + page.toString(),
+    ],
+    queryFn: () => getProductSkusFromCategory(slug, page, pageSize),
+  });
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (data)
-      setProductSkus((prev) =>
-        uniqBy([...prev, ...data.product_skus.results], "slug")
-      );
-  }, [data]);
+    if (data && skuStatus === "success" && !isRefetching) {
+      setProductSkus([]);
+      setProductSkus((prev) => uniqBy([...prev, ...data.results], "slug"));
+    }
+  }, [data, skuStatus, isRefetching]);
 
   useEffect(() => {
     refetchProductSkus();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  }, [page, pageSize]);
 
   const handleBulkPublish = useMutation(
     ({ slugs, isPublish }) => bulkPublish({ slugs, isPublish }),
@@ -213,7 +215,7 @@ function TabSKU({ slug }) {
     <>
       {openAlert && renderAlert()}
 
-      <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[70vh]">
+      <div className="flex flex-col bg-white min-h-[70vh]">
         <div className="flex justify-end mb-3">
           <div className="flex">
             {selectedRowKeys.length > 0 && (
@@ -239,17 +241,21 @@ function TabSKU({ slug }) {
         <div className="flex-1">
           <Table
             columns={columns}
-            dataSource={productSkus.map((item) => ({
+            dataSource={productSkus.map((item, index) => ({
               ...item,
+              index: (page - 1) * pageSize + index + 1,
               key: item.id || item.slug,
             }))}
             loading={skuStatus === "loading" || isRefetching}
             pagination={{
+              showSizeChanger: true,
               pageSize,
               total: data?.count,
+              current: page,
 
               onChange: (page, pageSize) => {
                 setPage(page);
+                setPageSize(pageSize);
               },
             }}
             rowClassName="cursor-pointer"

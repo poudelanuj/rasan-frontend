@@ -5,9 +5,20 @@ export const getAllProducts = async () => {
   return res.data.data.results;
 };
 
-export const getPaginatedProducts = async (page, pageSize) => {
+export const getPaginatedProducts = async (
+  page,
+  pageSize,
+  sort,
+  search,
+  brand,
+  category
+) => {
   const res = await axios.get(
-    `/api/product/admin/products/?page=${page || 1}&size=${pageSize || 20}`
+    `/api/product/admin/products/?page=${page || 1}&size=${
+      pageSize || 20
+    }&sort=${sort}&name__icontains=${search || ""}&brand=${
+      brand || []
+    }&category=${category || []}`
   );
   return res.data.data;
 };

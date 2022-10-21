@@ -23,6 +23,7 @@ import UpdateBannersModal from "./UpdateBannersModal";
 import { openErrorNotification, openSuccessNotification } from "../../../utils";
 import ConfirmDelete from "../../../shared/ConfirmDelete";
 import { getUserGroupsById } from "../../../api/userGroups";
+import ButtonWPermission from "../../../shared/ButtonWPermission";
 
 const ViewPromotionsPage = () => {
   const { promotionsId } = useParams();
@@ -130,7 +131,7 @@ const ViewPromotionsPage = () => {
             <>
               <CustomPageHeader title={promotions.title} />
 
-              <div className="py-5 px-4 bg-[#FFFFFF]">
+              <div className="p-6 rounded-lg bg-[#FFFFFF]">
                 <div className="flex w-full justify-between items-start">
                   <div className="flex flex-col">
                     <p className="text-lg font-semibold">Promotion Details</p>
@@ -166,12 +167,13 @@ const ViewPromotionsPage = () => {
                     </Tag>
                   </div>
 
-                  <div
-                    className="text-[#00A0B0] cursor-pointer flex items-center gap-1.5"
+                  <ButtonWPermission
+                    className="!text-[#00A0B0] !border-none !flex items-center"
+                    codename="change_promotion"
                     onClick={() => navigate(`../update/${promotionsId}`)}
                   >
                     <EditOutlined /> Edit Details
-                  </div>
+                  </ButtonWPermission>
                 </div>
 
                 <div className="grid grid-cols-2 pt-8 text-md">
@@ -220,7 +222,7 @@ const ViewPromotionsPage = () => {
                 </div>
               </div>
 
-              <div className="my-5 py-5 px-4 bg-[#FFFFFF] flex flex-col">
+              <div className="my-5 p-6 rounded-lg bg-[#FFFFFF] flex flex-col">
                 <p className="text-lg font-semibold">Banners</p>
 
                 <Form
@@ -284,13 +286,14 @@ const ViewPromotionsPage = () => {
 
                   <Form.Item>
                     <Space>
-                      <Button
+                      <ButtonWPermission
+                        codename="add_banner"
                         htmlType="submit"
                         loading={handlePostBanners.isLoading}
                         type="primary"
                       >
                         Save
-                      </Button>
+                      </ButtonWPermission>
                       <Button type="ghost" onClick={() => form.resetFields()}>
                         Reset
                       </Button>
@@ -351,7 +354,8 @@ const ViewPromotionsPage = () => {
                         </p>
 
                         <div className="flex items-center gap-5">
-                          <Button
+                          <ButtonWPermission
+                            codename="change_banner"
                             danger={el.is_published}
                             loading={
                               handlePublishBanner.variables &&
@@ -367,27 +371,36 @@ const ViewPromotionsPage = () => {
                             }
                           >
                             {el.is_published ? "Unpublish" : "Publish"}
-                          </Button>
+                          </ButtonWPermission>
 
-                          <EditOutlined
-                            className="text-xl"
-                            onClick={() =>
-                              setIsUpdateBanner({
-                                ...isUpdateBanner,
-                                isOpen: true,
-                                id: el.id,
-                              })
+                          <ButtonWPermission
+                            codename="change_banner"
+                            icon={
+                              <EditOutlined
+                                onClick={() =>
+                                  setIsUpdateBanner({
+                                    ...isUpdateBanner,
+                                    isOpen: true,
+                                    id: el.id,
+                                  })
+                                }
+                              />
                             }
                           />
 
-                          <DeleteOutlined
-                            className="text-xl cursor-pointer"
-                            onClick={() =>
-                              setIsDeleteBanner({
-                                ...isDeleteBanner,
-                                isOpen: true,
-                                id: el.id,
-                              })
+                          <ButtonWPermission
+                            codename="delete_banner"
+                            icon={
+                              <DeleteOutlined
+                                className="text-xl cursor-pointer"
+                                onClick={() =>
+                                  setIsDeleteBanner({
+                                    ...isDeleteBanner,
+                                    isOpen: true,
+                                    id: el.id,
+                                  })
+                                }
+                              />
                             }
                           />
                         </div>

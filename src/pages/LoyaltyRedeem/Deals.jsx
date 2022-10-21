@@ -2,7 +2,7 @@ import { Button, Table, Tag, Menu, Space, Dropdown } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient, useQuery } from "react-query";
-import { capitalize, uniqBy } from "lodash";
+import { capitalize, isEmpty, uniqBy } from "lodash";
 import { useState, useEffect } from "react";
 import { PUBLISHED, UNPUBLISHED } from "../../constants";
 import ConfirmDelete from "../../shared/ConfirmDelete";
@@ -10,6 +10,7 @@ import {
   deleteRedeemableProduct,
   publishRedeemableProduct,
   getPaginatedRedeemableProduct,
+  deleteBulkRedeemableProduct,
 } from "../../api/loyaltyRedeem";
 import {
   GET_LOYALTY_REDEEM_ARCHIVED_RASAN,
@@ -25,7 +26,7 @@ import {
   parseSlug,
 } from "../../utils";
 
-import Loader from "../../shared/Loader";
+import ButtonWPermission from "../../shared/ButtonWPermission";
 
 const Deals = ({ type, isArchived, queryKey }) => {
   const navigate = useNavigate();
@@ -35,11 +36,12 @@ const Deals = ({ type, isArchived, queryKey }) => {
   const [deleteDealsModal, setDeleteDealsModal] = useState({
     isOpen: false,
     title: "",
+    type: "",
   });
 
   const [page, setPage] = useState(1);
 
-  const pageSize = 20;
+  const [pageSize, setPageSize] = useState(20);
 
   const [dealsId, setDealsId] = useState([]);
 
@@ -57,22 +59,25 @@ const Deals = ({ type, isArchived, queryKey }) => {
   });
 
   useEffect(() => {
-    if (data) {
+    if (data && status === "success" && !isRefetching) {
       setDeals([]);
       setDeals((prev) => uniqBy([...prev, ...data.results], "id"));
     }
-  }, [data]);
+  }, [data, status, isRefetching]);
 
   useEffect(() => {
     refetchLoyaltyRedeem();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  }, [page, pageSize]);
 
   const handleDeleteLoyaltyRedeem = useMutation(
-    () => deleteRedeemableProduct(dealsId),
+    () =>
+      deleteDealsModal.type === "bulk"
+        ? deleteBulkRedeemableProduct(dealsId)
+        : deleteRedeemableProduct(dealsId),
     {
       onSuccess: (data) => {
-        openSuccessNotification(data[0].data.message);
+        openSuccessNotification(data.message);
         setDeleteDealsModal({
           ...deleteDealsModal,
           isOpen: false,
@@ -102,7 +107,7 @@ const Deals = ({ type, isArchived, queryKey }) => {
   const dealsDataSource = deals?.map((el, index) => {
     return {
       id: el.id,
-      key: index + 1,
+      key: (page - 1) * pageSize + index + 1,
       product_sku: capitalize(parseSlug(el.product_sku)),
       loyalty_points: el.loyalty_points + " points",
       total_quota: el.quota,
@@ -154,17 +159,15 @@ const Deals = ({ type, isArchived, queryKey }) => {
       key: "status",
       render: (_, { is_published, status }) => {
         return (
-          <>
-            <Tag
-              color={
-                is_published
-                  ? getStatusColor(PUBLISHED)
-                  : getStatusColor(UNPUBLISHED)
-              }
-            >
-              {status.toUpperCase()}
-            </Tag>
-          </>
+          <Tag
+            color={
+              is_published
+                ? getStatusColor(PUBLISHED)
+                : getStatusColor(UNPUBLISHED)
+            }
+          >
+            {status.toUpperCase()}
+          </Tag>
         );
       },
     },
@@ -176,8 +179,9 @@ const Deals = ({ type, isArchived, queryKey }) => {
       render: (_, { id, product_sku, is_published }) => {
         return (
           <div className="flex items-center justify-between">
-            <Button
+            <ButtonWPermission
               className="w-20 text-center"
+              codename="change_loyalty"
               danger={is_published}
               loading={
                 handlePublishLoyaltyRedeem.variables &&
@@ -194,17 +198,24 @@ const Deals = ({ type, isArchived, queryKey }) => {
               }
             >
               {is_published ? "Unpublish" : "Publish"}
-            </Button>
+            </ButtonWPermission>
 
-            <DeleteOutlined
-              onClick={() => {
-                setDeleteDealsModal({
-                  ...deleteDealsModal,
-                  isOpen: true,
-                  title: `Delete ${product_sku}?`,
-                });
-                setDealsId([id]);
-              }}
+            <ButtonWPermission
+              className="!border-none"
+              codename="delete_loyalty"
+              icon={
+                <DeleteOutlined
+                  onClick={() => {
+                    setDeleteDealsModal({
+                      ...deleteDealsModal,
+                      isOpen: true,
+                      title: `Delete ${product_sku}?`,
+                      type: "single",
+                    });
+                    setDealsId([id]);
+                  }}
+                />
+              }
             />
           </div>
         );
@@ -224,17 +235,21 @@ const Deals = ({ type, isArchived, queryKey }) => {
         {
           key: "1",
           label: (
-            <div
+            <ButtonWPermission
+              className="!border-none !bg-inherit !text-current"
+              codename="delete_loyalty"
+              disabled={isEmpty(dealsId)}
               onClick={() => {
                 setDeleteDealsModal({
                   ...deleteDealsModal,
                   isOpen: true,
-                  title: "Delete all FAQ Groups?",
+                  title: "Delete all Redeemable Products?",
+                  type: "bulk",
                 });
               }}
             >
               Delete
-            </div>
+            </ButtonWPermission>
           ),
         },
       ]}
@@ -244,14 +259,15 @@ const Deals = ({ type, isArchived, queryKey }) => {
   return (
     <>
       <div className="mb-4 flex justify-between">
-        <Button
+        <ButtonWPermission
           className="flex items-center"
+          codename="add_loyalty"
           type="primary"
           ghost
           onClick={() => navigate("create")}
         >
           Create Loyalty Redeem
-        </Button>
+        </ButtonWPermission>
 
         <Dropdown overlay={bulkMenu}>
           <Button className="bg-white" type="default">
@@ -259,24 +275,24 @@ const Deals = ({ type, isArchived, queryKey }) => {
           </Button>
         </Dropdown>
       </div>
-      {status === "loading" ? (
-        <Loader isOpen={true} />
-      ) : (
-        <Table
-          columns={columns}
-          dataSource={dealsDataSource}
-          loading={status === "loading" || isRefetching}
-          pagination={{
-            pageSize,
-            total: data?.count,
 
-            onChange: (page, pageSize) => {
-              setPage(page);
-            },
-          }}
-          rowSelection={{ ...rowSelection }}
-        />
-      )}
+      <Table
+        columns={columns}
+        dataSource={dealsDataSource}
+        loading={status === "loading" || isRefetching}
+        pagination={{
+          showSizeChanger: true,
+          pageSize,
+          total: data?.count,
+          current: page,
+
+          onChange: (page, pageSize) => {
+            setPage(page);
+            setPageSize(pageSize);
+          },
+        }}
+        rowSelection={{ ...rowSelection }}
+      />
 
       <ConfirmDelete
         closeModal={() =>

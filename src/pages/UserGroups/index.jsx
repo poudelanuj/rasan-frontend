@@ -1,4 +1,3 @@
-import { Button } from "antd";
 import { useMutation, useQuery } from "react-query";
 import { useState } from "react";
 import { DeleteOutlined } from "@ant-design/icons";
@@ -11,6 +10,7 @@ import CustomPageHeader from "../../shared/PageHeader";
 import CreateUserGroupModal from "./components/CreateUserGroupModal";
 import { openErrorNotification, openSuccessNotification } from "../../utils";
 import ConfirmDelete from "../../shared/ConfirmDelete";
+import ButtonWPermission from "../../shared/ButtonWPermission";
 
 const UserGroups = () => {
   const navigate = useNavigate();
@@ -46,39 +46,44 @@ const UserGroups = () => {
 
   return (
     <>
-      <CustomPageHeader title="User Groups" isBasic />
+      <CustomPageHeader title="User Groups" isBasicHeader />
 
-      <div className="py-5 px-4 bg-[#FFFFFF]">
-        <Button
+      <div className="p-6 rounded-lg bg-[#FFFFFF]">
+        <ButtonWPermission
           className="mb-6"
+          codename="add_group"
           type="primary"
           ghost
           onClick={() => setIsCreateUserGroupModal(true)}
         >
           Create User Group
-        </Button>
+        </ButtonWPermission>
 
         {isFetching ? (
           <Loader isOpen={true} />
         ) : (
           <div className="w-full grid grid-cols-4 gap-4">
             {userGroup &&
-              userGroup.map((el) => (
+              userGroup.map(({ name, id }) => (
                 <div
-                  key={el.id}
+                  key={id}
                   className="p-4 border flex items-center justify-between text-primary cursor-pointer"
                 >
-                  <div onClick={() => navigate(`${el.id}`)}>
+                  <div onClick={() => navigate(`${id}`)}>
                     <IoIosPeople className="inline mr-3 text-3xl" />
-                    {el.name}
+                    {name}
                   </div>
 
-                  <DeleteOutlined
+                  <ButtonWPermission
+                    className="!border-none !bg-inherit"
+                    codename="delete_group"
+                    disabled={name === "superadmin"}
+                    icon={<DeleteOutlined />}
                     onClick={() =>
                       setIsDeleteUserGroupModal({
                         ...isDeleteUserGroupModal,
                         isOpen: true,
-                        id: el.id,
+                        id,
                       })
                     }
                   />

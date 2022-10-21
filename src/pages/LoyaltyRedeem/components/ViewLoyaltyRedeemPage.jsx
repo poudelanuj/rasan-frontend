@@ -1,7 +1,7 @@
 import { capitalize } from "lodash";
 import { useMutation, useQuery } from "react-query";
 import { useParams } from "react-router-dom";
-import { Button, Image, Tag } from "antd";
+import { Image, Tag } from "antd";
 import moment from "moment";
 import { EditOutlined } from "@ant-design/icons";
 import {
@@ -20,6 +20,7 @@ import { getProductSku } from "../../../api/products/productSku";
 import { openErrorNotification, openSuccessNotification } from "../../../utils";
 import { useState } from "react";
 import UpdateLoyaltyRedeemModal from "./UpdateLoyaltyRedeemModal";
+import ButtonWPermission from "../../../shared/ButtonWPermission";
 
 const ViewLoyaltyRedeemPage = () => {
   const { loyaltyRedeemId } = useParams();
@@ -66,7 +67,7 @@ const ViewLoyaltyRedeemPage = () => {
                 title={loyaltyRedeem.product_sku.replaceAll("-", " ")}
               />
 
-              <div className="py-5 px-4 bg-[#FFFFFF]">
+              <div className="p-6 rounded-lg bg-[#FFFFFF]">
                 <div className="flex w-full justify-between items-start">
                   <div className="flex gap-7">
                     <Image
@@ -110,12 +111,13 @@ const ViewLoyaltyRedeemPage = () => {
                     </div>
                   </div>
 
-                  <div
-                    className="text-[#00A0B0] cursor-pointer flex items-center gap-1.5"
+                  <ButtonWPermission
+                    className="!text-[#00A0B0] !bg-inherit !border-none !flex items-center"
+                    codename="change_loyalty"
                     onClick={() => setIsUpdateLoyaltyRedeemOpen(true)}
                   >
                     <EditOutlined /> Edit Details
-                  </div>
+                  </ButtonWPermission>
                 </div>
 
                 <div className="grid grid-cols-2 pt-8 text-md">
@@ -167,8 +169,9 @@ const ViewLoyaltyRedeemPage = () => {
                     </span>
                   </p>
 
-                  <Button
+                  <ButtonWPermission
                     className="w-fit mt-1"
+                    codename="change_loyalty"
                     danger={loyaltyRedeem.is_archived}
                     loading={handleArchiveLoyalty.isLoading}
                     type="primary"
@@ -180,7 +183,7 @@ const ViewLoyaltyRedeemPage = () => {
                     }
                   >
                     {loyaltyRedeem.is_archived ? "Unarchive" : "Archive"}
-                  </Button>
+                  </ButtonWPermission>
                 </div>
               </div>
 

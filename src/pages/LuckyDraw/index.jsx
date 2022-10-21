@@ -4,19 +4,19 @@ import { useMutation, useQuery } from "react-query";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
-import { uniqBy } from "lodash";
+import { uniqBy, isEmpty } from "lodash";
 import CustomPageHeader from "../../shared/PageHeader";
-// import ConfirmDelete from "../../shared/ConfirmDelete";
-import Loader from "../../shared/Loader";
 import { ACTIVE, INACTIVE } from "../../constants";
 import {
   activateLuckyDraw,
+  deleteBulkLuckyDraw,
   deleteLuckyDraw,
   getPaginatedLuckyDraw,
 } from "../../api/luckyDraw";
 import { GET_PAGINATED_LUCKY_DRAW } from "../../constants/queryKeys";
 import { openErrorNotification, openSuccessNotification } from "../../utils";
 import ConfirmDelete from "../../shared/ConfirmDelete";
+import ButtonWPermission from "../../shared/ButtonWPermission";
 
 export const getStatusColor = (status) => {
   switch (status) {
@@ -35,13 +35,14 @@ const LuckyDraw = () => {
   const [deleteLuckyDrawModal, setDeleteLuckyDrawModal] = useState({
     isOpen: false,
     title: "",
+    type: "",
   });
 
   const [luckyDrawId, setLuckyDrawId] = useState([]);
 
   const [page, setPage] = useState(1);
 
-  const pageSize = 20;
+  const [pageSize, setPageSize] = useState(20);
 
   const [luckyDraw, setLuckyDraw] = useState([]);
 
@@ -56,16 +57,16 @@ const LuckyDraw = () => {
   });
 
   useEffect(() => {
-    if (data) {
+    if (data && status === "success" && !isRefetching) {
       setLuckyDraw([]);
       setLuckyDraw((prev) => uniqBy([...prev, ...data.results], "id"));
     }
-  }, [data]);
+  }, [data, status, isRefetching]);
 
   useEffect(() => {
     refetchLuckyDraw();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  }, [page, pageSize]);
 
   const handleActivateLuckyDraw = useMutation(
     ({ id, shouldActivate }) => activateLuckyDraw({ id, shouldActivate }),
@@ -79,10 +80,13 @@ const LuckyDraw = () => {
   );
 
   const handleDeleteLuckyDraw = useMutation(
-    () => deleteLuckyDraw(luckyDrawId),
+    () =>
+      deleteLuckyDrawModal.type === "bulk"
+        ? deleteBulkLuckyDraw(luckyDraw)
+        : deleteLuckyDraw(luckyDrawId),
     {
       onSuccess: (data) => {
-        openSuccessNotification(data[0].data.message);
+        openSuccessNotification(data.message);
         refetchLuckyDraw();
         setDeleteLuckyDrawModal({
           ...deleteLuckyDrawModal,
@@ -98,7 +102,7 @@ const LuckyDraw = () => {
   const luckyDrawSource = luckyDraw?.map((el, index) => {
     return {
       id: el.id,
-      key: index + 1,
+      key: (page - 1) * pageSize + index + 1,
       campaign_title: el.title,
       coupons_generated: el.coupons_count,
       event_start_date: moment(el.event_date).utc().format("lll"),
@@ -164,8 +168,9 @@ const LuckyDraw = () => {
       render: (_, { id, campaign_title, is_active }) => {
         return (
           <div className="flex items-center justify-between">
-            <Button
+            <ButtonWPermission
               className="w-20 text-center"
+              codename="change_luckydrawevent"
               danger={is_active}
               loading={
                 handleActivateLuckyDraw.variables &&
@@ -182,17 +187,25 @@ const LuckyDraw = () => {
               }
             >
               {is_active ? "Deactivate" : "Activate"}
-            </Button>
+            </ButtonWPermission>
 
-            <DeleteOutlined
-              onClick={() => {
-                setDeleteLuckyDrawModal({
-                  ...deleteLuckyDrawModal,
-                  isOpen: true,
-                  title: `Delete ${campaign_title}?`,
-                });
-                setLuckyDrawId([id]);
-              }}
+            <ButtonWPermission
+              className="!border-none"
+              codename="delete_luckydrawevent"
+              disabled={is_active}
+              icon={
+                <DeleteOutlined
+                  onClick={() => {
+                    setDeleteLuckyDrawModal({
+                      ...deleteLuckyDrawModal,
+                      isOpen: true,
+                      title: `Delete ${campaign_title}?`,
+                      type: "single",
+                    });
+                    setLuckyDrawId([id]);
+                  }}
+                />
+              }
             />
           </div>
         );
@@ -212,17 +225,21 @@ const LuckyDraw = () => {
         {
           key: "1",
           label: (
-            <div
+            <ButtonWPermission
+              className="!border-none !bg-inherit !text-current"
+              codename="delete_luckydrawevent"
+              disabled={isEmpty(luckyDrawId)}
               onClick={() => {
                 setDeleteLuckyDrawModal({
                   ...deleteLuckyDrawModal,
                   isOpen: true,
                   title: "Delete all lucky draw?",
+                  type: "bulk",
                 });
               }}
             >
               Delete
-            </div>
+            </ButtonWPermission>
           ),
         },
       ]}
@@ -233,16 +250,17 @@ const LuckyDraw = () => {
     <>
       <CustomPageHeader title="Lucky Draw Campaigns" isBasicHeader />
 
-      <div className="py-5 px-4 bg-[#FFFFFF]">
+      <div className="p-6 rounded-lg bg-[#FFFFFF]">
         <div className="mb-4 flex justify-between">
-          <Button
+          <ButtonWPermission
             className="flex items-center"
+            codename="add_luckydrawevent"
             type="primary"
             ghost
             onClick={() => navigate("create")}
           >
             Create Campaigns
-          </Button>
+          </ButtonWPermission>
 
           <Dropdown overlay={bulkMenu}>
             <Button className="bg-white" type="default">
@@ -251,24 +269,23 @@ const LuckyDraw = () => {
           </Dropdown>
         </div>
 
-        {status === "loading" ? (
-          <Loader isOpen={true} />
-        ) : (
-          <Table
-            columns={columns}
-            dataSource={luckyDrawSource}
-            loading={status === "loading" || isRefetching}
-            pagination={{
-              pageSize,
-              total: data?.count,
+        <Table
+          columns={columns}
+          dataSource={luckyDrawSource}
+          loading={status === "loading" || isRefetching}
+          pagination={{
+            showSizeChanger: true,
+            pageSize,
+            total: data?.count,
+            current: page,
 
-              onChange: (page, pageSize) => {
-                setPage(page);
-              },
-            }}
-            rowSelection={{ ...rowSelection }}
-          />
-        )}
+            onChange: (page, pageSize) => {
+              setPage(page);
+              setPageSize(pageSize);
+            },
+          }}
+          rowSelection={{ ...rowSelection }}
+        />
       </div>
 
       <ConfirmDelete

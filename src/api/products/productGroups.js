@@ -10,11 +10,11 @@ export const getProductGroup = async (slug) => {
   return res.data.data;
 };
 
-export const getPaginatedProductGroups = async (page, pageSize) => {
+export const getPaginatedProductGroups = async (page, pageSize, search) => {
   const res = await axios.get(
     `/api/product/admin/product-groups/?page=${page || 1}&size=${
       pageSize || 20
-    }`
+    }&search=${search || ""}`
   );
   return res.data.data;
 };
@@ -57,12 +57,9 @@ export const bulkPublish = async ({ slugs = [], isPublish }) => {
   }
 };
 
-export const bulkDelete = async (slugs = []) => {
-  const res = await Promise.all(
-    slugs.map(async (slug) => {
-      return await axios.delete(`/api/product/admin/product-groups/${slug}/`);
-    })
-  );
+export const bulkDelete = async (slugs) => {
+  const res = await axios.delete(`/api/product/admin/product-groups/${slugs}/`);
+
   return res.data;
 };
 

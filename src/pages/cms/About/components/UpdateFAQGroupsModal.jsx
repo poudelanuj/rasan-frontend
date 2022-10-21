@@ -34,7 +34,7 @@ const UpdateFAQGroupsModal = ({
       onSuccess: (data) => {
         openSuccessNotification(data.message);
         form.resetFields();
-        setIsUpdateFAQGroupsModalOpen(false);
+        setIsUpdateFAQGroupsModalOpen({ isOpen: false });
         refetchFAQGroups();
         refetch();
       },
@@ -62,7 +62,7 @@ const UpdateFAQGroupsModal = ({
               <Button
                 className="mr-2"
                 type="ghost"
-                onClick={() => setIsUpdateFAQGroupsModalOpen(false)}
+                onClick={() => setIsUpdateFAQGroupsModalOpen({ isOpen: false })}
               >
                 Cancel
               </Button>
@@ -84,7 +84,7 @@ const UpdateFAQGroupsModal = ({
           title="Create FAQ Group"
           visible={isUpdateFAQGroupsModalOpen}
           centered
-          onCancel={() => setIsUpdateFAQGroupsModalOpen(false)}
+          onCancel={() => setIsUpdateFAQGroupsModalOpen({ isOpen: false })}
         >
           {FAQGroups && (
             <Form

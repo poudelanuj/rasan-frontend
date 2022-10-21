@@ -5,9 +5,11 @@ export const getAllBrands = async () => {
   return res.data.data.results;
 };
 
-export const getPaginatedBrands = async (page, pageSize) => {
+export const getPaginatedBrands = async (page, pageSize, search) => {
   const res = await axios.get(
-    `/api/product/admin/brands/?page=${page || 1}&size=${pageSize || 20}`
+    `/api/product/admin/brands/?page=${page || 1}&size=${
+      pageSize || 20
+    }&search=${search || ""}`
   );
   return res.data.data;
 };
@@ -18,12 +20,12 @@ export const getProductsFromBrand = async (brandSlug, page, pageSize) => {
       pageSize || 20
     }`
   );
-  return res.data.data;
+  return res.data.data.products;
 };
 
 export const getProductSkusFromBrand = async (brandSlug, page, pageSize) => {
   const res = await axios.get(
-    `/api/product/admin/brands/product-skus/${brandSlug}/?page=${
+    `/api/product/admin/product-skus/?brand=${brandSlug}&page=${
       page || 1
     }&size=${pageSize || 20}`
   );
@@ -74,11 +76,8 @@ export const bulkPublish = async ({ slugs = [], isPublish }) => {
   }
 };
 
-export const bulkDelete = async (slugs = []) => {
-  const res = await Promise.all(
-    slugs.map(async (slug) => {
-      return await axios.delete(`/api/product/admin/brands/${slug}/`);
-    })
-  );
+export const bulkDelete = async (slugs) => {
+  const res = await axios.delete(`/api/product/admin/brands/${slugs}/`);
+
   return res.data;
 };

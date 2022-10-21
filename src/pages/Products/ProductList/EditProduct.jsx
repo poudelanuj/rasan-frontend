@@ -129,7 +129,7 @@ const EditProduct = () => {
         title={`Edit ${product?.name}`}
       />
 
-      <div className="py-5">
+      <div className="p-6 bg-white rounded-lg">
         {productStatus === "success" && product && product.name && (
           <div>
             <Form
@@ -162,7 +162,9 @@ const EditProduct = () => {
                 initialValue={product.name}
                 label="Product Name"
                 name="name"
-                rules={[{ required: true, message: "product name required" }]}
+                rules={[
+                  { required: true, message: "Product name is required" },
+                ]}
               >
                 <Input defaultValue={product.name} />
               </Form.Item>
@@ -172,7 +174,7 @@ const EditProduct = () => {
                   initialValue={product.category}
                   label="Product Category"
                   name="category"
-                  rules={[{ required: true, message: "category required" }]}
+                  rules={[{ required: true, message: "Category is required" }]}
                 >
                   <Select
                     defaultValue={product.category}
@@ -197,7 +199,7 @@ const EditProduct = () => {
                   initialValue={product.brand}
                   label="Product Brand"
                   name="brand"
-                  rules={[{ required: true, message: "brand required" }]}
+                  rules={[{ required: true, message: "Brand is required" }]}
                 >
                   <Select
                     defaultValue={product.brand}

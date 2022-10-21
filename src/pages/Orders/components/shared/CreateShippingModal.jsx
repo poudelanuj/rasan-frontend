@@ -16,6 +16,7 @@ const CreateShippingModal = ({
   setIsCreateShippingOpen,
   setSelectedShippingAddress,
   userId,
+  setUserList,
   refetchUserList,
 }) => {
   const [form] = Form.useForm();
@@ -33,8 +34,8 @@ const CreateShippingModal = ({
       onSuccess: (data) => {
         openSuccessNotification(data.message);
         setIsCreateShippingOpen(false);
+        setUserList((prev) => prev.filter((user) => user.id !== userId));
         refetchUserList();
-
         setSelectedShippingAddress(data.data.id);
       },
       onError: (error) => {

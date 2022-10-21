@@ -96,7 +96,7 @@ const CreateLuckyDraw = () => {
           )
         }
       >
-        <div className="p-4 bg-[#FFFFFF] rounded-sm col-span-3">
+        <div className="p-6 bg-[#FFFFFF] rounded-lg col-span-3">
           <Form.Item label="Campaign Banner">
             <Dragger {...fileUploadOptionsBanner}>
               <p className="ant-upload-drag-icon">
@@ -119,7 +119,7 @@ const CreateLuckyDraw = () => {
           </Form.Item>
         </div>
 
-        <div className="p-4 bg-[#FFFFFF] rounded-sm col-span-2">
+        <div className="p-6 bg-[#FFFFFF] rounded-lg col-span-2">
           <Form.Item label="Coupon Template">
             <Dragger {...fileUploadOptionsCoupon}>
               <p className="ant-upload-drag-icon">
@@ -142,7 +142,7 @@ const CreateLuckyDraw = () => {
           </Form.Item>
         </div>
 
-        <div className="bg-[#FFFFFF] p-4 rounded-sm col-span-full grid grid-cols-2 gap-x-4">
+        <div className="bg-[#FFFFFF] p-6 rounded-lg col-span-full grid grid-cols-2 gap-x-4">
           <p className="col-span-full font-medium text-base">
             Campaign Details
           </p>

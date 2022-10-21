@@ -21,19 +21,16 @@ const columns = [
   {
     title: "S.N.",
     dataIndex: "index",
-    defaultSortOrder: "ascend",
-    sorter: (a, b) => a.sn - b.sn,
   },
   {
     title: "Product Name",
     dataIndex: "name",
-    defaultSortOrder: "descend",
-    render: (_, { name, product_image }) => (
+    render: (_, { name, product_sku_image }) => (
       <div className="flex items-center gap-3">
         <img
           alt=""
           className="h-[40px] w-[40px] object-cover rounded"
-          src={product_image?.thumbnail || "/rasan-default.png"}
+          src={product_sku_image?.thumbnail || "/rasan-default.png"}
         />
         <span>{name}</span>
       </div>
@@ -46,17 +43,14 @@ const columns = [
   {
     title: "CP Per Piece (रु)",
     dataIndex: "cost_price_per_piece",
-    sorter: (a, b) => a.cost_price_per_piece - b.cost_price_per_piece,
   },
   {
     title: "MRP Per Piece (रु)",
     dataIndex: "mrp_per_piece",
-    sorter: (a, b) => a.mrp_per_piece - b.mrp_per_piece,
   },
   {
     title: "SP Per Piece (रु)",
     dataIndex: "price_per_piece",
-    sorter: (a, b) => a.price_per_piece - b.price_per_piece,
   },
   {
     title: "Category",
@@ -98,7 +92,7 @@ function TabSKU({ slug }) {
   const [alertType, setAlertType] = useState("");
 
   const [page, setPage] = useState(1);
-  const pageSize = 20;
+  const [pageSize, setPageSize] = useState(20);
   const [paginatedProductSkus, setPaginatedProductSkus] = useState([]);
 
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
@@ -109,21 +103,23 @@ function TabSKU({ slug }) {
     refetch: refetchProductSkus,
     isRefetching: refetchingProductSkus,
   } = useQuery(
-    [GET_PRODUCT_SKUS_FROM_BRAND, page.toString() + pageSize.toString()],
+    [GET_PRODUCT_SKUS_FROM_BRAND, slug, page.toString() + pageSize.toString()],
     () => getProductSkusFromBrand(slug, page, pageSize)
   );
 
   useEffect(() => {
-    if (data)
+    if (data && productSkuStatus === "success" && !refetchingProductSkus) {
+      setPaginatedProductSkus([]);
       setPaginatedProductSkus((prev) =>
-        uniqBy([...prev, ...data.products.results], "slug")
+        uniqBy([...prev, ...data.results], "slug")
       );
-  }, [data]);
+    }
+  }, [data, productSkuStatus, refetchingProductSkus]);
 
   useEffect(() => {
     refetchProductSkus();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  }, [page, pageSize]);
 
   const onSelectChange = (selectedRowKeys) => {
     setSelectedRowKeys(selectedRowKeys);
@@ -220,7 +216,7 @@ function TabSKU({ slug }) {
     <>
       {openAlert && renderAlert()}
 
-      <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[70vh]">
+      <div className="flex flex-col bg-white min-h-[70vh]">
         <div className="flex justify-end mb-3">
           <div className="flex">
             {selectedRowKeys.length > 0 && (
@@ -249,17 +245,20 @@ function TabSKU({ slug }) {
             dataSource={
               paginatedProductSkus?.map((item, index) => ({
                 ...item,
-                index: index + 1,
+                index: (page - 1) * pageSize + index + 1,
                 key: item.slug,
               })) || []
             }
             loading={productSkuStatus === "loading" || refetchingProductSkus}
             pagination={{
+              showSizeChanger: true,
               pageSize,
-              total: data?.products?.count,
+              total: data?.count,
+              current: page,
 
               onChange: (page, pageSize) => {
                 setPage(page);
+                setPageSize(pageSize);
               },
             }}
             rowClassName="cursor-pointer"
