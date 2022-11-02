@@ -43,10 +43,9 @@ const Notifications = () => {
 
   const columns = [
     {
-      title: "S.No",
+      title: "S.N.",
       dataIndex: "sn",
       key: "sn",
-      render: (text) => <>#{text}</>,
     },
     {
       title: "Notification Title",

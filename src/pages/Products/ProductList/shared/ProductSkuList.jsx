@@ -5,10 +5,8 @@ import ButtonWPermission from "../../../../shared/ButtonWPermission";
 
 const columns = [
   {
-    title: "S.No",
+    title: "S.N.",
     dataIndex: "index",
-    defaultSortOrder: "ascend",
-    render: (text) => <>#{text}</>,
     // sorter: (a, b) => a.name.length - b.name.length,
   },
   {

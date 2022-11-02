@@ -72,10 +72,9 @@ function ProductPackList({ productSkuSlug, productPacks, refetchProductSku }) {
 
   const columns = [
     {
-      title: "S.No.",
+      title: "S.N.",
       dataIndex: "sn",
       key: "sn",
-      render: (text) => <div className="text-blue-500">#{text}</div>,
     },
     {
       title: "Number Of Items",

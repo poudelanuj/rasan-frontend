@@ -3,7 +3,6 @@ import { capitalize, uniqBy } from "lodash";
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useQuery, useMutation } from "react-query";
 import { useNavigate } from "react-router-dom";
-import { createNewBasket } from "../../../api/baskets";
 import { getUsers } from "../../../api/users";
 import {
   CANCELLED,
@@ -36,8 +35,6 @@ const CreateOrder = () => {
   const [selectedShippingAddress, setSelectedShippingAddress] = useState(null);
   const [page, setPage] = useState(1);
 
-  const [basketId, setBasketId] = useState();
-
   const [userList, setUserList] = useState([]);
 
   const navigate = useNavigate();
@@ -60,11 +57,6 @@ const CreateOrder = () => {
     refetchUserList();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
-
-  const handleCreateBasket = useMutation((id) => createNewBasket(id), {
-    onSuccess: (res) => setBasketId(res.data.basket_id),
-    onError: (err) => openErrorNotification(err),
-  });
 
   const observer = useRef();
   const scrollRef = useCallback(
@@ -100,7 +92,6 @@ const CreateOrder = () => {
           status: payment_status,
         },
         user,
-        basket_instance: basketId,
         shipping_address,
         total_cashback_earned,
       }),
@@ -157,9 +148,6 @@ const CreateOrder = () => {
                 showSearch
                 onPopupScroll={() => data?.next && setPage((prev) => prev + 1)}
                 onSelect={(value) => {
-                  handleCreateBasket.mutate(
-                    userList.find((user) => user.phone === value)?.id
-                  );
                   setSelectedShippingAddress(null);
                   form.resetFields(["shipping_address"]);
                   setSelectedUserPhone(value);
@@ -234,9 +222,8 @@ const CreateOrder = () => {
             </Form.Item>
           </div>
 
-          {!!selectedUserPhone && !!basketId && (
+          {!!selectedUserPhone && (
             <UserBasket
-              basket_id={basketId}
               setBasketItemsStatus={setBasketItemsStatus}
               user={userList?.find((el) => el.phone === selectedUserPhone)}
             />
