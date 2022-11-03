@@ -119,7 +119,7 @@ const ProductDetails = ({ slug, product, refetchProduct }) => {
         </div>
 
         <Descriptions column={2} size="middle" bordered>
-          <Descriptions.Item label="S.No">
+          <Descriptions.Item label="S.N.">
             <span className="font-medium">{product.sn}</span>
           </Descriptions.Item>
 

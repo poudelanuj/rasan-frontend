@@ -17,8 +17,9 @@ import { GET_DROPDOWN_PRODUCT_SKUS } from "../../../../constants/queryKeys";
 import { STATUS } from "../../../../constants";
 import ButtonWPermission from "../../../../shared/ButtonWPermission";
 
-const UserBasket = ({ user, basket_id, setBasketItemsStatus }) => {
-  // *********** FORM ************ //
+const UserBasket = ({ user, setBasketItemsStatus }) => {
+  const { basket_id } = user;
+
   const [selectedProductSku, setSelectedSku] = useState();
 
   const [forms, setForms] = useState([
@@ -68,7 +69,6 @@ const UserBasket = ({ user, basket_id, setBasketItemsStatus }) => {
     }
   );
 
-  // *********** FORM ************ //
   const handleItemDelete = useMutation((itemId) => deleteBasketItem(itemId), {
     onSuccess: (data) => {
       openSuccessNotification(data.message || "Item Deleted");

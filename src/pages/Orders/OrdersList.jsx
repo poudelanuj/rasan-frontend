@@ -9,24 +9,16 @@ import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../utils/openNotification";
-import { CANCELLED, DELIVERED, IN_PROCESS } from "../../constants";
+import getOrderStatusColor from "../../shared/tagColor";
 import DeleteOrder from "./components/DeleteOrder";
 import ButtonWPermission from "../../shared/ButtonWPermission";
 import { isEmpty, capitalize } from "lodash";
 import ConfirmDelete from "../../shared/ConfirmDelete";
-
-export const getOrderStatusColor = (status) => {
-  switch (status) {
-    case IN_PROCESS:
-      return "orange";
-    case CANCELLED:
-      return "red";
-    case DELIVERED:
-      return "green";
-    default:
-      return "green";
-  }
-};
+import {
+  CANCELLED_BY_CSR,
+  CANCELLED_BY_CUSTOMER,
+  IN_PROCESS,
+} from "../../constants";
 
 const OrdersList = ({
   dataSource,
@@ -159,7 +151,9 @@ const OrdersList = ({
             <ButtonWPermission
               className="!border-none !bg-inherit"
               codename="delete_order"
-              disabled={status === IN_PROCESS || status === DELIVERED}
+              disabled={
+                status !== CANCELLED_BY_CSR && status !== CANCELLED_BY_CUSTOMER
+              }
               icon={<DeleteOutlined />}
               onClick={() => {
                 setIsDeleteOrderOpen((prev) => !prev);
@@ -225,7 +219,7 @@ const OrdersList = ({
                 !checkedRows.every(
                   (id) =>
                     dataSource?.find((item) => item.id === id).status ===
-                    CANCELLED
+                      CANCELLED_BY_CSR || status === CANCELLED_BY_CUSTOMER
                 )
               }
               onClick={() => setIsDeleteBulkOrderModal(true)}

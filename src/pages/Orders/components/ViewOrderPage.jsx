@@ -38,12 +38,13 @@ import { getAdminUsers } from "../../../api/users";
 import { updateOrder } from "../../../api/orders";
 import {
   DEFAULT_CARD_IMAGE,
+  DELIVERY_STATUS,
   ORDER_INVOICE_URL,
   PAYMENT_STATUS,
 } from "../../../constants";
+// import getOrderStatusColor from "../../../shared/tagColor";
 import ChangePayment from "./shared/ChangePayment";
 import { useParams } from "react-router-dom";
-import { CANCELLED, DELIVERED, IN_PROCESS } from "../../../constants";
 import { updateOrderStatus } from "../../../context/OrdersContext";
 import axios from "../../../axios";
 import { useAuth } from "../../../AuthProvider";
@@ -51,19 +52,6 @@ import { getUser } from "../../../context/UserContext";
 import rasanDefault from "../../../assets/images/rasan-default.png";
 import { getMetaCityAddress } from "../../../api/userAddresses";
 import { GET_META_CITY_ADDRESS } from "../../../constants/queryKeys";
-
-export const getOrderStatusColor = (status) => {
-  switch (status) {
-    case IN_PROCESS:
-      return "orange";
-    case CANCELLED:
-      return "red";
-    case DELIVERED:
-      return "green";
-    default:
-      return "green";
-  }
-};
 
 const ViewOrderPage = () => {
   const { userGroupIds } = useAuth();
@@ -380,9 +368,11 @@ const ViewOrderPage = () => {
                   showSearch
                   onChange={(value) => handleUpdateStatus.mutate(value)}
                 >
-                  <Select.Option value={IN_PROCESS}>In Process</Select.Option>
-                  <Select.Option value={CANCELLED}>Cancelled</Select.Option>
-                  <Select.Option value={DELIVERED}>Delivered</Select.Option>
+                  {DELIVERY_STATUS.map(({ name, id }) => (
+                    <Select.Option key={id} value={id}>
+                      {name}
+                    </Select.Option>
+                  ))}
                 </Select>
                 {handleUpdateStatus.status === "loading" && (
                   <Spin size="small" />

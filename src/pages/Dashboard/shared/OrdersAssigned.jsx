@@ -6,23 +6,10 @@ import { getOrdersAssignedToMe } from "../../../api/dashboard";
 import { GET_ORDERS_ASSIGNED } from "../../../constants/queryKeys";
 import { useNavigate } from "react-router-dom";
 import { capitalize, uniqBy } from "lodash";
-import { CANCELLED, DELIVERED, IN_PROCESS } from "../../../constants";
+import getTagColor from "../../../shared/tagColor";
 
 const OrdersAssigned = () => {
   const navigate = useNavigate();
-
-  const getTagColor = (status) => {
-    switch (status) {
-      case IN_PROCESS:
-        return "orange";
-      case CANCELLED:
-        return "red";
-      case DELIVERED:
-        return "green";
-      default:
-        return "green";
-    }
-  };
 
   let timeout = 0;
 

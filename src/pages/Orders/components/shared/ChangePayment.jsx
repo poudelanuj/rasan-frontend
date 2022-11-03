@@ -15,14 +15,7 @@ import {
   openSuccessNotification,
 } from "../../../../utils";
 
-const ChangePayment = ({
-  payment,
-  orderType,
-  isOpen,
-  onClose,
-  closeViewOrder,
-  width,
-}) => {
+const ChangePayment = ({ payment, orderType, isOpen, onClose, width }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedMethod, setSelectedMethod] = useState(""); //* Payment Method
 
@@ -46,7 +39,6 @@ const ChangePayment = ({
       onSuccess: (data) => {
         openSuccessNotification(data.message || "Order Payment Updated");
         onClose();
-        closeViewOrder();
       },
       onError: (error) => {
         openErrorNotification(error);
@@ -85,7 +77,7 @@ const ChangePayment = ({
             rules={[
               {
                 required: true,
-                message: "payment method is required",
+                message: "Payment method is required",
               },
             ]}
           >
@@ -115,7 +107,7 @@ const ChangePayment = ({
             rules={[
               {
                 required: true,
-                message: "payment status is required",
+                message: "Payment status is required",
               },
             ]}
           >

@@ -56,6 +56,6 @@ export const getOrderMetrics = async (timeKey) => {
 };
 
 export const updateOrderPayment = async (paymentId, data) => {
-  const res = await axios.put(`/api/order/admin/payment/${paymentId}/`);
+  const res = await axios.put(`/api/order/admin/payment/${paymentId}/`, data);
   return res.data;
 };

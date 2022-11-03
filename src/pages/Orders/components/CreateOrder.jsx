@@ -3,13 +3,11 @@ import { capitalize, uniqBy } from "lodash";
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useQuery, useMutation } from "react-query";
 import { useNavigate } from "react-router-dom";
-import { createNewBasket } from "../../../api/baskets";
 import { getUsers } from "../../../api/users";
 import {
-  CANCELLED,
-  CASH_ON_DELIVERY,
-  DELIVERED,
+  DELIVERY_STATUS,
   IN_PROCESS,
+  CASH_ON_DELIVERY,
   PAID,
   PAYMENT_METHODS,
   STATUS,
@@ -36,11 +34,11 @@ const CreateOrder = () => {
   const [selectedShippingAddress, setSelectedShippingAddress] = useState(null);
   const [page, setPage] = useState(1);
 
-  const [basketId, setBasketId] = useState();
-
   const [userList, setUserList] = useState([]);
 
   const navigate = useNavigate();
+
+  let timeout = 0;
 
   const {
     data,
@@ -60,11 +58,6 @@ const CreateOrder = () => {
     refetchUserList();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
-
-  const handleCreateBasket = useMutation((id) => createNewBasket(id), {
-    onSuccess: (res) => setBasketId(res.data.basket_id),
-    onError: (err) => openErrorNotification(err),
-  });
 
   const observer = useRef();
   const scrollRef = useCallback(
@@ -100,7 +93,6 @@ const CreateOrder = () => {
           status: payment_status,
         },
         user,
-        basket_instance: basketId,
         shipping_address,
         total_cashback_earned,
       }),
@@ -151,15 +143,21 @@ const CreateOrder = () => {
             >
               <Select
                 className="w-full"
+                filterOption={false}
                 loading={userListStatus === "loading" || refetchingUserList}
-                optionFilterProp="children"
                 placeholder="Select User"
                 showSearch
                 onPopupScroll={() => data?.next && setPage((prev) => prev + 1)}
+                onSearch={(val) => {
+                  if (timeout) clearTimeout(timeout);
+                  timeout = setTimeout(async () => {
+                    setPage(1);
+                    const res = await getUsers(page, val, 100);
+                    setUserList([]);
+                    setUserList(res.results);
+                  }, 200);
+                }}
                 onSelect={(value) => {
-                  handleCreateBasket.mutate(
-                    userList.find((user) => user.phone === value)?.id
-                  );
                   setSelectedShippingAddress(null);
                   form.resetFields(["shipping_address"]);
                   setSelectedUserPhone(value);
@@ -234,9 +232,8 @@ const CreateOrder = () => {
             </Form.Item>
           </div>
 
-          {!!selectedUserPhone && !!basketId && (
+          {!!selectedUserPhone && (
             <UserBasket
-              basket_id={basketId}
               setBasketItemsStatus={setBasketItemsStatus}
               user={userList?.find((el) => el.phone === selectedUserPhone)}
             />
@@ -264,9 +261,11 @@ const CreateOrder = () => {
                 placeholder="Select Order Status"
                 showSearch
               >
-                <Option value={IN_PROCESS}>In Process</Option>
-                <Option value={CANCELLED}>Cancelled</Option>
-                <Option value={DELIVERED}>Delivered</Option>
+                {DELIVERY_STATUS.map(({ name, id }) => (
+                  <Option key={id} value={id}>
+                    {name}
+                  </Option>
+                ))}
               </Select>
             </Form.Item>
 

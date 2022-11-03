@@ -1,22 +1,18 @@
-import { Modal, Button, Form, Select } from "antd";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "react-query";
+import { Modal, Button, Form, Select } from "antd";
+import { uniqBy } from "lodash";
 import { openErrorNotification, openSuccessNotification } from "../../../utils";
-import { getAdminUsers } from "../../../api/users";
+import { getUsers } from "../../../api/users";
 import {
-  GET_ADMIN_USER,
+  GET_USERS,
   GET_USER_GROUPS,
   GET_USER_GROUPS_BY_ID,
 } from "../../../constants/queryKeys";
 import { addUser } from "../../../api/userGroups";
-import { useState } from "react";
-import { useEffect } from "react";
-import { uniqBy } from "lodash";
-import { useAuth } from "../../../AuthProvider";
 
 const AddUsersModal = ({ isOpen, onClose }) => {
-  const { userGroupIds } = useAuth();
-
   const { groupId } = useParams();
 
   const [form] = Form.useForm();
@@ -29,10 +25,11 @@ const AddUsersModal = ({ isOpen, onClose }) => {
 
   const [users, setUsers] = useState([]);
 
+  let timeout = 0;
+
   const { data, refetch } = useQuery({
-    queryFn: () => userGroupIds && getAdminUsers(userGroupIds, page, 100),
-    queryKey: [GET_ADMIN_USER, userGroupIds, page.toString()],
-    enabled: !!userGroupIds,
+    queryFn: () => getUsers(page, "", 100),
+    queryKey: [GET_USERS, page.toString()],
   });
 
   useEffect(() => {
@@ -93,10 +90,20 @@ const AddUsersModal = ({ isOpen, onClose }) => {
       >
         <Form.Item label="Users" name="users">
           <Select
+            filterOption={false}
             mode="multiple"
             placeholder="Select users"
             allowClear
             onPopupScroll={() => data?.next && setPage((prev) => prev + 1)}
+            onSearch={(val) => {
+              if (timeout) clearTimeout(timeout);
+              timeout = setTimeout(async () => {
+                setPage(1);
+                const res = await getUsers(page, val, 100);
+                setUsers([]);
+                setUsers(res.results);
+              }, 200);
+            }}
           >
             {users &&
               users.map((el) => (
