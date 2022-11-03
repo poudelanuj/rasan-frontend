@@ -38,6 +38,8 @@ const CreateOrder = () => {
 
   const navigate = useNavigate();
 
+  let timeout = 0;
+
   const {
     data,
     status: userListStatus,
@@ -141,11 +143,20 @@ const CreateOrder = () => {
             >
               <Select
                 className="w-full"
+                filterOption={false}
                 loading={userListStatus === "loading" || refetchingUserList}
-                optionFilterProp="children"
                 placeholder="Select User"
                 showSearch
                 onPopupScroll={() => data?.next && setPage((prev) => prev + 1)}
+                onSearch={(val) => {
+                  if (timeout) clearTimeout(timeout);
+                  timeout = setTimeout(async () => {
+                    setPage(1);
+                    const res = await getUsers(page, val, 100);
+                    setUserList([]);
+                    setUserList(res.results);
+                  }, 200);
+                }}
                 onSelect={(value) => {
                   setSelectedShippingAddress(null);
                   form.resetFields(["shipping_address"]);
