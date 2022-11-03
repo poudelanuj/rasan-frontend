@@ -25,6 +25,8 @@ const AddUsersModal = ({ isOpen, onClose }) => {
 
   const [users, setUsers] = useState([]);
 
+  let timeout = 0;
+
   const { data, refetch } = useQuery({
     queryFn: () => getUsers(page, "", 100),
     queryKey: [GET_USERS, page.toString()],
@@ -88,10 +90,20 @@ const AddUsersModal = ({ isOpen, onClose }) => {
       >
         <Form.Item label="Users" name="users">
           <Select
+            filterOption={false}
             mode="multiple"
             placeholder="Select users"
             allowClear
             onPopupScroll={() => data?.next && setPage((prev) => prev + 1)}
+            onSearch={(val) => {
+              if (timeout) clearTimeout(timeout);
+              timeout = setTimeout(async () => {
+                setPage(1);
+                const res = await getUsers(page, val, 100);
+                setUsers([]);
+                setUsers(res.results);
+              }, 200);
+            }}
           >
             {users &&
               users.map((el) => (
