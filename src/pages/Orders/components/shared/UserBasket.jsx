@@ -69,7 +69,6 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
     }
   );
 
-  // *********** FORM ************ //
   const handleItemDelete = useMutation((itemId) => deleteBasketItem(itemId), {
     onSuccess: (data) => {
       openSuccessNotification(data.message || "Item Deleted");

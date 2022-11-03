@@ -5,10 +5,9 @@ import { useQuery, useMutation } from "react-query";
 import { useNavigate } from "react-router-dom";
 import { getUsers } from "../../../api/users";
 import {
-  CANCELLED,
-  CASH_ON_DELIVERY,
-  DELIVERED,
+  DELIVERY_STATUS,
   IN_PROCESS,
+  CASH_ON_DELIVERY,
   PAID,
   PAYMENT_METHODS,
   STATUS,
@@ -251,9 +250,11 @@ const CreateOrder = () => {
                 placeholder="Select Order Status"
                 showSearch
               >
-                <Option value={IN_PROCESS}>In Process</Option>
-                <Option value={CANCELLED}>Cancelled</Option>
-                <Option value={DELIVERED}>Delivered</Option>
+                {DELIVERY_STATUS.map(({ name, id }) => (
+                  <Option key={id} value={id}>
+                    {name}
+                  </Option>
+                ))}
               </Select>
             </Form.Item>
 

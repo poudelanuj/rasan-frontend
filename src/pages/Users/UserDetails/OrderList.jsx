@@ -4,7 +4,7 @@ import { uniqBy } from "lodash";
 import { Tabs } from "antd";
 import OrdersList from "../../Orders/OrdersList";
 import { getUserOrder } from "../../../api/orders";
-import { IN_PROCESS, DELIVERED, CANCELLED } from "../../../constants";
+import { DELIVERY_STATUS } from "../../../constants";
 import { GET_USER_ORDERS } from "../../../constants/queryKeys";
 
 const OrderList = ({ user }) => {
@@ -51,7 +51,7 @@ const OrderList = ({ user }) => {
         setOrderStatus(tabKey);
       }}
     >
-      <TabPane key="all" tab="All">
+      <TabPane key={"all"} tab={"All"}>
         <OrdersList
           dataSource={orders}
           ordersCount={data?.count}
@@ -63,42 +63,20 @@ const OrderList = ({ user }) => {
           status={isRefetching ? "loading" : status}
         />
       </TabPane>
-      <TabPane key={IN_PROCESS} tab="In Process">
-        <OrdersList
-          dataSource={orders}
-          ordersCount={data?.count}
-          page={page}
-          pageSize={pageSize}
-          refetchOrders={refetchOrders}
-          setPage={setPage}
-          setPageSize={setPageSize}
-          status={isRefetching ? "loading" : status}
-        />
-      </TabPane>
-      <TabPane key={DELIVERED} tab="Delivered">
-        <OrdersList
-          dataSource={orders}
-          ordersCount={data?.count}
-          page={page}
-          pageSize={pageSize}
-          refetchOrders={refetchOrders}
-          setPage={setPage}
-          setPageSize={setPageSize}
-          status={isRefetching ? "loading" : status}
-        />
-      </TabPane>
-      <TabPane key={CANCELLED} tab="Cancelled">
-        <OrdersList
-          dataSource={orders}
-          ordersCount={data?.count}
-          page={page}
-          pageSize={pageSize}
-          refetchOrders={refetchOrders}
-          setPage={setPage}
-          setPageSize={setPageSize}
-          status={isRefetching ? "loading" : status}
-        />
-      </TabPane>
+      {DELIVERY_STATUS.map(({ name, id }) => (
+        <TabPane key={id} tab={name}>
+          <OrdersList
+            dataSource={orders}
+            ordersCount={data?.count}
+            page={page}
+            pageSize={pageSize}
+            refetchOrders={refetchOrders}
+            setPage={setPage}
+            setPageSize={setPageSize}
+            status={isRefetching ? "loading" : status}
+          />
+        </TabPane>
+      ))}
     </Tabs>
   );
 };

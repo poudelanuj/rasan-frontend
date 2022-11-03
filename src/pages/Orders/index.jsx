@@ -3,7 +3,7 @@ import { uniqBy } from "lodash";
 import React, { useEffect, useState, useRef } from "react";
 import { useQuery } from "react-query";
 import { getPaginatedOrders } from "../../api/orders";
-import { CANCELLED, DELIVERED, IN_PROCESS } from "../../constants";
+import { DELIVERY_STATUS } from "../../constants";
 import { GET_PAGINATED_ORDERS } from "../../constants/queryKeys";
 import CustomPageHeader from "../../shared/PageHeader";
 import OrdersList from "./OrdersList";
@@ -82,7 +82,7 @@ const Orders = () => {
           setOrderStatus(tabKey);
         }}
       >
-        <TabPane key="all" tab="All">
+        <TabPane key={"all"} tab={"All"}>
           <OrdersList
             dataSource={orders}
             ordersCount={data?.count}
@@ -96,48 +96,22 @@ const Orders = () => {
             status={isRefetching ? "loading" : status}
           />
         </TabPane>
-        <TabPane key={IN_PROCESS} tab="In Process">
-          <OrdersList
-            dataSource={orders}
-            ordersCount={data?.count}
-            page={page}
-            pageSize={pageSize}
-            refetchOrders={refetchOrders}
-            searchInput={searchInput}
-            setPage={setPage}
-            setPageSize={setPageSize}
-            sortingFn={sortingFn}
-            status={isRefetching ? "loading" : status}
-          />
-        </TabPane>
-        <TabPane key={DELIVERED} tab="Delivered">
-          <OrdersList
-            dataSource={orders}
-            ordersCount={data?.count}
-            page={page}
-            pageSize={pageSize}
-            refetchOrders={refetchOrders}
-            searchInput={searchInput}
-            setPage={setPage}
-            setPageSize={setPageSize}
-            sortingFn={sortingFn}
-            status={isRefetching ? "loading" : status}
-          />
-        </TabPane>
-        <TabPane key={CANCELLED} tab="Cancelled">
-          <OrdersList
-            dataSource={orders}
-            ordersCount={data?.count}
-            page={page}
-            pageSize={pageSize}
-            refetchOrders={refetchOrders}
-            searchInput={searchInput}
-            setPage={setPage}
-            setPageSize={setPageSize}
-            sortingFn={sortingFn}
-            status={isRefetching ? "loading" : status}
-          />
-        </TabPane>
+        {DELIVERY_STATUS.map(({ name, id }) => (
+          <TabPane key={id} tab={name}>
+            <OrdersList
+              dataSource={orders}
+              ordersCount={data?.count}
+              page={page}
+              pageSize={pageSize}
+              refetchOrders={refetchOrders}
+              searchInput={searchInput}
+              setPage={setPage}
+              setPageSize={setPageSize}
+              sortingFn={sortingFn}
+              status={isRefetching ? "loading" : status}
+            />
+          </TabPane>
+        ))}
       </Tabs>
     </div>
   );

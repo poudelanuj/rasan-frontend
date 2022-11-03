@@ -31,8 +31,48 @@ export const ALERT_TYPE = {
 };
 
 export const IN_PROCESS = "in_process";
-export const CANCELLED = "cancelled";
-export const DELIVERED = "completed";
+export const CONFIRMED_BY_CSR = "confirmed_by_csr";
+export const ON_THE_WAY_TO_DELIVERY = "on_the_way_to_delivery";
+export const ON_HOLD = "on_hold";
+export const DELIVERED = "delivered";
+export const DELIVERY_RETURNED = "delivery_returned";
+export const CANCELLED_BY_CSR = "cancelled_by_csr";
+export const CANCELLED_BY_CUSTOMER = "cancelled_by_customer";
+
+export const DELIVERY_STATUS = [
+  {
+    name: "In Process",
+    id: IN_PROCESS,
+  },
+  {
+    name: "Confirmed by CSR",
+    id: CONFIRMED_BY_CSR,
+  },
+  {
+    name: "On the way to Delivery",
+    id: ON_THE_WAY_TO_DELIVERY,
+  },
+  {
+    name: "On Hold",
+    id: ON_HOLD,
+  },
+  {
+    name: "Delivered",
+    id: DELIVERED,
+  },
+  {
+    name: "Delivery Returned",
+    id: DELIVERY_RETURNED,
+  },
+  {
+    name: "Cancelled by CSR",
+    id: CANCELLED_BY_CSR,
+  },
+  {
+    name: "Cancelled by Customer",
+    id: CANCELLED_BY_CUSTOMER,
+  },
+];
 
 export const BANK_DEPOSIT = "bank_deposit";
 export const REDEEM = "redeem";
