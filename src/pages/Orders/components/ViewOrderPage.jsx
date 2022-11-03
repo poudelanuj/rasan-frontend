@@ -71,6 +71,8 @@ const ViewOrderPage = () => {
 
   const [userList, setUserList] = useState([]);
 
+  let timeout = 0;
+
   const {
     data,
     status,
@@ -392,15 +394,29 @@ const ViewOrderPage = () => {
                   >
                     <Select
                       defaultValue={data?.assigned_to}
+                      filterOption={false}
                       loading={usersStatus === "loading"}
                       mode="multiple"
-                      optionFilterProp="children"
                       placeholder="Select Users"
                       style={{ width: 300 }}
                       showSearch
                       onPopupScroll={() =>
                         data?.next && setPage((prev) => prev + 1)
                       }
+                      onSearch={(val) => {
+                        if (timeout) clearTimeout(timeout);
+                        timeout = setTimeout(async () => {
+                          setPage(1);
+                          const res = await getAdminUsers(
+                            userGroupIds,
+                            page,
+                            100,
+                            val
+                          );
+                          setUserList([]);
+                          setUserList(res.results);
+                        }, 200);
+                      }}
                     >
                       {userList &&
                         userList.map((user) => (
