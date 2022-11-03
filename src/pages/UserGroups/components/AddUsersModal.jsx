@@ -33,9 +33,7 @@ const AddUsersModal = ({ isOpen, onClose }) => {
   });
 
   useEffect(() => {
-    if (data) {
-      setUsers((prev) => uniqBy([...prev, ...data.results], "id"));
-    }
+    if (data) setUsers((prev) => uniqBy([...prev, ...data.results], "id"));
   }, [data]);
 
   useEffect(() => {
