@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { Table, Button, Input, Upload, message, Modal } from "antd";
+import { Table, Button, Input, Upload, message, Modal, Tag } from "antd";
 import { csvParse } from "d3";
 import {
   SearchOutlined,
   UploadOutlined,
   ExclamationCircleOutlined,
 } from "@ant-design/icons";
-import { isEmpty, uniqBy } from "lodash";
+import { capitalize, isEmpty, uniqBy } from "lodash";
 import { useMutation, useQuery } from "react-query";
 import { useNavigate } from "react-router-dom";
 import {
@@ -17,15 +17,17 @@ import { GET_PRODUCT_PACK_CSV } from "../../../constants/queryKeys";
 import CustomPageHeader from "../../../shared/PageHeader";
 import { openErrorNotification, openSuccessNotification } from "../../../utils";
 
-const JSONToCSV = (objArray) =>
-  [
-    Object.keys(objArray[0]).join(","),
-    ...objArray.map((row) =>
-      Object.keys(objArray[0])
-        .map((k) => row[k] || "")
-        .join(",")
-    ),
-  ].join("\n");
+const JSONToCSV = (objArray) => {
+  let csvrecord = Object.keys(objArray[0]).join(",") + "\n";
+  objArray.forEach(function (jsonrecord) {
+    csvrecord +=
+      Object.values(jsonrecord)
+        .map((record) => (Array.isArray(record) ? `[${record}]` : record))
+        .join(",") + "\n";
+  });
+
+  return csvrecord;
+};
 
 const ProductPack = () => {
   const navigate = useNavigate();
@@ -125,7 +127,16 @@ const ProductPack = () => {
 
         reader.onload = function (e) {
           const csv = e.target.result;
-          setSelectedCSV(csvParse(csv));
+          setSelectedCSV(
+            csvParse(csv).map((cs) => ({
+              ...cs,
+              product_sku_category: cs.product_sku_category
+                .replace("[", "")
+                .replace("]", "")
+                .split(","),
+              is_published: cs.is_published === "TRUE",
+            }))
+          );
           showConfirm(file.name);
         };
 
@@ -164,6 +175,7 @@ const ProductPack = () => {
       title: "Product Name",
       dataIndex: "product_name",
       key: "product_name",
+      width: "20%",
       render: (_, { product_slug, product_name }) => (
         <span
           className="text-blue-500 cursor-pointer hover:underline"
@@ -178,6 +190,7 @@ const ProductPack = () => {
       title: "Product SKU Name",
       dataIndex: "product_sku_name",
       key: "product_sku_name",
+      width: "20%",
       render: (_, { product_sku_slug, product_sku_name }) => (
         <span
           className="text-blue-500 cursor-pointer hover:underline"
@@ -188,7 +201,37 @@ const ProductPack = () => {
       ),
       ...getColumnSearchProps("Product SKU", searchProductSku),
     },
-
+    {
+      title: "Brand",
+      dataIndex: "product_sku_brand",
+      key: "product_sku_brand",
+      width: "12%",
+      render: (_, { product_sku_brand }) => (
+        <span
+          className="text-blue-500 cursor-pointer hover:underline"
+          onClick={() => navigate(`/brands/${product_sku_brand}`)}
+        >
+          {capitalize(product_sku_brand.replaceAll("-", " "))}
+        </span>
+      ),
+    },
+    {
+      title: "Category",
+      dataIndex: "product_sku_category",
+      key: "product_sku_category",
+      width: "12%",
+      render: (_, { product_sku_category }) =>
+        product_sku_category.map((category) => (
+          <span
+            key={category}
+            className="text-blue-500 cursor-pointer hover:underline"
+            onClick={() => navigate(`/category-list/${category}`)}
+          >
+            {capitalize(category.replaceAll("-", " "))}
+            {product_sku_category.length !== 1 && ", "}
+          </span>
+        )),
+    },
     {
       title: "Number of items",
       dataIndex: "number_of_items",
@@ -220,6 +263,17 @@ const ProductPack = () => {
         return {
           onClick: () => sortingFn(header, "mrp_per_piece"),
         };
+      },
+    },
+    {
+      title: "Status",
+      dataIndex: "is_published",
+      render: (_, { is_published }) => {
+        return (
+          <Tag color={is_published ? "green" : "orange"}>
+            {is_published ? "PUBLISHED" : "UNPUBLISHED"}
+          </Tag>
+        );
       },
     },
   ];
