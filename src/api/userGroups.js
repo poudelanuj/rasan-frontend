@@ -30,14 +30,15 @@ export const updateUserGroup = async ({ id, data }) => {
 export const getPermission = async () => {
   const res = await axios.get("/api/auth/permission/?page=1&size=100");
 
-  let nextUrl = `${res.data.data.next}`;
+  let [nextUrl, page] = [res.data.data.next, 2];
 
   const allResData = [...res.data.data.results];
 
   while (nextUrl !== null) {
-    const res = await axios.get(nextUrl);
+    const res = await axios.get(`/api/auth/permission/?page=${page}&size=100`);
     nextUrl = res.data.data.next;
     allResData.push(...res.data.data.results);
+    page += 1;
   }
 
   if (allResData) return allResData;
