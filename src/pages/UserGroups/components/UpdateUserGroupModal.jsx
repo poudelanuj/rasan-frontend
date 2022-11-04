@@ -1,7 +1,5 @@
 import { Modal, Button, Form, Input, Select, Space } from "antd";
-import { useEffect } from "react";
-import { useRef } from "react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { getPermission, updateUserGroup } from "../../../api/userGroups";
 import {
@@ -27,9 +25,12 @@ const UpdateUserGroupModal = ({
 
   const [permissionList, setPermissionList] = useState([]);
 
+  const [selectPermission, setSelectPermission] = useState([]);
+
   const { data: permissions } = useQuery({
     queryFn: () => getPermission(),
     queryKey: [GET_PERMISSIONS],
+    onSuccess: (data) => setSelectPermission(data),
   });
 
   const handleUpdateUserGroup = useMutation(
@@ -107,9 +108,11 @@ const UpdateUserGroupModal = ({
           >
             <Select
               defaultValue={initialPermission.map((el) => el.id)}
+              filterOption={false}
               mode="multiple"
               placeholder="Select permissions"
               allowClear
+              showSearch
               onChange={(val) => {
                 val.forEach((element) => {
                   setPermissionList((prev) =>
@@ -127,9 +130,16 @@ const UpdateUserGroupModal = ({
                   ...prev,
                 ])
               }
+              onSearch={(val) => {
+                setSelectPermission(() =>
+                  permissions.filter((permission) =>
+                    permission.name.toLowerCase().startsWith(val.toLowerCase())
+                  )
+                );
+              }}
             >
-              {permissions &&
-                permissions.map((el) => (
+              {selectPermission &&
+                selectPermission.map((el) => (
                   <Option key={el.id} value={el.id}>
                     {el.name}
                   </Option>
