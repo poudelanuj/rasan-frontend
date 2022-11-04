@@ -232,12 +232,14 @@ const CreateOrder = () => {
             </Form.Item>
           </div>
 
-          {!!selectedUserPhone && (
-            <UserBasket
-              setBasketItemsStatus={setBasketItemsStatus}
-              user={userList?.find((el) => el.phone === selectedUserPhone)}
-            />
-          )}
+          {!!selectedUserPhone &&
+            userList &&
+            userList.find((el) => el.phone === selectedUserPhone) && (
+              <UserBasket
+                setBasketItemsStatus={setBasketItemsStatus}
+                user={userList.find((el) => el.phone === selectedUserPhone)}
+              />
+            )}
 
           <div className="grid grid-cols-3 gap-3 mt-4">
             <Form.Item

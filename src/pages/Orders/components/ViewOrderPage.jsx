@@ -363,7 +363,7 @@ const ViewOrderPage = () => {
             {data && (
               <>
                 <Select
-                  className="mx-5"
+                  className="mx-5 w-44"
                   defaultValue={data.status}
                   disabled={handleUpdateStatus.status === "loading"}
                   placeholder="Select Order Status"
