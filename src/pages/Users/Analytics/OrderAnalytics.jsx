@@ -13,6 +13,8 @@ import { faker } from "@faker-js/faker";
 import { Select } from "antd";
 import { GET_ORDER_ANALYTICS } from "../../../constants/queryKeys";
 import { getOrderAnalytics } from "../../../api/analytics";
+import { ResponsiveBar } from "@nivo/bar";
+import { BarChart } from "../../../charts/barChart";
 
 ChartJS.register(
   CategoryScale,
@@ -62,15 +64,15 @@ const OrderAnalytics = ({ user }) => {
   return (
     <div className="col-span-2">
       <span className="flex justify-between">
-        <h2 className="text-xl">Order Analytics</h2>
+        <h2 className="text-xl text-gray-700 mb-0">Order Analytics</h2>
         <Select defaultValue="this_month" style={{ width: 120 }}>
           <Option value="today">Today</Option>
           <Option value="this_month">This Month</Option>
           <Option value="last_year">Last Year</Option>
         </Select>
       </span>
-
-      <Bar data={data} options={options} />
+      {/*<Bar data={data} options={options} />*/}
+      <BarChart />
     </div>
   );
 };

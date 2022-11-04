@@ -121,7 +121,7 @@ export const GET_LUCKY_DRAW = "lucky-draw";
 export const GET_PAGINATED_LUCKY_DRAW = "lucky-draw-paginated";
 export const GET_LUCKY_DRAW_BY_ID = "lucky-draw-by-id";
 
-// *Analytics
+// *BrandAnalytics
 export const GET_PRODUCT_ANALYTICS = "product-analytics";
 export const GET_BRAND_ANALYTICS = "brand-analytics";
 export const GET_CATEGORY_ANALYTICS = "category-analytics";

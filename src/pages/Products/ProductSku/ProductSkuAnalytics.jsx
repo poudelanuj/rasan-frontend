@@ -1,30 +1,12 @@
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  Title,
-  Tooltip,
-  Filler,
-  Legend,
-} from "chart.js";
-import { Bar, Line } from "react-chartjs-2";
-import { faker } from "@faker-js/faker";
 import { Divider, Select, Space } from "antd";
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  Title,
-  Tooltip,
-  Filler,
-  Legend
-);
+import { BarChart } from "../../../charts/barChart";
+import { LineChart } from "../../../charts/lineChart";
+import { CustomCard } from "../../../components/customCard";
+import { useQuery } from "react-query";
+import { getProductSkuAnalysis } from "../../../context/UserContext";
+import Loader from "../../../shared/Loader";
+import { AnalysisTimeSelector } from "../../../components/analysisTimeSelector";
+import { useEffect, useState } from "react";
 
 /* export const getGradient = (ctx, chartArea) => {
   let width, height, gradient;
@@ -44,109 +26,60 @@ ChartJS.register(
   return gradient;
 };*/
 
-export const barOptions = {
-  responsive: true,
-  plugins: {
-    legend: {
-      position: "top",
-    },
-    title: {
-      display: true,
-      text: "Product SKU Bar Chart",
-    },
-  },
-};
-
-const barLabels = [..."123456789012"];
-
-export const barData = {
-  labels: barLabels,
-  datasets: [
-    {
-      label: "Total Amount",
-      data: barLabels.map(() => faker.datatype.number({ min: 0, max: 1000 })),
-      backgroundColor: "#00A0B0",
-      borderRadius: 16,
-      inflateAmount: -20,
-    },
-  ],
-};
-
-export const lineOptions = {
-  responsive: true,
-  plugins: {
-    legend: {
-      position: "top",
-    },
-    title: {
-      display: true,
-      text: "Inventory Line Chart",
-    },
-  },
-};
-
-const lineLabels = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
-
-export const lineData = {
-  labels: lineLabels,
-  datasets: [
-    {
-      fill: true,
-      label: "Total Purchased",
-      data: lineLabels.map(() => faker.datatype.number({ min: 0, max: 1000 })),
-      borderColor: "#1A63F4",
-      backgroundColor: "rgba(53, 162, 235, 0.5)",
-      borderWidth: 1,
-    },
-  ],
-};
-
 const ProductSkuAnalytics = () => {
+  const [timeStamp, setTimeStamp] = useState("this_month");
   const { Option } = Select;
 
+  const {
+    data: productData,
+    isLoading,
+    refetch: refetchList,
+  } = useQuery(["product-analysis", timeStamp, { enabled: !!timeStamp }], () =>
+    getProductSkuAnalysis(2, timeStamp)
+  );
+
+  useEffect(() => {
+    refetchList();
+  }, [timeStamp]);
+
   return (
-    <Space className="w-full" direction="vertical">
-      <div>
-        <span className="flex justify-between">
-          <h2 className="text-xl">Product SKU Analytics</h2>
-          <Select defaultValue="this_month" style={{ width: 120 }}>
-            <Option value="today">Today</Option>
-            <Option value="this_month">This Month</Option>
-            <Option value="last_year">Last Year</Option>
-          </Select>
-        </span>
+    <div className="p-6 rounded-lg flex flex-col gap-2">
+      <div className="grid grid-cols-3 gap-x-10 mb-10">
+        <CustomCard className="col-span-2">
+          <span className="flex justify-between">
+            <h2 className="text-xl">Product SKU Analytics</h2>
+            <AnalysisTimeSelector onChange={setTimeStamp} />
+          </span>
 
-        <Bar data={barData} options={barOptions} />
+          <div className="h-auto" style={{ height: 400 }}>
+            {isLoading ? (
+              <Loader isOpen />
+            ) : (
+              <BarChart
+                data={productData.sort((a, b) => b.count - a.count)}
+                keys={["total_amount"]}
+                index={"count"}
+              />
+            )}
+          </div>
+        </CustomCard>
       </div>
-
-      <Divider />
-
-      <div>
-        <span className="flex justify-between">
-          <h2 className="text-xl">Inventory</h2>
-          <Select defaultValue="this_month" style={{ width: 120 }}>
-            <Option value="today">Today</Option>
-            <Option value="this_month">This Month</Option>
-            <Option value="last_year">Last Year</Option>
-          </Select>
-        </span>
-
-        <Line data={lineData} options={lineOptions} />
+      <div className="grid grid-cols-3 gap-x-10 mb-10">
+        <CustomCard className="col-span-2">
+          <span className="flex justify-between">
+            <h2 className="text-xl">Inventory</h2>
+            <Select defaultValue="this_month" style={{ width: 120 }}>
+              <Option value="today">Today</Option>
+              <Option value="this_month">This Month</Option>
+              <Option value="last_year">Last Year</Option>
+            </Select>
+          </span>
+          <div className="h-fit" style={{ height: 400 }}>
+            <LineChart />
+          </div>
+        </CustomCard>
       </div>
-    </Space>
+    </div>
   );
 };
 
