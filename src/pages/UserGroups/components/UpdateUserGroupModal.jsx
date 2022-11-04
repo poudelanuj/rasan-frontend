@@ -133,15 +133,15 @@ const UpdateUserGroupModal = ({
               onSearch={(val) => {
                 setSelectPermission(() =>
                   permissions.filter((permission) =>
-                    permission.name.toLowerCase().startsWith(val.toLowerCase())
+                    permission.name.toLowerCase().includes(val.toLowerCase())
                   )
                 );
               }}
             >
               {selectPermission &&
-                selectPermission.map((el, index) => (
+                selectPermission.map((el) => (
                   <Option key={el.id} value={el.id}>
-                    {`${index}. `} {el.name}
+                    {el.name}
                   </Option>
                 ))}
             </Select>
@@ -204,7 +204,7 @@ const UpdateUserGroupModal = ({
                     });
                   }}
                 >
-                  {`${index}. `} {el.name}
+                  {`${index + 1}. `} {el.name}
                 </span>
               ))}
           </div>
