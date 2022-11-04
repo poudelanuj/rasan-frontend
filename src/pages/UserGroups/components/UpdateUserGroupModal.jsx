@@ -139,9 +139,9 @@ const UpdateUserGroupModal = ({
               }}
             >
               {selectPermission &&
-                selectPermission.map((el) => (
+                selectPermission.map((el, index) => (
                   <Option key={el.id} value={el.id}>
-                    {el.name}
+                    {`${index}. `} {el.name}
                   </Option>
                 ))}
             </Select>
@@ -188,7 +188,7 @@ const UpdateUserGroupModal = ({
           </Space>
           <div className="overflow-y-scroll h-[75vh] flex flex-col gap-2">
             {permissionList &&
-              permissionList.map((el) => (
+              permissionList.map((el, index) => (
                 <span
                   key={el.id}
                   className="break-words w-full bg-gray-100 py-1 px-2 rounded-sm cursor-pointer hover:bg-gray-200"
@@ -204,7 +204,7 @@ const UpdateUserGroupModal = ({
                     });
                   }}
                 >
-                  {el.name}
+                  {`${index}. `} {el.name}
                 </span>
               ))}
           </div>
