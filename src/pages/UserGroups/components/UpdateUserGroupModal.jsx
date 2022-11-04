@@ -30,7 +30,6 @@ const UpdateUserGroupModal = ({
   const { data: permissions } = useQuery({
     queryFn: () => getPermission(),
     queryKey: [GET_PERMISSIONS],
-    onSuccess: (data) => setSelectPermission(data),
   });
 
   const handleUpdateUserGroup = useMutation(
@@ -47,6 +46,7 @@ const UpdateUserGroupModal = ({
 
   useEffect(() => {
     if (permissions) {
+      setSelectPermission(permissions);
       refPermissions.current = permissions;
 
       initialPermission.forEach((element) => {
