@@ -5,7 +5,7 @@ const WelcomeCard = ({ title, contact, group, avatar }) => {
   return (
     <Card
       bodyStyle={{ paddingBottom: 50 }}
-      className="w-[300px] !rounded-lg"
+      className="sm:w-[300px] w-full !rounded-lg"
       headStyle={{
         backgroundColor: colors.primary,
         borderTopRightRadius: "8px",

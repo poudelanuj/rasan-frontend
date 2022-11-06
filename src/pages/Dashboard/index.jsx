@@ -53,7 +53,7 @@ const Dashboard = () => {
       <div>
         <CustomPageHeader title="Dashboard" isBasicHeader />
 
-        <div className="flex gap-3">
+        <div className="flex gap-3 sm:flex-row flex-col">
           <WelcomeCard
             avatar={userInfo?.profile_picture?.thumbnail}
             contact={userInfo?.phone || userInfo?.alternate_phone}

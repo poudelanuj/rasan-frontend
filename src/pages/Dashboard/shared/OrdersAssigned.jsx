@@ -209,6 +209,7 @@ const OrdersAssigned = () => {
             setPageSize(pageSize);
           },
         }}
+        scroll={{ x: 1000 }}
         showSorterTooltip={false}
       />
     </div>

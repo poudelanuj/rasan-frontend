@@ -147,6 +147,7 @@ const TicketsAssigned = () => {
             setPageSize(pageSize);
           },
         }}
+        scroll={{ x: 1000 }}
         showSorterTooltip={false}
       />
     </>
