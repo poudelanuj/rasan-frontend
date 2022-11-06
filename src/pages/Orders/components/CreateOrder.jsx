@@ -40,6 +40,8 @@ const CreateOrder = () => {
 
   let timeout = 0;
 
+  const [formLayout, setFormLayout] = useState("vertical");
+
   const {
     data,
     status: userListStatus,
@@ -107,17 +109,32 @@ const CreateOrder = () => {
     }
   );
 
+  useEffect(() => {
+    window.innerWidth < 700
+      ? setFormLayout("horizontal")
+      : setFormLayout("vertical");
+
+    window.addEventListener("resize", () =>
+      window.innerWidth < 700
+        ? setFormLayout("horizontal")
+        : setFormLayout("vertical")
+    );
+  }, []);
+
   return (
     <>
       <Form
         form={form}
-        layout="vertical"
+        layout={formLayout}
         onFinish={(values) => onFinish.mutate(values)}
       >
         <CustomPageHeader title={"Create New Order"} />
+        {
+          // todo
+        }
 
         <div className="p-6 rounded-lg bg-white">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid sm:grid-cols-2 gap-3">
             <Form.Item
               label={
                 <div className="flex gap-3 items-center">
@@ -241,7 +258,7 @@ const CreateOrder = () => {
               />
             )}
 
-          <div className="grid grid-cols-3 gap-3 mt-4">
+          <div className="grid sm:grid-cols-3 sm:gap-3 mt-4">
             <Form.Item
               initialValue={IN_PROCESS}
               label="Order Status"

@@ -12,8 +12,8 @@ import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../../../utils/openNotification";
-import { getDropdownProductSkus } from "../../../../api/products/productSku";
-import { GET_DROPDOWN_PRODUCT_SKUS } from "../../../../constants/queryKeys";
+import { getAllProductSkus } from "../../../../api/products/productSku";
+import { GET_ALL_PRODUCT_SKUS } from "../../../../constants/queryKeys";
 import { STATUS } from "../../../../constants";
 import ButtonWPermission from "../../../../shared/ButtonWPermission";
 
@@ -137,8 +137,8 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
 
   // *********** FORM ************ //
   const { data: productSkus, status: productsStatus } = useQuery({
-    queryFn: () => getDropdownProductSkus(),
-    queryKey: [GET_DROPDOWN_PRODUCT_SKUS],
+    queryFn: () => getAllProductSkus(),
+    queryKey: [GET_ALL_PRODUCT_SKUS],
   });
 
   // *********** FORM ************ //
@@ -213,6 +213,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
         columns={columns}
         dataSource={dataSource || []}
         loading={isBasketItemsRefetching || basketDataStatus === "loading"}
+        scroll={{ x: 1000 }}
       />
 
       <hr className="my-5" />
@@ -220,13 +221,13 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
 
       {forms?.map((basketForm, index) => (
         <Form key={basketForm.id} layout="horizontal">
-          <Space>
+          <Space className="flex sm:flex-row flex-col !items-start">
             <Form.Item>
               <span>Product SKU</span>
               <Select
+                className="sm:!w-[200px] !w-72"
                 loading={productsStatus === "loading"}
                 placeholder="Select Product SKU"
-                style={{ width: 200 }}
                 showSearch
                 onSelect={(value) => setSelectedSku(value)}
               >
@@ -241,7 +242,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
             <Form.Item tooltip="Select Pack Size">
               <span>Pack Size</span>
               <Select
-                className="!w-36"
+                className="sm:!w-36 !w-72"
                 placeholder="Select Pack Size"
                 showSearch
                 onSelect={(value) => {
@@ -273,7 +274,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
             <Form.Item className="relative" name="quantity">
               <span>Quantity</span>
               <Input
-                className="!w-20"
+                className="sm:!w-20 !w-72"
                 placeholder="Quantity"
                 type="number"
                 value={
@@ -305,6 +306,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
             <Form.Item>
               <span>Price Per Piece</span>
               <Input
+                className={`${window.innerWidth < 700 && "!w-72"}`}
                 placeholder="Price"
                 type="number"
                 value={
@@ -318,6 +320,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
             <Form.Item>
               <span>Total Amount</span>
               <Input
+                className={`${window.innerWidth < 700 && "!w-72"}`}
                 placeholder="Total amount"
                 type="number"
                 value={getTotalAmount(basketForm.id)}
@@ -328,6 +331,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
             <Form.Item>
               <span>Loyalty</span>
               <Input
+                className={`${window.innerWidth < 700 && "!w-72"}`}
                 placeholder="Loyalty points"
                 type="number"
                 value={
@@ -341,9 +345,10 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
               />
             </Form.Item>
 
-            <Form.Item>
+            <Form.Item className="!mb-0">
               <span>Cashback</span>
               <Input
+                className={`${window.innerWidth < 700 && "!w-72"}`}
                 placeholder="Cashback"
                 type="number"
                 value={
@@ -386,7 +391,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
         </Form>
       ))}
 
-      <div className="w-full flex justify-end">
+      <div className="w-full flex sm:justify-end justify-start">
         <Space>
           <Button
             size="middle"

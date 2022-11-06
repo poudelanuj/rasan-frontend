@@ -75,7 +75,7 @@ const Orders = () => {
       <CustomPageHeader title="Orders" isBasicHeader />
 
       <Tabs
-        className="bg-white !p-6 rounded-lg"
+        className="bg-white sm:!p-6 !p-4 rounded-lg"
         defaultActiveKey="all"
         onTabClick={(tabKey) => {
           setPage(1);

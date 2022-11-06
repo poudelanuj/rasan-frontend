@@ -3,11 +3,12 @@ import { Button, Form, Input, Modal, Select, Space, Spin, Table } from "antd";
 import { useState } from "react";
 import { useMutation, useQuery } from "react-query";
 import { useNavigate } from "react-router-dom";
+import { getAllProductSkus } from "../../api/products/productSku";
+import { GET_ALL_PRODUCT_SKUS } from "../../constants/queryKeys";
 import {
   addBasketItem,
   deleteBasketItem,
   getBasketInfo,
-  getProductSkus,
 } from "../../context/OrdersContext";
 import {
   openErrorNotification,
@@ -131,8 +132,8 @@ const BasketModal = ({ isModalOpen, onClose, basket }) => {
 
   // *********** FORM ************ //
   const { data: productSkus, status: productsStatus } = useQuery({
-    queryFn: () => getProductSkus(),
-    queryKey: ["getProductSkus"],
+    queryFn: () => getAllProductSkus(),
+    queryKey: [GET_ALL_PRODUCT_SKUS],
   });
 
   // *********** FORM ************ //

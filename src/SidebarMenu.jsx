@@ -191,6 +191,7 @@ const SidebarMenu = () => {
       items={sidebarItems}
       mode="inline"
       style={{
+        widh: "100%",
         height: "100%",
         borderRight: 0,
       }}
