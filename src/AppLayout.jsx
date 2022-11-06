@@ -1,5 +1,6 @@
-import { Avatar, Dropdown, Layout, Menu } from "antd";
-import { UserOutlined } from "@ant-design/icons";
+import { useState } from "react";
+import { Avatar, Dropdown, Layout, Menu, Drawer } from "antd";
+import { UserOutlined, MenuOutlined } from "@ant-design/icons";
 import { useQuery } from "react-query";
 import { Outlet } from "react-router-dom";
 import SidebarMenu from "./SidebarMenu";
@@ -35,11 +36,17 @@ const AppLayout = () => {
     }
   );
 
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
   return (
     <Layout>
-      <Header className="header">
+      <Header className="header sm:!px-5 !px-4">
+        <MenuOutlined
+          className="!text-white !text-xl pb-2 sm:!hidden !block !cursor-pointer"
+          onClick={() => setIsDrawerOpen(true)}
+        />
         <Logo />
-        <div className="w-12 h-12 rounded-full text-center text-3xl align-middle text-white">
+        <div className="w-12 rounded-full text-center text-3xl align-middle text-white">
           <Dropdown overlay={() => headerItem(logout)} arrow>
             <div className="cursor-pointer">
               {isSuccess &&
@@ -55,13 +62,28 @@ const AppLayout = () => {
           </Dropdown>
         </div>
       </Header>
+
       <Layout>
-        <Sider width={200}>
+        <Sider className="md:block hidden" width={200}>
           <SidebarMenu />
         </Sider>
+
+        <Drawer
+          key="menu"
+          bodyStyle={{ padding: 0, margin: 0 }}
+          contentWrapperStyle={{ width: 250, height: "100%" }}
+          placement={"left"}
+          title="Menu"
+          visible={isDrawerOpen}
+          onClose={() => setIsDrawerOpen(false)}
+        >
+          <SidebarMenu />
+        </Drawer>
+
         <Layout
+          className="sm:px-[24px] sm:pb-[24px] sm:pt-0 px-[10px]"
           style={{
-            padding: "0 24px 24px",
+            width: "100%",
           }}
         >
           <Content

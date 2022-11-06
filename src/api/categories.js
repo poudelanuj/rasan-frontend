@@ -1,7 +1,23 @@
 import axios from "../axios";
 
 export const getAllCategories = async () => {
-  const res = await axios.get("/api/product/admin/categories/");
+  const res = await axios.get("/api/product/admin/categories/?page=1&size=100");
+
+  let [nextUrl, page] = [res.data.data.next, 2];
+
+  const allResData = [...res.data.data.results];
+
+  while (nextUrl !== null) {
+    const res = await axios.get(
+      `/api/product/admin/categories/?page=${page}&size=100`
+    );
+    nextUrl = res.data.data.next;
+    allResData.push(...res.data.data.results);
+    page += 1;
+  }
+
+  if (allResData) return allResData;
+
   return res.data.data.results;
 };
 

@@ -233,11 +233,11 @@ const OrdersList = ({
   );
 
   return (
-    <div>
-      <div className="mb-4 flex gap-5 justify-between">
-        <Space>
+    <>
+      <div className="mb-4 flex sm:gap-5 gap-2 justify-between sm:flex-row flex-col-reverse">
+        <div className="flex gap-2">
           <ButtonWPermission
-            className="flex items-center"
+            className="sm:!block !hidden"
             codename="add_order"
             type="primary"
             ghost
@@ -249,6 +249,7 @@ const OrdersList = ({
           </ButtonWPermission>
 
           <Input.Search
+            className={`${window.innerWidth < 700 && "!w-full"}`}
             placeholder="Search user, contact, shop"
             onChange={(e) => {
               searchInput.current = e.target.value;
@@ -256,9 +257,20 @@ const OrdersList = ({
               timeout = setTimeout(refetchOrders, 400);
             }}
           />
-        </Space>
+        </div>
 
         <Space>
+          <ButtonWPermission
+            className="!text-xs sm:!hidden"
+            codename="add_order"
+            type="primary"
+            ghost
+            onClick={() => {
+              navigate("/orders/create-order");
+            }}
+          >
+            Create New Order
+          </ButtonWPermission>
           <Dropdown overlay={bulkMenu}>
             <Button className="bg-white" type="default">
               <Space>Bulk Actions</Space>
@@ -287,6 +299,7 @@ const OrdersList = ({
           },
         }}
         rowSelection={{ ...rowSelection }}
+        scroll={{ x: 1000 }}
         showSorterTooltip={false}
       />
 
@@ -305,7 +318,7 @@ const OrdersList = ({
         status={handleDeleteBulk.status}
         title="Delete selected orders?"
       />
-    </div>
+    </>
   );
 };
 

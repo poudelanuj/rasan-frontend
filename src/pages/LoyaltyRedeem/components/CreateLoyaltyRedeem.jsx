@@ -3,9 +3,9 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useNavigate } from "react-router-dom";
 import { createRedeemableProduct } from "../../../api/loyaltyRedeem";
-import { getDropdownProductSkus } from "../../../api/products/productSku";
+import { getAllProductSkus } from "../../../api/products/productSku";
 import {
-  GET_DROPDOWN_PRODUCT_SKUS,
+  GET_ALL_PRODUCT_SKUS,
   GET_LOYALTY_REDEEM_ARCHIVED_RASAN,
   GET_LOYALTY_REDEEM_ARCHIVED_SPECIAL,
   GET_LOYALTY_REDEEM_UNARCHIVED_RASAN,
@@ -29,8 +29,8 @@ const CreateLoyaltyRedeem = () => {
   const [productPack, setProductPack] = useState([]);
 
   const { data: dropdownProductSku } = useQuery({
-    queryFn: () => getDropdownProductSkus(),
-    queryKey: [GET_DROPDOWN_PRODUCT_SKUS],
+    queryFn: () => getAllProductSkus(),
+    queryKey: [GET_ALL_PRODUCT_SKUS],
   });
 
   const handleCreateLoyaltyRedeem = useMutation(

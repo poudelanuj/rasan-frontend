@@ -1,21 +1,26 @@
 import axios from "../../axios";
 
 export const getAllProductSkus = async () => {
-  const res = await axios.get("/api/product/admin/product-skus/");
-  return res.data.data.results;
-};
+  const res = await axios.get(
+    "/api/product/admin/product-skus/?page=1&size=100"
+  );
 
-export const getDropdownProductSkus = async () => {
-  const res1 = await axios.get("/api/product/product-skus/");
+  let [nextUrl, page] = [res.data.data.next, 2];
 
-  if (res1.data.data.next !== null) {
-    const res2 = await axios.get(
-      `/api/product/product-skus/?page=1&size=${res1.data.data.count}`
+  const allResData = [...res.data.data.results];
+
+  while (nextUrl !== null) {
+    const res = await axios.get(
+      `/api/product/admin/product-skus/?page=${page}&size=100`
     );
-    return res2.data.data.results;
+    nextUrl = res.data.data.next;
+    allResData.push(...res.data.data.results);
+    page += 1;
   }
 
-  return res1.data.data.results;
+  if (allResData) return allResData;
+
+  return res.data.data.results;
 };
 
 export const getPaginatedProdctSkus = async (page, pageSize, sort, search) => {

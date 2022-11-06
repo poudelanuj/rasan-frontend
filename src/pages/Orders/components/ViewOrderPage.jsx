@@ -16,8 +16,7 @@ import {
   PhoneOutlined,
   EnvironmentOutlined,
 } from "@ant-design/icons";
-import { useMutation } from "react-query";
-import { useQuery } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import moment from "moment";
 import { useEffect } from "react";
 import { uniqBy } from "lodash";
@@ -26,7 +25,6 @@ import {
   addOrderItem,
   deleteOrderItem,
   getOrder,
-  getProductSkus,
 } from "../../../context/OrdersContext";
 import {
   openErrorNotification,
@@ -51,7 +49,11 @@ import { useAuth } from "../../../AuthProvider";
 import { getUser } from "../../../context/UserContext";
 import rasanDefault from "../../../assets/images/rasan-default.png";
 import { getMetaCityAddress } from "../../../api/userAddresses";
-import { GET_META_CITY_ADDRESS } from "../../../constants/queryKeys";
+import {
+  GET_ALL_PRODUCT_SKUS,
+  GET_META_CITY_ADDRESS,
+} from "../../../constants/queryKeys";
+import { getAllProductSkus } from "../../../api/products/productSku";
 
 const ViewOrderPage = () => {
   const { userGroupIds } = useAuth();
@@ -73,6 +75,8 @@ const ViewOrderPage = () => {
 
   let timeout = 0;
 
+  const [descriptionSpan, setDescriptionSpan] = useState(3);
+
   const {
     data,
     status,
@@ -85,8 +89,8 @@ const ViewOrderPage = () => {
   });
 
   const { data: productSkus, status: productsStatus } = useQuery({
-    queryFn: () => getProductSkus(),
-    queryKey: ["getProductSkus"],
+    queryFn: () => getAllProductSkus(),
+    queryKey: [GET_ALL_PRODUCT_SKUS],
   });
 
   const { data: user, status: userStatus } = useQuery({
@@ -299,6 +303,14 @@ const ViewOrderPage = () => {
       });
   };
 
+  useEffect(() => {
+    window.innerWidth < 700 ? setDescriptionSpan(1) : setDescriptionSpan(3);
+
+    window.addEventListener("resize", () => {
+      window.innerWidth < 700 ? setDescriptionSpan(1) : setDescriptionSpan(3);
+    });
+  }, []);
+
   return (
     <>
       <CustomPageHeader title={`Order #${orderId}`} />
@@ -315,17 +327,17 @@ const ViewOrderPage = () => {
           <Spin />
         ) : (
           user && (
-            <div className="details flex pb-4">
+            <div className="flex sm:flex-row flex-col pb-4">
               <img
                 alt={user.full_name}
-                className="image mr-3"
-                src={user.profile_picture.small_square_crop || rasanDefault}
+                className="sm:mr-3 sm:h-14 sm:w-14 object-cover"
+                src={user.profile_picture.full_size || rasanDefault}
               />
-              <div>
+              <div className="flex flex-col sm:gap-0 gap-2">
                 <div className="font-medium text-lg">
                   {user.full_name || "User"}
                 </div>
-                <div className="flex items-center text-light_text">
+                <div className="flex sm:flex-row flex-col sm:items-center sm:gap-0 gap-2 text-light_text">
                   <div className="flex items-center pr-4">
                     <HomeOutlined className="mr-1" />
                     {user.shop.name}
@@ -344,7 +356,7 @@ const ViewOrderPage = () => {
           )
         )}
 
-        <div className="flex justify-between items-center">
+        <div className="flex sm:flex-row flex-col sm:!items-center !items-start justify-between">
           <Space className="mb-4" size="middle">
             {/* <Tag color={getOrderStatusColor(data?.status)}>
               {data?.status?.replaceAll("_", " ")?.toUpperCase()}
@@ -384,63 +396,62 @@ const ViewOrderPage = () => {
           </Space>
 
           <Form onFinish={(values) => onAssignedToUpdate.mutate(values)}>
-            <Space>
-              {data && (
-                <>
-                  <Form.Item
-                    initialValue={data?.assigned_to}
-                    label="Assign To"
-                    name="assigned_to"
+            {data && (
+              <div className="flex sm:flex-row gap-2 flex-col">
+                <Form.Item
+                  className="!mb-0"
+                  initialValue={data?.assigned_to}
+                  label="Assign To"
+                  name="assigned_to"
+                >
+                  <Select
+                    className="sm:!w-[300px] !w-72"
+                    defaultValue={data?.assigned_to}
+                    filterOption={false}
+                    loading={usersStatus === "loading"}
+                    mode="multiple"
+                    placeholder="Select Users"
+                    showSearch
+                    onPopupScroll={() =>
+                      data?.next && setPage((prev) => prev + 1)
+                    }
+                    onSearch={(val) => {
+                      if (timeout) clearTimeout(timeout);
+                      timeout = setTimeout(async () => {
+                        setPage(1);
+                        const res = await getAdminUsers(
+                          userGroupIds,
+                          page,
+                          100,
+                          val
+                        );
+                        setUserList([]);
+                        setUserList(res.results);
+                      }, 200);
+                    }}
                   >
-                    <Select
-                      defaultValue={data?.assigned_to}
-                      filterOption={false}
-                      loading={usersStatus === "loading"}
-                      mode="multiple"
-                      placeholder="Select Users"
-                      style={{ width: 300 }}
-                      showSearch
-                      onPopupScroll={() =>
-                        data?.next && setPage((prev) => prev + 1)
-                      }
-                      onSearch={(val) => {
-                        if (timeout) clearTimeout(timeout);
-                        timeout = setTimeout(async () => {
-                          setPage(1);
-                          const res = await getAdminUsers(
-                            userGroupIds,
-                            page,
-                            100,
-                            val
-                          );
-                          setUserList([]);
-                          setUserList(res.results);
-                        }, 200);
-                      }}
-                    >
-                      {userList &&
-                        userList.map((user) => (
-                          <Option key={user.id} value={user.phone}>
-                            {user.full_name
-                              ? `${user.full_name} (${user.phone})`
-                              : user.phone}
-                          </Option>
-                        ))}
-                    </Select>
-                  </Form.Item>
+                    {userList &&
+                      userList.map((user) => (
+                        <Option key={user.id} value={user.phone}>
+                          {user.full_name
+                            ? `${user.full_name} (${user.phone})`
+                            : user.phone}
+                        </Option>
+                      ))}
+                  </Select>
+                </Form.Item>
 
-                  <Form.Item>
-                    <Button
-                      htmlType="submit"
-                      loading={onAssignedToUpdate.status === "loading"}
-                      type="primary"
-                    >
-                      SAVE
-                    </Button>
-                  </Form.Item>
-                </>
-              )}
-            </Space>
+                <Form.Item>
+                  <Button
+                    htmlType="submit"
+                    loading={onAssignedToUpdate.status === "loading"}
+                    type="primary"
+                  >
+                    SAVE
+                  </Button>
+                </Form.Item>
+              </div>
+            )}
           </Form>
         </div>
 
@@ -453,9 +464,9 @@ const ViewOrderPage = () => {
         {data && data.payment && (
           <Descriptions
             className={"mt-6"}
-            column={3}
+            column={descriptionSpan}
             title={
-              <Space className="w-full flex justify-between items-center">
+              <Space className="w-full flex sm:flex-row flex-col-reverse sm:!items-center !items-start justify-between">
                 <div className="inline-flex gap-2 items-center">
                   <span className="font-medium text-base">Order Payment</span>
                   <Button
@@ -518,7 +529,11 @@ const ViewOrderPage = () => {
 
         <h2 className="font-medium text-base mb-5">Order Items</h2>
         {!isRefetching && status === "success" && (
-          <Table columns={columns} dataSource={dataSource || []} />
+          <Table
+            columns={columns}
+            dataSource={dataSource || []}
+            scroll={{ x: 1000 }}
+          />
         )}
 
         <hr className="my-5" />
@@ -531,10 +546,11 @@ const ViewOrderPage = () => {
 
         {handleAddItem.status !== "loading" && productsStatus === "success" && (
           <Form layout="horizontal">
-            <Space>
+            <Space className="sm:block flex sm:flex-row flex-col !items-start">
               <Form.Item>
                 <span>Product SKU</span>
                 <Select
+                  className="sm:!w-[200px] !w-72"
                   placeholder="Select Product SKU"
                   style={{ width: 200 }}
                   showSearch
@@ -555,7 +571,7 @@ const ViewOrderPage = () => {
               <Form.Item tooltip="Select Pack Size">
                 <span>Pack Size</span>
                 <Select
-                  className="!w-36"
+                  className="sm:!w-36 !w-72"
                   placeholder="Select Pack Size"
                   showSearch
                   onSelect={(value) =>
@@ -581,7 +597,7 @@ const ViewOrderPage = () => {
               <Form.Item className="relative" name="quantity">
                 <span>Quantity</span>
                 <Input
-                  className="!w-20"
+                  className="sm:!w-20 !w-72"
                   placeholder="Quantity"
                   type="number"
                   value={quantity}
@@ -601,6 +617,7 @@ const ViewOrderPage = () => {
               <Form.Item>
                 <span>Price Per Piece</span>
                 <Input
+                  className={`${window.innerWidth < 700 && "!w-72"}`}
                   placeholder="Price"
                   type="number"
                   value={selectedProductPack?.price_per_piece}
@@ -611,6 +628,7 @@ const ViewOrderPage = () => {
               <Form.Item>
                 <span>Total Amount</span>
                 <Input
+                  className={`${window.innerWidth < 700 && "!w-72"}`}
                   placeholder="Total amount"
                   type="number"
                   value={getTotalAmount()}
@@ -621,6 +639,7 @@ const ViewOrderPage = () => {
               <Form.Item>
                 <span>Loyalty</span>
                 <Input
+                  className={`${window.innerWidth < 700 && "!w-72"}`}
                   placeholder="Loyalty points"
                   type="number"
                   value={
@@ -634,9 +653,10 @@ const ViewOrderPage = () => {
                 />
               </Form.Item>
 
-              <Form.Item>
+              <Form.Item className="!mb-0">
                 <span>Cashback</span>
                 <Input
+                  className={`${window.innerWidth < 700 && "!w-72"}`}
                   placeholder="Cashback"
                   type="number"
                   value={
@@ -651,9 +671,8 @@ const ViewOrderPage = () => {
               </Form.Item>
 
               <Form.Item>
-                <div style={{ height: 20 }} />
                 <Button
-                  className="bg-blue-500"
+                  className="bg-blue-500 !mt-[22px]"
                   disabled={
                     !(selectedProductPack && selectedProductSku && quantity > 0)
                   }

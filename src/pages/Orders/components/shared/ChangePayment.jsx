@@ -15,7 +15,7 @@ import {
   openSuccessNotification,
 } from "../../../../utils";
 
-const ChangePayment = ({ payment, orderType, isOpen, onClose, width }) => {
+const ChangePayment = ({ payment, orderType, isOpen, onClose }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedMethod, setSelectedMethod] = useState(""); //* Payment Method
 
@@ -62,68 +62,64 @@ const ChangePayment = ({ payment, orderType, isOpen, onClose, width }) => {
       footer={false}
       title="Change Payment"
       visible={isOpen}
-      width={width || 1000}
       onCancel={onClose}
     >
       <Form
-        layout="vertical"
+        layout={"vertical"}
         onFinish={(values) => onFormSubmit.mutate(values)}
       >
-        <div className="grid grid-cols-2 gap-3">
-          <Form.Item
-            initialValue={payment?.payment_method}
-            label="Payment Method"
-            name="payment_method"
-            rules={[
-              {
-                required: true,
-                message: "Payment method is required",
-              },
-            ]}
+        <Form.Item
+          initialValue={payment?.payment_method}
+          label="Payment Method"
+          name="payment_method"
+          rules={[
+            {
+              required: true,
+              message: "Payment method is required",
+            },
+          ]}
+        >
+          <Select
+            className="w-full"
+            defaultValue={payment?.payment_method}
+            placeholder="Select Payment Method"
+            onChange={(value) => setSelectedMethod(value)}
           >
-            <Select
-              className="w-full"
-              defaultValue={payment?.payment_method}
-              placeholder="Select Payment Method"
-              onChange={(value) => setSelectedMethod(value)}
-            >
-              {PAYMENT_METHODS.filter((item) => {
-                return orderType === ORDER_TYPE_LOYALTY_REDEEM &&
-                  item === REDEEM
-                  ? false
-                  : true;
-              }).map((item) => (
-                <Select.Option key={item} value={item}>
-                  {capitalize(item.replaceAll("_", " "))}
-                </Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
+            {PAYMENT_METHODS.filter((item) => {
+              return orderType === ORDER_TYPE_LOYALTY_REDEEM && item === REDEEM
+                ? false
+                : true;
+            }).map((item) => (
+              <Select.Option key={item} value={item}>
+                {capitalize(item.replaceAll("_", " "))}
+              </Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
 
-          <Form.Item
-            initialValue={payment?.status}
-            label="Payment Status"
-            name="status"
-            rules={[
-              {
-                required: true,
-                message: "Payment status is required",
-              },
-            ]}
+        <Form.Item
+          initialValue={payment?.status}
+          label="Payment Status"
+          name="status"
+          rules={[
+            {
+              required: true,
+              message: "Payment status is required",
+            },
+          ]}
+        >
+          <Select
+            className="w-full"
+            defaultValue={payment?.status}
+            placeholder="Select Payment Status"
           >
-            <Select
-              className="w-full"
-              defaultValue={payment?.status}
-              placeholder="Select Payment Status"
-            >
-              {PAYMENT_STATUS.map((item) => (
-                <Select.Option key={item} value={item}>
-                  {capitalize(item.replaceAll("_", " "))}
-                </Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
-        </div>
+            {PAYMENT_STATUS.map((item) => (
+              <Select.Option key={item} value={item}>
+                {capitalize(item.replaceAll("_", " "))}
+              </Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
 
         {selectedMethod === BANK_DEPOSIT && (
           <Form.Item label="Product Image">
