@@ -17,7 +17,7 @@ import { GET_ALL_PRODUCT_SKUS } from "../../../../constants/queryKeys";
 import { STATUS } from "../../../../constants";
 import ButtonWPermission from "../../../../shared/ButtonWPermission";
 
-const UserBasket = ({ user, setBasketItemsStatus }) => {
+const UserBasket = ({ user, setBasketItemsStatus, formLayout }) => {
   const { basket_id } = user;
 
   const [selectedProductSku, setSelectedSku] = useState();
@@ -220,174 +220,170 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
       <h2 className="font-medium text-base mb-5">Add Item</h2>
 
       {forms?.map((basketForm, index) => (
-        <Form key={basketForm.id} layout="horizontal">
-          <Space className="flex sm:flex-row flex-col !items-start">
-            <Form.Item>
-              <span>Product SKU</span>
-              <Select
-                className="sm:!w-[200px] !w-72"
-                loading={productsStatus === "loading"}
-                placeholder="Select Product SKU"
-                showSearch
-                onSelect={(value) => setSelectedSku(value)}
-              >
-                {productSkus &&
-                  productSkus.map((item) => (
-                    <Select.Option key={item.slug} value={item.slug}>
-                      {item.name}
+        <Form
+          key={basketForm.id}
+          className="w-full flex sm:flex-row flex-col !items-start gap-2"
+          layout={formLayout}
+        >
+          <Form.Item className="sm:w-auto w-full" label="Product SKU">
+            <Select
+              className="sm:!w-[200px]"
+              loading={productsStatus === "loading"}
+              placeholder="Select Product SKU"
+              showSearch
+              onSelect={(value) => setSelectedSku(value)}
+            >
+              {productSkus &&
+                productSkus.map((item) => (
+                  <Select.Option key={item.slug} value={item.slug}>
+                    {item.name}
+                  </Select.Option>
+                ))}
+            </Select>
+          </Form.Item>
+          <Form.Item
+            className="sm:w-auto w-full"
+            label="Pack Size"
+            tooltip="Select Pack Size"
+          >
+            <Select
+              className="sm:!w-36"
+              placeholder="Select Pack Size"
+              showSearch
+              onSelect={(value) => {
+                setForms((prev) => {
+                  const productPack = productSkus
+                    .find((item) => item.slug === selectedProductSku)
+                    ?.product_packs?.find((pack) => pack.id === value);
+
+                  const temp = [...prev];
+                  const index = prev.findIndex(
+                    (item) => item.id === basketForm.id
+                  );
+                  temp[index]["product_pack"] = productPack;
+                  return temp;
+                });
+              }}
+            >
+              {productSkus &&
+                productSkus
+                  .find((item) => item.slug === selectedProductSku)
+                  ?.product_packs?.map((pack) => (
+                    <Select.Option key={pack.id} value={pack.id}>
+                      {pack.number_of_items}
                     </Select.Option>
                   ))}
-              </Select>
-            </Form.Item>
-            <Form.Item tooltip="Select Pack Size">
-              <span>Pack Size</span>
-              <Select
-                className="sm:!w-36 !w-72"
-                placeholder="Select Pack Size"
-                showSearch
-                onSelect={(value) => {
-                  setForms((prev) => {
-                    const productPack = productSkus
-                      .find((item) => item.slug === selectedProductSku)
-                      ?.product_packs?.find((pack) => pack.id === value);
+            </Select>
+          </Form.Item>
 
-                    const temp = [...prev];
-                    const index = prev.findIndex(
-                      (item) => item.id === basketForm.id
-                    );
-                    temp[index]["product_pack"] = productPack;
-                    return temp;
-                  });
-                }}
-              >
-                {productSkus &&
-                  productSkus
-                    .find((item) => item.slug === selectedProductSku)
-                    ?.product_packs?.map((pack) => (
-                      <Select.Option key={pack.id} value={pack.id}>
-                        {pack.number_of_items}
-                      </Select.Option>
-                    ))}
-              </Select>
-            </Form.Item>
+          <Form.Item
+            className="sm:w-auto w-full relative"
+            label="Quantity"
+            name="quantity"
+          >
+            <Input
+              className="sm:!w-20"
+              placeholder="Quantity"
+              type="number"
+              value={forms.find((item) => item.id === basketForm.id)?.quantity}
+              onChange={(e) => {
+                setForms((prev) => {
+                  const temp = [...prev];
+                  const index = prev.findIndex(
+                    (item) => item.id === basketForm.id
+                  );
+                  temp[index]["quantity"] = e.target.value;
+                  return temp;
+                });
+              }}
+            />
+            <span
+              className={`${
+                forms[forms.findIndex((item) => item.id === basketForm.id)]
+                  .quantity < 0
+                  ? "block"
+                  : "hidden"
+              } absolute text-xs text-red-600`}
+            >
+              Negative value not allowed
+            </span>
+          </Form.Item>
 
-            <Form.Item className="relative" name="quantity">
-              <span>Quantity</span>
-              <Input
-                className="sm:!w-20 !w-72"
-                placeholder="Quantity"
-                type="number"
-                value={
-                  forms.find((item) => item.id === basketForm.id)?.quantity
-                }
-                onChange={(e) => {
-                  setForms((prev) => {
-                    const temp = [...prev];
-                    const index = prev.findIndex(
-                      (item) => item.id === basketForm.id
-                    );
-                    temp[index]["quantity"] = e.target.value;
-                    return temp;
-                  });
-                }}
-              />
-              <span
-                className={`${
-                  forms[forms.findIndex((item) => item.id === basketForm.id)]
-                    .quantity < 0
-                    ? "block"
-                    : "hidden"
-                } absolute text-xs text-red-600`}
-              >
-                Negative value not allowed
-              </span>
-            </Form.Item>
+          <Form.Item className="sm:w-auto w-full" label="Price Per Piece">
+            <Input
+              placeholder="Price"
+              type="number"
+              value={
+                forms.find((item) => item.id === basketForm.id)?.product_pack
+                  ?.price_per_piece
+              }
+              disabled
+            />
+          </Form.Item>
 
-            <Form.Item>
-              <span>Price Per Piece</span>
-              <Input
-                className={`${window.innerWidth < 700 && "!w-72"}`}
-                placeholder="Price"
-                type="number"
-                value={
+          <Form.Item className="sm:w-auto w-full" label="Total Amount">
+            <Input
+              placeholder="Total amount"
+              type="number"
+              value={getTotalAmount(basketForm.id)}
+              disabled
+            />
+          </Form.Item>
+
+          <Form.Item className="sm:w-auto w-full" label="Loyalty">
+            <Input
+              placeholder="Loyalty points"
+              type="number"
+              value={
+                parseInt(
                   forms.find((item) => item.id === basketForm.id)?.product_pack
-                    ?.price_per_piece
+                    ?.loyalty_cashback?.loyalty_points_per_pack,
+                  10
+                ) * forms.find((item) => item.id === basketForm.id)?.quantity
+              }
+              disabled
+            />
+          </Form.Item>
+
+          <Form.Item className="sm:w-auto w-full !mb-0" label="Cashback">
+            <Input
+              placeholder="Cashback"
+              type="number"
+              value={
+                parseInt(
+                  forms.find((item) => item.id === basketForm.id)?.product_pack
+                    ?.loyalty_cashback?.cashback_amount_per_pack,
+                  10
+                ) * forms.find((item) => item.id === basketForm.id)?.quantity
+              }
+              disabled
+            />
+          </Form.Item>
+
+          <Form.Item>
+            <div style={{ height: 30 }} />
+            {index + 1 === forms.length ? (
+              <ButtonWPermission
+                codename="add_basketitem"
+                disabled={forms.some(({ quantity }) => quantity < 0)}
+                icon={<PlusOutlined />}
+                type="primary"
+                onClick={handleAddForm}
+              />
+            ) : (
+              <Button
+                icon={<MinusOutlined />}
+                type="ghost"
+                onClick={() =>
+                  setForms((prev) => {
+                    let temp = [...prev];
+                    temp = temp.filter((item) => item.id !== basketForm.id);
+                    return temp;
+                  })
                 }
-                disabled
               />
-            </Form.Item>
-
-            <Form.Item>
-              <span>Total Amount</span>
-              <Input
-                className={`${window.innerWidth < 700 && "!w-72"}`}
-                placeholder="Total amount"
-                type="number"
-                value={getTotalAmount(basketForm.id)}
-                disabled
-              />
-            </Form.Item>
-
-            <Form.Item>
-              <span>Loyalty</span>
-              <Input
-                className={`${window.innerWidth < 700 && "!w-72"}`}
-                placeholder="Loyalty points"
-                type="number"
-                value={
-                  parseInt(
-                    forms.find((item) => item.id === basketForm.id)
-                      ?.product_pack?.loyalty_cashback?.loyalty_points_per_pack,
-                    10
-                  ) * forms.find((item) => item.id === basketForm.id)?.quantity
-                }
-                disabled
-              />
-            </Form.Item>
-
-            <Form.Item className="!mb-0">
-              <span>Cashback</span>
-              <Input
-                className={`${window.innerWidth < 700 && "!w-72"}`}
-                placeholder="Cashback"
-                type="number"
-                value={
-                  parseInt(
-                    forms.find((item) => item.id === basketForm.id)
-                      ?.product_pack?.loyalty_cashback
-                      ?.cashback_amount_per_pack,
-                    10
-                  ) * forms.find((item) => item.id === basketForm.id)?.quantity
-                }
-                disabled
-              />
-            </Form.Item>
-
-            <Form.Item>
-              <div style={{ height: 20 }} />
-              {index + 1 === forms.length ? (
-                <ButtonWPermission
-                  codename="add_basketitem"
-                  disabled={forms.some(({ quantity }) => quantity < 0)}
-                  icon={<PlusOutlined />}
-                  type="primary"
-                  onClick={handleAddForm}
-                />
-              ) : (
-                <Button
-                  icon={<MinusOutlined />}
-                  type="ghost"
-                  onClick={() =>
-                    setForms((prev) => {
-                      let temp = [...prev];
-                      temp = temp.filter((item) => item.id !== basketForm.id);
-                      return temp;
-                    })
-                  }
-                />
-              )}
-            </Form.Item>
-          </Space>
+            )}
+          </Form.Item>
         </Form>
       ))}
 

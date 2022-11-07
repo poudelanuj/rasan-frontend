@@ -253,6 +253,7 @@ const CreateOrder = () => {
             userList &&
             userList.find((el) => el.phone === selectedUserPhone) && (
               <UserBasket
+                formLayout={formLayout}
                 setBasketItemsStatus={setBasketItemsStatus}
                 user={userList.find((el) => el.phone === selectedUserPhone)}
               />

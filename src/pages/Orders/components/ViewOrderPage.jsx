@@ -72,6 +72,8 @@ const ViewOrderPage = () => {
 
   const [userList, setUserList] = useState([]);
 
+  const [formLayout, setFormLayout] = useState("vertical");
+
   let timeout = 0;
 
   const [descriptionSpan, setDescriptionSpan] = useState(3);
@@ -313,10 +315,22 @@ const ViewOrderPage = () => {
   };
 
   useEffect(() => {
-    window.innerWidth < 700 ? setDescriptionSpan(1) : setDescriptionSpan(3);
+    if (window.innerWidth < 700) {
+      setFormLayout("horizontal");
+      setDescriptionSpan(1);
+    } else {
+      setFormLayout("vertical");
+      setDescriptionSpan(3);
+    }
 
     window.addEventListener("resize", () => {
-      window.innerWidth < 700 ? setDescriptionSpan(1) : setDescriptionSpan(3);
+      if (window.innerWidth < 700) {
+        setFormLayout("horizontal");
+        setDescriptionSpan(1);
+      } else {
+        setFormLayout("vertical");
+        setDescriptionSpan(3);
+      }
     });
   }, []);
 
@@ -365,7 +379,7 @@ const ViewOrderPage = () => {
           )
         )}
 
-        <div className="flex sm:flex-row flex-col sm:!items-center !items-start justify-between">
+        <div className="flex sm:flex-row flex-col sm:!items-center !items-start justify-between w-full">
           <Space className="mb-4" size="middle">
             {/* <Tag color={getOrderStatusColor(data?.status)}>
               {data?.status?.replaceAll("_", " ")?.toUpperCase()}
@@ -378,7 +392,7 @@ const ViewOrderPage = () => {
             {data && (
               <>
                 <Select
-                  className="mx-5 w-44"
+                  className="sm:w-44 w-full"
                   defaultValue={data.status}
                   disabled={handleUpdateStatus.status === "loading"}
                   placeholder="Select Order Status"
@@ -398,7 +412,10 @@ const ViewOrderPage = () => {
             )}
           </Space>
 
-          <Form onFinish={(values) => onAssignedToUpdate.mutate(values)}>
+          <Form
+            className="sm:!w-auto !w-full"
+            onFinish={(values) => onAssignedToUpdate.mutate(values)}
+          >
             {data && (
               <div className="flex sm:flex-row gap-2 flex-col">
                 <Form.Item
@@ -408,7 +425,7 @@ const ViewOrderPage = () => {
                   name="assigned_to"
                 >
                   <Select
-                    className="sm:!w-[300px] !w-72"
+                    className="sm:!w-[300px] w-full"
                     defaultValue={data?.assigned_to}
                     filterOption={false}
                     loading={usersStatus === "loading"}
@@ -548,144 +565,141 @@ const ViewOrderPage = () => {
         )}
 
         {handleAddItem.status !== "loading" && productsStatus === "success" && (
-          <Form layout="horizontal">
-            <Space className="sm:block flex sm:flex-row flex-col !items-start">
-              <Form.Item>
-                <span>Product SKU</span>
-                <Select
-                  className="sm:!w-[200px] !w-72"
-                  placeholder="Select Product SKU"
-                  style={{ width: 200 }}
-                  showSearch
-                  onSelect={(value) => {
-                    setSelectedSku(value);
-                    setSelectedPack();
-                    setQuantity(1);
-                  }}
-                >
-                  {productSkus &&
-                    productSkus.map((item) => (
-                      <Select.Option key={item.slug} value={item.slug}>
-                        {item.name}
+          <Form
+            className="w-full flex sm:flex-row flex-col !items-start gap-2"
+            layout={formLayout}
+          >
+            <Form.Item className="sm:w-auto w-full" label="Product SKU">
+              <Select
+                className="sm:!w-[200px]"
+                placeholder="Select Product SKU"
+                showSearch
+                onSelect={(value) => {
+                  setSelectedSku(value);
+                  setSelectedPack();
+                  setQuantity(1);
+                }}
+              >
+                {productSkus &&
+                  productSkus.map((item) => (
+                    <Select.Option key={item.slug} value={item.slug}>
+                      {item.name}
+                    </Select.Option>
+                  ))}
+              </Select>
+            </Form.Item>
+            <Form.Item
+              className="sm:w-auto w-full"
+              label="Pack Size"
+              tooltip="Select Pack Size"
+            >
+              <Select
+                className="sm:!w-36"
+                placeholder="Select Pack Size"
+                showSearch
+                onSelect={(value) =>
+                  setSelectedPack(
+                    productSkus &&
+                      productSkus
+                        .find((item) => item.slug === selectedProductSku)
+                        ?.product_packs?.find((pack) => pack.id === value)
+                  )
+                }
+              >
+                {productSkus &&
+                  productSkus
+                    .find((item) => item.slug === selectedProductSku)
+                    ?.product_packs?.map((pack) => (
+                      <Select.Option key={pack.id} value={pack.id}>
+                        {pack.number_of_items}
                       </Select.Option>
                     ))}
-                </Select>
-              </Form.Item>
-              <Form.Item tooltip="Select Pack Size">
-                <span>Pack Size</span>
-                <Select
-                  className="sm:!w-36 !w-72"
-                  placeholder="Select Pack Size"
-                  showSearch
-                  onSelect={(value) =>
-                    setSelectedPack(
-                      productSkus &&
-                        productSkus
-                          .find((item) => item.slug === selectedProductSku)
-                          ?.product_packs?.find((pack) => pack.id === value)
-                    )
-                  }
-                >
-                  {productSkus &&
-                    productSkus
-                      .find((item) => item.slug === selectedProductSku)
-                      ?.product_packs?.map((pack) => (
-                        <Select.Option key={pack.id} value={pack.id}>
-                          {pack.number_of_items}
-                        </Select.Option>
-                      ))}
-                </Select>
-              </Form.Item>
+              </Select>
+            </Form.Item>
 
-              <Form.Item className="relative" name="quantity">
-                <span>Quantity</span>
-                <Input
-                  className="sm:!w-20 !w-72"
-                  placeholder="Quantity"
-                  type="number"
-                  value={quantity}
-                  onChange={(e) => {
-                    setQuantity(e.target.value);
-                  }}
-                />
-                <span
-                  className={`${
-                    quantity < 0 ? "block" : "hidden"
-                  } absolute text-xs text-red-600`}
-                >
-                  Negative value not allowed
-                </span>
-              </Form.Item>
+            <Form.Item
+              className="sm:w-auto w-full relative"
+              label="Quantity"
+              name="quantity"
+            >
+              <Input
+                className="sm:!w-20 "
+                placeholder="Quantity"
+                type="number"
+                value={quantity}
+                onChange={(e) => {
+                  setQuantity(e.target.value);
+                }}
+              />
+              <span
+                className={`${
+                  quantity < 0 ? "block" : "hidden"
+                } absolute text-xs text-red-600`}
+              >
+                Negative value not allowed
+              </span>
+            </Form.Item>
 
-              <Form.Item>
-                <span>Price Per Piece</span>
-                <Input
-                  className={`${window.innerWidth < 700 && "!w-72"}`}
-                  placeholder="Price"
-                  type="number"
-                  value={selectedProductPack?.price_per_piece}
-                  disabled
-                />
-              </Form.Item>
+            <Form.Item className="sm:w-auto w-full" label="Price Per Piece">
+              <Input
+                placeholder="Price"
+                type="number"
+                value={selectedProductPack?.price_per_piece}
+                disabled
+              />
+            </Form.Item>
 
-              <Form.Item>
-                <span>Total Amount</span>
-                <Input
-                  className={`${window.innerWidth < 700 && "!w-72"}`}
-                  placeholder="Total amount"
-                  type="number"
-                  value={getTotalAmount()}
-                  disabled
-                />
-              </Form.Item>
+            <Form.Item className="sm:w-auto w-full" label="Total Amount">
+              <Input
+                placeholder="Total amount"
+                type="number"
+                value={getTotalAmount()}
+                disabled
+              />
+            </Form.Item>
 
-              <Form.Item>
-                <span>Loyalty</span>
-                <Input
-                  className={`${window.innerWidth < 700 && "!w-72"}`}
-                  placeholder="Loyalty points"
-                  type="number"
-                  value={
-                    parseInt(
-                      selectedProductPack?.loyalty_cashback
-                        ?.loyalty_points_per_pack,
-                      10
-                    ) * quantity
-                  }
-                  disabled
-                />
-              </Form.Item>
+            <Form.Item className="sm:w-auto w-full" label="Loyalty">
+              <Input
+                placeholder="Loyalty points"
+                type="number"
+                value={
+                  parseInt(
+                    selectedProductPack?.loyalty_cashback
+                      ?.loyalty_points_per_pack,
+                    10
+                  ) * quantity
+                }
+                disabled
+              />
+            </Form.Item>
 
-              <Form.Item className="!mb-0">
-                <span>Cashback</span>
-                <Input
-                  className={`${window.innerWidth < 700 && "!w-72"}`}
-                  placeholder="Cashback"
-                  type="number"
-                  value={
-                    parseInt(
-                      selectedProductPack?.loyalty_cashback
-                        ?.cashback_amount_per_pack,
-                      10
-                    ) * quantity
-                  }
-                  disabled
-                />
-              </Form.Item>
+            <Form.Item className="sm:w-auto w-full !mb-0" label="Cashback">
+              <Input
+                placeholder="Cashback"
+                type="number"
+                value={
+                  parseInt(
+                    selectedProductPack?.loyalty_cashback
+                      ?.cashback_amount_per_pack,
+                    10
+                  ) * quantity
+                }
+                disabled
+              />
+            </Form.Item>
 
-              <Form.Item>
-                <Button
-                  className="bg-blue-500 !mt-[22px]"
-                  disabled={
-                    !(selectedProductPack && selectedProductSku && quantity > 0)
-                  }
-                  type="primary"
-                  onClick={() => handleAddItem.mutate()}
-                >
-                  Add Item
-                </Button>
-              </Form.Item>
-            </Space>
+            <Form.Item>
+              <Button
+                className="bg-blue-500 !mt-[30px]"
+                disabled={
+                  !(selectedProductPack && selectedProductSku && quantity > 0)
+                }
+                type="primary"
+                onClick={() => handleAddItem.mutate()}
+              >
+                Add Item
+              </Button>
+            </Form.Item>
           </Form>
         )}
       </div>

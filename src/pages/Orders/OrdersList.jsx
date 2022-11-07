@@ -234,10 +234,9 @@ const OrdersList = ({
 
   return (
     <>
-      <div className="mb-4 flex sm:gap-5 gap-2 justify-between sm:flex-row flex-col-reverse">
-        <div className="flex gap-2">
+      <div className="mb-4 flex sm:gap-5 gap-2 justify-between sm:flex-row flex-col">
+        <div className="flex sm:flex-row flex-col gap-2">
           <ButtonWPermission
-            className="sm:!block !hidden"
             codename="add_order"
             type="primary"
             ghost
@@ -259,18 +258,7 @@ const OrdersList = ({
           />
         </div>
 
-        <Space>
-          <ButtonWPermission
-            className="!text-xs sm:!hidden"
-            codename="add_order"
-            type="primary"
-            ghost
-            onClick={() => {
-              navigate("/orders/create-order");
-            }}
-          >
-            Create New Order
-          </ButtonWPermission>
+        <Space className="justify-end">
           <Dropdown overlay={bulkMenu}>
             <Button className="bg-white" type="default">
               <Space>Bulk Actions</Space>

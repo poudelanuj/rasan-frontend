@@ -1,6 +1,6 @@
 import { Table, Tag } from "antd";
 import { useEffect, useState } from "react";
-import { uniqBy } from "lodash";
+import { isEmpty, uniqBy } from "lodash";
 import moment from "moment";
 import { useQuery } from "react-query";
 import { GET_TICKETS_ASSIGNED } from "../../../constants/queryKeys";
@@ -147,7 +147,7 @@ const TicketsAssigned = () => {
             setPageSize(pageSize);
           },
         }}
-        scroll={{ x: 1000 }}
+        scroll={{ x: !isEmpty(ticketsAssigned) ? 1000 : undefined }}
         showSorterTooltip={false}
       />
     </>
