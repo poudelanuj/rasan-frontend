@@ -22,7 +22,9 @@ const JSONToCSV = (objArray) => {
   objArray.forEach(function (jsonrecord) {
     csvrecord +=
       Object.values(jsonrecord)
-        .map((record) => (Array.isArray(record) ? `[${record}]` : record))
+        .map((record) =>
+          Array.isArray(record) ? `"'${record.join("\n")}'"` : record
+        )
         .join(",") + "\n";
   });
 
@@ -127,13 +129,14 @@ const ProductPack = () => {
 
         reader.onload = function (e) {
           const csv = e.target.result;
+
           setSelectedCSV(
             csvParse(csv).map((cs) => ({
               ...cs,
               product_sku_category: cs.product_sku_category
-                .replace("[", "")
-                .replace("]", "")
-                .split(","),
+                .replace("'", "")
+                .replace("'", "")
+                .split("\n"),
               is_published: cs.is_published === "TRUE",
             }))
           );
@@ -303,13 +306,17 @@ const ProductPack = () => {
               const blob = new Blob(
                 [
                   JSONToCSV(
-                    data.map((product, index) => ({
-                      sn: index + 1,
-                      ...product,
-                    }))
+                    data.map((product) => {
+                      delete product["product_slug"];
+                      delete product["product_sku_slug"];
+                      delete product["is_published"];
+                      return product;
+                    })
                   ),
                 ],
-                { type: "text/csv;charset=utf-8;" }
+                {
+                  type: "text/csv;charset=utf-8;",
+                }
               );
               const url = URL.createObjectURL(blob);
               const link = document.createElement("a");

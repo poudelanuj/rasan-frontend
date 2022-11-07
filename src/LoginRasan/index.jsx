@@ -55,79 +55,77 @@ const LoginRasan = () => {
   };
   const onFinishFailed = (errorInfo) => {};
   return (
-    <div className="h-screen flex justify-center items-center">
-      <div className="flex-col items-center w-1/3 h-1/2">
-        <div className="w-1/3 mx-auto mb-5">
-          <Logo />
-        </div>
-        <div className="text-3xl mb-3 text-center">Rasan Admin Panel</div>
-        <div className="text-gray-400 text-center mb-7">
-          Welcome back! To login, please enter your details.
-        </div>
-        {onOTPReceived ? (
-          <Form
-            autoComplete="off"
-            className="flex flex-col items-center max-w-full"
-            form={form2}
-            initialValues={{
-              remember: true,
-            }}
-            name="basic"
-            wrapperCol={{
-              span: 16,
-            }}
-            onFinish={onFinishLogin}
-            onFinishFailed={onFinishFailed}
-          >
-            <Form.Item
-              className="flex justify-between mx-auto max-w-full"
-              label={<div>OTP</div>}
-              name="otp"
-            >
-              <InputNumber />
-            </Form.Item>
-
-            <Button
-              className="bg-primary block w-8/12 mx-auto"
-              htmlType="submit"
-              type="primary"
-            >
-              Login
-            </Button>
-          </Form>
-        ) : (
-          <Form
-            autoComplete="off"
-            className="flex flex-col items-center justify-center max-w-full"
-            form={form}
-            initialValues={{
-              remember: true,
-            }}
-            name="basic"
-            wrapperCol={{
-              span: 16,
-            }}
-            onFinish={onFinish}
-            onFinishFailed={onFinishFailed}
-          >
-            <Form.Item
-              className="flex justify-between mx-auto max-w-full"
-              label={<span className="w-fit">Phone Number</span>}
-              name="phone"
-            >
-              <InputNumber addonBefore="+977" className="max-w-[13rem]" />
-            </Form.Item>
-
-            <Button
-              className="bg-primary block w-8/12 mx-auto"
-              htmlType="submit"
-              type="primary"
-            >
-              Request OTP
-            </Button>
-          </Form>
-        )}
+    <div className="h-screen flex flex-col sm:pt-48 sm:justify-start justify-center items-center">
+      <div className="mx-auto mb-5">
+        <Logo />
       </div>
+      <div className="text-3xl mb-3 text-center">Rasan Admin Panel</div>
+      <div className="text-gray-400 text-center mb-7">
+        Welcome back! To login, please enter your details.
+      </div>
+      {onOTPReceived ? (
+        <Form
+          autoComplete="off"
+          className="flex flex-col items-center sm:w-[34%] w-full"
+          form={form2}
+          initialValues={{
+            remember: true,
+          }}
+          name="basic"
+          wrapperCol={{
+            span: 16,
+          }}
+          onFinish={onFinishLogin}
+          onFinishFailed={onFinishFailed}
+        >
+          <Form.Item
+            className="mx-auto w-[30%] flex justify-center"
+            label={"OTP"}
+            name="otp"
+          >
+            <InputNumber className="!w-full" />
+          </Form.Item>
+
+          <Button
+            className="bg-primary block w-8/12 mx-auto"
+            htmlType="submit"
+            type="primary"
+          >
+            Login
+          </Button>
+        </Form>
+      ) : (
+        <Form
+          autoComplete="off"
+          className="flex flex-col items-center justify-center sm:w-[34%] w-full"
+          form={form}
+          initialValues={{
+            remember: true,
+          }}
+          name="basic"
+          wrapperCol={{
+            span: 16,
+          }}
+          onFinish={onFinish}
+          onFinishFailed={onFinishFailed}
+        >
+          <Form.Item
+            className="mx-auto w-3/5 flex justify-center"
+            label={"Phone Number"}
+            name="phone"
+          >
+            <InputNumber addonBefore="+977" className="!w-full" />
+          </Form.Item>
+
+          <Button
+            className="bg-primary block w-8/12 mx-auto"
+            htmlType="submit"
+            type="primary"
+          >
+            Request OTP
+          </Button>
+        </Form>
+      )}
     </div>
   );
 };
