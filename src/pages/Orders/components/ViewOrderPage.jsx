@@ -385,8 +385,14 @@ const ViewOrderPage = () => {
               {data?.status?.replaceAll("_", " ")?.toUpperCase()}
             </Tag> */}
 
-            <Button type="danger" onClick={() => handleInvoiceDownload()}>
-              Invoice
+            <Button type="danger">
+              <a
+                href={ORDER_INVOICE_URL.replace("{ORDER_ID}", orderId)}
+                rel="noreferrer"
+                target="_blank"
+              >
+                Invoice
+              </a>
             </Button>
 
             {data && (
