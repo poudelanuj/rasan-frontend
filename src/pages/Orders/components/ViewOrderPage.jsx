@@ -10,6 +10,7 @@ import {
   Table,
   Tag,
 } from "antd";
+import axios from "../../../axios";
 import {
   DeleteOutlined,
   HomeOutlined,
@@ -20,7 +21,6 @@ import { useMutation, useQuery } from "react-query";
 import moment from "moment";
 import { useEffect } from "react";
 import { uniqBy } from "lodash";
-import { saveAs } from "file-saver";
 import {
   addOrderItem,
   deleteOrderItem,
@@ -44,7 +44,6 @@ import {
 import ChangePayment from "./shared/ChangePayment";
 import { useParams } from "react-router-dom";
 import { updateOrderStatus } from "../../../context/OrdersContext";
-import axios from "../../../axios";
 import { useAuth } from "../../../AuthProvider";
 import { getUser } from "../../../context/UserContext";
 import rasanDefault from "../../../assets/images/rasan-default.png";
@@ -294,13 +293,23 @@ const ViewOrderPage = () => {
   // * Will Use This Later 👇
   // eslint-disable-next-line no-unused-vars
   const handleInvoiceDownload = () => {
-    axios
-      .get(ORDER_INVOICE_URL.replace("{ORDER_ID}", orderId), {
-        responseType: "blob",
-      })
-      .then((res) => {
-        saveAs(res.data, `invoice_order_${orderId}`);
-      });
+    try {
+      axios
+        .get(ORDER_INVOICE_URL.replace("{ORDER_ID}", orderId), {
+          responseType: "blob",
+        })
+        .then((res) => {
+          const url = URL.createObjectURL(res.data);
+          const link = document.createElement("a");
+          link.setAttribute("href", url);
+          link.style.visibility = "hidden";
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        });
+    } catch (err) {
+      openErrorNotification(err);
+    }
   };
 
   useEffect(() => {
@@ -362,14 +371,8 @@ const ViewOrderPage = () => {
               {data?.status?.replaceAll("_", " ")?.toUpperCase()}
             </Tag> */}
 
-            <Button type="danger">
-              <a
-                href={ORDER_INVOICE_URL.replace("{ORDER_ID}", orderId)}
-                target="__blank"
-                download
-              >
-                Invoice
-              </a>
+            <Button type="danger" onClick={() => handleInvoiceDownload()}>
+              Invoice
             </Button>
 
             {data && (
