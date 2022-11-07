@@ -12,7 +12,7 @@ const siteInformation = {
 };
 
 export const ORDER_INVOICE_URL =
-  "https://api.rasan.com.np/api/order/admin/order/invoice/{ORDER_ID}/";
+  siteInformation.base_url + "api/order/admin/order/invoice/{ORDER_ID}/";
 
 export { colors, siteInformation };
 
