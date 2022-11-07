@@ -181,7 +181,7 @@ const OrdersAssigned = () => {
   ];
 
   return (
-    <div className="">
+    <>
       <Input.Search
         className="mb-4"
         enterButton="Search"
@@ -212,7 +212,7 @@ const OrdersAssigned = () => {
         scroll={{ x: 1000 }}
         showSorterTooltip={false}
       />
-    </div>
+    </>
   );
 };
 

@@ -1,4 +1,4 @@
-import { Card, Select, Space } from "antd";
+import { Card, Select } from "antd";
 import React, { useState } from "react";
 import { useQuery } from "react-query";
 import { getTicketMetrics } from "../../api/crm/tickets";
@@ -68,21 +68,20 @@ const Dashboard = () => {
             <Card bodyStyle={{ padding: 10 }} className="grow !rounded-lg">
               <div className="flex mb-2 justify-between items-center">
                 <h4 className="m-0">Tickets</h4>
-                <Space>
-                  <Select
-                    defaultValue={DASHBOARD_TIME_KEYS[0].value}
-                    loading={ticketsMetricsStatus === "loading"}
-                    size="small"
-                    style={{ width: 120 }}
-                    onChange={(value) => setTicketTimeKey(value)}
-                  >
-                    {DASHBOARD_TIME_KEYS.map((item) => (
-                      <Select.Option key={item.value} value={item.value}>
-                        {capitalize(item.name)}
-                      </Select.Option>
-                    ))}
-                  </Select>
-                </Space>
+
+                <Select
+                  defaultValue={DASHBOARD_TIME_KEYS[0].value}
+                  loading={ticketsMetricsStatus === "loading"}
+                  size="small"
+                  style={{ width: 120 }}
+                  onChange={(value) => setTicketTimeKey(value)}
+                >
+                  {DASHBOARD_TIME_KEYS.map((item) => (
+                    <Select.Option key={item.value} value={item.value}>
+                      {capitalize(item.name)}
+                    </Select.Option>
+                  ))}
+                </Select>
               </div>
 
               <TicketMetrics ticketMetrics={ticketMetrics} />
@@ -90,21 +89,20 @@ const Dashboard = () => {
             <Card bodyStyle={{ padding: 10 }} className="grow !rounded-lg">
               <div className="flex mb-2 justify-between items-center">
                 <h4 className="m-0">Orders</h4>
-                <Space>
-                  <Select
-                    defaultValue={DASHBOARD_TIME_KEYS[0].value}
-                    loading={orderMetricsStatus === "loading"}
-                    size="small"
-                    style={{ width: 120 }}
-                    onChange={(value) => setOrderTimeKey(value)}
-                  >
-                    {DASHBOARD_TIME_KEYS.map((item) => (
-                      <Select.Option key={item.value} value={item.value}>
-                        {capitalize(item.name)}
-                      </Select.Option>
-                    ))}
-                  </Select>
-                </Space>
+
+                <Select
+                  defaultValue={DASHBOARD_TIME_KEYS[0].value}
+                  loading={orderMetricsStatus === "loading"}
+                  size="small"
+                  style={{ width: 120 }}
+                  onChange={(value) => setOrderTimeKey(value)}
+                >
+                  {DASHBOARD_TIME_KEYS.map((item) => (
+                    <Select.Option key={item.value} value={item.value}>
+                      {capitalize(item.name)}
+                    </Select.Option>
+                  ))}
+                </Select>
               </div>
 
               <OrderMetrics orderMetrics={orderMetrics} />
