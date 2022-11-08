@@ -9,7 +9,7 @@ import {
   Space,
   Breadcrumb,
 } from "antd";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { useQuery, useMutation } from "react-query";
 import { Link, useNavigate } from "react-router-dom";
 import { getAllBrands } from "../../../api/brands";
@@ -33,6 +33,8 @@ const AddProduct = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [isCreateCategoryOpen, setIsCreateCategoryOpen] = useState(false);
   const [isCreateBrandOpen, setIsCreatBrandOpen] = useState(false);
+
+  const [formLayout, setFormLayout] = useState("vertical");
 
   const { Dragger } = Upload;
 
@@ -111,6 +113,22 @@ const AddProduct = () => {
     );
   }, []);
 
+  useEffect(() => {
+    if (window.innerWidth < 700) {
+      setFormLayout("horizontal");
+    } else {
+      setFormLayout("vertical");
+    }
+
+    window.addEventListener("resize", () => {
+      if (window.innerWidth < 700) {
+        setFormLayout("horizontal");
+      } else {
+        setFormLayout("vertical");
+      }
+    });
+  }, []);
+
   return (
     <>
       <Loader isOpen={onFormSubmit.status === "loading"} />
@@ -133,7 +151,7 @@ const AddProduct = () => {
       <>
         <div className="p-6 rounded-lg bg-white">
           <Form
-            layout="vertical"
+            layout={formLayout}
             onFinish={(values) => onFormSubmit.mutate(values)}
           >
             <Form.Item label="Product Image">
@@ -165,7 +183,7 @@ const AddProduct = () => {
               <Input />
             </Form.Item>
 
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid sm:grid-cols-2 gap-2">
               <Form.Item
                 label={
                   <Space>
@@ -227,7 +245,7 @@ const AddProduct = () => {
               </Form.Item>
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid sm:grid-cols-2 gap-2">
               <Form.Item label="Alternate Products" name="alternate_products">
                 <Select
                   loading={productsStatus === "loading"}

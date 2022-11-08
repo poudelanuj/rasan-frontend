@@ -68,7 +68,7 @@ function CategoryWidget({
           </span>
         </div>
       )}
-      {isHovering && (
+      {(window.innerWidth < 700 || isHovering) && (
         <>
           <span
             className="flex justify-between absolute top-0 left-0 w-fit rounded-full text-white hover:text-[#ffffff]"

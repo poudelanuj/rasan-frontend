@@ -22,6 +22,8 @@ function AddProductPack({
     enabled: !!productSkuSlug,
   });
 
+  const [form] = Form.useForm();
+
   const onFormSubmit = useMutation(
     (formValues) => createProductPack(formValues),
     {
@@ -56,6 +58,7 @@ function AddProductPack({
           productSku &&
           productSku.price_per_piece && (
             <Form
+              form={form}
               layout="vertical"
               onFinish={(values) => onFormSubmit.mutate(values)}
             >

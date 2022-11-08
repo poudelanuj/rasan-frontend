@@ -106,22 +106,24 @@ function Brands() {
         avatar={getHeaderAvatarProps()}
         breadcrumb={getHeaderBreadcrumb()}
         extra={[
-          <PublishBrand key="1" />,
-          <ButtonWPermission
-            key="2"
-            codename="add_product"
-            onClick={() => navigate(`/product-list/add?brand=${slug}`)}
-          >
-            Add New Products
-          </ButtonWPermission>,
-          <ButtonWPermission
-            key="3"
-            codename="change_brand"
-            type="primary"
-            onClick={() => setIsEditBrand(true)}
-          >
-            Edit Brand
-          </ButtonWPermission>,
+          <div key="btn" className="flex sm:flex-row flex-col gap-2">
+            <PublishBrand key="1" />
+            <ButtonWPermission
+              key="2"
+              codename="add_product"
+              onClick={() => navigate(`/product-list/add?brand=${slug}`)}
+            >
+              Add New Products
+            </ButtonWPermission>
+            <ButtonWPermission
+              key="3"
+              codename="change_brand"
+              type="primary"
+              onClick={() => setIsEditBrand(true)}
+            >
+              Edit Brand
+            </ButtonWPermission>
+          </div>,
         ]}
         path="/brands"
         subTitle={getPublishTag()}

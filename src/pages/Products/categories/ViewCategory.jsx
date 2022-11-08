@@ -106,22 +106,24 @@ function Category() {
         avatar={getHeaderAvatarProps()}
         breadcrumb={getHeaderBreadcrumb()}
         extra={[
-          <PublishCategory key="1" />,
-          <ButtonWPermission
-            key="2"
-            codename="add_product"
-            onClick={() => navigate(`/product-list/add?category=${slug}`)}
-          >
-            Add New Products
-          </ButtonWPermission>,
-          <ButtonWPermission
-            key="3"
-            codename="change_category"
-            type="primary"
-            onClick={() => setIsEditcategory(true)}
-          >
-            Edit Category
-          </ButtonWPermission>,
+          <div key="btn" className="flex sm:flex-row flex-col gap-2">
+            <PublishCategory key="1" />
+            <ButtonWPermission
+              key="2"
+              codename="add_product"
+              onClick={() => navigate(`/product-list/add?category=${slug}`)}
+            >
+              Add New Products
+            </ButtonWPermission>
+            <ButtonWPermission
+              key="3"
+              codename="change_category"
+              type="primary"
+              onClick={() => setIsEditcategory(true)}
+            >
+              Edit Category
+            </ButtonWPermission>
+          </div>,
         ]}
         path="/category-list"
         subTitle={getPublishTag()}

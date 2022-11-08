@@ -10,7 +10,7 @@ import {
 import { parseSlug } from "../../../../utils";
 import { getProductSkusFromBrand } from "../../../../api/brands";
 import { GET_PRODUCT_SKUS_FROM_BRAND } from "../../../../constants/queryKeys";
-import { uniqBy } from "lodash";
+import { isEmpty, uniqBy } from "lodash";
 import { ALERT_TYPE } from "../../../../constants";
 import Alert from "../../../../shared/Alert";
 import { bulkDelete, bulkPublish } from "../../../../api/products/productSku";
@@ -264,6 +264,7 @@ function TabSKU({ slug }) {
             rowClassName="cursor-pointer"
             rowKey="slug"
             rowSelection={rowSelection}
+            scroll={{ x: !isEmpty(paginatedProductSkus) && 1000 }}
             onRow={(record) => {
               return {
                 onClick: (_) => {

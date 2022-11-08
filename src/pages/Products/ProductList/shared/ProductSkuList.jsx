@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 
 import { Table, Tag } from "antd";
 import ButtonWPermission from "../../../../shared/ButtonWPermission";
+import { isEmpty } from "lodash";
 
 const columns = [
   {
@@ -94,6 +95,7 @@ function ProductSkuList({
               index: index + 1,
             }))}
             rowClassName="cursor-pointer"
+            scroll={{ x: !isEmpty(productSkus) && 1000 }}
             onRow={(record) => {
               return {
                 onClick: () => {

@@ -11,7 +11,7 @@ import {
 } from "../../../../utils";
 import { getProductSkusFromCategory } from "../../../../api/categories";
 import { GET_CATEGORY_PRODUCT_SKU } from "../../../../constants/queryKeys";
-import { uniqBy } from "lodash";
+import { isEmpty, uniqBy } from "lodash";
 import Alert from "../../../../shared/Alert";
 import { ALERT_TYPE } from "../../../../constants";
 import { bulkDelete, bulkPublish } from "../../../../api/products/productSku";
@@ -261,6 +261,7 @@ function TabSKU({ slug }) {
             rowClassName="cursor-pointer"
             rowKey="slug"
             rowSelection={rowSelection}
+            scroll={{ x: !isEmpty(productSkus) && 1000 }}
             onRow={(record) => {
               return {
                 onClick: (_) => {

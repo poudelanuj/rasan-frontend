@@ -9,7 +9,7 @@ import {
   Space,
   Breadcrumb,
 } from "antd";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { useQuery, useMutation } from "react-query";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { getAllBrands } from "../../../api/brands";
@@ -29,6 +29,8 @@ import {
 
 const EditProduct = () => {
   const [selectedImage, setSelectedImage] = useState(null);
+
+  const [formLayout, setFormLayout] = useState("vertical");
 
   const { Dragger } = Upload;
 
@@ -114,6 +116,22 @@ const EditProduct = () => {
     );
   }, []);
 
+  useEffect(() => {
+    if (window.innerWidth < 700) {
+      setFormLayout("horizontal");
+    } else {
+      setFormLayout("vertical");
+    }
+
+    window.addEventListener("resize", () => {
+      if (window.innerWidth < 700) {
+        setFormLayout("horizontal");
+      } else {
+        setFormLayout("vertical");
+      }
+    });
+  }, []);
+
   return (
     <>
       <Loader
@@ -133,7 +151,7 @@ const EditProduct = () => {
         {productStatus === "success" && product && product.name && (
           <div>
             <Form
-              layout="vertical"
+              layout={formLayout}
               onFinish={(values) => onFormSubmit.mutate(values)}
             >
               <Form.Item label="Product Image">
@@ -169,7 +187,7 @@ const EditProduct = () => {
                 <Input defaultValue={product.name} />
               </Form.Item>
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid sm:grid-cols-2 gap-2">
                 <Form.Item
                   initialValue={product.category}
                   label="Product Category"
@@ -218,7 +236,7 @@ const EditProduct = () => {
                 </Form.Item>
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid sm:grid-cols-2 gap-2">
                 <Form.Item
                   initialValue={product.alternate_products}
                   label="Alternate Products"
