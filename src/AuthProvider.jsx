@@ -3,10 +3,13 @@ import { useQuery } from "react-query";
 import { isLoggedIn } from "./utils";
 import { getUserGroupsById, getUserGroups } from "./api/userGroups";
 import { GET_USER_GROUPS_BY_ID, GET_USER_GROUPS } from "./constants/queryKeys";
+import { useEffect } from "react";
 
 let AuthContext = createContext(null);
 
 export default function AuthProvider({ children }) {
+  const [isMobileView, setIsMobileView] = useState(false);
+
   let [user, setUser] = useState(isLoggedIn());
   const loginFinalise = (token, profile, groups, callback) => {
     localStorage.setItem("auth_token", token);
@@ -38,7 +41,16 @@ export default function AuthProvider({ children }) {
     logout,
     permissions: userGroup && userGroup[0].data.data.permissions,
     userGroupIds: userGroupIds && userGroupIds.map((el) => el.id),
+    isMobileView,
   };
+
+  useEffect(() => {
+    window.innerWidth < 700 ? setIsMobileView(true) : setIsMobileView(false);
+
+    window.addEventListener("resize", () =>
+      window.innerWidth < 700 ? setIsMobileView(true) : setIsMobileView(false)
+    );
+  }, []);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

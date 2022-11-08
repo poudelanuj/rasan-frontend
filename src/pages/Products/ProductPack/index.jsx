@@ -339,7 +339,10 @@ const ProductPack = () => {
 
         <Tabs
           defaultActiveKey="published"
-          onTabClick={(key) => setIsPublished(key === "published")}
+          onTabClick={(key) => {
+            setPage(1);
+            setIsPublished(key === "published");
+          }}
         >
           <Tabs.TabPane key="published" tab="Published">
             <Table
