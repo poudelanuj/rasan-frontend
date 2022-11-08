@@ -1,7 +1,20 @@
 import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { Divider, Pagination, Tag, Button, Dropdown, Radio, Space } from "antd";
-import { RightOutlined } from "@ant-design/icons";
+import {
+  Divider,
+  Pagination,
+  Tag,
+  Button,
+  Dropdown,
+  Radio,
+  Space,
+  Spin,
+} from "antd";
+import {
+  RightOutlined,
+  SearchOutlined,
+  LoadingOutlined,
+} from "@ant-design/icons";
 import moment from "moment";
 import { capitalize } from "lodash";
 import { OrderContext } from ".";
@@ -18,11 +31,15 @@ const MobileViewOrderList = () => {
     ordersCount,
     sortObj,
     setSortObj,
+    status,
+    searchInput,
   } = useContext(OrderContext);
 
   const navigate = useNavigate();
 
   const [isSortAscending, setIsSortAscending] = useState(false);
+
+  let timeout = 0;
 
   const menu = (
     <span className="flex flex-col gap-2.5 bg-white shadow-lg z-10 rounded-lg p-3">
@@ -69,11 +86,31 @@ const MobileViewOrderList = () => {
 
   return (
     <>
-      <Dropdown overlay={menu}>
-        <Button className="!rounded-lg text-sm px-3 mb-2">
-          <span>Sort</span>
-        </Button>
-      </Dropdown>
+      <div className="flex items-center gap-2 mb-2">
+        <Dropdown overlay={menu}>
+          <Button className="!rounded-lg text-sm px-3">
+            <span>Sort</span>
+          </Button>
+        </Dropdown>
+
+        <div className="py-[3px] px-3 w-full border-[1px] border-[#D9D9D9] rounded-lg flex items-center justify-between">
+          <SearchOutlined style={{ color: "#D9D9D9" }} />
+          <input
+            className="focus:outline-none w-full ml-1 placeholder:text-[#D9D9D9]"
+            placeholder={"Search customer..."}
+            type="text"
+            onChange={(e) => {
+              searchInput.current = e.target.value;
+              if (timeout) clearTimeout(timeout);
+              timeout = setTimeout(refetchOrders, 400);
+            }}
+          />
+        </div>
+
+        {(status === "loading" || status === "refetching") && (
+          <Spin indicator={<LoadingOutlined />} />
+        )}
+      </div>
 
       {dataSource.map((order) => (
         <div
