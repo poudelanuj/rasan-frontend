@@ -133,7 +133,7 @@ const ProductPack = () => {
           setSelectedCSV(
             csvParse(csv).map((cs) => ({
               ...cs,
-              product_sku_category: cs.product_sku_category
+              category_name: cs.category_name
                 .replace("'", "")
                 .replace("'", "")
                 .split("\n"),
@@ -206,32 +206,32 @@ const ProductPack = () => {
     },
     {
       title: "Brand",
-      dataIndex: "product_sku_brand",
-      key: "product_sku_brand",
+      dataIndex: "brand_name",
+      key: "brand_name",
       width: "12%",
-      render: (_, { product_sku_brand }) => (
+      render: (_, { brand_slug }) => (
         <span
           className="text-blue-500 cursor-pointer hover:underline"
-          onClick={() => navigate(`/brands/${product_sku_brand}`)}
+          onClick={() => navigate(`/brands/${brand_slug}`)}
         >
-          {capitalize(product_sku_brand.replaceAll("-", " "))}
+          {capitalize(brand_slug.replaceAll("-", " "))}
         </span>
       ),
     },
     {
       title: "Category",
-      dataIndex: "product_sku_category",
-      key: "product_sku_category",
+      dataIndex: "category_name",
+      key: "category_name",
       width: "12%",
-      render: (_, { product_sku_category }) =>
-        product_sku_category.map((category) => (
+      render: (_, { category_slug }) =>
+        category_slug.map((category) => (
           <span
             key={category}
             className="text-blue-500 cursor-pointer hover:underline"
             onClick={() => navigate(`/category-list/${category}`)}
           >
             {capitalize(category.replaceAll("-", " "))}
-            {product_sku_category.length !== 1 && ", "}
+            {category_slug.length !== 1 && ", "}
           </span>
         )),
     },
@@ -309,6 +309,8 @@ const ProductPack = () => {
                     data.map((product) => {
                       delete product["product_slug"];
                       delete product["product_sku_slug"];
+                      delete product["brand_slug"];
+                      delete product["category_slug"];
                       delete product["is_published"];
                       return product;
                     })

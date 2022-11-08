@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useQuery } from "react-query";
 import { Table, Tag, Input } from "antd";
 import moment from "moment";
+import { isEmpty } from "lodash";
 import { getOrdersAssignedToMe } from "../../../api/dashboard";
 import { GET_ORDERS_ASSIGNED } from "../../../constants/queryKeys";
 import { useNavigate } from "react-router-dom";
@@ -209,7 +210,7 @@ const OrdersAssigned = () => {
             setPageSize(pageSize);
           },
         }}
-        scroll={{ x: 1000 }}
+        scroll={{ x: !isEmpty(orders) ? 1000 : undefined }}
         showSorterTooltip={false}
       />
     </>

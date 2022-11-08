@@ -287,7 +287,7 @@ const OrdersList = ({
           },
         }}
         rowSelection={{ ...rowSelection }}
-        scroll={{ x: 1000 }}
+        scroll={{ x: !isEmpty(dataSource) ? 1000 : undefined }}
         showSorterTooltip={false}
       />
 
