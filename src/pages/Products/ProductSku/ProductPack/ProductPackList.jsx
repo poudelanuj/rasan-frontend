@@ -1,6 +1,6 @@
-import React from "react";
 import { useMutation } from "react-query";
 import { useState } from "react";
+import { isEmpty } from "lodash";
 import { Input, Space, Table, Tag, Button, Popconfirm } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import {
@@ -274,7 +274,7 @@ function ProductPackList({ productSkuSlug, productPacks, refetchProductSku }) {
             </Popconfirm>
           ),
         }}
-        scroll={{ x: 700 }}
+        scroll={{ x: !isEmpty(productPacks) && 700 }}
       />
     </>
   );

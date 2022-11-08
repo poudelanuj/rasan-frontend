@@ -12,7 +12,7 @@ import {
   openSuccessNotification,
   parseSlug,
 } from "../../../utils";
-import { uniqBy } from "lodash";
+import { isEmpty, uniqBy } from "lodash";
 import { GET_PAGINATED_PRODUCT_SKUS } from "../../../constants/queryKeys";
 import {
   deleteProductSku,
@@ -365,7 +365,7 @@ function ProductSkuScreen() {
                 },
               }}
               rowSelection={rowSelection}
-              scroll={{ x: 1000 }}
+              scroll={{ x: !isEmpty(productSkus) && 1000 }}
               showSorterTooltip={false}
             />
           </div>

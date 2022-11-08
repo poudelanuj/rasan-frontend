@@ -8,6 +8,7 @@ import {
   openSuccessNotification,
 } from "../../../../../utils/openNotification";
 import { createProductPack } from "../../../../../api/products/productPack";
+import { isEmpty } from "lodash";
 
 function AddProductPack({
   productSkuSlug,
@@ -75,10 +76,26 @@ function AddProductPack({
               </Form.Item>
 
               <Form.Item
-                label="Number Of Items"
+                label="Number of Items"
                 name="number_of_items"
                 rules={[
                   { required: true, message: "Number of items required" },
+                  {
+                    validator: (_, value) =>
+                      value < 0
+                        ? Promise.reject("Negative values not allowed")
+                        : Promise.resolve(),
+                  },
+                  {
+                    validator: (_, value) =>
+                      !isEmpty(
+                        productSku.product_packs?.find(
+                          (product) => product.number_of_items === Number(value)
+                        )
+                      )
+                        ? Promise.reject("Product pack already exists")
+                        : Promise.resolve(),
+                  },
                 ]}
               >
                 <Input type="number" />
@@ -90,6 +107,12 @@ function AddProductPack({
                 name="price_per_piece"
                 rules={[
                   { required: true, message: "Price per piece is required" },
+                  {
+                    validator: (_, value) =>
+                      value < 0
+                        ? Promise.reject("Negative values not allowed")
+                        : Promise.resolve(),
+                  },
                 ]}
               >
                 <Input
@@ -104,6 +127,12 @@ function AddProductPack({
                 name="mrp_per_piece"
                 rules={[
                   { required: true, message: "MRP per piece is required" },
+                  {
+                    validator: (_, value) =>
+                      value < 0
+                        ? Promise.reject("Negative values not allowed")
+                        : Promise.resolve(),
+                  },
                 ]}
               >
                 <Input defaultValue={productSku.mrp_per_piece} type="number" />

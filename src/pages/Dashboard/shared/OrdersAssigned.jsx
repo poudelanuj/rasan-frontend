@@ -210,7 +210,7 @@ const OrdersAssigned = () => {
             setPageSize(pageSize);
           },
         }}
-        scroll={{ x: !isEmpty(orders) ? 1000 : undefined }}
+        scroll={{ x: !isEmpty(orders) && 1000 }}
         showSorterTooltip={false}
       />
     </>

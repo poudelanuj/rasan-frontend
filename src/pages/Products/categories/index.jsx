@@ -159,7 +159,7 @@ const CategoryList = () => {
       <CustomPageHeader title="Categories" isBasicHeader />
 
       <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[75vh]">
-        <div className="flex justify-between mb-3">
+        <div className="flex sm:flex-row flex-col-reverse gap-2 justify-between mb-3">
           <Space className="flex items-center">
             <div className="py-[3px] px-3 min-w-[18rem] border-[1px] border-[#D9D9D9] rounded-lg flex items-center justify-between">
               <SearchOutlined style={{ color: "#D9D9D9" }} />
