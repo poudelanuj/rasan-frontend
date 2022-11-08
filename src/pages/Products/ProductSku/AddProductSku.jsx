@@ -35,11 +35,14 @@ import {
 } from "../../../constants/queryKeys";
 import CreateCategoryModal from "../shared/CreateCategoryModal";
 import CreateBrandModal from "../shared/CreateBrandModal";
+import { useEffect } from "react";
 
 const AddProductSku = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [isCreateCategoryOpen, setIsCreateCategoryOpen] = useState(false);
   const [isCreateBrandOpen, setIsCreatBrandOpen] = useState(false);
+
+  const [formLayout, setFormLayout] = useState("vertical");
 
   const { Dragger } = Upload;
 
@@ -128,6 +131,22 @@ const AddProductSku = () => {
     );
   }, []);
 
+  useEffect(() => {
+    if (window.innerWidth < 700) {
+      setFormLayout("horizontal");
+    } else {
+      setFormLayout("vertical");
+    }
+
+    window.addEventListener("resize", () => {
+      if (window.innerWidth < 700) {
+        setFormLayout("horizontal");
+      } else {
+        setFormLayout("vertical");
+      }
+    });
+  }, []);
+
   return (
     <>
       <Loader isOpen={onFormSubmit.status === "loading"} />
@@ -150,7 +169,7 @@ const AddProductSku = () => {
       <>
         <div className="p-6 bg-white rounded-lg">
           <Form
-            layout="vertical"
+            layout={formLayout}
             onFinish={(values) => onFormSubmit.mutate(values)}
           >
             <Form.Item label="Product Image">
@@ -174,7 +193,7 @@ const AddProductSku = () => {
               </Dragger>
             </Form.Item>
 
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid sm:grid-cols-2 gap-2">
               <Form.Item
                 label="Product Name"
                 name="name"
@@ -196,7 +215,7 @@ const AddProductSku = () => {
               </Form.Item>
             </div>
 
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid sm:grid-cols-4 grid-cols-2 gap-2">
               <Form.Item
                 label="Quantity"
                 name="quantity"
@@ -261,7 +280,7 @@ const AddProductSku = () => {
               <Input.TextArea placeholder="Description" rows={4} />
             </Form.Item>
 
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid sm:grid-cols-2 gap-2">
               <Form.Item
                 initialValue={JSON.parse(searchParams.get("category") || "[]")}
                 label={
@@ -325,7 +344,7 @@ const AddProductSku = () => {
               </Form.Item>
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid sm:grid-cols-2 gap-2">
               <Form.Item
                 initialValue={searchParams.get("product")}
                 label={

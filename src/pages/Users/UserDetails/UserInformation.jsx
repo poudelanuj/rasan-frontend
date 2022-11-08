@@ -66,7 +66,8 @@ const UserInformation = ({ user }) => {
       shop_name: user.shop?.name,
       number: user.phone,
       alternate_number: user.alternate_phone,
-      date_of_birth: moment(user.date_of_birth, "YYYY-MM-DD"),
+      date_of_birth:
+        user.date_of_birth && moment(user.date_of_birth, "YYYY-MM-DD"),
     };
     user.addresses.forEach((address, index) => {
       data[`address-${index + 1}`] = address.detail_address;

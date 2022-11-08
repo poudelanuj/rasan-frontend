@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { EditOutlined } from "@ant-design/icons";
 import { Descriptions, Divider, Tag, Space, Spin } from "antd";
@@ -19,6 +20,8 @@ import {
 const ProductSkuDetails = ({ productSku, slug, refetchProductSku }) => {
   const navigate = useNavigate();
 
+  const [descriptionSpan, setDescriptionSpan] = useState(3);
+
   const handlePublish = useMutation(
     (bool) => (bool ? publishProductSku(slug) : unpublishProductSku(slug)),
     {
@@ -28,11 +31,27 @@ const ProductSkuDetails = ({ productSku, slug, refetchProductSku }) => {
     }
   );
 
+  useEffect(() => {
+    if (window.innerWidth < 700) {
+      setDescriptionSpan(1);
+    } else {
+      setDescriptionSpan(3);
+    }
+
+    window.addEventListener("resize", () => {
+      if (window.innerWidth < 700) {
+        setDescriptionSpan(1);
+      } else {
+        setDescriptionSpan(3);
+      }
+    });
+  }, []);
+
   return (
     <>
       <div>
-        <div className="flex justify-start relative">
-          <div className="w-[200px] h-[200px] rounded ">
+        <div className="flex sm:flex-row flex-col justify-start gap-3 relative">
+          <div className="w-[200px] h-[200px] rounded">
             <img
               alt="product"
               className="w-[100%] h-[100%] rounded object-cover"
@@ -40,7 +59,7 @@ const ProductSkuDetails = ({ productSku, slug, refetchProductSku }) => {
             />
           </div>
 
-          <div className="w-[50%] mx-8">
+          <div className="sm:w-[50%] sm:mx-8">
             <Descriptions column={1} title="">
               <Descriptions.Item label="Name">
                 <span className="font-medium">{productSku.name}</span>
@@ -92,7 +111,7 @@ const ProductSkuDetails = ({ productSku, slug, refetchProductSku }) => {
             </Descriptions>
           </div>
 
-          <div className="absolute top-0 right-0">
+          <div className="sm:absolute top-0 right-0">
             <Space>
               <ButtonWPermission
                 className="rounded"
@@ -129,7 +148,7 @@ const ProductSkuDetails = ({ productSku, slug, refetchProductSku }) => {
             <h3 className="text-xl text-[#374253]">Product SKU Details</h3>
           </div>
 
-          <Descriptions column={3} size="middle" bordered>
+          <Descriptions column={descriptionSpan} size="middle" bordered>
             <Descriptions.Item label="S.N.">
               <span className="font-medium">{productSku.sn}</span>
             </Descriptions.Item>

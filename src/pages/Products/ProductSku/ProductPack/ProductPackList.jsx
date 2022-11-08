@@ -77,7 +77,7 @@ function ProductPackList({ productSkuSlug, productPacks, refetchProductSku }) {
       key: "sn",
     },
     {
-      title: "Number Of Items",
+      title: "Number of Items",
       dataIndex: "number_of_items",
       key: "number_of_items",
       render: (_, { id }) => (
@@ -274,6 +274,7 @@ function ProductPackList({ productSkuSlug, productPacks, refetchProductSku }) {
             </Popconfirm>
           ),
         }}
+        scroll={{ x: 700 }}
       />
     </>
   );
