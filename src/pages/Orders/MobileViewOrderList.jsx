@@ -151,7 +151,7 @@ const MobileViewOrderList = () => {
           </div>
 
           <div className="flex items-center justify-between text-sm p-2 rounded-lg bg-gray-100">
-            <span>Patment Method</span>
+            <span>Payment Method</span>
             <span className="font-semibold">
               {capitalize(order.payment?.payment_method?.replaceAll("_", " "))}
             </span>
