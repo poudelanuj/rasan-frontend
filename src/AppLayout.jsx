@@ -85,7 +85,7 @@ const AppLayout = () => {
           visible={isDrawerOpen}
           onClose={() => setIsDrawerOpen(false)}
         >
-          <SidebarMenu />
+          <SidebarMenu setIsDrawerOpen={setIsDrawerOpen} />
         </Drawer>
 
         <Layout

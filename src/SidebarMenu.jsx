@@ -145,7 +145,7 @@ const sidebarItem = [
   },
 ];
 
-const SidebarMenu = () => {
+const SidebarMenu = ({ setIsDrawerOpen }) => {
   const { permissions } = useAuth();
 
   const navigate = useNavigate();
@@ -197,6 +197,7 @@ const SidebarMenu = () => {
       }}
       onClick={({ key }) => {
         navigate(key);
+        setIsDrawerOpen(false);
       }}
     />
   );
