@@ -87,8 +87,24 @@ const MobileViewOrderList = () => {
   return (
     <>
       <div className="flex items-center gap-2 mb-2">
+        <Button className="!rounded-lg text-sm px-3 w-24">
+          <span>Export</span>
+        </Button>
+
+        <Button
+          className="!rounded-lg text-sm px-3 w-full"
+          type="primary"
+          onClick={() => {
+            navigate("/orders/create-order");
+          }}
+        >
+          <span>Create New Order</span>
+        </Button>
+      </div>
+
+      <div className="flex items-center gap-2 mb-4">
         <Dropdown overlay={menu}>
-          <Button className="!rounded-lg text-sm px-3">
+          <Button className="!rounded-lg text-sm px-3 w-24">
             <span>Sort</span>
           </Button>
         </Dropdown>
@@ -97,12 +113,15 @@ const MobileViewOrderList = () => {
           <SearchOutlined style={{ color: "#D9D9D9" }} />
           <input
             className="focus:outline-none w-full ml-1 placeholder:text-[#D9D9D9]"
-            placeholder={"Search customer..."}
+            placeholder="Search user, contact, shop"
             type="text"
             onChange={(e) => {
               searchInput.current = e.target.value;
               if (timeout) clearTimeout(timeout);
-              timeout = setTimeout(refetchOrders, 400);
+              timeout = setTimeout(() => {
+                setPage(1);
+                refetchOrders();
+              }, 400);
             }}
           />
         </div>

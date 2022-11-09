@@ -134,14 +134,16 @@ const ProductPack = () => {
           const csv = e.target.result;
 
           setSelectedCSV(
-            csvParse(csv).map((cs) => ({
-              ...cs,
-              category_name: cs.category_name
-                .replace("'", "")
-                .replace("'", "")
-                .split("\n"),
-              is_published: cs.is_published === "TRUE",
-            }))
+            csvParse(csv).map((cs) => {
+              delete cs["is_published"];
+              return {
+                ...cs,
+                category_name: cs.category_name
+                  .replace("'", "")
+                  .replace("'", "")
+                  .split("\n"),
+              };
+            })
           );
           showConfirm(file.name);
         };

@@ -271,7 +271,10 @@ const OrdersList = () => {
             onChange={(e) => {
               searchInput.current = e.target.value;
               if (timeout) clearTimeout(timeout);
-              timeout = setTimeout(refetchOrders, 400);
+              timeout = setTimeout(() => {
+                setPage(1);
+                refetchOrders();
+              }, 400);
             }}
           />
         </div>

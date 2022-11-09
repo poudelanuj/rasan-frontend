@@ -350,11 +350,11 @@ const ViewOrderPage = () => {
           <Spin />
         ) : (
           user && (
-            <div className="flex sm:flex-row flex-col pb-4">
+            <div className="flex sm:flex-row flex-col gap-2 pb-4">
               <img
                 alt={user.full_name}
-                className="sm:mr-3 sm:h-14 sm:w-14 object-cover"
-                src={user.profile_picture.full_size || rasanDefault}
+                className="sm:mr-3 sm:h-14 sm:w-14 h-20 w-20 object-cover"
+                src={user.profile_picture.thumbnail || rasanDefault}
               />
               <div className="flex flex-col sm:gap-0 gap-2">
                 <div className="font-medium text-lg">
