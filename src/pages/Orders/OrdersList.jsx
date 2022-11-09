@@ -21,6 +21,7 @@ import {
 } from "../../constants";
 import { useContext } from "react";
 import { OrderContext } from ".";
+import { useAuth } from "../../AuthProvider";
 
 const OrdersList = () => {
   const {
@@ -36,6 +37,8 @@ const OrdersList = () => {
     setSortObj,
     searchInput,
   } = useContext(OrderContext);
+
+  const { isMobileView } = useAuth();
 
   let timeout = 0;
 
@@ -266,7 +269,7 @@ const OrdersList = () => {
           </ButtonWPermission>
 
           <Input.Search
-            className={`${window.innerWidth < 700 && "!w-full"}`}
+            className={`${isMobileView && "!w-full"}`}
             placeholder="Search user, contact, shop"
             onChange={(e) => {
               searchInput.current = e.target.value;

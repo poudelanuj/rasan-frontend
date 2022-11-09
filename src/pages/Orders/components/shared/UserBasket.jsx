@@ -16,8 +16,11 @@ import { getAllProductSkus } from "../../../../api/products/productSku";
 import { GET_ALL_PRODUCT_SKUS } from "../../../../constants/queryKeys";
 import { STATUS } from "../../../../constants";
 import ButtonWPermission from "../../../../shared/ButtonWPermission";
+import { useAuth } from "../../../../AuthProvider";
 
-const UserBasket = ({ user, setBasketItemsStatus, formLayout }) => {
+const UserBasket = ({ user, setBasketItemsStatus }) => {
+  const { isMobileView } = useAuth();
+
   const { basket_id } = user;
 
   const [selectedProductSku, setSelectedSku] = useState();
@@ -223,7 +226,7 @@ const UserBasket = ({ user, setBasketItemsStatus, formLayout }) => {
         <Form
           key={basketForm.id}
           className="w-full flex sm:flex-row flex-col !items-start gap-2"
-          layout={formLayout}
+          layout={isMobileView ? "horizontal" : "vertical"}
         >
           <Form.Item className="sm:w-auto w-full" label="Product SKU">
             <Select

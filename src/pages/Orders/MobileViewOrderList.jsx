@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Divider,
@@ -19,6 +19,9 @@ import moment from "moment";
 import { capitalize } from "lodash";
 import { OrderContext } from ".";
 import getOrderStatusColor from "../../shared/tagColor";
+import ButtonWPermission from "../../shared/ButtonWPermission";
+import DeleteOrder from "./components/DeleteOrder";
+import { CANCELLED_BY_CSR, CANCELLED_BY_CUSTOMER } from "../../constants";
 
 const MobileViewOrderList = () => {
   const {
@@ -38,6 +41,11 @@ const MobileViewOrderList = () => {
   const navigate = useNavigate();
 
   const [isSortAscending, setIsSortAscending] = useState(false);
+
+  const [isDeleteOrder, setIsDeleteOrder] = useState({
+    isOpen: false,
+    id: null,
+  });
 
   let timeout = 0;
 
@@ -91,15 +99,16 @@ const MobileViewOrderList = () => {
           <span>Export</span>
         </Button>
 
-        <Button
+        <ButtonWPermission
           className="!rounded-lg text-sm px-3 w-full"
+          codename="add_order"
           type="primary"
           onClick={() => {
             navigate("/orders/create-order");
           }}
         >
           <span>Create New Order</span>
-        </Button>
+        </ButtonWPermission>
       </div>
 
       <div className="flex items-center gap-2 mb-4">
@@ -132,58 +141,82 @@ const MobileViewOrderList = () => {
       </div>
 
       {dataSource.map((order) => (
-        <div
-          key={order.id}
-          className="w-full flex flex-col gap-2"
-          onClick={() => navigate(`/orders/view-order/${order.id}`)}
-        >
-          <div className="flex justify-between items-start">
-            <div className="flex flex-col gap-1">
-              <span className="font-bold">Order Id: {order.id}</span>
+        <React.Fragment key={order.id}>
+          <div
+            className="w-full flex flex-col gap-2"
+            onClick={() => navigate(`/orders/view-order/${order.id}`)}
+          >
+            <div className="flex justify-between items-start">
+              <div className="flex flex-col gap-1">
+                <span className="font-bold">Order Id: {order.id}</span>
 
-              <span className="text-xs">
-                {moment(order.created_at).format("lll")}
+                <span className="text-xs">
+                  {moment(order.created_at).format("lll")}
+                </span>
+              </div>
+
+              <div className="flex items-center">
+                <Tag color={getOrderStatusColor(order.status)}>
+                  {order.status.toUpperCase().replaceAll("_", " ")}
+                </Tag>
+
+                <RightOutlined />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between text-sm p-2 rounded-lg bg-gray-100">
+              <span>Customer</span>
+              <span className="font-semibold">
+                {order.customer_name
+                  ? `${order.customer_name} (${order.phone})`
+                  : order.phone}
               </span>
             </div>
 
-            <div className="flex items-center">
-              <Tag color={getOrderStatusColor(order.status)}>
-                {order.status.toUpperCase().replaceAll("_", " ")}
-              </Tag>
+            <div className="flex items-center justify-between text-sm p-2 rounded-lg">
+              <span>Total Paid Amount</span>
+              <span className="font-semibold">{order.total_paid_amount}</span>
+            </div>
 
-              <RightOutlined />
+            <div className="flex items-center justify-between text-sm p-2 rounded-lg bg-gray-100">
+              <span>Payment Method</span>
+              <span className="font-semibold">
+                {capitalize(
+                  order.payment?.payment_method?.replaceAll("_", " ")
+                )}
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between text-sm p-2 pb-4 rounded-lg">
+              <span>Shop Name</span>
+              <span className="font-semibold">{order.shop_name}</span>
             </div>
           </div>
 
-          <div className="flex items-center justify-between text-sm p-2 rounded-lg bg-gray-100">
-            <span>Customer</span>
-            <span className="font-semibold">
-              {order.customer_name
-                ? `${order.customer_name} (${order.phone})`
-                : order.phone}
-            </span>
-          </div>
-
-          <div className="flex items-center justify-between text-sm p-2 rounded-lg">
-            <span>Total Paid Amount</span>
-            <span className="font-semibold">{order.total_paid_amount}</span>
-          </div>
-
-          <div className="flex items-center justify-between text-sm p-2 rounded-lg bg-gray-100">
-            <span>Payment Method</span>
-            <span className="font-semibold">
-              {capitalize(order.payment?.payment_method?.replaceAll("_", " "))}
-            </span>
-          </div>
-
-          <div className="flex items-center justify-between text-sm p-2 pb-0 rounded-lg">
-            <span>Shop Name</span>
-            <span className="font-semibold">{order.shop_name}</span>
-          </div>
+          <ButtonWPermission
+            className="!rounded-lg text-sm px-3"
+            codename="delete_order"
+            disabled={
+              order.status !== CANCELLED_BY_CSR &&
+              order.status !== CANCELLED_BY_CUSTOMER
+            }
+            danger
+            onClick={() => setIsDeleteOrder({ isOpen: true, id: order.id })}
+          >
+            <span>Delete</span>
+          </ButtonWPermission>
 
           <Divider className="bg-slate-300" />
-        </div>
+        </React.Fragment>
       ))}
+
+      <DeleteOrder
+        closeModal={() => setIsDeleteOrder({ isOpen: false })}
+        isOpen={isDeleteOrder.isOpen}
+        orderId={isDeleteOrder.id}
+        refetchOrders={refetchOrders}
+        title={"Order #" + isDeleteOrder.id}
+      />
 
       <Pagination
         current={page}

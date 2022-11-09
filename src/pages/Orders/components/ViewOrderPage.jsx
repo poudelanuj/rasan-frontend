@@ -55,7 +55,7 @@ import {
 import { getAllProductSkus } from "../../../api/products/productSku";
 
 const ViewOrderPage = () => {
-  const { userGroupIds } = useAuth();
+  const { userGroupIds, isMobileView } = useAuth();
   const { orderId } = useParams();
   const { Option } = Select;
   const [selectedProductSku, setSelectedSku] = useState();
@@ -72,11 +72,7 @@ const ViewOrderPage = () => {
 
   const [userList, setUserList] = useState([]);
 
-  const [formLayout, setFormLayout] = useState("vertical");
-
   let timeout = 0;
-
-  const [descriptionSpan, setDescriptionSpan] = useState(3);
 
   const {
     data,
@@ -314,26 +310,6 @@ const ViewOrderPage = () => {
     }
   };
 
-  useEffect(() => {
-    if (window.innerWidth < 700) {
-      setFormLayout("horizontal");
-      setDescriptionSpan(1);
-    } else {
-      setFormLayout("vertical");
-      setDescriptionSpan(3);
-    }
-
-    window.addEventListener("resize", () => {
-      if (window.innerWidth < 700) {
-        setFormLayout("horizontal");
-        setDescriptionSpan(1);
-      } else {
-        setFormLayout("vertical");
-        setDescriptionSpan(3);
-      }
-    });
-  }, []);
-
   return (
     <>
       <CustomPageHeader title={`Order #${orderId}`} />
@@ -490,7 +466,7 @@ const ViewOrderPage = () => {
         {data && data.payment && (
           <Descriptions
             className={"mt-6"}
-            column={descriptionSpan}
+            column={isMobileView ? 1 : 3}
             title={
               <Space className="w-full flex sm:flex-row flex-col-reverse sm:!items-center !items-start justify-between">
                 <div className="inline-flex gap-2 items-center">
@@ -573,7 +549,7 @@ const ViewOrderPage = () => {
         {handleAddItem.status !== "loading" && productsStatus === "success" && (
           <Form
             className="w-full flex sm:flex-row flex-col !items-start gap-2"
-            layout={formLayout}
+            layout={isMobileView ? "horizontal" : "vertical"}
           >
             <Form.Item className="sm:w-auto w-full" label="Product SKU">
               <Select
