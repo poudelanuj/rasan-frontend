@@ -17,6 +17,7 @@ import { GET_ALL_PRODUCT_SKUS } from "../../../../constants/queryKeys";
 import { STATUS } from "../../../../constants";
 import ButtonWPermission from "../../../../shared/ButtonWPermission";
 import { useAuth } from "../../../../AuthProvider";
+import MobileViewOrderPage from "../MobileViewOrderPage";
 
 const UserBasket = ({ user, setBasketItemsStatus }) => {
   const { isMobileView } = useAuth();
@@ -212,12 +213,19 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
         {user?.full_name || ""} {user?.phone || ""}
       </p>
 
-      <Table
-        columns={columns}
-        dataSource={dataSource || []}
-        loading={isBasketItemsRefetching || basketDataStatus === "loading"}
-        scroll={{ x: 1000 }}
-      />
+      {isMobileView ? (
+        <MobileViewOrderPage
+          deleteMutation={(id) => handleItemDelete.mutate(id)}
+          orderItems={dataSource}
+        />
+      ) : (
+        <Table
+          columns={columns}
+          dataSource={dataSource || []}
+          loading={isBasketItemsRefetching || basketDataStatus === "loading"}
+          scroll={{ x: 1000 }}
+        />
+      )}
 
       <hr className="my-5" />
       <h2 className="font-medium text-base mb-5">Add Item</h2>
@@ -228,7 +236,10 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
           className="w-full flex sm:flex-row flex-col !items-start gap-2"
           layout={isMobileView ? "horizontal" : "vertical"}
         >
-          <Form.Item className="sm:w-auto w-full" label="Product SKU">
+          <Form.Item
+            className="sm:w-auto w-full !mb-0"
+            label={!isMobileView && "Product SKU"}
+          >
             <Select
               className="sm:!w-[200px]"
               loading={productsStatus === "loading"}
@@ -245,8 +256,8 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
             </Select>
           </Form.Item>
           <Form.Item
-            className="sm:w-auto w-full"
-            label="Pack Size"
+            className="sm:w-auto w-full !mb-0"
+            label={!isMobileView && "Pack Size"}
             tooltip="Select Pack Size"
           >
             <Select
@@ -280,11 +291,12 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
           </Form.Item>
 
           <Form.Item
-            className="sm:w-auto w-full relative"
-            label="Quantity"
+            className="sm:w-auto w-full relative !mb-0"
+            label={!isMobileView && "Quantity"}
             name="quantity"
           >
             <Input
+              addonBefore={isMobileView && "Quantity"}
               className="sm:!w-20"
               placeholder="Quantity"
               type="number"
@@ -312,8 +324,12 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
             </span>
           </Form.Item>
 
-          <Form.Item className="sm:w-auto w-full" label="Price Per Piece">
+          <Form.Item
+            className="sm:w-auto w-full !mb-0"
+            label={!isMobileView && "Price Per Piece"}
+          >
             <Input
+              addonBefore={isMobileView && "Price Per Piece"}
               placeholder="Price"
               type="number"
               value={
@@ -324,8 +340,12 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
             />
           </Form.Item>
 
-          <Form.Item className="sm:w-auto w-full" label="Total Amount">
+          <Form.Item
+            className="sm:w-auto w-full !mb-0"
+            label={!isMobileView && "Loyalty"}
+          >
             <Input
+              addonBefore={isMobileView && "Total Amount"}
               placeholder="Total amount"
               type="number"
               value={getTotalAmount(basketForm.id)}
@@ -333,8 +353,12 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
             />
           </Form.Item>
 
-          <Form.Item className="sm:w-auto w-full" label="Loyalty">
+          <Form.Item
+            className="sm:w-auto w-full !mb-0"
+            label={!isMobileView && "Loyalty"}
+          >
             <Input
+              addonBefore={isMobileView && "Loyalty"}
               placeholder="Loyalty points"
               type="number"
               value={
@@ -348,8 +372,12 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
             />
           </Form.Item>
 
-          <Form.Item className="sm:w-auto w-full !mb-0" label="Cashback">
+          <Form.Item
+            className="sm:w-auto w-full !mb-0"
+            label={!isMobileView && "Cashback"}
+          >
             <Input
+              addonBefore={isMobileView && "Cashback"}
               placeholder="Cashback"
               type="number"
               value={
@@ -364,7 +392,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
           </Form.Item>
 
           <Form.Item>
-            <div style={{ height: 30 }} />
+            <div className="sm:h-[30px]" />
             {index + 1 === forms.length ? (
               <ButtonWPermission
                 codename="add_basketitem"

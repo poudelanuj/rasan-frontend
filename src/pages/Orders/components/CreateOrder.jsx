@@ -125,6 +125,7 @@ const CreateOrder = () => {
         <div className="p-6 rounded-lg bg-white">
           <div className="grid sm:grid-cols-2 gap-3">
             <Form.Item
+              className="!mb-1"
               label={
                 <div className="flex gap-3 items-center">
                   <span>User</span>
@@ -189,6 +190,7 @@ const CreateOrder = () => {
             </Form.Item>
 
             <Form.Item
+              className="!mb-1"
               label={
                 <div className="flex gap-3 items-center">
                   <span>Shipping Address</span>
@@ -249,6 +251,7 @@ const CreateOrder = () => {
 
           <div className="grid sm:grid-cols-3 sm:gap-3 mt-4">
             <Form.Item
+              className="!mb-1"
               initialValue={IN_PROCESS}
               label="Order Status"
               name="status"
@@ -278,6 +281,7 @@ const CreateOrder = () => {
             </Form.Item>
 
             <Form.Item
+              className="!mb-1"
               initialValue={CASH_ON_DELIVERY}
               label="Payment Method"
               name="payment_method"

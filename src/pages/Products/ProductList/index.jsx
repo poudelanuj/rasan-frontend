@@ -436,7 +436,10 @@ function ProductListScreen() {
               onChange={(e) => {
                 searchInput.current = e.target.value;
                 if (timeout) clearTimeout(timeout);
-                timeout = setTimeout(refetchProducts, 400);
+                timeout = setTimeout(() => {
+                  setPage(1);
+                  refetchProducts();
+                }, 400);
               }}
             />
           </div>

@@ -9,13 +9,14 @@ import {
   Space,
   Breadcrumb,
 } from "antd";
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState } from "react";
 import { useQuery, useMutation } from "react-query";
 import { Link, useNavigate } from "react-router-dom";
 import { getAllBrands } from "../../../api/brands";
 import { getAllCategories } from "../../../api/categories";
 import { getLoyaltyPolicies } from "../../../api/loyalties";
 import { createProduct, getAllProducts } from "../../../api/products";
+import { useAuth } from "../../../AuthProvider";
 import {
   GET_ALL_BRANDS,
   GET_ALL_CATEGORIES,
@@ -30,11 +31,11 @@ import CreateBrandModal from "../shared/CreateBrandModal";
 import CreateCategoryModal from "../shared/CreateCategoryModal";
 
 const AddProduct = () => {
+  const { isMobileView } = useAuth();
+
   const [selectedImage, setSelectedImage] = useState(null);
   const [isCreateCategoryOpen, setIsCreateCategoryOpen] = useState(false);
   const [isCreateBrandOpen, setIsCreatBrandOpen] = useState(false);
-
-  const [formLayout, setFormLayout] = useState("vertical");
 
   const { Dragger } = Upload;
 
@@ -113,22 +114,6 @@ const AddProduct = () => {
     );
   }, []);
 
-  useEffect(() => {
-    if (window.innerWidth < 700) {
-      setFormLayout("horizontal");
-    } else {
-      setFormLayout("vertical");
-    }
-
-    window.addEventListener("resize", () => {
-      if (window.innerWidth < 700) {
-        setFormLayout("horizontal");
-      } else {
-        setFormLayout("vertical");
-      }
-    });
-  }, []);
-
   return (
     <>
       <Loader isOpen={onFormSubmit.status === "loading"} />
@@ -151,7 +136,7 @@ const AddProduct = () => {
       <>
         <div className="p-6 rounded-lg bg-white">
           <Form
-            layout={formLayout}
+            layout={isMobileView ? "horizontal" : "vertical"}
             onFinish={(values) => onFormSubmit.mutate(values)}
           >
             <Form.Item label="Product Image">

@@ -331,7 +331,10 @@ function ProductSkuScreen() {
                 onChange={(e) => {
                   searchInput.current = e.target.value;
                   if (timeout) clearTimeout(timeout);
-                  timeout = setTimeout(refetchProductSkus, 400);
+                  timeout = setTimeout(() => {
+                    setPage(1);
+                    refetchProductSkus();
+                  }, 400);
                 }}
               />
             </div>

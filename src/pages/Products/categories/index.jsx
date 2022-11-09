@@ -170,7 +170,10 @@ const CategoryList = () => {
                 onChange={(e) => {
                   searchText.current = e.target.value;
                   if (timeout) clearTimeout(timeout);
-                  timeout = setTimeout(refetchCategories, 400);
+                  timeout = setTimeout(() => {
+                    setPage(1);
+                    refetchCategories();
+                  }, 400);
                 }}
               />
             </div>

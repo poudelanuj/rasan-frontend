@@ -167,7 +167,10 @@ function BrandsScreen() {
                 onChange={(e) => {
                   searchText.current = e.target.value;
                   if (timeout) clearTimeout(timeout);
-                  timeout = setTimeout(refetchBrands, 400);
+                  timeout = setTimeout(() => {
+                    setPage(1);
+                    refetchBrands();
+                  }, 400);
                 }}
               />
             </div>

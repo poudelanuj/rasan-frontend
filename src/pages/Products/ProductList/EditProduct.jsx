@@ -9,7 +9,7 @@ import {
   Space,
   Breadcrumb,
 } from "antd";
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState } from "react";
 import { useQuery, useMutation } from "react-query";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { getAllBrands } from "../../../api/brands";
@@ -26,11 +26,12 @@ import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../../utils/openNotification";
+import { useAuth } from "../../../AuthProvider";
 
 const EditProduct = () => {
-  const [selectedImage, setSelectedImage] = useState(null);
+  const { isMobileView } = useAuth();
 
-  const [formLayout, setFormLayout] = useState("vertical");
+  const [selectedImage, setSelectedImage] = useState(null);
 
   const { Dragger } = Upload;
 
@@ -116,22 +117,6 @@ const EditProduct = () => {
     );
   }, []);
 
-  useEffect(() => {
-    if (window.innerWidth < 700) {
-      setFormLayout("horizontal");
-    } else {
-      setFormLayout("vertical");
-    }
-
-    window.addEventListener("resize", () => {
-      if (window.innerWidth < 700) {
-        setFormLayout("horizontal");
-      } else {
-        setFormLayout("vertical");
-      }
-    });
-  }, []);
-
   return (
     <>
       <Loader
@@ -151,7 +136,7 @@ const EditProduct = () => {
         {productStatus === "success" && product && product.name && (
           <div>
             <Form
-              layout={formLayout}
+              layout={isMobileView ? "horizontal" : "vertical"}
               onFinish={(values) => onFormSubmit.mutate(values)}
             >
               <Form.Item label="Product Image">

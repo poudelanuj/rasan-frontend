@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { Descriptions, Divider, Tag, Spin, Space } from "antd";
 import { EditOutlined } from "@ant-design/icons";
 import { useMutation } from "react-query";
@@ -14,9 +13,10 @@ import { publishProduct, unpublishProduct } from "../../../api/products";
 import ProductSkuList from "./shared/ProductSkuList";
 import ButtonWPermission from "../../../shared/ButtonWPermission";
 import rasanDefault from "../../../assets/images/rasan-default.png";
+import { useAuth } from "../../../AuthProvider";
 
 const ProductDetails = ({ slug, product, refetchProduct }) => {
-  const [descriptionSpan, setDescriptionSpan] = useState(2);
+  const { isMobileView } = useAuth();
 
   const handlePublish = useMutation(
     (bool) => (bool ? publishProduct(slug) : unpublishProduct(slug)),
@@ -26,22 +26,6 @@ const ProductDetails = ({ slug, product, refetchProduct }) => {
       onSettled: () => refetchProduct(),
     }
   );
-
-  useEffect(() => {
-    if (window.innerWidth < 700) {
-      setDescriptionSpan(1);
-    } else {
-      setDescriptionSpan(2);
-    }
-
-    window.addEventListener("resize", () => {
-      if (window.innerWidth < 700) {
-        setDescriptionSpan(1);
-      } else {
-        setDescriptionSpan(2);
-      }
-    });
-  }, []);
 
   return (
     <div className="py-3">
@@ -137,7 +121,7 @@ const ProductDetails = ({ slug, product, refetchProduct }) => {
           <h3 className="text-xl text-[#374253]">Product Details</h3>
         </div>
 
-        <Descriptions column={descriptionSpan} size="middle" bordered>
+        <Descriptions column={isMobileView ? 1 : 2} size="middle" bordered>
           <Descriptions.Item label="S.N.">
             <span className="font-medium">{product.sn}</span>
           </Descriptions.Item>

@@ -181,7 +181,10 @@ const AdminUserList = () => {
         onChange={(e) => {
           searchText.current = e.target.value;
           if (timeout) clearTimeout(timeout);
-          timeout = setTimeout(refetch, 400);
+          timeout = setTimeout(() => {
+            setPage(1);
+            refetch();
+          }, 400);
         }}
       />
 

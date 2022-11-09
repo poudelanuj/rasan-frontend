@@ -53,6 +53,7 @@ import {
   GET_META_CITY_ADDRESS,
 } from "../../../constants/queryKeys";
 import { getAllProductSkus } from "../../../api/products/productSku";
+import MobileViewOrderPage from "./MobileViewOrderPage";
 
 const ViewOrderPage = () => {
   const { userGroupIds, isMobileView } = useAuth();
@@ -530,13 +531,20 @@ const ViewOrderPage = () => {
         <br />
 
         <h2 className="font-medium text-base mb-5">Order Items</h2>
-        {!isRefetching && status === "success" && (
-          <Table
-            columns={columns}
-            dataSource={dataSource || []}
-            scroll={{ x: 1000 }}
-          />
-        )}
+        {!isRefetching &&
+          status === "success" &&
+          (isMobileView ? (
+            <MobileViewOrderPage
+              deleteMutation={(id) => handleItemDelete.mutate(id)}
+              orderItems={dataSource}
+            />
+          ) : (
+            <Table
+              columns={columns}
+              dataSource={dataSource || []}
+              scroll={{ x: 1000 }}
+            />
+          ))}
 
         <hr className="my-5" />
         <h2 className="font-medium text-base mb-5">Add Item</h2>
@@ -551,7 +559,10 @@ const ViewOrderPage = () => {
             className="w-full flex sm:flex-row flex-col !items-start gap-2"
             layout={isMobileView ? "horizontal" : "vertical"}
           >
-            <Form.Item className="sm:w-auto w-full" label="Product SKU">
+            <Form.Item
+              className="sm:w-auto w-full !mb-0"
+              label={!isMobileView && "Product SKU"}
+            >
               <Select
                 className="sm:!w-[200px]"
                 placeholder="Select Product SKU"
@@ -571,8 +582,8 @@ const ViewOrderPage = () => {
               </Select>
             </Form.Item>
             <Form.Item
-              className="sm:w-auto w-full"
-              label="Pack Size"
+              className="sm:w-auto w-full !mb-0 !flex"
+              label={!isMobileView && "Pack Size"}
               tooltip="Select Pack Size"
             >
               <Select
@@ -600,11 +611,12 @@ const ViewOrderPage = () => {
             </Form.Item>
 
             <Form.Item
-              className="sm:w-auto w-full relative"
-              label="Quantity"
+              className="sm:w-auto w-full relative !mb-0"
+              label={!isMobileView && "Quantity"}
               name="quantity"
             >
               <Input
+                addonBefore={isMobileView && "Quantity"}
                 className="sm:!w-20 "
                 placeholder="Quantity"
                 type="number"
@@ -622,8 +634,12 @@ const ViewOrderPage = () => {
               </span>
             </Form.Item>
 
-            <Form.Item className="sm:w-auto w-full" label="Price Per Piece">
+            <Form.Item
+              className="sm:w-auto w-full !mb-0"
+              label={!isMobileView && "Price Per Piece"}
+            >
               <Input
+                addonBefore={isMobileView && "Price Per Piece"}
                 placeholder="Price"
                 type="number"
                 value={selectedProductPack?.price_per_piece}
@@ -631,8 +647,12 @@ const ViewOrderPage = () => {
               />
             </Form.Item>
 
-            <Form.Item className="sm:w-auto w-full" label="Total Amount">
+            <Form.Item
+              className="sm:w-auto w-full !mb-0"
+              label={!isMobileView && "Total Amount"}
+            >
               <Input
+                addonBefore={isMobileView && "Total Amount"}
                 placeholder="Total amount"
                 type="number"
                 value={getTotalAmount()}
@@ -640,8 +660,12 @@ const ViewOrderPage = () => {
               />
             </Form.Item>
 
-            <Form.Item className="sm:w-auto w-full" label="Loyalty">
+            <Form.Item
+              className="sm:w-auto w-full !mb-0"
+              label={!isMobileView && "Loyalty"}
+            >
               <Input
+                addonBefore={isMobileView && "Loyalty"}
                 placeholder="Loyalty points"
                 type="number"
                 value={
@@ -655,8 +679,12 @@ const ViewOrderPage = () => {
               />
             </Form.Item>
 
-            <Form.Item className="sm:w-auto w-full !mb-0" label="Cashback">
+            <Form.Item
+              className="sm:w-auto w-full !mb-0"
+              label={!isMobileView && "Cashback"}
+            >
               <Input
+                addonBefore={isMobileView && "Cashback"}
                 placeholder="Cashback"
                 type="number"
                 value={
@@ -672,7 +700,7 @@ const ViewOrderPage = () => {
 
             <Form.Item>
               <Button
-                className="bg-blue-500 !mt-[30px]"
+                className="bg-blue-500 sm:!mt-[30px]"
                 disabled={
                   !(selectedProductPack && selectedProductSku && quantity > 0)
                 }

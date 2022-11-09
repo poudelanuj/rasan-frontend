@@ -35,14 +35,14 @@ import {
 } from "../../../constants/queryKeys";
 import CreateCategoryModal from "../shared/CreateCategoryModal";
 import CreateBrandModal from "../shared/CreateBrandModal";
-import { useEffect } from "react";
+import { useAuth } from "../../../AuthProvider";
 
 const AddProductSku = () => {
+  const { isMobileView } = useAuth();
+
   const [selectedImage, setSelectedImage] = useState(null);
   const [isCreateCategoryOpen, setIsCreateCategoryOpen] = useState(false);
   const [isCreateBrandOpen, setIsCreatBrandOpen] = useState(false);
-
-  const [formLayout, setFormLayout] = useState("vertical");
 
   const { Dragger } = Upload;
 
@@ -131,22 +131,6 @@ const AddProductSku = () => {
     );
   }, []);
 
-  useEffect(() => {
-    if (window.innerWidth < 700) {
-      setFormLayout("horizontal");
-    } else {
-      setFormLayout("vertical");
-    }
-
-    window.addEventListener("resize", () => {
-      if (window.innerWidth < 700) {
-        setFormLayout("horizontal");
-      } else {
-        setFormLayout("vertical");
-      }
-    });
-  }, []);
-
   return (
     <>
       <Loader isOpen={onFormSubmit.status === "loading"} />
@@ -169,7 +153,7 @@ const AddProductSku = () => {
       <>
         <div className="p-6 bg-white rounded-lg">
           <Form
-            layout={formLayout}
+            layout={isMobileView ? "horizontal" : "vertical"}
             onFinish={(values) => onFormSubmit.mutate(values)}
           >
             <Form.Item label="Product Image">
