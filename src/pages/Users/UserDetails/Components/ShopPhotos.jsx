@@ -1,7 +1,9 @@
 import { PlusOutlined } from "@ant-design/icons";
-import { message, Modal, Upload } from "antd";
+import { Image, message, Modal, Upload } from "antd";
+import { capitalize } from "lodash";
 import React, { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "react-query";
+import { siteInformation } from "../../../../constants";
 import { updateShop } from "../../../../context/UserContext";
 
 const getBase64 = (file) =>
@@ -75,6 +77,7 @@ const ShopPhotos = ({ name, url, label, id }) => {
       </div>
     </div>
   );
+
   return (
     <>
       <div className="text-xl bg-white mb-3">{label}</div>
@@ -84,17 +87,24 @@ const ShopPhotos = ({ name, url, label, id }) => {
         listType="picture-card"
         maxCount={1}
         onChange={handleChange}
-        onPreview={handlePreview}
+        onPreview={(file) =>
+          url?.endsWith(".pdf")
+            ? (window.location.href = `${
+                siteInformation.base_url.slice(0, -1) + url
+              }`)
+            : handlePreview(file)
+        }
       >
         {fileList.length >= 1 ? null : uploadButton}
       </Upload>
       <Modal
         footer={null}
-        title={previewTitle}
+        title={capitalize(previewTitle.replaceAll("_", " "))}
         visible={previewVisible}
+        centered
         onCancel={handleCancel}
       >
-        <img
+        <Image
           alt="example"
           src={previewImage}
           style={{

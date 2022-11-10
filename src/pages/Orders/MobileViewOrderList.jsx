@@ -41,7 +41,7 @@ const MobileViewOrderList = () => {
 
   const [isSortAscending, setIsSortAscending] = useState(false);
 
-  const [isDeleteOrder, setIsDeleteOrder] = useState({
+  const [isArchiveOrder, setIsArchiveOrder] = useState({
     isOpen: false,
     id: null,
   });
@@ -196,7 +196,7 @@ const MobileViewOrderList = () => {
             className="!rounded-lg text-sm px-3"
             codename="delete_order"
             danger
-            onClick={() => setIsDeleteOrder({ isOpen: true, id: order.id })}
+            onClick={() => setIsArchiveOrder({ isOpen: true, id: order.id })}
           >
             <span>Archive</span>
           </ButtonWPermission>
@@ -206,11 +206,10 @@ const MobileViewOrderList = () => {
       ))}
 
       <DeleteOrder
-        closeModal={() => setIsDeleteOrder({ isOpen: false })}
-        isOpen={isDeleteOrder.isOpen}
-        orderId={isDeleteOrder.id}
+        closeModal={() => setIsArchiveOrder({ isOpen: false, id: null })}
+        isArchiveOrder={isArchiveOrder}
         refetchOrders={refetchOrders}
-        title={"Order #" + isDeleteOrder.id}
+        title={"Order #" + isArchiveOrder.id}
       />
 
       <Pagination

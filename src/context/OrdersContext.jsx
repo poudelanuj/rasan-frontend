@@ -11,7 +11,7 @@ export const getOrder = async (orderId) => {
 };
 
 export const updateOrderStatus = async ({ orderId, status }) => {
-  const res = await axios.put(`/api/order/admin/order/${orderId}/`, {
+  const res = await axios.put(`/api/order/admin/order/${orderId || []}/`, {
     status,
   });
   return res.data.data;

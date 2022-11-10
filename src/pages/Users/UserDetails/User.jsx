@@ -39,8 +39,8 @@ const User = () => {
             <div className="details flex w-6/12">
               <img
                 alt={user.full_name}
-                className="image mr-3"
-                src={user.profile_picture.small_square_crop || rasanDefault}
+                className="image mr-3 object-cover h-20 w-20"
+                src={user.profile_picture.thumbnail || rasanDefault}
               />
               <div>
                 <div className="font-medium text-lg">{user.full_name}</div>

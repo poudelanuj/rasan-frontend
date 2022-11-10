@@ -1,5 +1,5 @@
 import { PlusOutlined } from "@ant-design/icons";
-import { message, Modal, Upload } from "antd";
+import { Image, message, Modal, Upload } from "antd";
 import React, { useEffect, useState } from "react";
 import { useMutation } from "react-query";
 import { updateUser } from "../../../../context/UserContext";
@@ -25,7 +25,7 @@ const ProfilePicture = ({ user }) => {
         {
           name: user.full_name,
           status: "done",
-          url: user.profile_picture.small_square_crop,
+          url: user.profile_picture.full_size,
         },
       ]);
     }
@@ -90,9 +90,10 @@ const ProfilePicture = ({ user }) => {
         footer={null}
         title={previewTitle}
         visible={previewVisible}
+        centered
         onCancel={handleCancel}
       >
-        <img
+        <Image
           alt="example"
           src={previewImage}
           style={{
