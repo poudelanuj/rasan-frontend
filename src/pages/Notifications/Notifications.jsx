@@ -13,7 +13,7 @@ import ViewNotification from "./ViewNotification";
 const Notifications = () => {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [selectedNotification, setSelected] = useState();
+  const [selectedNotification, setSelectedNotification] = useState();
   const [notifications, setNotifications] = useState([]);
 
   const [pageSize, setPageSize] = useState(20);
@@ -51,6 +51,7 @@ const Notifications = () => {
       title: "Notification Title",
       dataIndex: "title",
       key: "title",
+      width: "35%",
     },
     {
       title: "Type",
@@ -121,7 +122,7 @@ const Notifications = () => {
           return {
             onClick: () => {
               setIsViewModalOpen(true);
-              setSelected(record);
+              setSelectedNotification(record);
             },
           };
         }}

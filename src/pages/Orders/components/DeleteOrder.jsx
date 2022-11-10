@@ -30,10 +30,10 @@ const DeleteOrder = ({ title, orderId, isOpen, closeModal, refetchOrders }) => {
           <DeleteModal />
         )}
 
-        <h2 className="my-5 text-lg font-medium">Delete Order</h2>
+        <h2 className="my-5 text-lg font-medium">Archive Order</h2>
         <div className=" text-center w-80 text-sm text-gray-500">
           This is a permanent action and cannot be undone. Are you sure you want
-          to delete this order?
+          to archive this order?
         </div>
 
         <Space className="mt-8">

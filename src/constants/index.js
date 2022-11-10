@@ -126,26 +126,23 @@ export const TICKET_TYPES = [
 
 export const NOTIFICATION_STATUS = ["pending", "seen", "clicked"];
 export const NOTIFICATION_TYPES = [
-  {
-    name: "promotion",
-    value: "offer",
-  },
-  {
-    name: "tutorial",
-    value: "notice",
-  },
-  {
-    name: "general_info",
-    value: "general_info",
-  },
-  {
-    name: "user_business_intelligence",
-    value: "user_business_intelligence",
-  },
-  {
-    name: "market_intelligence",
-    value: "market_intelligence",
-  },
+  "welcome",
+  "general_info",
+  "offer",
+  "notice",
+  "order_placed",
+  "order_ready_for_delivery",
+  "order_completed",
+  "order_cancelled",
+  "loyalty_points_earned",
+  "cashback_earned",
+  "coupons_earned",
+  "crm_status_changed",
+  "user_profile_verification_requested",
+  "user_profile_verified",
+  "user_profile_verification_rejected",
+  "user_business_intelligence",
+  "market_intelligence",
 ];
 
 export const NOTIFICATION_DESTINATION_TYPES = ["offer", "notice"];

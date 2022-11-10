@@ -20,7 +20,7 @@ export const createNotificationGroup = async (data) => {
 
 export const getNotificationGroups = async (page, pageSize) => {
   const res = await axios.get(
-    `/api/notification/admin/groups/?page=${page}&size=${pageSize}`
+    `/api/notification/admin/groups/?page=${page || 1}&size=${pageSize || 20}`
   );
   return res.data.data;
 };

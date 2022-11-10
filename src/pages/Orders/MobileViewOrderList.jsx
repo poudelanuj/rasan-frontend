@@ -21,7 +21,6 @@ import { OrderContext } from ".";
 import getOrderStatusColor from "../../shared/tagColor";
 import ButtonWPermission from "../../shared/ButtonWPermission";
 import DeleteOrder from "./components/DeleteOrder";
-import { CANCELLED_BY_CSR, CANCELLED_BY_CUSTOMER } from "../../constants";
 
 const MobileViewOrderList = () => {
   const {
@@ -196,14 +195,10 @@ const MobileViewOrderList = () => {
           <ButtonWPermission
             className="!rounded-lg text-sm px-3"
             codename="delete_order"
-            disabled={
-              order.status !== CANCELLED_BY_CSR &&
-              order.status !== CANCELLED_BY_CUSTOMER
-            }
             danger
             onClick={() => setIsDeleteOrder({ isOpen: true, id: order.id })}
           >
-            <span>Delete</span>
+            <span>Archive</span>
           </ButtonWPermission>
 
           <Divider className="bg-slate-300" />

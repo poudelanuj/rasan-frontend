@@ -1,9 +1,9 @@
+import { useState } from "react";
 import { Table, Tag, Button, Menu, Dropdown, Space, Input } from "antd";
 import { useMutation } from "react-query";
-import { DeleteOutlined } from "@ant-design/icons";
 import moment from "moment";
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { FaRegFileArchive } from "react-icons/fa";
 import { deleteBulkOrders } from "../../api/orders";
 import {
   openErrorNotification,
@@ -14,11 +14,7 @@ import DeleteOrder from "./components/DeleteOrder";
 import ButtonWPermission from "../../shared/ButtonWPermission";
 import { isEmpty, capitalize } from "lodash";
 import ConfirmDelete from "../../shared/ConfirmDelete";
-import {
-  CANCELLED_BY_CSR,
-  CANCELLED_BY_CUSTOMER,
-  IN_PROCESS,
-} from "../../constants";
+import { IN_PROCESS } from "../../constants";
 import { useContext } from "react";
 import { OrderContext } from ".";
 import { useAuth } from "../../AuthProvider";
@@ -172,10 +168,7 @@ const OrdersList = () => {
             <ButtonWPermission
               className="!border-none !bg-inherit"
               codename="delete_order"
-              disabled={
-                status !== CANCELLED_BY_CSR && status !== CANCELLED_BY_CUSTOMER
-              }
-              icon={<DeleteOutlined />}
+              icon={<FaRegFileArchive />}
               onClick={() => {
                 setIsDeleteOrderOpen((prev) => !prev);
                 setDeleteOrderId(id);
@@ -235,17 +228,10 @@ const OrdersList = () => {
             <ButtonWPermission
               className="!border-none !bg-inherit !text-current"
               codename="delete_order"
-              disabled={
-                isEmpty(checkedRows) ||
-                !checkedRows.every(
-                  (id) =>
-                    dataSource?.find((item) => item.id === id).status ===
-                      CANCELLED_BY_CSR || status === CANCELLED_BY_CUSTOMER
-                )
-              }
+              disabled={isEmpty(checkedRows)}
               onClick={() => setIsDeleteBulkOrderModal(true)}
             >
-              Delete
+              Archive
             </ButtonWPermission>
           ),
         },
@@ -328,7 +314,7 @@ const OrdersList = () => {
         deleteMutation={() => handleDeleteBulk.mutate()}
         isOpen={isDeleteBulkOrderModal}
         status={handleDeleteBulk.status}
-        title="Delete selected orders?"
+        title="Archive selected orders?"
       />
     </>
   );

@@ -100,6 +100,10 @@ const Orders = () => {
               {isMobileView ? <MobileViewOrderList /> : <OrdersList />}
             </TabPane>
           ))}
+
+          <TabPane key={"archived"} tab={"Archived"}>
+            {isMobileView ? <MobileViewOrderList /> : <OrdersList />}
+          </TabPane>
         </Tabs>
       </OrderContext.Provider>
     </div>

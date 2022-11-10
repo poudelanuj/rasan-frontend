@@ -1,14 +1,12 @@
-import { Button, Form, Input, Modal, Select, Space } from "antd";
 import { useState, useEffect } from "react";
+import { Button, Form, Input, Modal, Select, Space } from "antd";
 import { useMutation, useQuery } from "react-query";
-import { capitalize } from "lodash";
+import { capitalize, uniqBy } from "lodash";
 import { updateNotificationGroup } from "../../../api/notifications";
 import { getUserGroups } from "../../../api/userGroups";
-import {
-  NOTIFICATION_DESTINATION_TYPES,
-  NOTIFICATION_TYPES,
-} from "../../../constants";
-import { GET_USER_GROUPS } from "../../../constants/queryKeys";
+import { getUsers } from "../../../api/users";
+import { NOTIFICATION_TYPES } from "../../../constants";
+import { GET_USER_GROUPS, GET_USERS } from "../../../constants/queryKeys";
 import {
   openErrorNotification,
   openSuccessNotification,
@@ -20,16 +18,32 @@ const EditNotification = ({
   onClose,
   refetchNotifications,
 }) => {
-  const [selectedNotificationType, setSelectedNotificationType] = useState();
+  const [form] = Form.useForm();
 
   const { data: userGroups, status: userGroupStatus } = useQuery(
     GET_USER_GROUPS,
     getUserGroups
   );
 
+  const [page, setPage] = useState(1);
+
+  const [users, setUsers] = useState([]);
+
+  let timeout = 0;
+
+  const { data, refetch } = useQuery({
+    queryFn: () => getUsers(page, "", 100),
+    queryKey: [GET_USERS, page.toString()],
+  });
+
   useEffect(() => {
-    setSelectedNotificationType(notification?.type);
-  }, [notification]);
+    if (data) setUsers((prev) => uniqBy([...prev, ...data.results], "id"));
+  }, [data]);
+
+  useEffect(() => {
+    refetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   const onFormSubmit = useMutation(
     (formValues) => {
@@ -46,6 +60,16 @@ const EditNotification = ({
     }
   );
 
+  useEffect(() => {
+    if (notification) {
+      form.setFieldsValue(
+        Object.keys(notification)
+          .map((key) => ({ [key]: notification[key] }))
+          .reduce((prev, curr) => ({ ...prev, ...curr }))
+      );
+    }
+  }, [notification, form]);
+
   return (
     <Modal
       footer={false}
@@ -60,74 +84,78 @@ const EditNotification = ({
     >
       {notification && (
         <Form
+          form={form}
           layout="vertical"
           onFinish={(values) => onFormSubmit.mutate(values)}
         >
           <Form.Item
-            initialValue={notification.title}
             label="Notification Title"
             name="title"
             rules={[{ required: true, message: "notification title required" }]}
           >
-            <Input defaultValue={notification.title} />
+            <Input />
           </Form.Item>
 
-          <Form.Item
-            initialValue={notification.content}
-            label="Notification Description"
-            name="content"
-          >
-            <Input.TextArea defaultValue={notification.content} rows={3} />
+          <Form.Item label="Notification Description" name="content">
+            <Input.TextArea rows={3} />
           </Form.Item>
 
-          <div
-            className={`grid gap-2 grid-cols-${
-              NOTIFICATION_DESTINATION_TYPES.includes(selectedNotificationType)
-                ? "3"
-                : "2"
-            }`}
-          >
+          <div className="grid gap-2 grid-cols-3">
             <Form.Item
-              initialValue={notification?.type?.value}
               label="Notification Type"
               name="type"
               rules={[
                 { required: true, message: "notification type required" },
               ]}
             >
-              <Select
-                defaultValue={selectedNotificationType}
-                placeholder="Select Type"
-                allowClear
-                onChange={(value) => setSelectedNotificationType(value?.value)}
-              >
+              <Select placeholder="Select Type" allowClear>
                 {NOTIFICATION_TYPES.map((type) => (
-                  <Select.Option key={type.name} value={type.value}>
-                    {capitalize(type.name.replaceAll("_", " "))}
+                  <Select.Option key={type} value={type}>
+                    {capitalize(type.replaceAll("_", " "))}
                   </Select.Option>
                 ))}
               </Select>
             </Form.Item>
-            {NOTIFICATION_DESTINATION_TYPES.includes(
-              selectedNotificationType
-            ) && (
-              <Form.Item
-                initialValue={notification.destination_id}
-                label="Destination"
-                name="destination_id"
-              >
-                <Input defaultValue={notification.destination_id} />
-              </Form.Item>
-            )}
 
             <Form.Item
-              initialValue={notification?.user_groups}
+              label="Users"
+              name="users"
+              tooltip="If you want to send the notification to users, select this field. Else, leave empty to send the notification to all users."
+            >
+              <Select
+                filterOption={false}
+                mode="multiple"
+                placeholder="Select Users"
+                allowClear
+                onPopupScroll={() => data?.next && setPage((prev) => prev + 1)}
+                onSearch={(val) => {
+                  if (timeout) clearTimeout(timeout);
+                  timeout = setTimeout(async () => {
+                    setPage(1);
+                    const res = await getUsers(page, val, 100);
+                    setUsers([]);
+                    setUsers(res.results);
+                  }, 200);
+                }}
+              >
+                {users &&
+                  users.map((el) => (
+                    <Select.Option key={el.id} value={el.phone}>
+                      {el.full_name
+                        ? `${el.full_name} (${el.phone})`
+                        : el.phone}
+                    </Select.Option>
+                  ))}
+              </Select>
+            </Form.Item>
+
+            <Form.Item
               label="User Groups"
               name="user_groups"
               rules={[{ required: true, message: "user groups required" }]}
+              tooltip="If you want to send the notification to user groups, select this field. Else, leave empty to send the notification to all groups."
             >
               <Select
-                defaultValue={notification?.user_groups}
                 loading={userGroupStatus === "loading"}
                 mode="multiple"
                 placeholder="Select User Group"
