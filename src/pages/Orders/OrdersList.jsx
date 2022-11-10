@@ -19,19 +19,27 @@ import {
   CANCELLED_BY_CUSTOMER,
   IN_PROCESS,
 } from "../../constants";
+import { useContext } from "react";
+import { OrderContext } from ".";
+import { useAuth } from "../../AuthProvider";
 
-const OrdersList = ({
-  dataSource,
-  status,
-  refetchOrders,
-  page,
-  setPage,
-  pageSize,
-  setPageSize,
-  ordersCount,
-  sortingFn,
-  searchInput,
-}) => {
+const OrdersList = () => {
+  const {
+    dataSource,
+    status,
+    refetchOrders,
+    page,
+    setPage,
+    pageSize,
+    setPageSize,
+    ordersCount,
+    sortObj,
+    setSortObj,
+    searchInput,
+  } = useContext(OrderContext);
+
+  const { isMobileView } = useAuth();
+
   let timeout = 0;
 
   const [isDeleteOrderOpen, setIsDeleteOrderOpen] = useState(false);
@@ -41,6 +49,19 @@ const OrdersList = ({
 
   const [checkedRows, setCheckedRows] = useState([]);
   const navigate = useNavigate();
+
+  const sortingFn = (header, name) =>
+    setSortObj({
+      sortType: {
+        ...sortObj.sortType,
+        [name]: !sortObj.sortType[name],
+      },
+      sort: [
+        `${sortObj.sortType[name] ? "" : "-"}${
+          header.dataIndex === "id" ? "created_at" : header.dataIndex
+        }`,
+      ],
+    });
 
   const columns = [
     {
@@ -248,12 +269,15 @@ const OrdersList = ({
           </ButtonWPermission>
 
           <Input.Search
-            className={`${window.innerWidth < 700 && "!w-full"}`}
+            className={`${isMobileView && "!w-full"}`}
             placeholder="Search user, contact, shop"
             onChange={(e) => {
               searchInput.current = e.target.value;
               if (timeout) clearTimeout(timeout);
-              timeout = setTimeout(refetchOrders, 400);
+              timeout = setTimeout(() => {
+                setPage(1);
+                refetchOrders();
+              }, 400);
             }}
           />
         </div>
@@ -287,7 +311,7 @@ const OrdersList = ({
           },
         }}
         rowSelection={{ ...rowSelection }}
-        scroll={{ x: !isEmpty(dataSource) ? 1000 : undefined }}
+        scroll={{ x: !isEmpty(dataSource) && 1000 }}
         showSorterTooltip={false}
       />
 

@@ -16,6 +16,7 @@ import { getAllBrands } from "../../../api/brands";
 import { getAllCategories } from "../../../api/categories";
 import { getLoyaltyPolicies } from "../../../api/loyalties";
 import { createProduct, getAllProducts } from "../../../api/products";
+import { useAuth } from "../../../AuthProvider";
 import {
   GET_ALL_BRANDS,
   GET_ALL_CATEGORIES,
@@ -30,6 +31,8 @@ import CreateBrandModal from "../shared/CreateBrandModal";
 import CreateCategoryModal from "../shared/CreateCategoryModal";
 
 const AddProduct = () => {
+  const { isMobileView } = useAuth();
+
   const [selectedImage, setSelectedImage] = useState(null);
   const [isCreateCategoryOpen, setIsCreateCategoryOpen] = useState(false);
   const [isCreateBrandOpen, setIsCreatBrandOpen] = useState(false);
@@ -133,7 +136,7 @@ const AddProduct = () => {
       <>
         <div className="p-6 rounded-lg bg-white">
           <Form
-            layout="vertical"
+            layout={isMobileView ? "horizontal" : "vertical"}
             onFinish={(values) => onFormSubmit.mutate(values)}
           >
             <Form.Item label="Product Image">
@@ -165,7 +168,7 @@ const AddProduct = () => {
               <Input />
             </Form.Item>
 
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid sm:grid-cols-2 gap-2">
               <Form.Item
                 label={
                   <Space>
@@ -227,7 +230,7 @@ const AddProduct = () => {
               </Form.Item>
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid sm:grid-cols-2 gap-2">
               <Form.Item label="Alternate Products" name="alternate_products">
                 <Select
                   loading={productsStatus === "loading"}

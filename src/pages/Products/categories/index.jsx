@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Pagination, Select, Space, Spin } from "antd";
+import { Pagination, Select, Spin } from "antd";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 
 import Alert from "../../../shared/Alert";
@@ -159,9 +159,9 @@ const CategoryList = () => {
       <CustomPageHeader title="Categories" isBasicHeader />
 
       <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[75vh]">
-        <div className="flex justify-between mb-3">
-          <Space className="flex items-center">
-            <div className="py-[3px] px-3 min-w-[18rem] border-[1px] border-[#D9D9D9] rounded-lg flex items-center justify-between">
+        <div className="w-full flex sm:flex-row flex-col-reverse gap-2 justify-between mb-3">
+          <div className="flex items-center">
+            <div className="py-[3px] px-3 min-w-[18rem] w-full border-[1px] border-[#D9D9D9] rounded-lg flex items-center justify-between">
               <SearchOutlined style={{ color: "#D9D9D9" }} />
               <input
                 className="focus:outline-none w-full ml-1 placeholder:text-[#D9D9D9]"
@@ -170,7 +170,10 @@ const CategoryList = () => {
                 onChange={(e) => {
                   searchText.current = e.target.value;
                   if (timeout) clearTimeout(timeout);
-                  timeout = setTimeout(refetchCategories, 400);
+                  timeout = setTimeout(() => {
+                    setPage(1);
+                    refetchCategories();
+                  }, 400);
                 }}
               />
             </div>
@@ -178,7 +181,17 @@ const CategoryList = () => {
             {(status === "loading" || isRefetching) && (
               <Spin indicator={<LoadingOutlined />} />
             )}
-          </Space>
+          </div>
+
+          <ButtonWPermission
+            className="sm:!hidden !rounded-lg"
+            codename="add_category"
+            type="primary"
+            onClick={() => setIsAddCategoryOpen(true)}
+          >
+            Add New Category
+          </ButtonWPermission>
+
           <div className="flex">
             <ClearSelection
               selectedCategories={selectedCategories}
@@ -224,6 +237,7 @@ const CategoryList = () => {
             )}
 
             <ButtonWPermission
+              className="sm:!block !hidden"
               codename="add_category"
               type="primary"
               onClick={() => setIsAddCategoryOpen(true)}

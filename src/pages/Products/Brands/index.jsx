@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import { uniqBy } from "lodash";
-import { Pagination, Select, Space, Spin } from "antd";
+import { Pagination, Select, Spin } from "antd";
 import { SearchOutlined, LoadingOutlined } from "@ant-design/icons";
 
 import CategoryWidget from "../categories/shared/CategoryWidget";
@@ -156,9 +156,9 @@ function BrandsScreen() {
       <CustomPageHeader title="Brands" isBasicHeader />
 
       <div className="flex flex-col bg-white p-6 rounded-[8.6333px] min-h-[75vh]">
-        <div className="flex justify-between mb-3">
-          <Space className="flex items-center">
-            <div className="py-[3px] px-3 min-w-[18rem] border-[1px] border-[#D9D9D9] rounded-lg flex items-center justify-between">
+        <div className="w-full flex justify-between sm:flex-row flex-col-reverse gap-2 mb-3">
+          <div className="flex items-center">
+            <div className="py-[3px] px-3 min-w-[18rem] w-full border-[1px] border-[#D9D9D9] rounded-lg flex items-center justify-between">
               <SearchOutlined style={{ color: "#D9D9D9" }} />
               <input
                 className="focus:outline-none w-full ml-1 placeholder:text-[#D9D9D9]"
@@ -167,7 +167,10 @@ function BrandsScreen() {
                 onChange={(e) => {
                   searchText.current = e.target.value;
                   if (timeout) clearTimeout(timeout);
-                  timeout = setTimeout(refetchBrands, 400);
+                  timeout = setTimeout(() => {
+                    setPage(1);
+                    refetchBrands();
+                  }, 400);
                 }}
               />
             </div>
@@ -175,7 +178,17 @@ function BrandsScreen() {
             {(status === "loading" || isRefetching) && (
               <Spin indicator={<LoadingOutlined />} />
             )}
-          </Space>
+          </div>
+
+          <ButtonWPermission
+            className="sm:!hidden !rounded-lg"
+            codename="add_brand"
+            type="primary"
+            onClick={() => setIsAddBrandOpen(true)}
+          >
+            Add New Brand
+          </ButtonWPermission>
+
           <div className="flex">
             <ClearSelection
               selectedCategories={selectedBrands}
@@ -220,6 +233,7 @@ function BrandsScreen() {
               </Select>
             )}
             <ButtonWPermission
+              className="sm:!block !hidden"
               codename="add_brand"
               type="primary"
               onClick={() => setIsAddBrandOpen(true)}

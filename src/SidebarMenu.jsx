@@ -145,8 +145,8 @@ const sidebarItem = [
   },
 ];
 
-const SidebarMenu = () => {
-  const { permissions } = useAuth();
+const SidebarMenu = ({ setIsDrawerOpen }) => {
+  const { permissions, isMobileView } = useAuth();
 
   const navigate = useNavigate();
 
@@ -197,6 +197,7 @@ const SidebarMenu = () => {
       }}
       onClick={({ key }) => {
         navigate(key);
+        isMobileView && setIsDrawerOpen(false);
       }}
     />
   );

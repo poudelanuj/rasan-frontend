@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Table, Button, Input, Upload, message, Modal, Tag } from "antd";
+import { Table, Button, Input, Upload, message, Modal, Tag, Tabs } from "antd";
 import { csvParse } from "d3";
 import {
   SearchOutlined,
@@ -48,6 +48,8 @@ const ProductPack = () => {
 
   const [pageSize, setPageSize] = useState(20);
 
+  const [isPublished, setIsPublished] = useState(true);
+
   const [sortObj, setSortObj] = useState({
     sortType: {
       number_of_items: false,
@@ -75,6 +77,7 @@ const ProductPack = () => {
         shouldPaginate: true,
         product_name: searchProduct.current,
         product_sku_name: searchProductSku.current,
+        isPublished,
       }),
     queryKey: [GET_PRODUCT_PACK_CSV, page, pageSize, sortObj.sort],
   });
@@ -89,7 +92,7 @@ const ProductPack = () => {
   useEffect(() => {
     refetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize, sortObj]);
+  }, [page, pageSize, sortObj, isPublished]);
 
   const handlePostProductPack = useMutation(
     () => postProductPackCSV(selectedCSV),
@@ -131,14 +134,16 @@ const ProductPack = () => {
           const csv = e.target.result;
 
           setSelectedCSV(
-            csvParse(csv).map((cs) => ({
-              ...cs,
-              category_name: cs.category_name
-                .replace("'", "")
-                .replace("'", "")
-                .split("\n"),
-              is_published: cs.is_published === "TRUE",
-            }))
+            csvParse(csv).map((cs) => {
+              delete cs["is_published"];
+              return {
+                ...cs,
+                category_name: cs.category_name
+                  .replace("'", "")
+                  .replace("'", "")
+                  .split("\n"),
+              };
+            })
           );
           showConfirm(file.name);
         };
@@ -160,7 +165,10 @@ const ProductPack = () => {
           onChange={(e) => {
             ref.current = e.target.value;
             if (timeout) clearTimeout(timeout);
-            timeout = setTimeout(refetch, 400);
+            timeout = setTimeout(() => {
+              setPage(1);
+              refetch();
+            }, 400);
           }}
         />
       </div>
@@ -334,29 +342,67 @@ const ProductPack = () => {
           </Button>
         </div>
 
-        <Table
-          columns={columns}
-          dataSource={
-            !isEmpty(productPack) &&
-            productPack.map((product, index) => ({
-              sn: (page - 1) * pageSize + index + 1,
-              ...product,
-            }))
-          }
-          loading={status === "loading" || isRefetching}
-          pagination={{
-            showSizeChanger: true,
-            pageSize,
-            total: data?.count,
-            current: page,
-
-            onChange: (page, pageSize) => {
-              setPage(page);
-              setPageSize(pageSize);
-            },
+        <Tabs
+          defaultActiveKey="published"
+          onTabClick={(key) => {
+            setPage(1);
+            setIsPublished(key === "published");
           }}
-          showSorterTooltip={false}
-        />
+        >
+          <Tabs.TabPane key="published" tab="Published">
+            <Table
+              columns={columns}
+              dataSource={
+                !isEmpty(productPack) &&
+                productPack.map((product, index) => ({
+                  sn: (page - 1) * pageSize + index + 1,
+                  ...product,
+                }))
+              }
+              loading={status === "loading" || isRefetching}
+              pagination={{
+                showSizeChanger: true,
+                pageSize,
+                total: data?.count,
+                current: page,
+
+                onChange: (page, pageSize) => {
+                  setPage(page);
+                  setPageSize(pageSize);
+                },
+              }}
+              scroll={{ x: !isEmpty(productPack) && 1000 }}
+              showSorterTooltip={false}
+            />
+          </Tabs.TabPane>
+
+          <Tabs.TabPane key="unpublished" tab="Unpublished">
+            <Table
+              columns={columns}
+              dataSource={
+                !isEmpty(productPack) &&
+                productPack.map((product, index) => ({
+                  sn: (page - 1) * pageSize + index + 1,
+                  ...product,
+                }))
+              }
+              loading={status === "loading" || isRefetching}
+              pagination={{
+                showSizeChanger: true,
+                pageSize,
+                total: data?.count,
+                current: page,
+
+                onChange: (page, pageSize) => {
+                  setPage(page);
+                  setPageSize(pageSize);
+                },
+              }}
+              scroll={{ x: !isEmpty(productPack) && 1000 }}
+              showSorterTooltip={false}
+            />
+          </Tabs.TabPane>
+        </Tabs>
       </div>
     </>
   );

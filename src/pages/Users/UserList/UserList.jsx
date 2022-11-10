@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import React, { useState, useEffect, useRef } from "react";
 import { useQuery } from "react-query";
 import { Input, Spin } from "antd";
-import { uniqBy } from "lodash";
+import { isEmpty, uniqBy } from "lodash";
 import { getUsers } from "../../../api/users";
 import ButtonWPermission from "../../../shared/ButtonWPermission";
 import CreateUserModal from "./CreateUserModal";
@@ -169,7 +169,10 @@ const UserList = () => {
           onChange={(e) => {
             searchText.current = e.target.value;
             if (timeout) clearTimeout(timeout);
-            timeout = setTimeout(refetch, 400);
+            timeout = setTimeout(() => {
+              setPage(1);
+              refetch();
+            }, 400);
           }}
         />
 
@@ -199,6 +202,7 @@ const UserList = () => {
               setPageSize(pageSize);
             },
           }}
+          scroll={{ x: !isEmpty(userColumns) && 1000 }}
           showSorterTooltip={false}
         />
       )}

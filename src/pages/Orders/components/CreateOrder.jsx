@@ -4,6 +4,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { useQuery, useMutation } from "react-query";
 import { useNavigate } from "react-router-dom";
 import { getUsers } from "../../../api/users";
+import { useAuth } from "../../../AuthProvider";
 import {
   DELIVERY_STATUS,
   IN_PROCESS,
@@ -25,6 +26,8 @@ import CreateUserModal from "./shared/CreateUserModal";
 import UserBasket from "./shared/UserBasket";
 
 const CreateOrder = () => {
+  const { isMobileView } = useAuth();
+
   const [isCreateUserOpen, setIsCreateUserOpen] = useState(false);
   const [isCreateShippingOpen, setIsCreateShippingOpen] = useState(false);
   const { Option } = Select;
@@ -39,8 +42,6 @@ const CreateOrder = () => {
   const navigate = useNavigate();
 
   let timeout = 0;
-
-  const [formLayout, setFormLayout] = useState("vertical");
 
   const {
     data,
@@ -109,23 +110,11 @@ const CreateOrder = () => {
     }
   );
 
-  useEffect(() => {
-    window.innerWidth < 700
-      ? setFormLayout("horizontal")
-      : setFormLayout("vertical");
-
-    window.addEventListener("resize", () =>
-      window.innerWidth < 700
-        ? setFormLayout("horizontal")
-        : setFormLayout("vertical")
-    );
-  }, []);
-
   return (
     <>
       <Form
         form={form}
-        layout={formLayout}
+        layout={isMobileView ? "horizontal" : "vertical"}
         onFinish={(values) => onFinish.mutate(values)}
       >
         <CustomPageHeader title={"Create New Order"} />
@@ -136,6 +125,7 @@ const CreateOrder = () => {
         <div className="p-6 rounded-lg bg-white">
           <div className="grid sm:grid-cols-2 gap-3">
             <Form.Item
+              className="!mb-1"
               label={
                 <div className="flex gap-3 items-center">
                   <span>User</span>
@@ -200,6 +190,7 @@ const CreateOrder = () => {
             </Form.Item>
 
             <Form.Item
+              className="!mb-1"
               label={
                 <div className="flex gap-3 items-center">
                   <span>Shipping Address</span>
@@ -253,7 +244,6 @@ const CreateOrder = () => {
             userList &&
             userList.find((el) => el.phone === selectedUserPhone) && (
               <UserBasket
-                formLayout={formLayout}
                 setBasketItemsStatus={setBasketItemsStatus}
                 user={userList.find((el) => el.phone === selectedUserPhone)}
               />
@@ -261,6 +251,7 @@ const CreateOrder = () => {
 
           <div className="grid sm:grid-cols-3 sm:gap-3 mt-4">
             <Form.Item
+              className="!mb-1"
               initialValue={IN_PROCESS}
               label="Order Status"
               name="status"
@@ -290,6 +281,7 @@ const CreateOrder = () => {
             </Form.Item>
 
             <Form.Item
+              className="!mb-1"
               initialValue={CASH_ON_DELIVERY}
               label="Payment Method"
               name="payment_method"

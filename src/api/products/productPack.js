@@ -41,6 +41,7 @@ export const getProductPackCSV = async ({
   product_sku_name,
   pageSize,
   sort,
+  isPublished,
 }) => {
   const res = await axios.get(
     `/api/product/admin/product-pack-csv/?page=${
@@ -49,7 +50,7 @@ export const getProductPackCSV = async ({
       product_name || ""
     }&product_sku_name=${product_sku_name || ""}&size=${pageSize || 20}&sort=${
       sort || []
-    }`
+    }&is_published=${isPublished}`
   );
 
   return res.data.data;

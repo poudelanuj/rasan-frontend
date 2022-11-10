@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import React, { useState, useEffect, useRef } from "react";
 import { useQuery } from "react-query";
 import { Input, Spin } from "antd";
-import { uniqBy } from "lodash";
+import { isEmpty, uniqBy } from "lodash";
 import { getAdminUsers } from "../../../api/users";
 import { useAuth } from "../../../AuthProvider";
 import { GET_ADMIN_USER } from "../../../constants/queryKeys";
@@ -181,7 +181,10 @@ const AdminUserList = () => {
         onChange={(e) => {
           searchText.current = e.target.value;
           if (timeout) clearTimeout(timeout);
-          timeout = setTimeout(refetch, 400);
+          timeout = setTimeout(() => {
+            setPage(1);
+            refetch();
+          }, 400);
         }}
       />
 
@@ -201,6 +204,7 @@ const AdminUserList = () => {
               setPageSize(pageSize);
             },
           }}
+          scroll={{ x: !isEmpty(userColumns) && 1000 }}
           showSorterTooltip={false}
         />
       )}

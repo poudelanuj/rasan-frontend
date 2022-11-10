@@ -168,7 +168,10 @@ function ProductGroupsScreen() {
                 onChange={(e) => {
                   searchText.current = e.target.value;
                   if (timeout) clearTimeout(timeout);
-                  timeout = setTimeout(refetchProductGroups, 400);
+                  timeout = setTimeout(() => {
+                    setPage(1);
+                    refetchProductGroups();
+                  }, 400);
                 }}
               />
             </div>

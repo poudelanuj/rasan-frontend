@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { CheckCircleOutlined, EditOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
+import { useAuth } from "../../../../AuthProvider";
 
 function CategoryWidget({
   image,
@@ -13,6 +14,8 @@ function CategoryWidget({
   setSelectedCategories,
   is_published = false,
 }) {
+  const { isMobileView } = useAuth();
+
   const [isHovering, setIsHovering] = useState(false);
 
   const performSelection = () => {
@@ -68,7 +71,7 @@ function CategoryWidget({
           </span>
         </div>
       )}
-      {isHovering && (
+      {(isMobileView || isHovering) && (
         <>
           <span
             className="flex justify-between absolute top-0 left-0 w-fit rounded-full text-white hover:text-[#ffffff]"

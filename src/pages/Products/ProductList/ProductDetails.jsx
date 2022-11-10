@@ -13,8 +13,11 @@ import { publishProduct, unpublishProduct } from "../../../api/products";
 import ProductSkuList from "./shared/ProductSkuList";
 import ButtonWPermission from "../../../shared/ButtonWPermission";
 import rasanDefault from "../../../assets/images/rasan-default.png";
+import { useAuth } from "../../../AuthProvider";
 
 const ProductDetails = ({ slug, product, refetchProduct }) => {
+  const { isMobileView } = useAuth();
+
   const handlePublish = useMutation(
     (bool) => (bool ? publishProduct(slug) : unpublishProduct(slug)),
     {
@@ -26,7 +29,7 @@ const ProductDetails = ({ slug, product, refetchProduct }) => {
 
   return (
     <div className="py-3">
-      <div className="flex justify-start relative">
+      <div className="flex sm:flex-row flex-col gap-2 justify-start relative">
         <div className="w-[200px] h-[200px] rounded ">
           <img
             alt="product"
@@ -35,7 +38,7 @@ const ProductDetails = ({ slug, product, refetchProduct }) => {
           />
         </div>
 
-        <div className="w-[50%] mx-8">
+        <div className="sm:w-[50%] sm:mx-8">
           <Descriptions column={1} title="">
             <Descriptions.Item label="Name">
               <span className="font-medium">{product.name}</span>
@@ -83,7 +86,7 @@ const ProductDetails = ({ slug, product, refetchProduct }) => {
           </Descriptions>
         </div>
 
-        <div className="absolute top-0 right-0">
+        <div className="sm:absolute top-0 right-0">
           <Space>
             <ButtonWPermission
               className="rounded"
@@ -118,7 +121,7 @@ const ProductDetails = ({ slug, product, refetchProduct }) => {
           <h3 className="text-xl text-[#374253]">Product Details</h3>
         </div>
 
-        <Descriptions column={2} size="middle" bordered>
+        <Descriptions column={isMobileView ? 1 : 2} size="middle" bordered>
           <Descriptions.Item label="S.N.">
             <span className="font-medium">{product.sn}</span>
           </Descriptions.Item>

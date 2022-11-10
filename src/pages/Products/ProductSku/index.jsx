@@ -12,7 +12,7 @@ import {
   openSuccessNotification,
   parseSlug,
 } from "../../../utils";
-import { uniqBy } from "lodash";
+import { isEmpty, uniqBy } from "lodash";
 import { GET_PAGINATED_PRODUCT_SKUS } from "../../../constants/queryKeys";
 import {
   deleteProductSku,
@@ -331,7 +331,10 @@ function ProductSkuScreen() {
                 onChange={(e) => {
                   searchInput.current = e.target.value;
                   if (timeout) clearTimeout(timeout);
-                  timeout = setTimeout(refetchProductSkus, 400);
+                  timeout = setTimeout(() => {
+                    setPage(1);
+                    refetchProductSkus();
+                  }, 400);
                 }}
               />
             </div>
@@ -365,7 +368,7 @@ function ProductSkuScreen() {
                 },
               }}
               rowSelection={rowSelection}
-              scroll={{ x: 1000 }}
+              scroll={{ x: !isEmpty(productSkus) && 1000 }}
               showSorterTooltip={false}
             />
           </div>

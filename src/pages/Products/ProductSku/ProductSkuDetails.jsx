@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { EditOutlined } from "@ant-design/icons";
 import { Descriptions, Divider, Tag, Space, Spin } from "antd";
@@ -16,11 +15,12 @@ import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../../utils/openNotification";
+import { useAuth } from "../../../AuthProvider";
 
 const ProductSkuDetails = ({ productSku, slug, refetchProductSku }) => {
   const navigate = useNavigate();
 
-  const [descriptionSpan, setDescriptionSpan] = useState(3);
+  const { isMobileView } = useAuth();
 
   const handlePublish = useMutation(
     (bool) => (bool ? publishProductSku(slug) : unpublishProductSku(slug)),
@@ -30,22 +30,6 @@ const ProductSkuDetails = ({ productSku, slug, refetchProductSku }) => {
       onSettled: () => refetchProductSku(),
     }
   );
-
-  useEffect(() => {
-    if (window.innerWidth < 700) {
-      setDescriptionSpan(1);
-    } else {
-      setDescriptionSpan(3);
-    }
-
-    window.addEventListener("resize", () => {
-      if (window.innerWidth < 700) {
-        setDescriptionSpan(1);
-      } else {
-        setDescriptionSpan(3);
-      }
-    });
-  }, []);
 
   return (
     <>
@@ -148,7 +132,7 @@ const ProductSkuDetails = ({ productSku, slug, refetchProductSku }) => {
             <h3 className="text-xl text-[#374253]">Product SKU Details</h3>
           </div>
 
-          <Descriptions column={descriptionSpan} size="middle" bordered>
+          <Descriptions column={isMobileView ? 1 : 3} size="middle" bordered>
             <Descriptions.Item label="S.N.">
               <span className="font-medium">{productSku.sn}</span>
             </Descriptions.Item>

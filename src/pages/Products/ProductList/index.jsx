@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import moment from "moment";
 import { Space, Table, Tag, Select } from "antd";
 import { CaretDownOutlined, SearchOutlined } from "@ant-design/icons";
-import { uniqBy } from "lodash";
+import { isEmpty, uniqBy } from "lodash";
 import { useMutation, useQuery } from "react-query";
 import AddCategoryButton from "../subComponents/AddCategoryButton";
 import {
@@ -426,8 +426,8 @@ function ProductListScreen() {
       <CustomPageHeader title="Products" isBasicHeader />
 
       <div className="flex flex-col bg-white p-6 rounded-lg min-h-[70vh]">
-        <div className="flex items-center justify-between mb-3">
-          <div className="py-[3px] px-3 min-w-[18rem] border-[1px] border-[#D9D9D9] rounded-lg flex items-center justify-between">
+        <div className="w-full flex sm:flex-row flex-col-reverse gap-2 sm:items-center items-start justify-between mb-3">
+          <div className="py-[3px] px-3 min-w-[18rem] sm:w-[18rem] w-full border-[1px] border-[#D9D9D9] rounded-lg flex items-center justify-between">
             <SearchOutlined style={{ color: "#D9D9D9" }} />
             <input
               className="focus:outline-none w-full ml-1 placeholder:text-[#D9D9D9]"
@@ -436,7 +436,10 @@ function ProductListScreen() {
               onChange={(e) => {
                 searchInput.current = e.target.value;
                 if (timeout) clearTimeout(timeout);
-                timeout = setTimeout(refetchProducts, 400);
+                timeout = setTimeout(() => {
+                  setPage(1);
+                  refetchProducts();
+                }, 400);
               }}
             />
           </div>
@@ -468,6 +471,7 @@ function ProductListScreen() {
               },
             }}
             rowSelection={rowSelection}
+            scroll={{ x: !isEmpty(products) && 1000 }}
             showSorterTooltip={false}
           />
         </div>

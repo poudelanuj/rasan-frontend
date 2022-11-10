@@ -10,7 +10,7 @@ import {
 } from "../../../../utils/openNotification";
 import { parseSlug } from "../../../../utils";
 import { GET_CATEGORY_PRODUCTS } from "../../../../constants/queryKeys";
-import { uniqBy } from "lodash";
+import { isEmpty, uniqBy } from "lodash";
 import { getProductsFromCategory } from "../../../../api/categories";
 import { ALERT_TYPE } from "../../../../constants";
 import Alert from "../../../../shared/Alert";
@@ -247,6 +247,7 @@ function TabAll({ slug }) {
             rowClassName="cursor-pointer"
             rowKey="slug"
             rowSelection={rowSelection}
+            scroll={{ x: !isEmpty(products) && 1000 }}
             onRow={(record) => {
               return {
                 onClick: (_) => {

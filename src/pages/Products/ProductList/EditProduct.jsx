@@ -26,8 +26,11 @@ import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../../utils/openNotification";
+import { useAuth } from "../../../AuthProvider";
 
 const EditProduct = () => {
+  const { isMobileView } = useAuth();
+
   const [selectedImage, setSelectedImage] = useState(null);
 
   const { Dragger } = Upload;
@@ -133,7 +136,7 @@ const EditProduct = () => {
         {productStatus === "success" && product && product.name && (
           <div>
             <Form
-              layout="vertical"
+              layout={isMobileView ? "horizontal" : "vertical"}
               onFinish={(values) => onFormSubmit.mutate(values)}
             >
               <Form.Item label="Product Image">
@@ -169,7 +172,7 @@ const EditProduct = () => {
                 <Input defaultValue={product.name} />
               </Form.Item>
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid sm:grid-cols-2 gap-2">
                 <Form.Item
                   initialValue={product.category}
                   label="Product Category"
@@ -218,7 +221,7 @@ const EditProduct = () => {
                 </Form.Item>
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid sm:grid-cols-2 gap-2">
                 <Form.Item
                   initialValue={product.alternate_products}
                   label="Alternate Products"
