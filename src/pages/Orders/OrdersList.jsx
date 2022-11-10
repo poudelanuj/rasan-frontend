@@ -1,24 +1,13 @@
-import { Table, Tag, Button, Menu, Dropdown, Space, Input } from "antd";
-import { useMutation } from "react-query";
-import { DeleteOutlined } from "@ant-design/icons";
-import moment from "moment";
 import { useState } from "react";
+import { Table, Tag, Button, Menu, Dropdown, Space, Input } from "antd";
+import moment from "moment";
 import { useNavigate } from "react-router-dom";
-import { deleteBulkOrders } from "../../api/orders";
-import {
-  openErrorNotification,
-  openSuccessNotification,
-} from "../../utils/openNotification";
+import { FaRegFileArchive } from "react-icons/fa";
 import getOrderStatusColor from "../../shared/tagColor";
 import DeleteOrder from "./components/DeleteOrder";
 import ButtonWPermission from "../../shared/ButtonWPermission";
 import { isEmpty, capitalize } from "lodash";
-import ConfirmDelete from "../../shared/ConfirmDelete";
-import {
-  CANCELLED_BY_CSR,
-  CANCELLED_BY_CUSTOMER,
-  IN_PROCESS,
-} from "../../constants";
+import { IN_PROCESS } from "../../constants";
 import { useContext } from "react";
 import { OrderContext } from ".";
 import { useAuth } from "../../AuthProvider";
@@ -42,12 +31,14 @@ const OrdersList = () => {
 
   let timeout = 0;
 
-  const [isDeleteOrderOpen, setIsDeleteOrderOpen] = useState(false);
-  const [deleteOrderId, setDeleteOrderId] = useState(0);
-
-  const [isDeleteBulkOrderModal, setIsDeleteBulkOrderModal] = useState(false);
+  const [isArchiveOrder, setIsArchiveOrder] = useState({
+    isOpen: false,
+    id: null,
+    title: "",
+  });
 
   const [checkedRows, setCheckedRows] = useState([]);
+
   const navigate = useNavigate();
 
   const sortingFn = (header, name) =>
@@ -166,20 +157,16 @@ const OrdersList = () => {
       title: "Actions",
       dataIndex: "action",
       key: "action",
-      render: (_, { id, status }) => {
+      render: (_, { id }) => {
         return (
           <>
             <ButtonWPermission
               className="!border-none !bg-inherit"
               codename="delete_order"
-              disabled={
-                status !== CANCELLED_BY_CSR && status !== CANCELLED_BY_CUSTOMER
+              icon={<FaRegFileArchive />}
+              onClick={() =>
+                setIsArchiveOrder({ isOpen: true, id, title: "Order #" + id })
               }
-              icon={<DeleteOutlined />}
-              onClick={() => {
-                setIsDeleteOrderOpen((prev) => !prev);
-                setDeleteOrderId(id);
-              }}
             />
           </>
         );
@@ -215,17 +202,6 @@ const OrdersList = () => {
     onSelectAll: (selected, selectedRows, changeRows) => {},
   };
 
-  const handleDeleteBulk = useMutation(() => deleteBulkOrders(checkedRows), {
-    onSuccess: (data) => {
-      openSuccessNotification(data.message || "Orders Deleted");
-      refetchOrders();
-      setIsDeleteBulkOrderModal(false);
-    },
-    onError: (error) => {
-      openErrorNotification(error);
-    },
-  });
-
   const bulkMenu = (
     <Menu
       items={[
@@ -235,17 +211,16 @@ const OrdersList = () => {
             <ButtonWPermission
               className="!border-none !bg-inherit !text-current"
               codename="delete_order"
-              disabled={
-                isEmpty(checkedRows) ||
-                !checkedRows.every(
-                  (id) =>
-                    dataSource?.find((item) => item.id === id).status ===
-                      CANCELLED_BY_CSR || status === CANCELLED_BY_CUSTOMER
-                )
+              disabled={isEmpty(checkedRows)}
+              onClick={() =>
+                setIsArchiveOrder({
+                  isOpen: true,
+                  id: checkedRows,
+                  title: "Archived Selected Orders?",
+                })
               }
-              onClick={() => setIsDeleteBulkOrderModal(true)}
             >
-              Delete
+              Archive
             </ButtonWPermission>
           ),
         },
@@ -316,19 +291,10 @@ const OrdersList = () => {
       />
 
       <DeleteOrder
-        closeModal={() => setIsDeleteOrderOpen(false)}
-        isOpen={isDeleteOrderOpen}
-        orderId={deleteOrderId}
+        closeModal={() => setIsArchiveOrder({ isOpen: false, id: null })}
+        isArchiveOrder={isArchiveOrder}
         refetchOrders={refetchOrders}
-        title={"Order #" + deleteOrderId}
-      />
-
-      <ConfirmDelete
-        closeModal={() => setIsDeleteBulkOrderModal(false)}
-        deleteMutation={() => handleDeleteBulk.mutate()}
-        isOpen={isDeleteBulkOrderModal}
-        status={handleDeleteBulk.status}
-        title="Delete selected orders?"
+        title={isArchiveOrder.title}
       />
     </>
   );

@@ -38,40 +38,18 @@ export const DELIVERED = "delivered";
 export const DELIVERY_RETURNED = "delivery_returned";
 export const CANCELLED_BY_CSR = "cancelled_by_csr";
 export const CANCELLED_BY_CUSTOMER = "cancelled_by_customer";
+export const ARCHIVED = "archived";
 
 export const DELIVERY_STATUS = [
-  {
-    name: "In Process",
-    id: IN_PROCESS,
-  },
-  {
-    name: "Confirmed by CSR",
-    id: CONFIRMED_BY_CSR,
-  },
-  {
-    name: "On the way to Delivery",
-    id: ON_THE_WAY_TO_DELIVERY,
-  },
-  {
-    name: "On Hold",
-    id: ON_HOLD,
-  },
-  {
-    name: "Delivered",
-    id: DELIVERED,
-  },
-  {
-    name: "Delivery Returned",
-    id: DELIVERY_RETURNED,
-  },
-  {
-    name: "Cancelled by CSR",
-    id: CANCELLED_BY_CSR,
-  },
-  {
-    name: "Cancelled by Customer",
-    id: CANCELLED_BY_CUSTOMER,
-  },
+  { name: "In Process", id: IN_PROCESS },
+  { name: "Confirmed by CSR", id: CONFIRMED_BY_CSR },
+  { name: "On the way to Delivery", id: ON_THE_WAY_TO_DELIVERY },
+  { name: "On Hold", id: ON_HOLD },
+  { name: "Delivered", id: DELIVERED },
+  { name: "Delivery Returned", id: DELIVERY_RETURNED },
+  { name: "Cancelled by CSR", id: CANCELLED_BY_CSR },
+  { name: "Cancelled by Customer", id: CANCELLED_BY_CUSTOMER },
+  { name: "Archived", id: "archived" },
 ];
 
 export const BANK_DEPOSIT = "bank_deposit";
@@ -126,26 +104,23 @@ export const TICKET_TYPES = [
 
 export const NOTIFICATION_STATUS = ["pending", "seen", "clicked"];
 export const NOTIFICATION_TYPES = [
-  {
-    name: "promotion",
-    value: "offer",
-  },
-  {
-    name: "tutorial",
-    value: "notice",
-  },
-  {
-    name: "general_info",
-    value: "general_info",
-  },
-  {
-    name: "user_business_intelligence",
-    value: "user_business_intelligence",
-  },
-  {
-    name: "market_intelligence",
-    value: "market_intelligence",
-  },
+  "welcome",
+  "general_info",
+  "offer",
+  "notice",
+  "order_placed",
+  "order_ready_for_delivery",
+  "order_completed",
+  "order_cancelled",
+  "loyalty_points_earned",
+  "cashback_earned",
+  "coupons_earned",
+  "crm_status_changed",
+  "user_profile_verification_requested",
+  "user_profile_verified",
+  "user_profile_verification_rejected",
+  "user_business_intelligence",
+  "market_intelligence",
 ];
 
 export const NOTIFICATION_DESTINATION_TYPES = ["offer", "notice"];

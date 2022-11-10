@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery } from "react-query";
 import { uniqBy } from "lodash";
 import { Tabs } from "antd";
 import OrdersList from "../../Orders/OrdersList";
+import { OrderContext } from "../../Orders";
 import { getUserOrder } from "../../../api/orders";
 import { DELIVERY_STATUS } from "../../../constants";
 import { GET_USER_ORDERS } from "../../../constants/queryKeys";
@@ -14,6 +15,16 @@ const OrderList = ({ user }) => {
   const [page, setPage] = useState(1);
   const [orderStatus, setOrderStatus] = useState("all");
   const [orders, setOrders] = useState([]);
+
+  const searchInput = useRef();
+
+  const [sortObj, setSortObj] = useState({
+    sortType: {
+      created_at: false,
+      total_paid_amount: false,
+    },
+    sort: ["-created_at"],
+  });
 
   const {
     data,
@@ -27,6 +38,8 @@ const OrderList = ({ user }) => {
         page,
         orderStatus,
         pageSize,
+        sort: sortObj.sort,
+        search: searchInput.current,
       }),
     queryKey: [
       GET_USER_ORDERS,
@@ -43,41 +56,40 @@ const OrderList = ({ user }) => {
     refetchOrders();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, orderStatus, pageSize]);
+
   return (
-    <Tabs
-      defaultActiveKey="all"
-      onTabClick={(tabKey) => {
-        setPage(1);
-        setOrderStatus(tabKey);
+    <OrderContext.Provider
+      value={{
+        dataSource: orders,
+        ordersCount: data?.count,
+        page,
+        pageSize,
+        refetchOrders,
+        searchInput,
+        setPage,
+        setPageSize,
+        sortObj,
+        setSortObj,
+        status: isRefetching ? "loading" : status,
       }}
     >
-      <TabPane key={"all"} tab={"All"}>
-        <OrdersList
-          dataSource={orders}
-          ordersCount={data?.count}
-          page={page}
-          pageSize={pageSize}
-          refetchOrders={refetchOrders}
-          setPage={setPage}
-          setPageSize={setPageSize}
-          status={isRefetching ? "loading" : status}
-        />
-      </TabPane>
-      {DELIVERY_STATUS.map(({ name, id }) => (
-        <TabPane key={id} tab={name}>
-          <OrdersList
-            dataSource={orders}
-            ordersCount={data?.count}
-            page={page}
-            pageSize={pageSize}
-            refetchOrders={refetchOrders}
-            setPage={setPage}
-            setPageSize={setPageSize}
-            status={isRefetching ? "loading" : status}
-          />
+      <Tabs
+        defaultActiveKey="all"
+        onTabClick={(tabKey) => {
+          setPage(1);
+          setOrderStatus(tabKey);
+        }}
+      >
+        <TabPane key={"all"} tab={"All"}>
+          <OrdersList />
         </TabPane>
-      ))}
-    </Tabs>
+        {DELIVERY_STATUS.map(({ name, id }) => (
+          <TabPane key={id} tab={name}>
+            <OrdersList />
+          </TabPane>
+        ))}
+      </Tabs>
+    </OrderContext.Provider>
   );
 };
 
