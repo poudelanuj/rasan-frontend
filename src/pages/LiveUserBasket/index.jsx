@@ -11,8 +11,11 @@ import { GET_BASKETS } from "../../constants/queryKeys";
 import { openErrorNotification, openSuccessNotification } from "../../utils";
 import ConfirmDelete from "../../shared/ConfirmDelete";
 import CustomPageHeader from "../../shared/PageHeader";
+import { useAuth } from "../../AuthProvider";
 
 const LiveUserBasket = () => {
+  const { isMobileView } = useAuth();
+
   const { Search } = Input;
 
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
@@ -207,6 +210,7 @@ const LiveUserBasket = () => {
           }}
           rowClassName="cursor-pointer"
           rowSelection={{ ...rowSelection }}
+          scroll={{ x: isEmpty(basketList) && !isMobileView ? null : 1000 }}
           showSorterTooltip={false}
           onRow={(record) => {
             return {

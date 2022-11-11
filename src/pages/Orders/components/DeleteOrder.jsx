@@ -1,37 +1,11 @@
 import { Button, Modal, Space, Spin } from "antd";
-import { useMutation } from "react-query";
-import { updateOrderStatus } from "../../../context/OrdersContext";
 import { ReactComponent as DeleteModal } from "../../../assets/images/DeleteModal.svg";
-import { openSuccessNotification, openErrorNotification } from "../../../utils";
 
-const DeleteOrder = ({ title, isArchiveOrder, refetchOrders, closeModal }) => {
-  const handleArchiveOrder = useMutation(
-    () =>
-      updateOrderStatus({
-        orderId: isArchiveOrder.id,
-        status: "archive",
-      }),
-    {
-      onSuccess: (data) => {
-        openSuccessNotification(data.message);
-        refetchOrders();
-      },
-
-      onError: (error) => {
-        openErrorNotification(error);
-      },
-    }
-  );
-
+const DeleteOrder = ({ title, isOpen, deleteMutation, status, closeModal }) => {
   return (
-    <Modal
-      footer={false}
-      title={title}
-      visible={isArchiveOrder.isOpen}
-      onCancel={closeModal}
-    >
+    <Modal footer={false} title={title} visible={isOpen} onCancel={closeModal}>
       <div className="flex flex-col items-center">
-        {handleArchiveOrder.status === "loading" ? (
+        {status === "loading" ? (
           <Spin className="my-4" size="large" />
         ) : (
           <DeleteModal />
@@ -44,17 +18,14 @@ const DeleteOrder = ({ title, isArchiveOrder, refetchOrders, closeModal }) => {
         </div>
 
         <Space className="mt-8">
-          <Button
-            disabled={handleArchiveOrder.status === "loading"}
-            onClick={closeModal}
-          >
+          <Button disabled={status === "loading"} onClick={closeModal}>
             Cancel
           </Button>
           <Button
-            disabled={handleArchiveOrder.status === "loading"}
+            disabled={status === "loading"}
             type="primary"
             danger
-            onClick={() => handleArchiveOrder.mutate()}
+            onClick={() => deleteMutation()}
           >
             Yes, Archive
           </Button>

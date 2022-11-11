@@ -1,8 +1,8 @@
 import { useMutation } from "react-query";
-import { useState } from "react";
-import { isEmpty } from "lodash";
+import { useState, useEffect } from "react";
 import { Input, Space, Table, Tag, Button, Popconfirm } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { isEmpty } from "lodash";
 import {
   deleteProductPack,
   publishProductPack,
@@ -16,9 +16,11 @@ import {
 import AddProductPack from "./AddProductPack";
 import EditProductPack from "./EditProductPack";
 import ButtonWPermission from "../../../../shared/ButtonWPermission";
-import { useEffect } from "react";
+import { useAuth } from "../../../../AuthProvider";
 
 function ProductPackList({ productSkuSlug, productPacks, refetchProductSku }) {
+  const { isMobileView } = useAuth();
+
   const [openAddPack, setOpenAddPack] = useState(false);
   const [openEditPack, setOpenEditPack] = useState(false);
   const [openConfirmDelete, setConfirmDelete] = useState(false);
@@ -274,7 +276,7 @@ function ProductPackList({ productSkuSlug, productPacks, refetchProductSku }) {
             </Popconfirm>
           ),
         }}
-        scroll={{ x: !isEmpty(productPacks) && 700 }}
+        scroll={{ x: isEmpty(productPacks) && !isMobileView ? null : 1000 }}
       />
     </>
   );

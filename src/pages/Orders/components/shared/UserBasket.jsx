@@ -3,6 +3,7 @@ import { DeleteOutlined, MinusOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Form, Input, Select, Space, Table } from "antd";
 import { useState, useEffect } from "react";
 import { useMutation, useQuery } from "react-query";
+import { isEmpty } from "lodash";
 import {
   addBasketItem,
   deleteBasketItem,
@@ -223,7 +224,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
           columns={columns}
           dataSource={dataSource || []}
           loading={isBasketItemsRefetching || basketDataStatus === "loading"}
-          scroll={{ x: 1000 }}
+          scroll={{ x: isEmpty(dataSource) && !isMobileView ? null : 1000 }}
         />
       )}
 

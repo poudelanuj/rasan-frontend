@@ -108,6 +108,7 @@ export const NOTIFICATION_TYPES = [
   "general_info",
   "offer",
   "notice",
+  "tutorial",
   "order_placed",
   "order_ready_for_delivery",
   "order_completed",

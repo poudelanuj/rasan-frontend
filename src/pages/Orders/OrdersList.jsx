@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { Table, Tag, Button, Menu, Dropdown, Space, Input } from "antd";
 import moment from "moment";
 import { useNavigate } from "react-router-dom";
@@ -8,9 +8,12 @@ import DeleteOrder from "./components/DeleteOrder";
 import ButtonWPermission from "../../shared/ButtonWPermission";
 import { isEmpty, capitalize } from "lodash";
 import { IN_PROCESS } from "../../constants";
-import { useContext } from "react";
+import { archiveBulkOrders } from "../../api/orders";
+import { updateOrderStatus } from "../../context/OrdersContext";
 import { OrderContext } from ".";
 import { useAuth } from "../../AuthProvider";
+import { useMutation } from "react-query";
+import { openErrorNotification, openSuccessNotification } from "../../utils";
 
 const OrdersList = () => {
   const {
@@ -34,8 +37,9 @@ const OrdersList = () => {
   const [isArchiveOrder, setIsArchiveOrder] = useState({
     isOpen: false,
     id: null,
-    title: "",
   });
+
+  const [isBulkArchiveOrderOpen, setIsBulkArchiveOrderOpen] = useState(false);
 
   const [checkedRows, setCheckedRows] = useState([]);
 
@@ -164,9 +168,7 @@ const OrdersList = () => {
               className="!border-none !bg-inherit"
               codename="delete_order"
               icon={<FaRegFileArchive />}
-              onClick={() =>
-                setIsArchiveOrder({ isOpen: true, id, title: "Order #" + id })
-              }
+              onClick={() => setIsArchiveOrder({ isOpen: true, id })}
             />
           </>
         );
@@ -202,6 +204,35 @@ const OrdersList = () => {
     onSelectAll: (selected, selectedRows, changeRows) => {},
   };
 
+  const handleArchiveOrder = useMutation(
+    (id) =>
+      updateOrderStatus({
+        orderId: id,
+        status: "archived",
+      }),
+    {
+      onSuccess: (data) => {
+        openSuccessNotification(data.message);
+        refetchOrders();
+        setIsArchiveOrder({ isOpen: false, id: null });
+      },
+
+      onError: (error) => {
+        openErrorNotification(error);
+      },
+    }
+  );
+
+  const handleArchiveBukhOrders = useMutation((ids) => archiveBulkOrders(ids), {
+    onSuccess: (res) => {
+      openSuccessNotification(res.message);
+      refetchOrders();
+      setCheckedRows([]);
+      setIsBulkArchiveOrderOpen(false);
+    },
+    onError: (err) => openErrorNotification(err),
+  });
+
   const bulkMenu = (
     <Menu
       items={[
@@ -212,13 +243,7 @@ const OrdersList = () => {
               className="!border-none !bg-inherit !text-current"
               codename="delete_order"
               disabled={isEmpty(checkedRows)}
-              onClick={() =>
-                setIsArchiveOrder({
-                  isOpen: true,
-                  id: checkedRows,
-                  title: "Archived Selected Orders?",
-                })
-              }
+              onClick={() => setIsBulkArchiveOrderOpen(true)}
             >
               Archive
             </ButtonWPermission>
@@ -286,15 +311,24 @@ const OrdersList = () => {
           },
         }}
         rowSelection={{ ...rowSelection }}
-        scroll={{ x: !isEmpty(dataSource) && 1000 }}
+        scroll={{ x: isEmpty(dataSource) && !isMobileView ? null : 1000 }}
         showSorterTooltip={false}
       />
 
       <DeleteOrder
         closeModal={() => setIsArchiveOrder({ isOpen: false, id: null })}
-        isArchiveOrder={isArchiveOrder}
-        refetchOrders={refetchOrders}
-        title={isArchiveOrder.title}
+        deleteMutation={() => handleArchiveOrder.mutate(isArchiveOrder.id)}
+        isOpen={isArchiveOrder.isOpen}
+        status={handleArchiveOrder.status}
+        title={"Order #" + isArchiveOrder.id}
+      />
+
+      <DeleteOrder
+        closeModal={() => setIsBulkArchiveOrderOpen(false)}
+        deleteMutation={() => handleArchiveBukhOrders.mutate(checkedRows)}
+        isOpen={isBulkArchiveOrderOpen}
+        status={handleArchiveBukhOrders.status}
+        title="Archive Selected Order?"
       />
     </>
   );

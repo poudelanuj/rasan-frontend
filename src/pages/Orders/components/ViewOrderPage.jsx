@@ -20,7 +20,7 @@ import {
 import { useMutation, useQuery } from "react-query";
 import moment from "moment";
 import { useEffect } from "react";
-import { uniqBy } from "lodash";
+import { uniqBy, isEmpty } from "lodash";
 import {
   addOrderItem,
   deleteOrderItem,
@@ -280,7 +280,7 @@ const ViewOrderPage = () => {
     {
       onSuccess: (data) => {
         setActiveOrder((prev) => ({ ...prev, orderStatus: data.status }));
-        // refetchOrders();
+        refetchOrderItems();
       },
 
       onError: (error) => {
@@ -542,7 +542,7 @@ const ViewOrderPage = () => {
             <Table
               columns={columns}
               dataSource={dataSource || []}
-              scroll={{ x: 1000 }}
+              scroll={{ x: isEmpty(dataSource) && !isMobileView ? null : 1000 }}
             />
           ))}
 

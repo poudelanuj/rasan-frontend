@@ -65,10 +65,10 @@ export const updateOrder = async (orderId, data) => {
   return res.data;
 };
 
-export const deleteBulkOrders = async (ids) => {
+export const archiveBulkOrders = async (ids) => {
   const res = await axios.post("/api/order/admin/order/bulk-action/", {
     ids,
-    action_type: "delete",
+    action_type: "archive",
   });
   return res.data;
 };

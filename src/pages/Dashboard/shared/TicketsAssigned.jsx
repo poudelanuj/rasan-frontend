@@ -7,9 +7,12 @@ import { GET_TICKETS_ASSIGNED } from "../../../constants/queryKeys";
 import { getTicketsAssignedToMe } from "../../../api/dashboard";
 import { getStatusColor } from "../../CRM/shared/getTicketStatusColor";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../AuthProvider";
 
 const TicketsAssigned = () => {
   const navigate = useNavigate();
+
+  const { isMobileView } = useAuth();
 
   const [ticketsAssigned, setTicketsAssigned] = useState([]);
 
@@ -147,7 +150,7 @@ const TicketsAssigned = () => {
             setPageSize(pageSize);
           },
         }}
-        scroll={{ x: !isEmpty(ticketsAssigned) && 1000 }}
+        scroll={{ x: isEmpty(ticketsAssigned) && !isMobileView ? null : 1000 }}
         showSorterTooltip={false}
       />
     </>

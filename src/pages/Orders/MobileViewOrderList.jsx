@@ -1,5 +1,6 @@
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { useMutation } from "react-query";
 import {
   Divider,
   Pagination,
@@ -20,6 +21,8 @@ import { capitalize } from "lodash";
 import { OrderContext } from ".";
 import getOrderStatusColor from "../../shared/tagColor";
 import ButtonWPermission from "../../shared/ButtonWPermission";
+import { openSuccessNotification, openErrorNotification } from "../../utils";
+import { updateOrderStatus } from "../../context/OrdersContext";
 import DeleteOrder from "./components/DeleteOrder";
 
 const MobileViewOrderList = () => {
@@ -47,6 +50,25 @@ const MobileViewOrderList = () => {
   });
 
   let timeout = 0;
+
+  const handleArchiveOrder = useMutation(
+    (id) =>
+      updateOrderStatus({
+        orderId: id,
+        status: "archived",
+      }),
+    {
+      onSuccess: (data) => {
+        openSuccessNotification(data.message);
+        refetchOrders();
+        setIsArchiveOrder({ isOpen: false, id: null });
+      },
+
+      onError: (error) => {
+        openErrorNotification(error);
+      },
+    }
+  );
 
   const menu = (
     <span className="flex flex-col gap-2.5 bg-white shadow-lg z-10 rounded-lg p-3">
@@ -207,8 +229,9 @@ const MobileViewOrderList = () => {
 
       <DeleteOrder
         closeModal={() => setIsArchiveOrder({ isOpen: false, id: null })}
-        isArchiveOrder={isArchiveOrder}
-        refetchOrders={refetchOrders}
+        deleteMutation={() => handleArchiveOrder.mutate(isArchiveOrder.id)}
+        isOpen={isArchiveOrder.isOpen}
+        status={handleArchiveOrder.status}
         title={"Order #" + isArchiveOrder.id}
       />
 
