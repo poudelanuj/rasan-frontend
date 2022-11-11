@@ -2,15 +2,17 @@ import { useState, useRef, useEffect } from "react";
 import { useQuery } from "react-query";
 import { Table, Tag, Input } from "antd";
 import moment from "moment";
-import { isEmpty } from "lodash";
 import { getOrdersAssignedToMe } from "../../../api/dashboard";
 import { GET_ORDERS_ASSIGNED } from "../../../constants/queryKeys";
 import { useNavigate } from "react-router-dom";
-import { capitalize, uniqBy } from "lodash";
+import { isEmpty, capitalize, uniqBy } from "lodash";
 import getTagColor from "../../../shared/tagColor";
+import { useAuth } from "../../../AuthProvider";
 
 const OrdersAssigned = () => {
   const navigate = useNavigate();
+
+  const { isMobileView } = useAuth();
 
   let timeout = 0;
 
@@ -210,7 +212,7 @@ const OrdersAssigned = () => {
             setPageSize(pageSize);
           },
         }}
-        scroll={{ x: !isEmpty(orders) && 1000 }}
+        scroll={{ x: isEmpty(orders) && !isMobileView ? null : 1000 }}
         showSorterTooltip={false}
       />
     </>

@@ -12,7 +12,7 @@ import {
   openSuccessNotification,
   parseSlug,
 } from "../../../utils";
-import { isEmpty, uniqBy } from "lodash";
+import { uniqBy, isEmpty } from "lodash";
 import { GET_PAGINATED_PRODUCT_SKUS } from "../../../constants/queryKeys";
 import {
   deleteProductSku,
@@ -20,8 +20,11 @@ import {
 } from "../../../api/products/productSku";
 import ConfirmDelete from "../../../shared/ConfirmDelete";
 import ButtonWPermission from "../../../shared/ButtonWPermission";
+import { useAuth } from "../../../AuthProvider";
 
 function ProductSkuScreen() {
+  const { isMobileView } = useAuth();
+
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [productSkus, setProductSkus] = useState([]);
@@ -368,7 +371,9 @@ function ProductSkuScreen() {
                 },
               }}
               rowSelection={rowSelection}
-              scroll={{ x: !isEmpty(productSkus) && 1000 }}
+              scroll={{
+                x: isEmpty(productSkus) && !isMobileView ? null : 1000,
+              }}
               showSorterTooltip={false}
             />
           </div>

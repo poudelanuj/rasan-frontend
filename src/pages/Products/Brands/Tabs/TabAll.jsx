@@ -14,7 +14,7 @@ import { ALERT_TYPE } from "../../../../constants";
 import Alert from "../../../../shared/Alert";
 import { GET_PRODUCTS_FROM_BRAND } from "../../../../constants/queryKeys";
 import { bulkDelete, bulkPublish } from "../../../../api/products";
-import { isEmpty, uniqBy } from "lodash";
+import { uniqBy } from "lodash";
 import { getProductsFromBrand } from "../../../../api/brands";
 
 const { Option } = Select;
@@ -256,7 +256,7 @@ function TabAll({ slug }) {
             rowClassName="cursor-pointer"
             rowKey="slug"
             rowSelection={rowSelection}
-            scroll={{ x: !isEmpty(paginatedProducts) && 1000 }}
+            scroll={{ x: 1000 }}
             onRow={(record) => {
               return {
                 onClick: (_) => {

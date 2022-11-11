@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import moment from "moment";
 import { Space, Table, Tag, Select } from "antd";
 import { CaretDownOutlined, SearchOutlined } from "@ant-design/icons";
-import { isEmpty, uniqBy } from "lodash";
+import { uniqBy } from "lodash";
 import { useMutation, useQuery } from "react-query";
 import AddCategoryButton from "../subComponents/AddCategoryButton";
 import {
@@ -471,7 +471,7 @@ function ProductListScreen() {
               },
             }}
             rowSelection={rowSelection}
-            scroll={{ x: !isEmpty(products) && 1000 }}
+            scroll={{ x: 1000 }}
             showSorterTooltip={false}
           />
         </div>

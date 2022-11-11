@@ -16,6 +16,7 @@ import {
 import { GET_PRODUCT_PACK_CSV } from "../../../constants/queryKeys";
 import CustomPageHeader from "../../../shared/PageHeader";
 import { openErrorNotification, openSuccessNotification } from "../../../utils";
+import { useAuth } from "../../../AuthProvider";
 
 const JSONToCSV = (objArray) => {
   let csvrecord = Object.keys(objArray[0]).join(",") + "\n";
@@ -32,6 +33,8 @@ const JSONToCSV = (objArray) => {
 };
 
 const ProductPack = () => {
+  const { isMobileView } = useAuth();
+
   const navigate = useNavigate();
 
   let timeout = 0;
@@ -371,7 +374,7 @@ const ProductPack = () => {
                   setPageSize(pageSize);
                 },
               }}
-              scroll={{ x: !isEmpty(productPack) && 1000 }}
+              scroll={{ x: 1000 }}
               showSorterTooltip={false}
             />
           </Tabs.TabPane>
@@ -398,7 +401,9 @@ const ProductPack = () => {
                   setPageSize(pageSize);
                 },
               }}
-              scroll={{ x: !isEmpty(productPack) && 1000 }}
+              scroll={{
+                x: isEmpty(productPack) && !isMobileView ? null : 1000,
+              }}
               showSorterTooltip={false}
             />
           </Tabs.TabPane>
