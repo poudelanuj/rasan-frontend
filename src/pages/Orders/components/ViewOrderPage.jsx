@@ -639,7 +639,7 @@ const ViewOrderPage = () => {
                         setIsVoucherPreviewVisible(visible),
                     }}
                     src={data.payment.voucher_image || DEFAULT_CARD_IMAGE}
-                    width={200}
+                    width={150}
                   />
                 </div>
               ) : (
