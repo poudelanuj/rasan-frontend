@@ -16,6 +16,8 @@ import {
   HomeOutlined,
   PhoneOutlined,
   EnvironmentOutlined,
+  EditOutlined,
+  CloseCircleOutlined,
 } from "@ant-design/icons";
 import { useMutation, useQuery } from "react-query";
 import moment from "moment";
@@ -33,7 +35,7 @@ import {
 import CustomPageHeader from "../../../shared/PageHeader";
 import { useState } from "react";
 import { getAdminUsers } from "../../../api/users";
-import { updateOrder } from "../../../api/orders";
+import { updateOrder, updateOrderItem } from "../../../api/orders";
 import {
   DEFAULT_CARD_IMAGE,
   DELIVERY_STATUS,
@@ -68,6 +70,12 @@ const ViewOrderPage = () => {
     orderId: orderId,
     orderStatus: null,
   });
+
+  const [isProductEditableId, setIsProductEditableId] = useState(null);
+
+  const [productPriceEditVal, setProductPriceEditVal] = useState([]);
+
+  const [isVoucherPreviewVisible, setIsVoucherPreviewVisible] = useState(false);
 
   const [page, setPage] = useState(1);
 
@@ -165,9 +173,20 @@ const ViewOrderPage = () => {
         total: pricePerPiece * numberOfPacks * numberOfItemsPerPack,
         loyaltyPoints: loyaltyPointsPerPack * numberOfPacks,
         cashback: cashbackPerPack * numberOfPacks,
+        numberOfPacks,
+        numberOfItemsPerPack,
       };
     }
   );
+
+  useEffect(() => {
+    setProductPriceEditVal(
+      data?.items?.map(({ id, product_pack }) => ({
+        id,
+        price: product_pack?.price_per_piece,
+      }))
+    );
+  }, [data]);
 
   const handleItemDelete = useMutation(
     (itemId) => deleteOrderItem(orderId, itemId),
@@ -178,6 +197,22 @@ const ViewOrderPage = () => {
       onSettled: () => {
         refetchOrderItems();
         // refetchOrders();
+      },
+      onError: (error) => {
+        openErrorNotification(error);
+      },
+    }
+  );
+
+  const handleItemUpdate = useMutation(
+    ({ orderId, itemId, data }) => updateOrderItem({ orderId, itemId, data }),
+    {
+      onSuccess: (data) => {
+        openSuccessNotification(data.message || "Item Updated");
+        setIsProductEditableId(null);
+      },
+      onSettled: () => {
+        refetchOrderItems();
       },
       onError: (error) => {
         openErrorNotification(error);
@@ -229,16 +264,47 @@ const ViewOrderPage = () => {
       key: "packSize",
     },
     {
-      title: "Price",
+      title: "Price (per piece)",
       dataIndex: "price",
       key: "price",
-      render: (text) => <>Rs. {text}/pc</>,
+      render: (_, { id }) => (
+        <div className="flex items-center">
+          <span>Rs.</span>
+          <Input
+            className={`!bg-inherit !text-black !w-24 ${
+              isProductEditableId !== id && "!border-none"
+            }`}
+            disabled={isProductEditableId !== id}
+            id={id}
+            name="price"
+            value={
+              productPriceEditVal?.find((product) => product.id === id)?.price
+            }
+            onChange={(event) => {
+              const { id, name, value } = event.target;
+              setProductPriceEditVal((prev) =>
+                prev.map((product) => ({
+                  ...product,
+                  [Number(id) === product.id && name]: value,
+                }))
+              );
+            }}
+          />
+        </div>
+      ),
     },
     {
       title: "Total",
       dataIndex: "total",
       key: "total",
-      render: (text) => <>Rs. {text}</>,
+      render: (_, { id, numberOfItemsPerPack, numberOfPacks }) => (
+        <>
+          Rs.{" "}
+          {productPriceEditVal?.find((product) => product.id === id)?.price *
+            numberOfItemsPerPack *
+            numberOfPacks}
+        </>
+      ),
     },
     {
       title: "Loyalty Points",
@@ -255,12 +321,53 @@ const ViewOrderPage = () => {
       title: "Action",
       dataIndex: "action",
       key: "action",
+      width: "12%",
       render: (_, { id }) => (
-        <div>
+        <div className="inline-flex items-center gap-3">
           <DeleteOutlined
-            className="mx-3"
+            className="cursor-pointer"
             onClick={() => handleItemDelete.mutate(id)}
           />
+
+          {isProductEditableId === id ? (
+            <span className="inline-flex items-center gap-3">
+              <Button
+                size="small"
+                type="primary"
+                onClick={() =>
+                  handleItemUpdate.mutate({
+                    orderId,
+                    itemId: isProductEditableId,
+                    data: {
+                      price_per_piece: productPriceEditVal?.find(
+                        (product) => product.id === isProductEditableId
+                      )?.price,
+                    },
+                  })
+                }
+              >
+                Save
+              </Button>
+
+              <CloseCircleOutlined
+                className="cursor-pointer"
+                onClick={() => {
+                  setIsProductEditableId(null);
+                  setProductPriceEditVal(
+                    data?.items?.map(({ id, product_pack }) => ({
+                      id,
+                      price: product_pack?.price_per_piece,
+                    }))
+                  );
+                }}
+              />
+            </span>
+          ) : (
+            <EditOutlined
+              className="cursor-pointer"
+              onClick={() => setIsProductEditableId(id)}
+            />
+          )}
         </div>
       ),
     },
@@ -516,11 +623,25 @@ const ViewOrderPage = () => {
             </Descriptions.Item>
 
             <Descriptions.Item label="Voucher Image" span={2}>
-              {data.voucher_image ? (
-                <Image
-                  src={data.voucher_image || DEFAULT_CARD_IMAGE}
-                  width={200}
-                />
+              {data.payment.voucher_image ? (
+                <div>
+                  <span
+                    className="text-blue-500 cursor-pointer hover:underline my-0 py-0 transition-all"
+                    onClick={() => setIsVoucherPreviewVisible(true)}
+                  >
+                    View Preview
+                  </span>
+                  <Image
+                    className="hidden"
+                    preview={{
+                      visible: isVoucherPreviewVisible,
+                      onVisibleChange: (visible) =>
+                        setIsVoucherPreviewVisible(visible),
+                    }}
+                    src={data.payment.voucher_image || DEFAULT_CARD_IMAGE}
+                    width={200}
+                  />
+                </div>
               ) : (
                 "-"
               )}
@@ -536,7 +657,9 @@ const ViewOrderPage = () => {
           (isMobileView ? (
             <MobileViewOrderPage
               deleteMutation={(id) => handleItemDelete.mutate(id)}
+              orderId={orderId}
               orderItems={dataSource}
+              refetchOrderItems={refetchOrderItems}
             />
           ) : (
             <Table

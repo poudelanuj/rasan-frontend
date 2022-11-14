@@ -254,7 +254,7 @@ const OrdersList = () => {
   );
 
   return (
-    <>
+    <div className="hidden sm:block">
       <div className="mb-4 flex sm:gap-5 gap-2 justify-between sm:flex-row flex-col">
         <div className="flex sm:flex-row flex-col gap-2">
           <ButtonWPermission
@@ -330,7 +330,7 @@ const OrdersList = () => {
         status={handleArchiveBukhOrders.status}
         title="Archive Selected Order?"
       />
-    </>
+    </div>
   );
 };
 

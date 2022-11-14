@@ -84,3 +84,11 @@ export const updateOrderPayment = async (paymentId, data) => {
   const res = await axios.put(`/api/order/admin/payment/${paymentId}/`, data);
   return res.data;
 };
+
+export const updateOrderItem = async ({ orderId, itemId, data }) => {
+  const res = await axios.put(
+    `/api/order/admin/update-item-order/${orderId}/${itemId}/`,
+    data
+  );
+  return res.data;
+};

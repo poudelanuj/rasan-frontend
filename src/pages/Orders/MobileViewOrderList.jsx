@@ -114,7 +114,7 @@ const MobileViewOrderList = () => {
   );
 
   return (
-    <>
+    <div className="sm:hidden">
       <div className="flex items-center gap-2 mb-2">
         <Button className="!rounded-lg text-sm px-3 w-24">
           <span>Export</span>
@@ -245,7 +245,7 @@ const MobileViewOrderList = () => {
           setPageSize(pageSize);
         }}
       />
-    </>
+    </div>
   );
 };
 
