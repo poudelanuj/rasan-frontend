@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
-import { Space, Table, Tag, Select } from "antd";
+import { Space, Table, Tag, Select, Tabs } from "antd";
 import { CaretDownOutlined, SearchOutlined } from "@ant-design/icons";
 import { uniqBy } from "lodash";
 import { useMutation, useQuery } from "react-query";
@@ -48,7 +48,6 @@ function ProductListScreen() {
     sortType: {
       name: false,
       published_at: false,
-      is_published: false,
     },
     sort: [],
   });
@@ -56,6 +55,8 @@ function ProductListScreen() {
   const [selectedBrands, setSelectedBrands] = useState([]);
 
   const [selectedCategory, setSelectedCategory] = useState([]);
+
+  const [isPublished, setIsPublished] = useState(true);
 
   const searchInput = useRef("");
 
@@ -85,7 +86,8 @@ function ProductListScreen() {
         sortObj.sort,
         searchInput.current,
         selectedBrands,
-        selectedCategory
+        selectedCategory,
+        isPublished
       )
   );
 
@@ -99,7 +101,7 @@ function ProductListScreen() {
   useEffect(() => {
     refetchProducts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, sortObj, pageSize, selectedBrands, selectedCategory]);
+  }, [page, sortObj, pageSize, selectedBrands, selectedCategory, isPublished]);
 
   const {
     data: dataBrand,
@@ -319,14 +321,7 @@ function ProductListScreen() {
           </Tag>
         );
       },
-      sorter: true,
-      onHeaderCell: (header) => {
-        return {
-          onClick: () => sortingFn(header, "published_at"),
-        };
-      },
     },
-
     {
       title: "Published Date",
       dataIndex: "published_at",
@@ -452,28 +447,63 @@ function ProductListScreen() {
         </div>
 
         <div className="flex-1">
-          <Table
-            columns={columns}
-            dataSource={products.map((item) => ({
-              ...item,
-              key: item.slug,
-            }))}
-            loading={productsStatus === "loading" || isRefetching}
-            pagination={{
-              showSizeChanger: true,
-              pageSize,
-              total: data?.count,
-              current: page,
-
-              onChange: (page, pageSize) => {
-                setPage(page);
-                setPageSize(pageSize);
-              },
+          <Tabs
+            defaultActiveKey="published"
+            onTabClick={(key) => {
+              setPage(1);
+              setIsPublished(key === "published");
             }}
-            rowSelection={rowSelection}
-            scroll={{ x: 1000 }}
-            showSorterTooltip={false}
-          />
+          >
+            <Tabs.TabPane key="published" tab="Published">
+              <Table
+                columns={columns}
+                dataSource={products.map((item) => ({
+                  ...item,
+                  key: item.slug,
+                }))}
+                loading={productsStatus === "loading" || isRefetching}
+                pagination={{
+                  showSizeChanger: true,
+                  pageSize,
+                  total: data?.count,
+                  current: page,
+
+                  onChange: (page, pageSize) => {
+                    setPage(page);
+                    setPageSize(pageSize);
+                  },
+                }}
+                rowSelection={rowSelection}
+                scroll={{ x: 1000 }}
+                showSorterTooltip={false}
+              />
+            </Tabs.TabPane>
+
+            <Tabs.TabPane key="unpublished" tab="Unpublished">
+              <Table
+                columns={columns}
+                dataSource={products.map((item) => ({
+                  ...item,
+                  key: item.slug,
+                }))}
+                loading={productsStatus === "loading" || isRefetching}
+                pagination={{
+                  showSizeChanger: true,
+                  pageSize,
+                  total: data?.count,
+                  current: page,
+
+                  onChange: (page, pageSize) => {
+                    setPage(page);
+                    setPageSize(pageSize);
+                  },
+                }}
+                rowSelection={rowSelection}
+                scroll={{ x: 1000 }}
+                showSorterTooltip={false}
+              />
+            </Tabs.TabPane>
+          </Tabs>
         </div>
       </div>
 

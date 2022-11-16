@@ -2,7 +2,7 @@ import CustomPageHeader from "../../../shared/PageHeader";
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { Space, Table, Tag, Input } from "antd";
+import { Space, Table, Tag, Input, Tabs } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import { useMutation, useQuery } from "react-query";
 import AddCategoryButton from "../subComponents/AddCategoryButton";
@@ -32,11 +32,12 @@ function ProductSkuScreen() {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [selectedSkuSlug, setSelectedSkuSlug] = useState(""); // * For Delete
 
+  const [isPublished, setIsPublished] = useState(true);
+
   const [sortObj, setSortObj] = useState({
     sortType: {
       name: false,
       published_at: false,
-      is_published: false,
     },
     sort: [],
   });
@@ -57,7 +58,13 @@ function ProductSkuScreen() {
       sortObj.sort,
     ],
     () =>
-      getPaginatedProdctSkus(page, pageSize, sortObj.sort, searchInput.current)
+      getPaginatedProdctSkus(
+        page,
+        pageSize,
+        sortObj.sort,
+        searchInput.current,
+        isPublished
+      )
   );
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const navigate = useNavigate();
@@ -72,7 +79,7 @@ function ProductSkuScreen() {
   useEffect(() => {
     refetchProductSkus();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, sortObj.sort, pageSize]);
+  }, [page, sortObj.sort, pageSize, isPublished]);
 
   /* console.log(
     productSkus.map(({ product_packs }) => product_packs.map(({ id }) => id))
@@ -237,12 +244,6 @@ function ProductSkuScreen() {
           </Tag>
         );
       },
-      sorter: true,
-      onHeaderCell: (header) => {
-        return {
-          onClick: () => sortingFn(header, "is_published"),
-        };
-      },
     },
     {
       title: "Actions",
@@ -350,32 +351,71 @@ function ProductSkuScreen() {
           </div>
 
           <div className="flex-1">
-            <Table
-              columns={columns}
-              dataSource={
-                productSkus?.map((item) => ({
-                  ...item,
-                  key: item.slug,
-                })) || []
-              }
-              loading={status === "loading" || isRefetching}
-              pagination={{
-                showSizeChanger: true,
-                pageSize,
-                total: data?.count,
-                current: page,
+            <Tabs
+              defaultActiveKey="published"
+              onTabClick={(key) => {
+                setPage(1);
+                setIsPublished(key === "published");
+              }}
+            >
+              <Tabs.TabPane key="published" tab="Published">
+                <Table
+                  columns={columns}
+                  dataSource={
+                    productSkus?.map((item) => ({
+                      ...item,
+                      key: item.slug,
+                    })) || []
+                  }
+                  loading={status === "loading" || isRefetching}
+                  pagination={{
+                    showSizeChanger: true,
+                    pageSize,
+                    total: data?.count,
+                    current: page,
 
-                onChange: (page, pageSize) => {
-                  setPage(page);
-                  setPageSize(pageSize);
-                },
-              }}
-              rowSelection={rowSelection}
-              scroll={{
-                x: isEmpty(productSkus) && !isMobileView ? null : 1000,
-              }}
-              showSorterTooltip={false}
-            />
+                    onChange: (page, pageSize) => {
+                      setPage(page);
+                      setPageSize(pageSize);
+                    },
+                  }}
+                  rowSelection={rowSelection}
+                  scroll={{
+                    x: isEmpty(productSkus) && !isMobileView ? null : 1000,
+                  }}
+                  showSorterTooltip={false}
+                />
+              </Tabs.TabPane>
+
+              <Tabs.TabPane key="unpublished" tab="Unpublished">
+                <Table
+                  columns={columns}
+                  dataSource={
+                    productSkus?.map((item) => ({
+                      ...item,
+                      key: item.slug,
+                    })) || []
+                  }
+                  loading={status === "loading" || isRefetching}
+                  pagination={{
+                    showSizeChanger: true,
+                    pageSize,
+                    total: data?.count,
+                    current: page,
+
+                    onChange: (page, pageSize) => {
+                      setPage(page);
+                      setPageSize(pageSize);
+                    },
+                  }}
+                  rowSelection={rowSelection}
+                  scroll={{
+                    x: isEmpty(productSkus) && !isMobileView ? null : 1000,
+                  }}
+                  showSorterTooltip={false}
+                />
+              </Tabs.TabPane>
+            </Tabs>
           </div>
         </div>
 

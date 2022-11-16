@@ -692,7 +692,11 @@ const ViewOrderPage = () => {
                 showSearch
                 onSelect={(value) => {
                   setSelectedSku(value);
-                  setSelectedPack();
+                  setSelectedPack(
+                    productSkus &&
+                      productSkus.find((item) => item.slug === value)
+                        ?.product_packs[0]
+                  );
                   setQuantity(1);
                 }}
               >
@@ -710,7 +714,13 @@ const ViewOrderPage = () => {
               tooltip="Select Pack Size"
             >
               <Select
+                key={selectedProductSku}
                 className="sm:!w-36"
+                defaultValue={
+                  productSkus &&
+                  productSkus.find((item) => item.slug === selectedProductSku)
+                    ?.product_packs[0].id
+                }
                 placeholder="Select Pack Size"
                 showSearch
                 onSelect={(value) =>
@@ -763,6 +773,7 @@ const ViewOrderPage = () => {
             >
               <Input
                 addonBefore={isMobileView && "Price Per Piece"}
+                className="!bg-inherit !text-black"
                 placeholder="Price"
                 type="number"
                 value={selectedProductPack?.price_per_piece}
@@ -776,6 +787,7 @@ const ViewOrderPage = () => {
             >
               <Input
                 addonBefore={isMobileView && "Total Amount"}
+                className="!bg-inherit !text-black"
                 placeholder="Total amount"
                 type="number"
                 value={getTotalAmount()}
@@ -789,6 +801,7 @@ const ViewOrderPage = () => {
             >
               <Input
                 addonBefore={isMobileView && "Loyalty"}
+                className="!bg-inherit !text-black"
                 placeholder="Loyalty points"
                 type="number"
                 value={
@@ -808,6 +821,7 @@ const ViewOrderPage = () => {
             >
               <Input
                 addonBefore={isMobileView && "Cashback"}
+                className="!bg-inherit !text-black"
                 placeholder="Cashback"
                 type="number"
                 value={

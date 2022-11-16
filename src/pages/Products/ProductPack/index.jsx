@@ -138,7 +138,6 @@ const ProductPack = () => {
 
           setSelectedCSV(
             csvParse(csv).map((cs) => {
-              delete cs["is_published"];
               return {
                 ...cs,
                 category_name: cs.category_name
@@ -313,6 +312,7 @@ const ProductPack = () => {
             onClick={async () => {
               const data = await getProductPackCSV({
                 shouldPaginate: false,
+                isPublished,
               });
               const blob = new Blob(
                 [

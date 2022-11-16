@@ -32,6 +32,7 @@ const CreateOrder = () => {
   const [isCreateShippingOpen, setIsCreateShippingOpen] = useState(false);
   const { Option } = Select;
   const [form] = Form.useForm();
+
   const [selectedUserPhone, setSelectedUserPhone] = useState();
   const [basketItemsStatus, setBasketItemsStatus] = useState(STATUS.idle);
   const [selectedShippingAddress, setSelectedShippingAddress] = useState(null);
@@ -49,7 +50,7 @@ const CreateOrder = () => {
     refetch: refetchUserList,
     isRefetching: refetchingUserList,
   } = useQuery({
-    queryFn: () => getUsers(page, "", 100),
+    queryFn: () => getUsers(page, "", 100, ["-id"]),
     queryKey: ["getUserList", page.toString()],
   });
 
@@ -159,7 +160,7 @@ const CreateOrder = () => {
                   if (timeout) clearTimeout(timeout);
                   timeout = setTimeout(async () => {
                     setPage(1);
-                    const res = await getUsers(page, val, 100);
+                    const res = await getUsers(page, val, 100, ["-id"]);
                     setUserList([]);
                     setUserList(res.results);
                   }, 200);
@@ -181,8 +182,12 @@ const CreateOrder = () => {
                   ) : (
                     <Option key={user.id} value={user.phone}>
                       {user.full_name
-                        ? `${user.full_name} (${user.phone})`
-                        : user.phone}
+                        ? `${user.full_name} (${user.phone})${
+                            user.shop.name ? ` - ${user.shop.name}` : ""
+                          }`
+                        : `${user.phone}${
+                            user.shop.name ? ` - ${user.shop.name}` : ""
+                          }`}
                     </Option>
                   );
                 })}
@@ -356,9 +361,12 @@ const CreateOrder = () => {
           </div>
 
           <CreateUserModal
+            form={form}
             isCreateUserOpen={isCreateUserOpen}
             refetchUserList={refetchUserList}
             setIsCreateUserOpen={setIsCreateUserOpen}
+            setSelectedUserPhone={setSelectedUserPhone}
+            setUserList={setUserList}
           />
 
           {!!selectedUserPhone && (

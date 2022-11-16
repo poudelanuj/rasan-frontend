@@ -86,6 +86,7 @@ const Orders = () => {
         <Tabs
           className="bg-white sm:!p-6 !p-4 rounded-lg"
           defaultActiveKey="all"
+          tabBarGutter={21}
           onTabClick={(tabKey) => {
             setPage(1);
             setOrderStatus(tabKey);

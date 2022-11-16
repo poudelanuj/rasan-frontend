@@ -23,11 +23,19 @@ export const getAllProductSkus = async () => {
   return res.data.data.results;
 };
 
-export const getPaginatedProdctSkus = async (page, pageSize, sort, search) => {
+export const getPaginatedProdctSkus = async (
+  page,
+  pageSize,
+  sort,
+  search,
+  isPublished
+) => {
   const res = await axios.get(
     `/api/product/admin/product-skus/?page=${page || 1}&size=${
       pageSize || 20
-    }&sort=${sort || []}&name__icontains=${search || ""}`
+    }&sort=${sort || []}&name__icontains=${
+      search || ""
+    }&is_published=${isPublished}`
   );
   return res.data.data;
 };

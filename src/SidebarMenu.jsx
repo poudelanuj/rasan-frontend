@@ -42,27 +42,27 @@ const sidebarItem = [
 
     icon: <ShoppingOutlined />,
     children: [
-      { label: "Categories", key: "category-list", codename: "view_category" },
-      {
-        label: "Brands",
-        key: "brands",
-        codename: "view_brand",
-      },
       {
         label: "Products",
         key: "product-list",
         codename: "view_product",
       },
+      { label: "Product SKU", key: "product-sku", codename: "view_productsku" },
       {
         label: "Product Pack",
         key: "product-pack",
         codename: "view_product",
       },
-      { label: "Product SKU", key: "product-sku", codename: "view_productsku" },
       {
         label: "Rasan Choices",
         key: "product-groups",
         codename: "view_productgroup",
+      },
+      { label: "Categories", key: "category-list", codename: "view_category" },
+      {
+        label: "Brands",
+        key: "brands",
+        codename: "view_brand",
       },
     ],
   },

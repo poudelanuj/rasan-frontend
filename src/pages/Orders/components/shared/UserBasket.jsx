@@ -170,6 +170,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
             quantity: 1,
           },
         ]);
+        setSelectedSku(null);
         setBasketItemsStatus(STATUS.success);
       },
       onError: (error) => {
@@ -246,7 +247,21 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
               loading={productsStatus === "loading"}
               placeholder="Select Product SKU"
               showSearch
-              onSelect={(value) => setSelectedSku(value)}
+              onSelect={(value) => {
+                setSelectedSku(value);
+                setForms((prev) => {
+                  const productPack = productSkus.find(
+                    (item) => item.slug === value
+                  )?.product_packs[0];
+
+                  const temp = [...prev];
+                  const index = prev.findIndex(
+                    (item) => item.id === basketForm.id
+                  );
+                  temp[index]["product_pack"] = productPack;
+                  return temp;
+                });
+              }}
             >
               {productSkus &&
                 productSkus.map((item) => (
@@ -262,7 +277,13 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
             tooltip="Select Pack Size"
           >
             <Select
+              key={selectedProductSku}
               className="sm:!w-36"
+              defaultValue={
+                productSkus &&
+                productSkus.find((item) => item.slug === selectedProductSku)
+                  ?.product_packs[0].id
+              }
               placeholder="Select Pack Size"
               showSearch
               onSelect={(value) => {
@@ -331,6 +352,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
           >
             <Input
               addonBefore={isMobileView && "Price Per Piece"}
+              className="!bg-inherit !text-black"
               placeholder="Price"
               type="number"
               value={
@@ -343,10 +365,11 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
 
           <Form.Item
             className="sm:w-auto w-full !mb-0"
-            label={!isMobileView && "Loyalty"}
+            label={!isMobileView && "Total Amount"}
           >
             <Input
               addonBefore={isMobileView && "Total Amount"}
+              className="!bg-inherit !text-black"
               placeholder="Total amount"
               type="number"
               value={getTotalAmount(basketForm.id)}
@@ -360,6 +383,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
           >
             <Input
               addonBefore={isMobileView && "Loyalty"}
+              className="!bg-inherit !text-black"
               placeholder="Loyalty points"
               type="number"
               value={
@@ -379,6 +403,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
           >
             <Input
               addonBefore={isMobileView && "Cashback"}
+              className="!bg-inherit !text-black"
               placeholder="Cashback"
               type="number"
               value={
