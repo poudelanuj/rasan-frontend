@@ -27,14 +27,15 @@ export const getPaginatedProducts = async (
   sort,
   search,
   brand,
-  category
+  category,
+  isPublished
 ) => {
   const res = await axios.get(
     `/api/product/admin/products/?page=${page || 1}&size=${
       pageSize || 20
-    }&sort=${sort}&name__icontains=${search || ""}&brand=${
+    }&sort=${sort || []}&name__icontains=${search || ""}&brand=${
       brand || []
-    }&category=${category || []}`
+    }&category=${category || []}&is_published=${isPublished}`
   );
   return res.data.data;
 };

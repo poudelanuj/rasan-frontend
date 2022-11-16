@@ -90,16 +90,7 @@ const CreateUserModal = ({
           <Input />
         </Form.Item>
 
-        <Form.Item
-          label="VAT No."
-          name="pan_vat_number"
-          rules={[
-            {
-              required: true,
-              message: "Please input VAT No.",
-            },
-          ]}
-        >
+        <Form.Item label="VAT No." name="pan_vat_number">
           <Input />
         </Form.Item>
       </Form>

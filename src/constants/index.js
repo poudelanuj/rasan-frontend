@@ -37,7 +37,7 @@ export const ON_HOLD = "on_hold";
 export const DELIVERED = "delivered";
 export const DELIVERY_RETURNED = "delivery_returned";
 export const CANCELLED_BY_CSR = "cancelled_by_csr";
-export const CANCELLED_REQUESTED = "cancelled_requested";
+export const CANCEL_REQUESTED = "cancel_requested";
 export const ARCHIVED = "archived";
 
 export const DELIVERY_STATUS = [
@@ -48,7 +48,7 @@ export const DELIVERY_STATUS = [
   { name: "Delivered", id: DELIVERED },
   { name: "Delivery Returned", id: DELIVERY_RETURNED },
   { name: "Cancelled by CSR", id: CANCELLED_BY_CSR },
-  { name: "Cancelled Requested", id: CANCELLED_REQUESTED },
+  { name: "Cancel Requested", id: CANCEL_REQUESTED },
   { name: "Archived", id: "archived" },
 ];
 

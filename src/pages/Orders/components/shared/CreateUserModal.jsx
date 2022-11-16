@@ -10,14 +10,23 @@ const CreateUserModal = ({
   isCreateUserOpen,
   setIsCreateUserOpen,
   refetchUserList,
+  setSelectedUserPhone,
+  setUserList,
+  form: userForm,
 }) => {
   const [form] = Form.useForm();
 
   const handleUserCreate = useMutation((data) => createUser(data), {
+    mutationKey: "createUser",
     onSuccess: (data) => {
       openSuccessNotification(data.message);
       setIsCreateUserOpen(false);
+      setUserList((prev) =>
+        prev.filter((user) => user.phone !== data.data.phone)
+      );
       refetchUserList();
+      setSelectedUserPhone(data.data.phone);
+      userForm.setFieldsValue({ user: data.data.phone });
     },
     onError: (error) => {
       openErrorNotification(error);
@@ -33,7 +42,10 @@ const CreateUserModal = ({
           type="primary"
           onClick={() =>
             form.validateFields().then((values) => {
-              handleUserCreate.mutate(values);
+              handleUserCreate.mutate({
+                ...values,
+                phone: `+977-${values.phone}`,
+              });
             })
           }
         >
@@ -73,9 +85,17 @@ const CreateUserModal = ({
               required: true,
               message: "Please input Phone number",
             },
+            {
+              validator: (_, value) =>
+                value.length > 10
+                  ? Promise.reject(
+                      "Phone number must not be greater than 10 digits"
+                    )
+                  : Promise.resolve(),
+            },
           ]}
         >
-          <Input />
+          <Input addonBefore={"+977"} type="number" />
         </Form.Item>
         <Form.Item
           label="Shop Name"
@@ -90,16 +110,7 @@ const CreateUserModal = ({
           <Input />
         </Form.Item>
 
-        <Form.Item
-          label="VAT No."
-          name="pan_vat_number"
-          rules={[
-            {
-              required: true,
-              message: "Please input VAT No.",
-            },
-          ]}
-        >
+        <Form.Item label="VAT No." name="pan_vat_number">
           <Input />
         </Form.Item>
       </Form>
