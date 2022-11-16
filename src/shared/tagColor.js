@@ -2,7 +2,7 @@ import {
   DELIVERED,
   IN_PROCESS,
   CANCELLED_BY_CSR,
-  CANCELLED_REQUESTED,
+  CANCEL_REQUESTED,
   DELIVERY_RETURNED,
   CONFIRMED_BY_CSR,
   ON_THE_WAY_TO_DELIVERY,
@@ -14,7 +14,7 @@ const statusColor = (status) => {
   switch (status) {
     case IN_PROCESS:
     case DELIVERY_RETURNED:
-    case CANCELLED_REQUESTED:
+    case CANCEL_REQUESTED:
     case ON_HOLD:
       return "orange";
     case CANCELLED_BY_CSR:
