@@ -45,10 +45,10 @@ export default function AuthProvider({ children }) {
   };
 
   useEffect(() => {
-    window.innerWidth < 700 ? setIsMobileView(true) : setIsMobileView(false);
+    window.innerWidth < 640 ? setIsMobileView(true) : setIsMobileView(false);
 
     window.addEventListener("resize", () =>
-      window.innerWidth < 700 ? setIsMobileView(true) : setIsMobileView(false)
+      window.innerWidth < 640 ? setIsMobileView(true) : setIsMobileView(false)
     );
   }, []);
 
