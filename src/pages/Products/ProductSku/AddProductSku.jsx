@@ -12,6 +12,8 @@ import {
 import { useCallback, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 import { getAllBrands } from "../../../api/brands";
 import { getAllCategories } from "../../../api/categories";
 import { getLoyaltyPolicies } from "../../../api/loyalties";
@@ -50,6 +52,8 @@ const AddProductSku = () => {
   const navigate = useNavigate();
 
   const queryClient = useQueryClient();
+
+  const [description, setDescription] = useState("");
 
   const fileUploadOptions = {
     maxCount: 1,
@@ -102,6 +106,9 @@ const AddProductSku = () => {
         }
         if (formValues[key]) formData.append(key, formValues[key]);
       });
+
+      if (description) formData.append("description", description);
+
       if (selectedImage) formData.append("product_sku_image", selectedImage);
 
       return createProductSku(formData);
@@ -259,9 +266,15 @@ const AddProductSku = () => {
             <Form.Item
               label="Product SKU Description"
               name="description"
-              rules={[{ required: true, message: "Product name is required" }]}
+              rules={[
+                { required: true, message: "Product description is required" },
+              ]}
             >
-              <Input.TextArea placeholder="Description" rows={4} />
+              <ReactQuill
+                theme="snow"
+                value={description}
+                onChange={setDescription}
+              />
             </Form.Item>
 
             <div className="grid sm:grid-cols-2 gap-2">

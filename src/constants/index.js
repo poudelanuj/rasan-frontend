@@ -52,6 +52,13 @@ export const DELIVERY_STATUS = [
   { name: "Archived", id: "archived" },
 ];
 
+export const ORDER_STATUS_ENUMS = [
+  { index: 0, name: "In Process", id: IN_PROCESS },
+  { index: 1, name: "Confirmed by CSR", id: CONFIRMED_BY_CSR },
+  { index: 2, name: "On the way to Delivery", id: ON_THE_WAY_TO_DELIVERY },
+  { index: 3, name: "Delivered", id: DELIVERED },
+];
+
 export const BANK_DEPOSIT = "bank_deposit";
 export const REDEEM = "redeem";
 

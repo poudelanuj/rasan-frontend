@@ -9,6 +9,8 @@ import {
   Spin,
   Table,
   Tag,
+  Steps,
+  Modal,
 } from "antd";
 import axios from "../../../axios";
 import {
@@ -16,9 +18,11 @@ import {
   HomeOutlined,
   PhoneOutlined,
   EnvironmentOutlined,
+  ExclamationCircleOutlined,
   EditOutlined,
   CloseCircleOutlined,
 } from "@ant-design/icons";
+import { BsCheckCircleFill } from "react-icons/bs";
 import { useMutation, useQuery } from "react-query";
 import moment from "moment";
 import { useEffect } from "react";
@@ -40,6 +44,7 @@ import {
   DEFAULT_CARD_IMAGE,
   DELIVERY_STATUS,
   ORDER_INVOICE_URL,
+  ORDER_STATUS_ENUMS,
   PAYMENT_STATUS,
 } from "../../../constants";
 // import getOrderStatusColor from "../../../shared/tagColor";
@@ -99,7 +104,7 @@ const ViewOrderPage = () => {
     queryKey: [GET_ALL_PRODUCT_SKUS],
   });
 
-  const { data: user, status: userStatus } = useQuery({
+  const { data: user } = useQuery({
     queryFn: () => data && getUser(data && data.user_profile_id),
     queryKey: ["get-user", data && data.user],
     enabled: !!data,
@@ -418,6 +423,16 @@ const ViewOrderPage = () => {
     }
   };
 
+  const showConfirm = (name, status) => {
+    Modal.confirm({
+      title: `Change the status to ${name}?`,
+      icon: <ExclamationCircleOutlined />,
+      onOk() {
+        handleUpdateStatus.mutate(status);
+      },
+    });
+  };
+
   return (
     <>
       <CustomPageHeader title={`Order #${orderId}`} />
@@ -430,37 +445,96 @@ const ViewOrderPage = () => {
           onClose={() => setOpenChangePayment(false)}
         />
 
-        {userStatus === "loading" ? (
-          <Spin />
-        ) : (
-          user && (
-            <div className="flex sm:flex-row flex-col gap-2 pb-4">
-              <img
-                alt={user.full_name}
-                className="sm:mr-3 sm:h-14 sm:w-14 h-20 w-20 object-cover"
-                src={user.profile_picture.thumbnail || rasanDefault}
+        {data && (
+          <Steps
+            className="site-navigation-steps !mb-4 bg-[#F0F2F5] rounded-lg"
+            current={
+              ORDER_STATUS_ENUMS.find(({ id }) => data.status === id)?.index ||
+              ORDER_STATUS_ENUMS.length
+            }
+            type="navigation"
+            onChange={(val) => {
+              const status = ORDER_STATUS_ENUMS.find(
+                (_, index) => val === index
+              );
+
+              showConfirm(status.name, status.id);
+            }}
+          >
+            {ORDER_STATUS_ENUMS.map(({ name, id }, index) => (
+              <Steps.Step
+                key={id}
+                icon={
+                  ORDER_STATUS_ENUMS.find((status) => status.id === data.status)
+                    ?.index > index && (
+                    <BsCheckCircleFill
+                      className="text-3xl"
+                      style={{ color: "#52C41A" }}
+                    />
+                  )
+                }
+                status={
+                  data.status === id
+                    ? "process"
+                    : ORDER_STATUS_ENUMS.find(
+                        (status) => status.id === data.status
+                      )?.index > index
+                    ? "finish"
+                    : "wait"
+                }
+                title={
+                  <span
+                    className={`${
+                      ORDER_STATUS_ENUMS.find(
+                        (status) => status.id === data.status
+                      )?.index > index && "text-[#52C41A]"
+                    }`}
+                  >
+                    {name}
+                  </span>
+                }
               />
-              <div className="flex flex-col sm:gap-0 gap-2">
-                <div className="font-medium text-lg">
-                  {user.full_name || "User"}
+            ))}
+            {isEmpty(
+              ORDER_STATUS_ENUMS.find((status) => status.id === data.status)
+            ) && (
+              <Steps.Step
+                status={"error"}
+                title={
+                  DELIVERY_STATUS.find(({ id }) => id === data.status)?.name
+                }
+              />
+            )}
+          </Steps>
+        )}
+
+        {user && (
+          <div className="flex sm:flex-row flex-col gap-2 pb-4">
+            <img
+              alt={user.full_name}
+              className="sm:mr-3 sm:h-14 sm:w-14 h-20 w-20 object-cover"
+              src={user.profile_picture.thumbnail || rasanDefault}
+            />
+            <div className="flex flex-col sm:gap-0 gap-2">
+              <div className="font-medium text-lg">
+                {user.full_name || "User"}
+              </div>
+              <div className="flex sm:flex-row flex-col sm:items-center sm:gap-0 gap-2 text-light_text">
+                <div className="flex items-center pr-4">
+                  <HomeOutlined className="mr-1" />
+                  {user.shop.name}
                 </div>
-                <div className="flex sm:flex-row flex-col sm:items-center sm:gap-0 gap-2 text-light_text">
-                  <div className="flex items-center pr-4">
-                    <HomeOutlined className="mr-1" />
-                    {user.shop.name}
-                  </div>
-                  <div className="flex items-center pr-4">
-                    <PhoneOutlined className="mr-1" />
-                    {user.phone}
-                  </div>
-                  <div className="flex items-center pr-4">
-                    <EnvironmentOutlined className="mr-1" />
-                    Delivered at: {address?.name}
-                  </div>
+                <div className="flex items-center pr-4">
+                  <PhoneOutlined className="mr-1" />
+                  {user.phone}
+                </div>
+                <div className="flex items-center pr-4">
+                  <EnvironmentOutlined className="mr-1" />
+                  Delivered at: {address?.name}
                 </div>
               </div>
             </div>
-          )
+          </div>
         )}
 
         <div className="flex sm:flex-row flex-col sm:!items-center !items-start justify-between w-full">
@@ -483,11 +557,16 @@ const ViewOrderPage = () => {
               <>
                 <Select
                   className="sm:w-44 w-full"
-                  defaultValue={data.status}
                   disabled={handleUpdateStatus.status === "loading"}
                   placeholder="Select Order Status"
+                  value={data.status}
                   showSearch
-                  onChange={(value) => handleUpdateStatus.mutate(value)}
+                  onChange={(value) =>
+                    showConfirm(
+                      DELIVERY_STATUS.find(({ id }) => id === value).name,
+                      value
+                    )
+                  }
                 >
                   {DELIVERY_STATUS.map(({ name, id }) => (
                     <Select.Option key={id} value={id}>
@@ -564,12 +643,6 @@ const ViewOrderPage = () => {
             )}
           </Form>
         </div>
-
-        {(isRefetching || status === "loading") && (
-          <div className="py-8 flex justify-center">
-            <Spin />
-          </div>
-        )}
 
         {data && data.payment && (
           <Descriptions
