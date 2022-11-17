@@ -53,8 +53,6 @@ const AddProductSku = () => {
 
   const queryClient = useQueryClient();
 
-  const [description, setDescription] = useState("");
-
   const fileUploadOptions = {
     maxCount: 1,
     multiple: false,
@@ -106,8 +104,6 @@ const AddProductSku = () => {
         }
         if (formValues[key]) formData.append(key, formValues[key]);
       });
-
-      if (description) formData.append("description", description);
 
       if (selectedImage) formData.append("product_sku_image", selectedImage);
 
@@ -270,11 +266,7 @@ const AddProductSku = () => {
                 { required: true, message: "Product description is required" },
               ]}
             >
-              <ReactQuill
-                theme="snow"
-                value={description}
-                onChange={setDescription}
-              />
+              <ReactQuill theme="snow" />
             </Form.Item>
 
             <div className="grid sm:grid-cols-2 gap-2">
