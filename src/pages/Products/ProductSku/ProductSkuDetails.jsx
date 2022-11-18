@@ -2,6 +2,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { EditOutlined } from "@ant-design/icons";
 import { Descriptions, Divider, Tag, Space, Spin } from "antd";
 import { useMutation } from "react-query";
+import parse from "html-react-parser";
 import { capitalize } from "lodash";
 import moment from "moment";
 import ButtonWPermission from "../../../shared/ButtonWPermission";
@@ -198,7 +199,9 @@ const ProductSkuDetails = ({ productSku, slug, refetchProductSku }) => {
             </Descriptions.Item>
 
             <Descriptions.Item label="Description" span={3}>
-              <span className="font-medium">{productSku.description}</span>
+              <span className="font-medium">
+                {parse(productSku.description)}
+              </span>
             </Descriptions.Item>
           </Descriptions>
         </div>

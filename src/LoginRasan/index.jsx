@@ -1,4 +1,4 @@
-import { Button, Form, InputNumber, message } from "antd";
+import { Button, Form, Input, message } from "antd";
 import React, { useState } from "react";
 import { useMutation, useQueryClient } from "react-query";
 import { useNavigate } from "react-router-dom";
@@ -79,11 +79,20 @@ const LoginRasan = () => {
           onFinishFailed={onFinishFailed}
         >
           <Form.Item
-            className="mx-auto w-[30%] flex justify-center"
+            className="mx-auto w-[40%] flex justify-center"
             label={"OTP"}
             name="otp"
+            rules={[
+              { required: true, message: "Please provide your OTP pin" },
+              {
+                validator: (_, values) =>
+                  values.length !== 6
+                    ? Promise.reject("Please provide 6 digit OTP pin")
+                    : Promise.resolve(),
+              },
+            ]}
           >
-            <InputNumber className="!w-full" />
+            <Input className="!w-full" type="number" />
           </Form.Item>
 
           <Button
@@ -113,8 +122,17 @@ const LoginRasan = () => {
             className="mx-auto w-3/5 flex justify-center"
             label={"Phone Number"}
             name="phone"
+            rules={[
+              { required: true, message: "Please provide your phone number" },
+              {
+                validator: (_, values) =>
+                  values.length !== 10
+                    ? Promise.reject("Please provide 10 digit phone number")
+                    : Promise.resolve(),
+              },
+            ]}
           >
-            <InputNumber addonBefore="+977" className="!w-full" />
+            <Input addonBefore="+977" className="!w-full" type="number" />
           </Form.Item>
 
           <Button

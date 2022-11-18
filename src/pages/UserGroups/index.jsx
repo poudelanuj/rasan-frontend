@@ -69,7 +69,10 @@ const UserGroups = () => {
                   key={id}
                   className="p-4 border flex items-center justify-between text-primary cursor-pointer"
                 >
-                  <div onClick={() => navigate(`${id}`)}>
+                  <div
+                    className="flex items-center"
+                    onClick={() => navigate(`${id}`)}
+                  >
                     <IoIosPeople className="inline mr-3 text-3xl" />
                     {name}
                   </div>
@@ -95,6 +98,7 @@ const UserGroups = () => {
 
       <CreateUserGroupModal
         isOpen={isCreateUserGroupModal}
+        userGroup={userGroup}
         onClose={() => setIsCreateUserGroupModal(false)}
       />
 

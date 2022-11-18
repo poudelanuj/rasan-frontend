@@ -33,7 +33,10 @@ const CreateUserModal = ({
           type="primary"
           onClick={() =>
             form.validateFields().then((values) => {
-              handleUserCreate.mutate(values);
+              handleUserCreate.mutate({
+                ...values,
+                phone: `+977-${values.phone}`,
+              });
             })
           }
         >
@@ -58,7 +61,7 @@ const CreateUserModal = ({
           rules={[
             {
               required: true,
-              message: "Please input Fullname",
+              message: "Please input Full name",
             },
           ]}
         >
@@ -73,9 +76,15 @@ const CreateUserModal = ({
               required: true,
               message: "Please input Phone number",
             },
+            {
+              validator: (_, value) =>
+                value.length !== 10
+                  ? Promise.reject("Phone number must be 10 digits")
+                  : Promise.resolve(),
+            },
           ]}
         >
-          <Input />
+          <Input addonBefore={"+977"} type="number" />
         </Form.Item>
         <Form.Item
           label="Shop Name"

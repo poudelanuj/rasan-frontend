@@ -1,10 +1,11 @@
 import { Modal, Button, Form, Input } from "antd";
+import { isEmpty } from "lodash";
 import { useMutation, useQueryClient } from "react-query";
 import { createUserGroup } from "../../../api/userGroups";
 import { GET_USER_GROUPS } from "../../../constants/queryKeys";
 import { openErrorNotification, openSuccessNotification } from "../../../utils";
 
-const CreateUserGroupModal = ({ isOpen, onClose }) => {
+const CreateUserGroupModal = ({ isOpen, onClose, userGroup }) => {
   const queryClient = useQueryClient();
 
   const [form] = Form.useForm();
@@ -60,6 +61,16 @@ const CreateUserGroupModal = ({ isOpen, onClose }) => {
             {
               required: true,
               message: "Please input group name",
+            },
+            {
+              validator: (_, value) =>
+                !isEmpty(
+                  userGroup?.find(
+                    ({ name }) => name.toLowerCase() === value.toLowerCase()
+                  )
+                )
+                  ? Promise.reject(`${value} already exist`)
+                  : Promise.resolve(),
             },
           ]}
         >

@@ -70,7 +70,7 @@ const CreateUserModal = ({
           rules={[
             {
               required: true,
-              message: "Please input Fullname",
+              message: "Please input Full name",
             },
           ]}
         >
@@ -87,10 +87,8 @@ const CreateUserModal = ({
             },
             {
               validator: (_, value) =>
-                value.length > 10
-                  ? Promise.reject(
-                      "Phone number must not be greater than 10 digits"
-                    )
+                value.length !== 10
+                  ? Promise.reject("Phone number must be 10 digits")
                   : Promise.resolve(),
             },
           ]}

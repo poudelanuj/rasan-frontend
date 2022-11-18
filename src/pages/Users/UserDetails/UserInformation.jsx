@@ -64,8 +64,8 @@ const UserInformation = ({ user }) => {
     let data = {
       full_name: user.full_name,
       shop_name: user.shop?.name,
-      number: user.phone,
-      alternate_number: user.alternate_phone,
+      phone: user.phone.replaceAll("+977-", ""),
+      alternate_number: user.alternate_phone?.replaceAll("+977-", ""),
       date_of_birth:
         user.date_of_birth && moment(user.date_of_birth, "YYYY-MM-DD"),
     };
@@ -80,16 +80,44 @@ const UserInformation = ({ user }) => {
   const deactivate = () => {
     deactivateUserMutation(user.phone);
   };
-  const onFinish = (values) => {
-    const form_data = new FormData();
-    for (let key in values) {
-      if (key !== "date_of_birth") form_data.append(key, values[key]);
-    }
-    form_data.append(
-      "date_of_birth",
-      moment(values.date_of_birth).format("YYYY-MM-DD")
-    );
-    updateUserMutation({ data: form_data, key: user.id });
+  const onFinish = (formValues) => {
+    const formData = new FormData();
+
+    Object.keys(formValues).forEach((key) => {
+      // * if form value is an array
+      if (Array.isArray(formValues[key])) {
+        formValues[key].forEach((value) => {
+          if (value) formData.append(key, value);
+        });
+        return;
+      }
+      if (formValues[key]) {
+        switch (key) {
+          case "phone":
+            formData.append(key, `+977-${formValues[key]}`);
+            break;
+
+          case "alternate_number":
+            formData.append(key, `+977-${formValues[key]}`);
+            break;
+
+          case "date_of_birth":
+            formData.append(
+              "date_of_birth",
+              moment(formValues.date_of_birth).format("YYYY-MM-DD")
+            );
+            break;
+
+          default:
+            formData.append(key, formValues[key]);
+        }
+      }
+    });
+
+    updateUserMutation({
+      data: formData,
+      key: user.id,
+    });
   };
   const onFinishFailed = (errorInfo) => {};
   return (
@@ -134,13 +162,31 @@ const UserInformation = ({ user }) => {
                 <Form.Item label="Full Name" name="full_name">
                   <Input />
                 </Form.Item>
-                <Form.Item label="Number" name="number">
-                  <Input />
+                <Form.Item
+                  label="Number"
+                  name="phone"
+                  rules={[
+                    { require: true, message: "Please provide phone number" },
+                    {
+                      validator: (_, value) =>
+                        value.length !== 10
+                          ? Promise.reject("Please provide a 10 digit nunber")
+                          : Promise.resolve(),
+                    },
+                  ]}
+                >
+                  <Input addonBefore="+977" type="number" />
                 </Form.Item>
                 <Form.Item label="Alternative Number" name="alternate_number">
-                  <Input />
+                  <Input addonBefore="+977" type="number" />
                 </Form.Item>
-                <Form.Item label="Date of Birth" name="date_of_birth">
+                <Form.Item
+                  label="Date of Birth"
+                  name="date_of_birth"
+                  rules={[
+                    { required: true, message: "Please provide date of birth" },
+                  ]}
+                >
                   <DatePicker format={"YYYY-MM-DD"} />
                 </Form.Item>
 

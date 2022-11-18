@@ -24,6 +24,7 @@ import {
 } from "@ant-design/icons";
 import { BsCheckCircleFill } from "react-icons/bs";
 import { useMutation, useQuery } from "react-query";
+import { useParams, useLocation } from "react-router-dom";
 import moment from "moment";
 import { useEffect } from "react";
 import { uniqBy, isEmpty } from "lodash";
@@ -49,7 +50,6 @@ import {
 } from "../../../constants";
 // import getOrderStatusColor from "../../../shared/tagColor";
 import ChangePayment from "./shared/ChangePayment";
-import { useParams } from "react-router-dom";
 import { updateOrderStatus } from "../../../context/OrdersContext";
 import { useAuth } from "../../../AuthProvider";
 import { getUser } from "../../../context/UserContext";
@@ -64,17 +64,22 @@ import MobileViewOrderPage from "./MobileViewOrderPage";
 
 const ViewOrderPage = () => {
   const { userGroupIds, isMobileView } = useAuth();
-  const { orderId } = useParams();
-  const { Option } = Select;
-  const [selectedProductSku, setSelectedSku] = useState();
-  const [selectedProductPack, setSelectedPack] = useState();
-  const [quantity, setQuantity] = useState(1);
-  const [openChangePayment, setOpenChangePayment] = useState(false);
 
-  const [activeOrder, setActiveOrder] = useState({
-    orderId: orderId,
-    orderStatus: null,
-  });
+  const { orderId: initialOrderId } = useParams();
+
+  const location = useLocation();
+
+  const { Option } = Select;
+
+  const [orderId, setOrderId] = useState(initialOrderId);
+
+  const [selectedProductSku, setSelectedSku] = useState();
+
+  const [selectedProductPack, setSelectedPack] = useState();
+
+  const [quantity, setQuantity] = useState(1);
+
+  const [openChangePayment, setOpenChangePayment] = useState(false);
 
   const [isProductEditableId, setIsProductEditableId] = useState(null);
 
@@ -104,7 +109,7 @@ const ViewOrderPage = () => {
     queryKey: [GET_ALL_PRODUCT_SKUS],
   });
 
-  const { data: user } = useQuery({
+  const { data: user, status: userStatus } = useQuery({
     queryFn: () => data && getUser(data && data.user_profile_id),
     queryKey: ["get-user", data && data.user],
     enabled: !!data,
@@ -387,11 +392,9 @@ const ViewOrderPage = () => {
   };
 
   const handleUpdateStatus = useMutation(
-    (value) =>
-      updateOrderStatus({ orderId: activeOrder.orderId, status: value }),
+    (value) => updateOrderStatus({ orderId, status: value }),
     {
       onSuccess: (data) => {
-        setActiveOrder((prev) => ({ ...prev, orderStatus: data.status }));
         refetchOrderItems();
       },
 
@@ -435,7 +438,38 @@ const ViewOrderPage = () => {
 
   return (
     <>
-      <CustomPageHeader title={`Order #${orderId}`} />
+      <CustomPageHeader
+        extra={
+          <Space>
+            <Button
+              disabled={orderId === "1"}
+              onClick={() => {
+                setOrderId((prev) => Number(prev) - 1);
+                if (status !== "success") {
+                  setOrderId((prev) => Number(prev) - 1);
+                }
+              }}
+            >
+              Previous
+            </Button>
+            <Button
+              disabled={
+                new URLSearchParams(location.search).get("max") ===
+                orderId.toString()
+              }
+              onClick={() => {
+                setOrderId((prev) => Number(prev) + 1);
+                if (status !== "success") {
+                  setOrderId((prev) => Number(prev) + 1);
+                }
+              }}
+            >
+              Next
+            </Button>
+          </Space>
+        }
+        title={`Order #${orderId}`}
+      />
 
       <div className="p-6 rounded-lg bg-[#FFFFFF]">
         <ChangePayment
@@ -508,33 +542,37 @@ const ViewOrderPage = () => {
           </Steps>
         )}
 
-        {user && (
-          <div className="flex sm:flex-row flex-col gap-2 pb-4">
-            <img
-              alt={user.full_name}
-              className="sm:mr-3 sm:h-14 sm:w-14 h-20 w-20 object-cover"
-              src={user.profile_picture.thumbnail || rasanDefault}
-            />
-            <div className="flex flex-col sm:gap-0 gap-2">
-              <div className="font-medium text-lg">
-                {user.full_name || "User"}
-              </div>
-              <div className="flex sm:flex-row flex-col sm:items-center sm:gap-0 gap-2 text-light_text">
-                <div className="flex items-center pr-4">
-                  <HomeOutlined className="mr-1" />
-                  {user.shop.name}
+        {userStatus === "loading" ? (
+          <Spin />
+        ) : (
+          user && (
+            <div className="flex sm:flex-row flex-col gap-2 pb-4">
+              <img
+                alt={user.full_name}
+                className="sm:mr-3 sm:h-14 sm:w-14 h-20 w-20 object-cover"
+                src={user.profile_picture.thumbnail || rasanDefault}
+              />
+              <div className="flex flex-col sm:gap-0 gap-2">
+                <div className="font-medium text-lg">
+                  {user.full_name || "User"}
                 </div>
-                <div className="flex items-center pr-4">
-                  <PhoneOutlined className="mr-1" />
-                  {user.phone}
-                </div>
-                <div className="flex items-center pr-4">
-                  <EnvironmentOutlined className="mr-1" />
-                  Delivered at: {address?.name}
+                <div className="flex sm:flex-row flex-col sm:items-center sm:gap-0 gap-2 text-light_text">
+                  <div className="flex items-center pr-4">
+                    <HomeOutlined className="mr-1" />
+                    {user.shop.name}
+                  </div>
+                  <div className="flex items-center pr-4">
+                    <PhoneOutlined className="mr-1" />
+                    {user.phone}
+                  </div>
+                  <div className="flex items-center pr-4">
+                    <EnvironmentOutlined className="mr-1" />
+                    Delivered at: {address?.name}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )
         )}
 
         <div className="flex sm:flex-row flex-col sm:!items-center !items-start justify-between w-full">
