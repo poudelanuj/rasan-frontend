@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { UploadOutlined } from "@ant-design/icons";
 import { useMutation, useQueryClient } from "react-query";
-import { Modal, Switch, Upload } from "antd";
-
+import { Form, Input, Modal, Switch, Upload } from "antd";
+import { isEmpty } from "lodash";
+import { getPaginatedProductGroups } from "../../../api/products/productGroups";
 import { createProductGroup } from "../../../context/CategoryContext";
 
 import {
@@ -37,10 +38,6 @@ function AddProductGroup({ isOpen, closeModal, setProductGroupsList }) {
     },
   });
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    handleSave();
-  };
   const handleSave = async () => {
     if (formState.name && formState.name_np) {
       let form_data = new FormData();
@@ -85,10 +82,7 @@ function AddProductGroup({ isOpen, closeModal, setProductGroupsList }) {
       visible={isOpen}
       onCancel={closeModal}
     >
-      <form
-        className="flex flex-col justify-between flex-1"
-        onSubmit={handleSubmit}
-      >
+      <Form className="flex flex-col justify-between flex-1">
         <div className="grid gap-[1rem] grid-cols-[100%]">
           <Dragger {...props}>
             <p className="ant-upload-drag-icon">
@@ -103,44 +97,78 @@ function AddProductGroup({ isOpen, closeModal, setProductGroupsList }) {
               <span> Click or drag file to this area to upload</span>
             </p>
           </Dragger>
-          <div className="flex flex-col">
-            <label className="mb-1" htmlFor="name">
-              Rasan Choice Name *
-            </label>
-            <input
-              className=" bg-[#FFFFFF] border-[1px] border-[#D9D9D9] rounded-[2px] p-[8px_12px]"
-              id="name"
-              placeholder="Eg. Mother's Day Special"
-              type="text"
-              value={formState.name}
-              onChange={(e) =>
-                setFormState({ ...formState, name: e.target.value })
-              }
-            />
-          </div>
-          <div className="flex flex-col">
-            <div className="flex">
+          <Form.Item
+            className="!mb-0"
+            name="name"
+            rules={[
+              { required: true, message: "Product name is required" },
+              {
+                validator: async (_, value) => {
+                  const data = await getPaginatedProductGroups(1, 1, value);
+
+                  if (
+                    !isEmpty(
+                      data.results?.find(
+                        (product) =>
+                          product.name.toLowerCase() === value.toLowerCase()
+                      )
+                    )
+                  )
+                    return Promise.reject(`${value} already exist`);
+
+                  return Promise.resolve();
+                },
+              },
+            ]}
+          >
+            <div className="flex flex-col">
               <label className="mb-1" htmlFor="name">
-                Rasan Choice Name (In Nepali)
+                Rasan Choice Name *
               </label>
-              <img
-                alt="nepali"
-                className="w-[0.8rem] ml-2"
-                src="/flag_nepal.svg"
-              />{" "}
-              *
+              <Input
+                className="!bg-[#FFFFFF] !border-[1px] !border-[#D9D9D9] !rounded-[2px] !p-[8px_12px]"
+                id="name"
+                name="name"
+                placeholder="Eg. Mother's Day Special"
+                type="text"
+                value={formState.name}
+                onChange={(e) =>
+                  setFormState({ ...formState, name: e.target.value })
+                }
+              />
             </div>
-            <input
-              className=" bg-[#FFFFFF] border-[1px] border-[#D9D9D9] rounded-[2px] p-[8px_12px]"
-              id="name"
-              placeholder="Eg. आमाको मुख हेर्ने दिन विशेष"
-              type="text"
-              value={formState.name_np}
-              onChange={(e) =>
-                setFormState({ ...formState, name_np: e.target.value })
-              }
-            />
-          </div>
+          </Form.Item>
+
+          <Form.Item
+            className={"!mb-0"}
+            name={"nepaliName"}
+            rules={[{ required: true, message: "Product name is required" }]}
+          >
+            <div className="flex flex-col">
+              <div className="flex">
+                <label className="mb-1" htmlFor="name">
+                  Rasan Choice Name (In Nepali)
+                </label>
+                <img
+                  alt="nepali"
+                  className="w-[0.8rem] ml-2"
+                  src="/flag_nepal.svg"
+                />{" "}
+                *
+              </div>
+              <Input
+                className="!bg-[#FFFFFF] !border-[1px] !border-[#D9D9D9] !rounded-[2px] !p-[8px_12px]"
+                id="name"
+                name={"nepaliName"}
+                placeholder="Eg. आमाको मुख हेर्ने दिन विशेष"
+                type="text"
+                value={formState.name_np}
+                onChange={(e) =>
+                  setFormState({ ...formState, name_np: e.target.value })
+                }
+              />
+            </div>
+          </Form.Item>
           <div>
             <Switch
               checked={formState.is_featured}
@@ -166,7 +194,7 @@ function AddProductGroup({ isOpen, closeModal, setProductGroupsList }) {
             Create
           </button>
         </div>
-      </form>
+      </Form>
     </Modal>
   );
 }

@@ -1,16 +1,16 @@
 import React, { useState } from "react";
 import { UploadOutlined } from "@ant-design/icons";
 import { useMutation, useQueryClient } from "react-query";
-import { Modal, Upload } from "antd";
-
+import { Modal, Upload, Form, Input } from "antd";
 import { addCategory } from "../../../context/CategoryContext";
+import { getPaginatedCategories } from "../../../api/categories";
 
 import {
   openErrorNotification,
   openSuccessNotification,
 } from "../../../utils/openNotification";
 import { GET_PAGINATED_CATEGORIES } from "../../../constants/queryKeys";
-import { capitalize } from "lodash";
+import { capitalize, isEmpty } from "lodash";
 
 const { Dragger } = Upload;
 
@@ -37,11 +37,6 @@ function AddCategory({ isOpen, closeModal, setPaginatedCategoriesList }) {
       openErrorNotification(data);
     },
   });
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    handleSave();
-  };
 
   const handleSave = async () => {
     if (formState.name && formState.name_np) {
@@ -86,10 +81,7 @@ function AddCategory({ isOpen, closeModal, setPaginatedCategoriesList }) {
       visible={isOpen}
       onCancel={closeModal}
     >
-      <form
-        className="flex flex-col justify-between flex-1"
-        onSubmit={handleSubmit}
-      >
+      <Form className="flex flex-col justify-between flex-1">
         <div className="grid gap-[1rem] grid-cols-[100%]">
           <Dragger {...props}>
             <p className="ant-upload-drag-icon">
@@ -104,44 +96,79 @@ function AddCategory({ isOpen, closeModal, setPaginatedCategoriesList }) {
               <span> Click or drag file to this area to upload</span>
             </p>
           </Dragger>
-          <div className="flex flex-col">
-            <label className="mb-1" htmlFor="name">
-              Category Name *
-            </label>
-            <input
-              className=" bg-[#FFFFFF] border-[1px] border-[#D9D9D9] rounded-[2px] p-[8px_12px]"
-              id="name"
-              placeholder="Eg. Rice"
-              type="text"
-              value={formState.name}
-              onChange={(e) =>
-                setFormState({ ...formState, name: e.target.value })
-              }
-            />
-          </div>
-          <div className="flex flex-col">
-            <div className="flex">
+
+          <Form.Item
+            className="!mb-0"
+            name="name"
+            rules={[
+              { required: true, message: "Category name is required" },
+              {
+                validator: async (_, value) => {
+                  const data = await getPaginatedCategories(1, 1, value);
+
+                  if (
+                    !isEmpty(
+                      data.results?.find(
+                        (product) =>
+                          product.name.toLowerCase() === value.toLowerCase()
+                      )
+                    )
+                  )
+                    return Promise.reject(`${value} already exist`);
+
+                  return Promise.resolve();
+                },
+              },
+            ]}
+          >
+            <div className="flex flex-col">
               <label className="mb-1" htmlFor="name">
-                Category Name (In Nepali)
+                Category Name *
               </label>
-              <img
-                alt="nepali"
-                className="w-[0.8rem] ml-2"
-                src="/flag_nepal.svg"
+              <Input
+                className="!bg-[#FFFFFF] !border-[1px] !border-[#D9D9D9] !rounded-[2px] !p-[8px_12px]"
+                id="name"
+                name="name"
+                placeholder="Eg. Rice"
+                type="text"
+                value={formState.name}
+                onChange={(e) =>
+                  setFormState({ ...formState, name: e.target.value })
+                }
               />
-              *
             </div>
-            <input
-              className=" bg-[#FFFFFF] border-[1px] border-[#D9D9D9] rounded-[2px] p-[8px_12px]"
-              id="name"
-              placeholder="Eg. चामल"
-              type="text"
-              value={formState.name_np}
-              onChange={(e) =>
-                setFormState({ ...formState, name_np: e.target.value })
-              }
-            />
-          </div>
+          </Form.Item>
+
+          <Form.Item
+            className="!mb-0"
+            name="nepaliName"
+            rules={[{ required: true, message: "Category name is required" }]}
+          >
+            <div className="flex flex-col">
+              <div className="flex">
+                <label className="mb-1" htmlFor="name">
+                  Category Name (In Nepali)
+                </label>
+                <img
+                  alt="nepali"
+                  className="w-[0.8rem] ml-2"
+                  src="/flag_nepal.svg"
+                />
+                *
+              </div>
+              <Input
+                className="!bg-[#FFFFFF] !border-[1px] !border-[#D9D9D9] !rounded-[2px] !p-[8px_12px]"
+                id="name"
+                name="nepaliName"
+                placeholder="Eg. चामल"
+                type="text"
+                value={formState.name_np}
+                onChange={(e) =>
+                  setFormState({ ...formState, name_np: e.target.value })
+                }
+              />
+            </div>
+          </Form.Item>
         </div>
         <div className="flex justify-end mt-4">
           <button
@@ -154,7 +181,7 @@ function AddCategory({ isOpen, closeModal, setPaginatedCategoriesList }) {
             Create
           </button>
         </div>
-      </form>
+      </Form>
     </Modal>
   );
 }

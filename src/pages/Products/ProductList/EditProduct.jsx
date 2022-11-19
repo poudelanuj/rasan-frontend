@@ -12,6 +12,7 @@ import {
 import { useCallback, useState } from "react";
 import { useQuery, useMutation } from "react-query";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { isEmpty } from "lodash";
 import { getAllBrands } from "../../../api/brands";
 import { getAllCategories } from "../../../api/categories";
 import { getLoyaltyPolicies } from "../../../api/loyalties";
@@ -19,6 +20,7 @@ import {
   getAllProducts,
   getProduct,
   updateProduct,
+  getPaginatedProducts,
 } from "../../../api/products";
 import Loader from "../../../shared/Loader";
 import CustomPageHeader from "../../../shared/PageHeader";
@@ -167,6 +169,34 @@ const EditProduct = () => {
                 name="name"
                 rules={[
                   { required: true, message: "Product name is required" },
+                  {
+                    validator: async (_, value) => {
+                      const data = await getPaginatedProducts(
+                        1,
+                        1,
+                        [],
+                        value,
+                        "",
+                        "",
+                        ""
+                      );
+
+                      if (product.name.toLowerCase() !== value.toLowerCase()) {
+                        if (
+                          !isEmpty(
+                            data.results?.find(
+                              (product) =>
+                                product.name.toLowerCase() ===
+                                value.toLowerCase()
+                            )
+                          )
+                        )
+                          return Promise.reject(`${value} already exist`);
+                      }
+
+                      return Promise.resolve();
+                    },
+                  },
                 ]}
               >
                 <Input defaultValue={product.name} />

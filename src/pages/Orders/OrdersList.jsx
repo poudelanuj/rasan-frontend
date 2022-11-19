@@ -67,7 +67,9 @@ const OrdersList = () => {
         return (
           <div
             className="text-blue-500 cursor-pointer hover:underline"
-            onClick={() => navigate(`/orders/view-order/${id}`)}
+            onClick={() =>
+              navigate(`/orders/view-order/${id}?max=${ordersCount}`)
+            }
           >
             #{id}
           </div>
@@ -89,7 +91,9 @@ const OrdersList = () => {
         return (
           <div
             className="text-blue-500 cursor-pointer hover:underline"
-            onClick={() => navigate(`/orders/view-order/${id}`)}
+            onClick={() =>
+              navigate(`/orders/view-order/${id}?max=${ordersCount}`)
+            }
           >
             {customer_name ? `${customer_name} (${phone})` : phone}
           </div>

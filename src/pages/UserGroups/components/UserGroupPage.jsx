@@ -7,8 +7,12 @@ import {
   getUserGroupsById,
   removeUser,
   sendNotification,
+  getUserGroups,
 } from "../../../api/userGroups";
-import { GET_USER_GROUPS_BY_ID } from "../../../constants/queryKeys";
+import {
+  GET_USER_GROUPS_BY_ID,
+  GET_USER_GROUPS,
+} from "../../../constants/queryKeys";
 import Loader from "../../../shared/Loader";
 import CustomPageHeader from "../../../shared/PageHeader";
 import AddUsersModal from "./AddUsersModal";
@@ -37,6 +41,11 @@ const UserGroupPage = () => {
     queryFn: () => getUserGroupsById([groupId && groupId]),
     queryKey: [GET_USER_GROUPS_BY_ID, groupId],
     enabled: !!groupId,
+  });
+
+  const { data: allUserGroup } = useQuery({
+    queryFn: () => getUserGroups(),
+    queryKey: [GET_USER_GROUPS],
   });
 
   const handleRemoveUser = useMutation(
@@ -196,6 +205,7 @@ const UserGroupPage = () => {
             initialGroupName={userGroup && userGroup[0].data.data.name}
             initialPermission={userGroup && userGroup[0].data.data.permissions}
             isOpen={isUpdateUserGroupModal}
+            userGroup={allUserGroup}
             onClose={() => setIsUpdateUserGroupModal(false)}
           />
 

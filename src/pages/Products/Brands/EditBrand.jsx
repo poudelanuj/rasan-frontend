@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import { Modal, Spin, Upload } from "antd";
+import { Form, Modal, Spin, Upload, Input } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
-
-import { getBrand } from "../../../api/brands";
+import { isEmpty } from "lodash";
+import { getBrand, getPaginatedBrands } from "../../../api/brands";
 
 import { updateBrand, deleteBrand } from "../../../context/CategoryContext";
 import {
@@ -105,10 +105,6 @@ function EditBrand({ slug, isOpen, closeModal, setPaginatedBrandsList }) {
     },
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    handleSave();
-  };
   const handleSave = async () => {
     if (formState.name && formState.image && formState.name_np) {
       let form_data = new FormData();
@@ -150,10 +146,7 @@ function EditBrand({ slug, isOpen, closeModal, setPaginatedBrandsList }) {
         )}
 
         {data && (
-          <form
-            className="flex flex-col justify-between flex-1"
-            onSubmit={handleSubmit}
-          >
+          <Form className="flex flex-col justify-between flex-1">
             <div className="grid gap-[1rem] grid-cols-[100%]">
               <Dragger {...props}>
                 <p className="ant-upload-drag-icon">
@@ -172,43 +165,79 @@ function EditBrand({ slug, isOpen, closeModal, setPaginatedBrandsList }) {
                   <span> Click or drag file to this area to upload</span>
                 </p>
               </Dragger>
-              <div className="flex flex-col">
-                <label className="mb-1" htmlFor="name">
-                  Brand Name
-                </label>
-                <input
-                  className=" bg-[#FFFFFF] border-[1px] border-[#D9D9D9] rounded-[2px] p-[8px_12px]"
-                  id="name"
-                  placeholder="Eg. Hulas"
-                  type="text"
-                  value={formState.name}
-                  onChange={(e) =>
-                    setFormState({ ...formState, name: e.target.value })
-                  }
-                />
-              </div>
-              <div className="flex flex-col">
-                <div className="flex">
+
+              <Form.Item
+                className="!mb-0"
+                name="name"
+                rules={[
+                  { required: true, message: "Brand name is required" },
+                  {
+                    validator: async (_, value) => {
+                      const res = await getPaginatedBrands(1, 1, value);
+
+                      if (value.toLowerCase() !== data?.name.toLowerCase()) {
+                        if (
+                          !isEmpty(
+                            res.results?.find(
+                              (product) =>
+                                product.name.toLowerCase() ===
+                                value.toLowerCase()
+                            )
+                          )
+                        )
+                          return Promise.reject(`${value} already exist`);
+                      }
+                      return Promise.resolve();
+                    },
+                  },
+                ]}
+              >
+                <div className="flex flex-col">
                   <label className="mb-1" htmlFor="name">
-                    Brand Name (In Nepali)
+                    Brand Name
                   </label>
-                  <img
-                    alt="nepali"
-                    className="w-[0.8rem] ml-2"
-                    src="/flag_nepal.svg"
+                  <Input
+                    className="!bg-[#FFFFFF] !border-[1px] !border-[#D9D9D9] !rounded-[2px] !p-[8px_12px]"
+                    id="name"
+                    name="name"
+                    placeholder="Eg. Hulas"
+                    type="text"
+                    value={formState.name}
+                    onChange={(e) =>
+                      setFormState({ ...formState, name: e.target.value })
+                    }
                   />
                 </div>
-                <input
-                  className=" bg-[#FFFFFF] border-[1px] border-[#D9D9D9] rounded-[2px] p-[8px_12px]"
-                  id="name"
-                  placeholder="Eg. हुलास"
-                  type="text"
-                  value={formState.name_np}
-                  onChange={(e) =>
-                    setFormState({ ...formState, name_np: e.target.value })
-                  }
-                />
-              </div>
+              </Form.Item>
+
+              <Form.Item
+                className="!mb-0"
+                name="nepaliName"
+                rules={[{ required: true, message: "Brand name is required" }]}
+              >
+                <div className="flex flex-col">
+                  <div className="flex">
+                    <label className="mb-1" htmlFor="name">
+                      Brand Name (In Nepali)
+                    </label>
+                    <img
+                      alt="nepali"
+                      className="w-[0.8rem] ml-2"
+                      src="/flag_nepal.svg"
+                    />
+                  </div>
+                  <Input
+                    className="!bg-[#FFFFFF] !border-[1px] !border-[#D9D9D9] !rounded-[2px] !p-[8px_12px]"
+                    id="name"
+                    placeholder="Eg. हुलास"
+                    type="text"
+                    value={formState.name_np}
+                    onChange={(e) =>
+                      setFormState({ ...formState, name_np: e.target.value })
+                    }
+                  />
+                </div>
+              </Form.Item>
             </div>
             <div className="flex justify-end mt-4">
               <button
@@ -235,7 +264,7 @@ function EditBrand({ slug, isOpen, closeModal, setPaginatedBrandsList }) {
                 {handleBrandUpdate.status === "loading" ? "Saving..." : "Save"}
               </button>
             </div>
-          </form>
+          </Form>
         )}
       </Modal>
     </>

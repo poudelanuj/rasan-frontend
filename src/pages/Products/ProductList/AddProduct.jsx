@@ -9,13 +9,18 @@ import {
   Space,
   Breadcrumb,
 } from "antd";
+import { isEmpty } from "lodash";
 import { useCallback, useState } from "react";
 import { useQuery, useMutation } from "react-query";
 import { Link, useNavigate } from "react-router-dom";
 import { getAllBrands } from "../../../api/brands";
 import { getAllCategories } from "../../../api/categories";
 import { getLoyaltyPolicies } from "../../../api/loyalties";
-import { createProduct, getAllProducts } from "../../../api/products";
+import {
+  createProduct,
+  getAllProducts,
+  getPaginatedProducts,
+} from "../../../api/products";
 import { useAuth } from "../../../AuthProvider";
 import {
   GET_ALL_BRANDS,
@@ -163,7 +168,34 @@ const AddProduct = () => {
             <Form.Item
               label="Product Name"
               name="name"
-              rules={[{ required: true, message: "Product name is required" }]}
+              rules={[
+                { required: true, message: "Product name is required" },
+                {
+                  validator: async (_, value) => {
+                    const data = await getPaginatedProducts(
+                      1,
+                      1,
+                      [],
+                      value,
+                      "",
+                      "",
+                      ""
+                    );
+
+                    if (
+                      !isEmpty(
+                        data.results?.find(
+                          (product) =>
+                            product.name.toLowerCase() === value.toLowerCase()
+                        )
+                      )
+                    )
+                      return Promise.reject(`${value} already exist`);
+
+                    return Promise.resolve();
+                  },
+                },
+              ]}
             >
               <Input />
             </Form.Item>

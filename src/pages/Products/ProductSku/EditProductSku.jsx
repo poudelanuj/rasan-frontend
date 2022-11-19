@@ -9,9 +9,11 @@ import {
   Switch,
   Breadcrumb,
 } from "antd";
+import ReactQuill from "react-quill";
 import { useCallback, useState } from "react";
 import { useQuery, useMutation } from "react-query";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { isEmpty } from "lodash";
 import { getAllBrands } from "../../../api/brands";
 import { getAllCategories } from "../../../api/categories";
 import { getLoyaltyPolicies } from "../../../api/loyalties";
@@ -20,6 +22,7 @@ import { getAllProducts } from "../../../api/products";
 import {
   getProductSku,
   updateProductSku,
+  getPaginatedProdctSkus,
 } from "../../../api/products/productSku";
 import Loader from "../../../shared/Loader";
 import CustomPageHeader from "../../../shared/PageHeader";
@@ -171,6 +174,32 @@ const EditProductSku = () => {
                   name="name"
                   rules={[
                     { required: true, message: "Product name is required" },
+                    {
+                      validator: async (_, value) => {
+                        const data = await getPaginatedProdctSkus(
+                          1,
+                          1,
+                          [],
+                          value,
+                          ""
+                        );
+                        if (
+                          productSku.name.toLowerCase() !== value.toLowerCase()
+                        ) {
+                          if (
+                            !isEmpty(
+                              data.results?.find(
+                                (product) =>
+                                  product.name.toLowerCase() ===
+                                  value.toLowerCase()
+                              )
+                            )
+                          )
+                            return Promise.reject(`${value} already exist`);
+                        }
+                        return Promise.resolve();
+                      },
+                    },
                   ]}
                 >
                   <Input defaultValue={productSku.name} />
@@ -243,11 +272,7 @@ const EditProductSku = () => {
                   { required: true, message: "Product name is required" },
                 ]}
               >
-                <Input.TextArea
-                  defaultValue={productSku.description}
-                  placeholder="Description"
-                  rows={4}
-                />
+                <ReactQuill theme="snow" />
               </Form.Item>
 
               <div className="grid sm:grid-cols-2 gap-2">

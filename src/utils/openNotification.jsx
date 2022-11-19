@@ -3,7 +3,9 @@ import { notification } from "antd";
 export const openErrorNotification = (error) => {
   notification.open({
     className: "bg-red-500 text-white z-[99999]",
-    message: <div className="text-white">{error?.response?.data?.message}</div>,
+    message: (
+      <div className="text-white">{error?.response?.data?.errors?.detail}</div>
+    ),
     description: error?.response?.data?.errors?.status?.join(". ")?.toString(),
     style: {
       backgroundColor: "rgb(220 38 38)",

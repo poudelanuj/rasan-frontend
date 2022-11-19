@@ -19,7 +19,10 @@ import { getAllCategories } from "../../../api/categories";
 import { getLoyaltyPolicies } from "../../../api/loyalties";
 import { getAllProductGroups } from "../../../api/products/productGroups";
 import { getAllProducts } from "../../../api/products";
-import { createProductSku } from "../../../api/products/productSku";
+import {
+  createProductSku,
+  getPaginatedProdctSkus,
+} from "../../../api/products/productSku";
 import Loader from "../../../shared/Loader";
 import CustomPageHeader from "../../../shared/PageHeader";
 import {
@@ -38,6 +41,7 @@ import {
 import CreateCategoryModal from "../shared/CreateCategoryModal";
 import CreateBrandModal from "../shared/CreateBrandModal";
 import { useAuth } from "../../../AuthProvider";
+import { isEmpty } from "lodash";
 
 const AddProductSku = () => {
   const { isMobileView } = useAuth();
@@ -186,6 +190,29 @@ const AddProductSku = () => {
                 name="name"
                 rules={[
                   { required: true, message: "Product name is required" },
+                  {
+                    validator: async (_, value) => {
+                      const data = await getPaginatedProdctSkus(
+                        1,
+                        1,
+                        [],
+                        value,
+                        ""
+                      );
+
+                      if (
+                        !isEmpty(
+                          data.results?.find(
+                            (product) =>
+                              product.name.toLowerCase() === value.toLowerCase()
+                          )
+                        )
+                      )
+                        return Promise.reject(`${value} already exist`);
+
+                      return Promise.resolve();
+                    },
+                  },
                 ]}
               >
                 <Input />

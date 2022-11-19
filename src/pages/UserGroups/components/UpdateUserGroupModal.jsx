@@ -1,4 +1,5 @@
 import { Modal, Button, Form, Input, Select, Space } from "antd";
+import { isEmpty } from "lodash";
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { getPermission, updateUserGroup } from "../../../api/userGroups";
@@ -14,6 +15,7 @@ const UpdateUserGroupModal = ({
   id,
   initialGroupName,
   initialPermission,
+  userGroup,
 }) => {
   const queryClient = useQueryClient();
 
@@ -95,6 +97,23 @@ const UpdateUserGroupModal = ({
               {
                 required: true,
                 message: "Please input group name",
+              },
+              {
+                validator: (_, value) => {
+                  if (value.toLowerCase() !== initialGroupName.toLowerCase()) {
+                    if (
+                      !isEmpty(
+                        userGroup?.find(
+                          ({ name }) =>
+                            name.toLowerCase() === value.toLowerCase()
+                        )
+                      )
+                    )
+                      return Promise.reject(`${value} already exists`);
+                  }
+
+                  return Promise.resolve();
+                },
               },
             ]}
           >

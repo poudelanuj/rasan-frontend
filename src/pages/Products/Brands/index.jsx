@@ -162,7 +162,7 @@ function BrandsScreen() {
               <SearchOutlined style={{ color: "#D9D9D9" }} />
               <input
                 className="focus:outline-none w-full ml-1 placeholder:text-[#D9D9D9]"
-                placeholder={"Search categories..."}
+                placeholder={"Search brands..."}
                 type="text"
                 onChange={(e) => {
                   searchText.current = e.target.value;
