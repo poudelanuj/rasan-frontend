@@ -1,6 +1,10 @@
 import React from "react";
 import { CustomCard } from "../../../../components/customCard";
 import { Select, Table } from "antd";
+import { useQuery } from "react-query";
+import { getBrandAnalytics } from "../../../../api/analytics";
+import { useState } from "react";
+import { GET_BRAND_ANALYTICS } from "../../../../constants/queryKeys";
 
 const { Option } = Select;
 
@@ -66,11 +70,22 @@ const data = [
 ];
 
 export const BrandAnalytics = () => {
+  const [date, setDate] = useState("this_month");
+
+  const { data: brandAnalytics } = useQuery({
+    queryFn: () => getBrandAnalytics({ date }),
+    queryKey: [GET_BRAND_ANALYTICS, { date }],
+  });
+
   return (
     <CustomCard className="col-span-2">
       <div className="flex items-center justify-between">
-        <p className="text-lg mb-0">Brand Analysis</p>
-        <Select defaultValue="this_month" style={{ width: 120 }}>
+        <p className="text-lg mb-0">Brand Analytics</p>
+        <Select
+          defaultValue="this_month"
+          style={{ width: 120 }}
+          onChange={(val) => setDate(val)}
+        >
           <Option value="today">Today</Option>
           <Option value="this_month">This Month</Option>
           <Option value="last_year">Last Year</Option>

@@ -1,6 +1,10 @@
-import React from "react";
+import { useState } from "react";
 import { Select, Table } from "antd";
+import { useQuery } from "react-query";
 import { CustomCard } from "../../../components/customCard";
+import { getProductSkuAnalytics } from "../../../api/analytics";
+import { GET_PRODUCTSKU_ANALYTICS } from "../../../constants/queryKeys";
+import { DEFAULT_RASAN_IMAGE } from "../../../constants";
 
 const { Option } = Select;
 
@@ -8,7 +12,13 @@ const columns = [
   {
     title: "Product Image",
     dataIndex: "product_image",
-    render: (_, record) => <img src={record} alt="rasan" className="w-11" />,
+    render: (_, { product_image }) => (
+      <img
+        alt="rasan"
+        className="w-11"
+        src={product_image || DEFAULT_RASAN_IMAGE}
+      />
+    ),
   },
   {
     title: "Product Name",
@@ -24,51 +34,31 @@ const columns = [
   },
 ];
 
-const data = [
-  {
-    product_image: "",
-    product_name: "Women Horlicks with extra protein 200gm",
-    quantity: 50,
-    price: 10000,
-  },
-  {
-    product_image: "",
-    product_name: "Women Horlicks with extra protein 200gm",
-    quantity: 50,
-    price: 10000,
-  },
-  {
-    product_image: "",
-    product_name: "Women Horlicks with extra protein 200gm",
-    quantity: 50,
-    price: 10000,
-  },
-  {
-    product_image: "",
-    product_name: "Women Horlicks with extra protein 200gm",
-    quantity: 50,
-    price: 10000,
-  },
-  {
-    product_image: "",
-    product_name: "Women Horlicks with extra protein 200gm",
-    quantity: 50,
-    price: 10000,
-  },
-  {
-    product_image: "",
-    product_name: "Women Horlicks with extra protein 200gm",
-    quantity: 50,
-    price: 10000,
-  },
-];
+const ProductSkusAnalytics = ({ user }) => {
+  const [date, setDate] = useState("this_month");
 
-const ProductSkusAnalytics = () => {
+  const { data: productSkuAnalytics } = useQuery({
+    queryFn: () => getProductSkuAnalytics({ user_id: "", date }),
+    queryKey: [GET_PRODUCTSKU_ANALYTICS, { user_id: user.id, date }],
+  });
+
+  const data = productSkuAnalytics?.map((product) => ({
+    id: product.product_sku.id,
+    product_name: product.product_sku.name,
+    quantity: product.count,
+    price: product.total_amount,
+    product_image: product.product_sku.image.thumbnail,
+  }));
+
   return (
     <CustomCard className="col-span-2">
       <div className="flex items-center justify-between mb-10">
         <h2 className="text-lg mb-0">Product SKUs</h2>
-        <Select defaultValue="this_month" style={{ width: 120 }}>
+        <Select
+          defaultValue="this_month"
+          style={{ width: 120 }}
+          onChange={(val) => setDate(val)}
+        >
           <Option value="today">Today</Option>
           <Option value="this_month">This Month</Option>
           <Option value="last_year">Last Year</Option>

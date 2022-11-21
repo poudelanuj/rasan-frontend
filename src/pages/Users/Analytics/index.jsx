@@ -13,11 +13,11 @@ const UserAnalytics = ({ user }) => {
         <CategoryAnalysis user={user} />
       </div>
       <div className="grid grid-cols-3 gap-x-10">
-        <ProductSkusAnalytics />
-        <BrandAnalysis />
+        <ProductSkusAnalytics user={user} />
+        <BrandAnalysis user={user} />
       </div>
       <div className="grid grid-cols-3 gap-x-10">
-        <ProductAnalysis />
+        <ProductAnalysis user={user} />
       </div>
     </div>
   );

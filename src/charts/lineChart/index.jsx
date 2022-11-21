@@ -61,17 +61,8 @@ const lineData = [
 export const LineChart = ({ data = [] }) => {
   return (
     <ResponsiveLine
-      data={lineData}
-      margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
-      height={400}
-      enablePoints={false}
-      enableArea={true}
-      enableSlices="x"
-      enableGridX={false}
       colors={(d) => d.color}
-      yScale={{
-        type: "linear",
-      }}
+      data={lineData}
       defs={[
         {
           id: "gradientA",
@@ -82,7 +73,16 @@ export const LineChart = ({ data = [] }) => {
           ],
         },
       ]}
+      enableArea={true}
+      enableGridX={false}
+      enablePoints={false}
+      enableSlices="x"
       fill={[{ match: "*", id: "gradientA" }]}
+      height={400}
+      margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
+      yScale={{
+        type: "linear",
+      }}
     />
   );
 };

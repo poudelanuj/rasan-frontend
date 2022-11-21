@@ -1,6 +1,5 @@
 import moment from "moment";
 import axios from "../axios";
-import { type } from "@testing-library/user-event/dist/type";
 
 export const API_ANALYTICS = "/api/analytics/";
 
@@ -122,7 +121,7 @@ export const unVerifyUser = async ({ key }) => {
   return response.data;
 };
 
-/*analytics*/
+/* analytics */
 export const getBrandAnalytics = async () => {
   const response = await axios.get("/api/analytics/brand");
   return response.data.data;

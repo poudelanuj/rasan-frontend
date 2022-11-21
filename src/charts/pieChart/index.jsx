@@ -2,7 +2,7 @@ import React from "react";
 import { ResponsivePie } from "@nivo/pie";
 import * as ReactDOMServer from "react-dom/server";
 
-const pieData = [
+/* const pieData = [
   {
     id: "java",
     label: "java",
@@ -33,7 +33,7 @@ const pieData = [
     value: 231,
     color: "hsl(304, 70%, 50%)",
   },
-];
+]; */
 
 const ArcLabels = (d) => {
   return (
@@ -48,20 +48,18 @@ const ArcLabels = (d) => {
 export const PieChart = ({ data = [] }) => {
   return (
     <ResponsivePie
-      data={data}
-      height={400}
-      innerRadius={0.5}
-      padAngle={1}
-      enableArcLabels={false}
-      cornerRadius={4}
       arcLinkLabel={(d) => {
+        // eslint-disable-next-line no-unused-vars
         const node = ReactDOMServer.renderToString(ArcLabels(d));
         return `${d.data.value}`;
       }}
-      motionConfig="stiff"
-      arcLinkLabelsThickness={2}
       arcLinkLabelsColor={{ theme: "grid.line.stroke" }}
-      margin={{ top: 40, bottom: 80, left: 80, right: 80 }}
+      arcLinkLabelsThickness={2}
+      cornerRadius={4}
+      data={data}
+      enableArcLabels={false}
+      height={400}
+      innerRadius={0.5}
       legends={[
         {
           anchor: "bottom",
@@ -87,6 +85,9 @@ export const PieChart = ({ data = [] }) => {
           ],
         },
       ]}
+      margin={{ top: 40, bottom: 80, left: 80, right: 80 }}
+      motionConfig="stiff"
+      padAngle={1}
     />
   );
 };

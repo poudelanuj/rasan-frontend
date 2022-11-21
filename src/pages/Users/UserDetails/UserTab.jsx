@@ -20,7 +20,7 @@ const UserTab = ({ user }) => {
       <TabPane key="3" tab="User Basket">
         <LiveUserBasket user={user} />
       </TabPane>
-      <TabPane key="4" tab="BrandAnalytics">
+      <TabPane key="4" tab="Analytics">
         <UserAnalytics user={user} />
       </TabPane>
     </Tabs>
