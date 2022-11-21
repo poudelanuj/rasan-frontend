@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -10,6 +11,13 @@ import {
 import { Bar } from "react-chartjs-2";
 import { faker } from "@faker-js/faker";
 import { Select } from "antd";
+import { BarChart } from "../../../charts/barChart";
+import { CustomCard } from "../../../components/customCard";
+import { useQuery } from "react-query";
+import { getProductAnalysis } from "../../../context/UserContext";
+import Loader from "../../../shared/Loader";
+import { AnalysisTimeSelector } from "../../../components/analysisTimeSelector";
+import time from "../../../svgs/Time";
 
 ChartJS.register(
   CategoryScale,
@@ -49,21 +57,44 @@ export const data = {
 };
 
 const ProductAnalytics = ({ user }) => {
-  const { Option } = Select;
+  const [timeStamp, setTimeStamp] = useState("this_month");
+  const {
+    data: analytics,
+    isLoading,
+    refetch: refetchList,
+  } = useQuery(["product-analysis", timeStamp, { enabled: !!timeStamp }], () =>
+    getProductAnalysis(timeStamp)
+  );
+
+  useEffect(() => {
+    refetchList();
+  }, [timeStamp]);
+
+  const barData = analytics?.map((x) => ({
+    id: x.product.id,
+    count: x.count,
+    amount: x.total_amount,
+  }));
 
   return (
-    <div className="col-span-2">
-      <span className="flex justify-between">
-        <h2 className="text-xl">Product Analytics</h2>
-        <Select defaultValue="this_month" style={{ width: 120 }}>
-          <Option value="today">Today</Option>
-          <Option value="this_month">This Month</Option>
-          <Option value="last_year">Last Year</Option>
-        </Select>
-      </span>
+    <React.Fragment>
+      <h2 className="text-xl text-text mb-8">Product Analytics</h2>
+      <CustomCard className="col-span-2">
+        <span className="flex justify-between items-center">
+          <p className="text-xl text-text mb-0">Order</p>
+          <AnalysisTimeSelector onChange={setTimeStamp} />
+        </span>
 
-      <Bar data={data} options={options} />
-    </div>
+        {/*<Bar data={data} options={options} />*/}
+        <div style={{ height: 500 }}>
+          {isLoading ? (
+            <Loader isOpen />
+          ) : (
+            <BarChart data={barData} index={"count"} keys={["amount"]} />
+          )}
+        </div>
+      </CustomCard>
+    </React.Fragment>
   );
 };
 

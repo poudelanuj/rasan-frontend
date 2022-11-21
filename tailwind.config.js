@@ -10,6 +10,11 @@ module.exports = {
         primary: "#00A0B0",
         text: "#1C2A3A",
         light_text: "#596579",
+        ctb: "#E6EAF0",
+      },
+      boxShadow: {
+        ctp: "0px 4px 10px rgba(36, 44, 55, 0.1)",
+        card: "0px 4px 11px rgba(143, 143, 143, 0.13)",
       },
       keyframes: {
         toast: {

@@ -1,9 +1,11 @@
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
+import { ResponsivePie } from "@nivo/pie";
 import { useQuery } from "react-query";
 import { Select } from "antd";
 import { getBrandAnalytics } from "../../../api/analytics";
 import { GET_BRAND_ANALYTICS } from "../../../constants/queryKeys";
+import { PieChart } from "../../../charts/pieChart";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -35,7 +37,7 @@ export const data = {
   ],
 };
 
-const BrandAnalytics = ({ user }) => {
+const CategoryAnalysis = ({ user }) => {
   const { Option } = Select;
 
   const { data: brandAnalytics } = useQuery({
@@ -46,7 +48,7 @@ const BrandAnalytics = ({ user }) => {
   return (
     <div className="col-span-1">
       <span className="flex justify-between">
-        <h2 className="text-xl">Brand Analytics</h2>
+        <h2 className="text-xl text-gray-700 mb-0">Categories</h2>
         <Select defaultValue="this_month" style={{ width: 120 }}>
           <Option value="today">Today</Option>
           <Option value="this_month">This Month</Option>
@@ -54,9 +56,10 @@ const BrandAnalytics = ({ user }) => {
         </Select>
       </span>
 
-      <Doughnut data={data} options={options} />
+      {/*<Doughnut data={data} options={options} />*/}
+      <PieChart />
     </div>
   );
 };
 
-export default BrandAnalytics;
+export default CategoryAnalysis;

@@ -1,5 +1,8 @@
 import moment from "moment";
 import axios from "../axios";
+import { type } from "@testing-library/user-event/dist/type";
+
+export const API_ANALYTICS = "/api/analytics/";
 
 export const getUsers = async (page, pageSize) => {
   const response = await axios.get(
@@ -117,4 +120,28 @@ export const unVerifyUser = async ({ key }) => {
     `/api/profile/admin/verify-user/` + key + "/"
   );
   return response.data;
+};
+
+/*analytics*/
+export const getBrandAnalytics = async () => {
+  const response = await axios.get("/api/analytics/brand");
+  return response.data.data;
+};
+
+export const getCategoryAnalysis = async (date, user_id, address) => {
+  const response = await axios.get("/api/analytics/admin/category");
+  return response.data.data;
+};
+
+export const getProductAnalysis = async (date) => {
+  const response = await axios.get(`/api/analytics/admin/product?date=${date}`);
+  return response.data.data;
+};
+
+export const getProductSkuAnalysis = async (brand_id, date) => {
+  date = typeof date === "undefined" ? "" : `&date=${date}`;
+  const response = await axios.get(
+    API_ANALYTICS + `admin/product-sku?brand_id=${brand_id}` + date
+  );
+  return response.data.data;
 };
