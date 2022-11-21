@@ -15,6 +15,7 @@ import { isEmpty, uniqBy } from "lodash";
 import Alert from "../../../../shared/Alert";
 import { ALERT_TYPE } from "../../../../constants";
 import { bulkDelete, bulkPublish } from "../../../../api/products/productSku";
+import { useAuth } from "../../../../AuthProvider";
 
 const { Option } = Select;
 
@@ -85,6 +86,8 @@ const columns = [
 ];
 
 function TabSKU({ slug }) {
+  const { isMobileView } = useAuth();
+
   const [openAlert, setOpenAlert] = useState(false);
   const [alertType, setAlertType] = useState("");
 
@@ -261,7 +264,7 @@ function TabSKU({ slug }) {
             rowClassName="cursor-pointer"
             rowKey="slug"
             rowSelection={rowSelection}
-            scroll={{ x: !isEmpty(productSkus) && 1000 }}
+            scroll={{ x: isEmpty(productSkus) && !isMobileView ? null : 1000 }}
             onRow={(record) => {
               return {
                 onClick: (_) => {

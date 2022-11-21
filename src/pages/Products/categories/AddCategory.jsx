@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { UploadOutlined } from "@ant-design/icons";
 import { useMutation, useQueryClient } from "react-query";
-import { Modal, Upload, Form, Input } from "antd";
+import { Modal, Upload, Form, Input, Button } from "antd";
 import { addCategory } from "../../../context/CategoryContext";
 import { getPaginatedCategories } from "../../../api/categories";
 
@@ -21,7 +21,10 @@ function AddCategory({ isOpen, closeModal, setPaginatedCategoriesList }) {
     image: "",
     imageFile: null,
   });
+
   const queryClient = useQueryClient();
+
+  const [form] = Form.useForm();
 
   const handleAddCategory = useMutation(addCategory, {
     onSuccess: (data) => {
@@ -49,7 +52,9 @@ function AddCategory({ isOpen, closeModal, setPaginatedCategoriesList }) {
       handleAddCategory.mutate({ form_data });
     } else {
       openErrorNotification({
-        response: { data: { message: "Please fill all the fields" } },
+        response: {
+          data: { errors: { detail: "Please fill all the fields" } },
+        },
       });
     }
   };
@@ -81,7 +86,11 @@ function AddCategory({ isOpen, closeModal, setPaginatedCategoriesList }) {
       visible={isOpen}
       onCancel={closeModal}
     >
-      <Form className="flex flex-col justify-between flex-1">
+      <Form
+        className="flex flex-col justify-between flex-1"
+        form={form}
+        onFinish={() => form.validateFields().then(() => handleSave())}
+      >
         <div className="grid gap-[1rem] grid-cols-[100%]">
           <Dragger {...props}>
             <p className="ant-upload-drag-icon">
@@ -110,7 +119,7 @@ function AddCategory({ isOpen, closeModal, setPaginatedCategoriesList }) {
                     !isEmpty(
                       data.results?.find(
                         (product) =>
-                          product.name.toLowerCase() === value.toLowerCase()
+                          product.name.toLowerCase() === value?.toLowerCase()
                       )
                     )
                   )
@@ -141,7 +150,7 @@ function AddCategory({ isOpen, closeModal, setPaginatedCategoriesList }) {
 
           <Form.Item
             className="!mb-0"
-            name="nepaliName"
+            name="name_np"
             rules={[{ required: true, message: "Category name is required" }]}
           >
             <div className="flex flex-col">
@@ -159,7 +168,7 @@ function AddCategory({ isOpen, closeModal, setPaginatedCategoriesList }) {
               <Input
                 className="!bg-[#FFFFFF] !border-[1px] !border-[#D9D9D9] !rounded-[2px] !p-[8px_12px]"
                 id="name"
-                name="nepaliName"
+                name="name_np"
                 placeholder="Eg. चामल"
                 type="text"
                 value={formState.name_np}
@@ -171,15 +180,9 @@ function AddCategory({ isOpen, closeModal, setPaginatedCategoriesList }) {
           </Form.Item>
         </div>
         <div className="flex justify-end mt-4">
-          <button
-            className="bg-[#00B0C2] text-white p-[8px_12px] ml-5 min-w-[5rem] rounded-[4px] border-[1px] border-[#00B0C2] hover:bg-[#12919f] transition-colors"
-            type="button"
-            onClick={async () => {
-              await handleSave();
-            }}
-          >
+          <Button htmlType="submit" type="primary">
             Create
-          </button>
+          </Button>
         </div>
       </Form>
     </Modal>

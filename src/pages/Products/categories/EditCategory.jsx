@@ -20,15 +20,13 @@ import {
   GET_PAGINATED_CATEGORIES,
   GET_SINGLE_CATEGORY,
 } from "../../../constants/queryKeys";
+import { useNavigate } from "react-router-dom";
 
 const { Dragger } = Upload;
 
-function EditCategory({
-  slug,
-  isOpen,
-  closeModal,
-  setPaginatedCategoriesList,
-}) {
+function EditCategory({ slug, isOpen, closeModal }) {
+  const navigate = useNavigate();
+
   const [openDeleteAlert, setOpenDeleteAlert] = useState(false);
 
   const [formState, setFormState] = useState({
@@ -38,32 +36,35 @@ function EditCategory({
     is_published: false,
     imageFile: null,
   });
-  const { data: categoryData, status: categoryStatus } = useQuery(
-    [GET_SINGLE_CATEGORY, slug],
-    () => getCategory(slug),
-    {
-      onSuccess: (data) => {
-        setFormState({
-          ...formState,
-          name: data.name,
-          name_np: data.name_np,
-          is_published: data.is_published,
-        });
-      },
-      onError: (error) => {
-        openErrorNotification(error);
-      },
-    }
-  );
+
+  const [form] = Form.useForm();
+
+  const { data: categoryData, status: categoryStatus } = useQuery({
+    queryKey: [GET_SINGLE_CATEGORY, slug],
+    queryFn: () => getCategory(slug),
+    enabled: !!slug,
+    onSuccess: (data) => {
+      setFormState({
+        ...formState,
+        name: data.name,
+        name_np: data.name_np,
+        is_published: data.is_published,
+      });
+    },
+    onError: (error) => {
+      openErrorNotification(error);
+    },
+  });
 
   const handleDeleteCategory = useMutation(() => deleteCategory({ slug }), {
     onSuccess: (data) => {
       openSuccessNotification(
         data.data.message || "Category deleted successfully"
       );
-      setPaginatedCategoriesList([]);
+
+      navigate("/category-list");
       queryClient.invalidateQueries([GET_PAGINATED_CATEGORIES]);
-      queryClient.invalidateQueries([[GET_SINGLE_CATEGORY, slug]]);
+      queryClient.invalidateQueries([GET_SINGLE_CATEGORY, slug]);
       queryClient.refetchQueries([GET_PAGINATED_CATEGORIES]);
       closeModal();
     },
@@ -79,9 +80,9 @@ function EditCategory({
         openSuccessNotification(
           data.data.message || "Category updated successfully"
         );
-        setPaginatedCategoriesList([]);
+        navigate("/category-list");
         queryClient.invalidateQueries([GET_PAGINATED_CATEGORIES]);
-        queryClient.invalidateQueries([[GET_SINGLE_CATEGORY, slug]]);
+        queryClient.invalidateQueries([GET_SINGLE_CATEGORY, slug]);
         queryClient.refetchQueries([GET_PAGINATED_CATEGORIES]);
         closeModal();
       },
@@ -125,7 +126,9 @@ function EditCategory({
       handleUpdateCategory.mutate({ slug, form_data });
     } else {
       openErrorNotification({
-        response: { data: { message: "Please fill all the fields" } },
+        response: {
+          data: { errors: { detail: "Please fill all the fields" } },
+        },
       });
     }
   };
@@ -154,7 +157,11 @@ function EditCategory({
           </div>
         )}
         {categoryData && (
-          <Form className="flex flex-col justify-between flex-1">
+          <Form
+            className="flex flex-col justify-between flex-1"
+            form={form}
+            onFinish={() => form.validateFields().then(() => handleSave())}
+          >
             <div className="grid gap-[1rem] grid-cols-[100%]">
               <Dragger {...props}>
                 <p className="ant-upload-drag-icon">
@@ -176,6 +183,7 @@ function EditCategory({
 
               <Form.Item
                 className="!mb-0"
+                initialValue={formState?.name}
                 name="name"
                 rules={[
                   { required: true, message: "Category name is required" },
@@ -184,14 +192,15 @@ function EditCategory({
                       const data = await getPaginatedCategories(1, 1, value);
 
                       if (
-                        value.toLowerCase() !== categoryData?.name.toLowerCase()
+                        value?.toLowerCase() !==
+                        categoryData?.name.toLowerCase()
                       ) {
                         if (
                           !isEmpty(
                             data.results?.find(
                               (product) =>
                                 product.name.toLowerCase() ===
-                                value.toLowerCase()
+                                value?.toLowerCase()
                             )
                           )
                         )
@@ -223,7 +232,8 @@ function EditCategory({
 
               <Form.Item
                 className="!mb-0"
-                name="nepaliName"
+                initialValue={formState?.name_np}
+                name="name_np"
                 rules={[
                   { required: true, message: "Category name is required" },
                 ]}
@@ -243,7 +253,7 @@ function EditCategory({
                   <Input
                     className="!bg-[#FFFFFF] !border-[1px] !border-[#D9D9D9] !rounded-[2px] !p-[8px_12px]"
                     id="name"
-                    name="nepaliName"
+                    name="name_np"
                     placeholder="Eg. चामल"
                     type="text"
                     value={formState.name_np}
@@ -271,10 +281,7 @@ function EditCategory({
                 }
                   p-[8px_12px] min-w-[5rem] rounded-[4px] border-[1px] transition-colors ml-5`}
                 disabled={handleUpdateCategory.status === "loading"}
-                type="button"
-                onClick={async (e) => {
-                  await handleSave(e);
-                }}
+                type="submit"
               >
                 {handleUpdateCategory.status === "loading"
                   ? "Saving..."

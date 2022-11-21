@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { UploadOutlined } from "@ant-design/icons";
 import { useMutation, useQueryClient } from "react-query";
-import { Form, Modal, Upload, Input } from "antd";
+import { Form, Modal, Upload, Input, Button } from "antd";
 import { getPaginatedBrands } from "../../../api/brands";
 import { isEmpty } from "lodash";
 import { addBrand } from "../../../context/CategoryContext";
@@ -22,6 +22,8 @@ function AddBrand({ isOpen, closeModal, setPaginatedBrandsList }) {
     imageFile: null,
   });
   const queryClient = useQueryClient();
+
+  const [form] = Form.useForm();
 
   const handleAddBrand = useMutation(addBrand, {
     onSuccess: (data) => {
@@ -49,7 +51,9 @@ function AddBrand({ isOpen, closeModal, setPaginatedBrandsList }) {
       handleAddBrand.mutate({ form_data });
     } else {
       openErrorNotification({
-        response: { data: { message: "Please fill all the fields" } },
+        response: {
+          data: { errors: { detail: "Please fill all the fields" } },
+        },
       });
     }
   };
@@ -81,7 +85,11 @@ function AddBrand({ isOpen, closeModal, setPaginatedBrandsList }) {
       visible={isOpen}
       onCancel={closeModal}
     >
-      <Form className="flex flex-col justify-between flex-1">
+      <Form
+        className="flex flex-col justify-between flex-1"
+        form={form}
+        onFinish={() => form.validateFields().then(() => handleSave())}
+      >
         <div className="grid gap-[1rem] grid-cols-[100%]">
           <Dragger {...props}>
             <p className="ant-upload-drag-icon">
@@ -110,7 +118,7 @@ function AddBrand({ isOpen, closeModal, setPaginatedBrandsList }) {
                     !isEmpty(
                       data.results?.find(
                         (product) =>
-                          product.name.toLowerCase() === value.toLowerCase()
+                          product.name.toLowerCase() === value?.toLowerCase()
                       )
                     )
                   )
@@ -141,7 +149,7 @@ function AddBrand({ isOpen, closeModal, setPaginatedBrandsList }) {
 
           <Form.Item
             className="!mb-0"
-            name="nepaliName"
+            name="name_np"
             rules={[{ required: true, message: "Brand name is required" }]}
           >
             <div className="flex flex-col">
@@ -158,7 +166,7 @@ function AddBrand({ isOpen, closeModal, setPaginatedBrandsList }) {
               <Input
                 className="!bg-[#FFFFFF] !border-[1px] !border-[#D9D9D9] !rounded-[2px] !p-[8px_12px]"
                 id="name"
-                name="nepaliName"
+                name="name_np"
                 placeholder="Eg. हुलास"
                 type="text"
                 value={formState.name_np}
@@ -170,13 +178,9 @@ function AddBrand({ isOpen, closeModal, setPaginatedBrandsList }) {
           </Form.Item>
         </div>
         <div className="flex justify-end mt-4">
-          <button
-            className="text-[#00B0C2] p-[8px_12px] min-w-[5rem] rounded-[4px] border-[1px] border-[#00B0C2] hover:bg-[#effdff] transition-colors"
-            type="submit"
-            onClick={async (e) => await handleSave(e)}
-          >
+          <Button htmlType="submit" type="primary">
             Create
-          </button>
+          </Button>
         </div>
       </Form>
     </Modal>
