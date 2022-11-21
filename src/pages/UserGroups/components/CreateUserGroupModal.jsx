@@ -66,7 +66,7 @@ const CreateUserGroupModal = ({ isOpen, onClose, userGroup }) => {
               validator: (_, value) =>
                 !isEmpty(
                   userGroup?.find(
-                    ({ name }) => name.toLowerCase() === value.toLowerCase()
+                    ({ name }) => name.toLowerCase() === value?.toLowerCase()
                   )
                 )
                   ? Promise.reject(`${value} already exist`)

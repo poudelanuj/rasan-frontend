@@ -105,7 +105,7 @@ const UpdateUserGroupModal = ({
                       !isEmpty(
                         userGroup?.find(
                           ({ name }) =>
-                            name.toLowerCase() === value.toLowerCase()
+                            name.toLowerCase() === value?.toLowerCase()
                         )
                       )
                     )
