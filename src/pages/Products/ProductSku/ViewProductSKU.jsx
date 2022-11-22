@@ -3,10 +3,10 @@ import { useCallback } from "react";
 import { useQuery } from "react-query";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { getProductSku } from "../../../api/products/productSku";
+import OrderAnalytics from "../../../components/Analytics/OrderAnalytics";
 import { GET_PRODUCT_SKU } from "../../../constants/queryKeys";
 import Loader from "../../../shared/Loader";
 import CustomPageHeader from "../../../shared/PageHeader";
-import ProductSkuAnalytics from "./ProductSkuAnalytics";
 import ProductSkuDetails from "./ProductSkuDetails";
 
 function ProductSKU() {
@@ -54,9 +54,13 @@ function ProductSKU() {
                 />
               </Tabs.TabPane>
 
-              <Tabs.TabPane key="analytics" tab="Analytics">
+              <Tabs.TabPane
+                key="analytics"
+                className="!w-[98%]"
+                tab="Analytics"
+              >
                 {productSku && (
-                  <ProductSkuAnalytics product_sku_id={productSku.id} />
+                  <OrderAnalytics product_sku_id={productSku.id} />
                 )}
               </Tabs.TabPane>
             </Tabs>

@@ -17,7 +17,7 @@ import { DEFAULT_RASAN_IMAGE } from "../../../constants";
 import ButtonWPermission from "../../../shared/ButtonWPermission";
 import { useState } from "react";
 import EditBrand from "./EditBrand";
-import { BrandAnalytics } from "./Tabs/BrandAnalytics";
+import ProductSkuAnalytics from "../../../components/Analytics/ProductSkuAnalytics";
 const { TabPane } = Tabs;
 
 function Brands() {
@@ -145,8 +145,8 @@ function Brands() {
           <TabPane key="2" tab="SKU">
             <TabSKU slug={slug} />
           </TabPane>
-          <TabPane key="3" tab="Brand Analytics">
-            {brand && <BrandAnalytics brand_id={brand.id} />}
+          <TabPane key="3" tab="Analytics">
+            {brand && <ProductSkuAnalytics brand_id={brand.id} />}
           </TabPane>
         </Tabs>
       </div>

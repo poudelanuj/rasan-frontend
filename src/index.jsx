@@ -33,6 +33,7 @@ import "antd/dist/antd.min.css";
 import Users from "./pages/Users/UserList";
 import User from "./pages/Users/UserDetails/User";
 import OTPRequests from "./pages/Users/OTPRequests";
+import Address from "./pages/Users/Address";
 
 // *User Groups
 import UserGroups from "./pages/UserGroups";
@@ -199,6 +200,7 @@ root.render(
               <Route element={<Users />} path="users" />
               <Route element={<User />} path="user/:user_id" />
               <Route element={<OTPRequests />} path="otp-requests" />
+              <Route element={<Address />} path="address" />
 
               <Route path="user-groups">
                 <Route element={<UserGroups />} index />

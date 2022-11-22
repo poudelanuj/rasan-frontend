@@ -2,20 +2,24 @@ import { useState } from "react";
 import { Table } from "antd";
 import { useQuery } from "react-query";
 import { useNavigate } from "react-router-dom";
-import { CustomCard } from "../../../components/customCard";
-import { getProductAnalytics } from "../../../api/analytics";
-import { GET_PRODUCT_ANALYTICS } from "../../../constants/queryKeys";
-import { DEFAULT_RASAN_IMAGE } from "../../../constants";
-import { AnalysisTimeSelector } from "../../../components/analysisTimeSelector";
+import { CustomCard } from "../CustomCard";
+import { getProductAnalytics } from "../../api/analytics";
+import { GET_PRODUCT_ANALYTICS } from "../../constants/queryKeys";
+import { DEFAULT_RASAN_IMAGE } from "../../constants";
+import { AnalysisTimeSelector } from "../AnalysisTimeSelector";
 
-export const ProductAnalysis = ({ user }) => {
+const ProductAnalytics = ({ user_id, address, brand_id, category_id }) => {
   const navigate = useNavigate();
 
   const [date, setDate] = useState("this_month");
 
   const { data: productAnalytics } = useQuery({
-    queryFn: () => getProductAnalytics({ user_id: user.id, date }),
-    queryKey: [GET_PRODUCT_ANALYTICS, { user_id: user.id, date }],
+    queryFn: () =>
+      getProductAnalytics({ user_id, address, brand_id, category_id, date }),
+    queryKey: [
+      GET_PRODUCT_ANALYTICS,
+      { user_id, address, brand_id, category_id, date },
+    ],
   });
 
   const data = productAnalytics?.map((product) => ({
@@ -63,7 +67,7 @@ export const ProductAnalysis = ({ user }) => {
 
   return (
     <CustomCard className="col-span-2">
-      <div className="flex items-center justify-between mb-10">
+      <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg mb-0">Products</h2>
         <AnalysisTimeSelector onChange={setDate} />
       </div>
@@ -71,3 +75,5 @@ export const ProductAnalysis = ({ user }) => {
     </CustomCard>
   );
 };
+
+export default ProductAnalytics;

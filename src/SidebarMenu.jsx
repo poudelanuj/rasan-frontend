@@ -73,6 +73,7 @@ const sidebarItem = [
     children: [
       { label: "Users List", key: "users", codename: "view_user" },
       { label: "OTP Requests", key: "otp-requests", codename: "view_otp" },
+      { label: "Address", key: "address", codename: "view_address" },
     ],
   },
   {

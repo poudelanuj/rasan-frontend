@@ -2,18 +2,18 @@ import { useState } from "react";
 import { Empty } from "antd";
 import { useQuery } from "react-query";
 import { isEmpty } from "lodash";
-import { CustomCard } from "../../../components/customCard";
-import PieChart from "../../../charts/PieChart";
-import { getBrandAnalytics } from "../../../api/analytics";
-import { GET_BRAND_ANALYTICS } from "../../../constants/queryKeys";
-import { AnalysisTimeSelector } from "../../../components/analysisTimeSelector";
+import { CustomCard } from "../CustomCard";
+import PieChart from "../../charts/PieChart";
+import { getBrandAnalytics } from "../../api/analytics";
+import { GET_BRAND_ANALYTICS } from "../../constants/queryKeys";
+import { AnalysisTimeSelector } from "../AnalysisTimeSelector";
 
-const BrandAnalysis = ({ user }) => {
+const BrandAnalytics = ({ user_id, address }) => {
   const [date, setDate] = useState("this_month");
 
   const { data: brandAnalytics } = useQuery({
-    queryFn: () => getBrandAnalytics({ user_id: user.id, date }),
-    queryKey: [GET_BRAND_ANALYTICS, { user_id: user.id, date }],
+    queryFn: () => getBrandAnalytics({ user_id, address, date }),
+    queryKey: [GET_BRAND_ANALYTICS, { user_id, address, date }],
   });
 
   const pieData = brandAnalytics?.map((x) => ({
@@ -39,4 +39,4 @@ const BrandAnalysis = ({ user }) => {
   );
 };
 
-export default BrandAnalysis;
+export default BrandAnalytics;

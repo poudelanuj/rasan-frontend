@@ -23,7 +23,7 @@ const ColumnPlot = ({ data }) => {
       formatter: (datum) => {
         return {
           name: "Total Purchased",
-          value: `${datum.count} @ Rs. ${datum.sales}`,
+          value: `${datum.count} unit/s @ Rs. ${datum.sales}`,
         };
       },
     },

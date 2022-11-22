@@ -6,9 +6,8 @@ import { getProduct } from "../../../api/products";
 import { GET_PRODUCT } from "../../../constants/queryKeys";
 import Loader from "../../../shared/Loader";
 import CustomPageHeader from "../../../shared/PageHeader";
-
-import ProductAnalytics from "./ProductAnalytics";
 import ProductDetails from "./ProductDetails";
+import OrderAnalytics from "../../../components/Analytics/OrderAnalytics";
 
 function ViewProduct() {
   const { slug } = useParams();
@@ -51,8 +50,12 @@ function ViewProduct() {
                   slug={slug}
                 />
               </Tabs.TabPane>
-              <Tabs.TabPane key="analytics" tab="Analytics">
-                {product && <ProductAnalytics product_id={product.id} />}
+              <Tabs.TabPane
+                key="analytics"
+                className="!w-[98%]"
+                tab="Analytics"
+              >
+                {product && <OrderAnalytics product_id={product.id} />}
               </Tabs.TabPane>
             </Tabs>
           </div>
