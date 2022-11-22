@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Select } from "antd";
 
 const { Option } = Select;
@@ -22,8 +22,8 @@ export const AnalysisTimeSelector = ({ onChange }) => {
   return (
     <Select
       defaultValue="this_month"
-      onChange={onChange}
       style={{ width: 120 }}
+      onChange={onChange}
     >
       <>
         {timeList.map((x) => (

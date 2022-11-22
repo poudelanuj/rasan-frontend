@@ -145,7 +145,7 @@ function Category() {
             <SkuTab slug={slug} />
           </TabPane>
           <TabPane key="3" tab="Analytics">
-            <CategoryAnalytics />
+            {category && <CategoryAnalytics category_id={category.id} />}
           </TabPane>
         </Tabs>
       </div>

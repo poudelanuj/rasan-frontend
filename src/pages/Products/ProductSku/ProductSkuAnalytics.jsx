@@ -1,81 +1,58 @@
-import { Divider, Select, Space } from "antd";
-import { BarChart } from "../../../charts/barChart";
-import { LineChart } from "../../../charts/lineChart";
+import { useState } from "react";
+import moment from "moment";
+import { Empty } from "antd";
+import { isEmpty } from "lodash";
+import ColumnPlot from "../../../charts/ColumnPlot";
 import { CustomCard } from "../../../components/customCard";
 import { useQuery } from "react-query";
-import { getProductSkuAnalysis } from "../../../context/UserContext";
-import Loader from "../../../shared/Loader";
+import { getOrderAnalytics } from "../../../api/analytics";
+import { GET_ORDER_ANALYTICS } from "../../../constants/queryKeys";
 import { AnalysisTimeSelector } from "../../../components/analysisTimeSelector";
-import { useEffect, useState } from "react";
 
-/* export const getGradient = (ctx, chartArea) => {
-  let width, height, gradient;
-  const chartWidth = chartArea.right - chartArea.left;
-  const chartHeight = chartArea.bottom - chartArea.top;
-  if (!gradient || width !== chartWidth || height !== chartHeight) {
-    // Create the gradient because this is either the first render
-    // or the size of the chart has changed
-    width = chartWidth;
-    height = chartHeight;
-    gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
-    gradient.addColorStop(0, "red");
-    gradient.addColorStop(0.5, "green");
-    gradient.addColorStop(1, "blue");
-  }
+const ProductSkuAnalytics = ({ product_sku_id }) => {
+  const [orderDate, setOrderDate] = useState("this_month");
 
-  return gradient;
-};*/
+  const { data: orderAnalytics } = useQuery({
+    queryFn: () => getOrderAnalytics({ product_sku_id, date: orderDate }),
+    queryKey: [GET_ORDER_ANALYTICS, { product_sku_id, date: orderDate }],
+  });
 
-const ProductSkuAnalytics = () => {
-  const [timeStamp, setTimeStamp] = useState("this_month");
-  const { Option } = Select;
-
-  const {
-    data: productData,
-    isLoading,
-    refetch: refetchList,
-  } = useQuery(["product-analysis", timeStamp, { enabled: !!timeStamp }], () =>
-    getProductSkuAnalysis(2, timeStamp)
-  );
-
-  useEffect(() => {
-    refetchList();
-  }, [timeStamp]);
+  const columnPlotData = orderAnalytics?.map((x) => ({
+    id: moment(x.date).format("ll"),
+    type: moment(x.date).format("ll"),
+    count: x.count,
+    sales: x.total_amount,
+  }));
 
   return (
     <div className="p-6 rounded-lg flex flex-col gap-2">
+      <h2 className="text-xl">Product SKU Analytics</h2>
       <div className="grid grid-cols-3 gap-x-10 mb-10">
         <CustomCard className="col-span-2">
-          <span className="flex justify-between">
-            <h2 className="text-xl">Product SKU Analytics</h2>
-            <AnalysisTimeSelector onChange={setTimeStamp} />
+          <span className="flex justify-between mb-4">
+            <h2 className="text-xl">Order</h2>
+
+            <AnalysisTimeSelector onChange={setOrderDate} />
           </span>
 
           <div className="h-auto" style={{ height: 400 }}>
-            {isLoading ? (
-              <Loader isOpen />
+            {!isEmpty(orderAnalytics) ? (
+              <ColumnPlot data={columnPlotData} />
             ) : (
-              <BarChart
-                data={productData.sort((a, b) => b.count - a.count)}
-                keys={["total_amount"]}
-                index={"count"}
-              />
+              <Empty />
             )}
           </div>
         </CustomCard>
       </div>
+
       <div className="grid grid-cols-3 gap-x-10 mb-10">
         <CustomCard className="col-span-2">
           <span className="flex justify-between">
             <h2 className="text-xl">Inventory</h2>
-            <Select defaultValue="this_month" style={{ width: 120 }}>
-              <Option value="today">Today</Option>
-              <Option value="this_month">This Month</Option>
-              <Option value="last_year">Last Year</Option>
-            </Select>
+            <AnalysisTimeSelector onChange={setOrderDate} />
           </span>
           <div className="h-fit" style={{ height: 400 }}>
-            <LineChart />
+            <>Line Chart here</>
           </div>
         </CustomCard>
       </div>

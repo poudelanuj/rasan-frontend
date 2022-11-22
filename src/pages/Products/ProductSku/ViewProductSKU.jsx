@@ -55,7 +55,9 @@ function ProductSKU() {
               </Tabs.TabPane>
 
               <Tabs.TabPane key="analytics" tab="Analytics">
-                <ProductSkuAnalytics slug={slug} />
+                {productSku && (
+                  <ProductSkuAnalytics product_sku_id={productSku.id} />
+                )}
               </Tabs.TabPane>
             </Tabs>
           </div>

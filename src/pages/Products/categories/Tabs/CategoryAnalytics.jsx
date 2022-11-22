@@ -1,96 +1,74 @@
 import React, { useState } from "react";
+import { useQuery } from "react-query";
+import { useNavigate } from "react-router-dom";
 import { CustomCard } from "../../../../components/customCard";
 import { Table } from "antd";
 import { AnalysisTimeSelector } from "../../../../components/analysisTimeSelector";
-import { useQuery } from "react-query";
-import { useParams } from "react-router-dom";
-import { getCategoryAnalysis } from "../../../../context/UserContext";
-import time from "../../../../svgs/Time";
+import { getProductSkuAnalytics } from "../../../../api/analytics";
+import { GET_PRODUCTSKU_ANALYTICS } from "../../../../constants/queryKeys";
+import { DEFAULT_RASAN_IMAGE } from "../../../../constants";
 
-const columns = [
-  {
-    title: "Product Image",
-    dataIndex: "product_image",
-    render: (_, record) => {
-      return <img src={record} className="w-11" alt="rasan" />;
+export const CategoryAnalytics = ({ category_id }) => {
+  const navigate = useNavigate();
+
+  const [date, setDate] = useState("this_month");
+
+  const { data: productSkuAnalytics } = useQuery({
+    queryFn: () => getProductSkuAnalytics({ category_id, date }),
+    queryKey: [GET_PRODUCTSKU_ANALYTICS, { category_id, date }],
+  });
+
+  const data = productSkuAnalytics?.map((product) => ({
+    id: product.product_sku.id,
+    product_name: product.product_sku.name,
+    slug: product.product_sku.slug,
+    quantity: product.count,
+    price: product.total_amount,
+    product_image: product.product_sku.image.thumbnail,
+  }));
+
+  const columns = [
+    {
+      title: "Product Image",
+      dataIndex: "product_image",
+      render: (_, { product_image }) => (
+        <img
+          alt="rasan"
+          className="w-11"
+          src={product_image || DEFAULT_RASAN_IMAGE}
+        />
+      ),
     },
-  },
-  {
-    title: "Category Name",
-    dataIndex: "category_name",
-  },
-  {
-    title: "Quantity",
-    dataIndex: "quantity",
-  },
-  {
-    title: "Price",
-    dataIndex: "price",
-    render: (_, record) => `Rs. ${record.price}`,
-  },
-];
-
-const data = [
-  {
-    product_image: "",
-    category_name: "Women Horlicks with extra protien 200gm",
-    quantity: 50,
-    price: 10000,
-  },
-  {
-    product_image: "",
-    category_name: "Women Horlicks with extra protien 200gm",
-    quantity: 50,
-    price: 10000,
-  },
-  {
-    product_image: "",
-    category_name: "Women Horlicks with extra protien 200gm",
-    quantity: 50,
-    price: 10000,
-  },
-  {
-    product_image: "",
-    category_name: "Women Horlicks with extra protien 200gm",
-    quantity: 50,
-    price: 10000,
-  },
-  {
-    product_image: "",
-    category_name: "Women Horlicks with extra protien 200gm",
-    quantity: 50,
-    price: 10000,
-  },
-  {
-    product_image: "",
-    category_name: "Women Horlicks with extra protien 200gm",
-    quantity: 50,
-    price: 10000,
-  },
-];
-
-export const CategoryAnalytics = () => {
-  const { user_id } = useParams();
-  const [timeStamp, setTimeStamp] = useState("today");
-
-  const {
-    data: analytics,
-    isLoading,
-    isSuccess,
-  } = useQuery(["analytics", user_id], async () =>
-    getCategoryAnalysis(timeStamp, user_id, undefined)
-  );
-
-  console.log("this is the analytics", analytics);
+    {
+      title: "Product Name",
+      dataIndex: "product_name",
+      render: (text, { slug }) => (
+        <span
+          className="text-blue-500 cursor-pointer hover:underline"
+          onClick={() => navigate(`/product-sku/${slug}`)}
+        >
+          {text}
+        </span>
+      ),
+    },
+    {
+      title: "Quantity",
+      dataIndex: "quantity",
+    },
+    {
+      title: "Price",
+      dataIndex: "price",
+    },
+  ];
 
   return (
     <CustomCard className="col-span-2">
       <div className="flex items-center justify-between">
-        <p className="text-xl mb-0 text-text">Category Analysis</p>
-        <AnalysisTimeSelector />
+        <p className="text-xl mb-0 text-text">Category Analytics</p>
+        <AnalysisTimeSelector onChange={setDate} />
       </div>
       <div className="bg-white rounded-md border border-solid border-gray-100 p-3.5 mt-7">
-        <Table dataSource={data} columns={columns} />
+        {CategoryAnalytics && <Table columns={columns} dataSource={data} />}
       </div>
     </CustomCard>
   );

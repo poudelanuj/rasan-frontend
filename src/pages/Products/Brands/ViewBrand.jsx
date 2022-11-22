@@ -146,7 +146,7 @@ function Brands() {
             <TabSKU slug={slug} />
           </TabPane>
           <TabPane key="3" tab="Brand Analytics">
-            <BrandAnalytics />
+            {brand && <BrandAnalytics brand_id={brand.id} />}
           </TabPane>
         </Tabs>
       </div>

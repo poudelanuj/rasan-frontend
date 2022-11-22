@@ -51,8 +51,8 @@ function ViewProduct() {
                   slug={slug}
                 />
               </Tabs.TabPane>
-              <Tabs.TabPane key="analytics" tab="Analysis">
-                <ProductAnalytics slug={slug} />
+              <Tabs.TabPane key="analytics" tab="Analytics">
+                {product && <ProductAnalytics product_id={product.id} />}
               </Tabs.TabPane>
             </Tabs>
           </div>

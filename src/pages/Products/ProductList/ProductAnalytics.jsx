@@ -1,96 +1,43 @@
-import React, { useEffect, useState } from "react";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
-import { Bar } from "react-chartjs-2";
-import { faker } from "@faker-js/faker";
-import { Select } from "antd";
-import { BarChart } from "../../../charts/barChart";
+import React, { useState } from "react";
+import { Empty } from "antd";
+import { isEmpty } from "lodash";
+import moment from "moment";
 import { CustomCard } from "../../../components/customCard";
 import { useQuery } from "react-query";
-import { getProductAnalysis } from "../../../context/UserContext";
-import Loader from "../../../shared/Loader";
+import ColumnPlot from "../../../charts/ColumnPlot";
+import { getOrderAnalytics } from "../../../api/analytics";
+import { GET_ORDER_ANALYTICS } from "../../../constants/queryKeys";
 import { AnalysisTimeSelector } from "../../../components/analysisTimeSelector";
-import time from "../../../svgs/Time";
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-);
+const ProductAnalytics = ({ product_id }) => {
+  const [orderDate, setOrderDate] = useState("this_month");
 
-export const options = {
-  responsive: true,
-  plugins: {
-    legend: {
-      position: "top",
-    },
-    title: {
-      display: true,
-      text: "Order Bar Chart",
-    },
-  },
-};
+  const { data: orderAnalytics } = useQuery({
+    queryFn: () => getOrderAnalytics({ product_id, date: orderDate }),
+    queryKey: [GET_ORDER_ANALYTICS, { product_id, date: orderDate }],
+  });
 
-const labels = [..."123456789012"];
-
-export const data = {
-  labels,
-  datasets: [
-    {
-      label: "Total Amount",
-      data: labels.map(() => faker.datatype.number({ min: 0, max: 1000 })),
-      backgroundColor: "#00A0B0",
-      borderRadius: 16,
-      inflateAmount: -20,
-    },
-  ],
-};
-
-const ProductAnalytics = ({ user }) => {
-  const [timeStamp, setTimeStamp] = useState("this_month");
-  const {
-    data: analytics,
-    isLoading,
-    refetch: refetchList,
-  } = useQuery(["product-analysis", timeStamp, { enabled: !!timeStamp }], () =>
-    getProductAnalysis(timeStamp)
-  );
-
-  useEffect(() => {
-    refetchList();
-  }, [timeStamp]);
-
-  const barData = analytics?.map((x) => ({
-    id: x.product.id,
+  const columnPlotData = orderAnalytics?.map((x) => ({
+    id: moment(x.date).format("ll"),
+    type: moment(x.date).format("ll"),
     count: x.count,
-    amount: x.total_amount,
+    sales: x.total_amount,
   }));
 
   return (
     <React.Fragment>
       <h2 className="text-xl text-text mb-8">Product Analytics</h2>
       <CustomCard className="col-span-2">
-        <span className="flex justify-between items-center">
+        <span className="flex justify-between items-center mb-4">
           <p className="text-xl text-text mb-0">Order</p>
-          <AnalysisTimeSelector onChange={setTimeStamp} />
-        </span>
 
-        {/*<Bar data={data} options={options} />*/}
+          <AnalysisTimeSelector onChange={setOrderDate} />
+        </span>
         <div style={{ height: 500 }}>
-          {isLoading ? (
-            <Loader isOpen />
+          {!isEmpty(orderAnalytics) ? (
+            <ColumnPlot data={columnPlotData} />
           ) : (
-            <BarChart data={barData} index={"count"} keys={["amount"]} />
+            <Empty />
           )}
         </div>
       </CustomCard>
