@@ -6,6 +6,7 @@ import { GET_ORDER_ANALYTICS } from "../../../constants/queryKeys";
 import { getOrderAnalytics } from "../../../api/analytics";
 import moment from "moment";
 import ColumnPlot from "../../../charts/ColumnPlot";
+import { CustomCard } from "../../../components/customCard";
 import { AnalysisTimeSelector } from "../../../components/analysisTimeSelector";
 
 const OrderAnalytics = ({ user }) => {
@@ -24,7 +25,7 @@ const OrderAnalytics = ({ user }) => {
   }));
 
   return (
-    <div className="col-span-2">
+    <CustomCard className="col-span-2">
       <span className="flex justify-between">
         <h2 className="text-xl text-gray-700 mb-0">Order Analytics</h2>
         <AnalysisTimeSelector onChange={setDate} />
@@ -35,7 +36,7 @@ const OrderAnalytics = ({ user }) => {
       ) : (
         <Empty />
       )}
-    </div>
+    </CustomCard>
   );
 };
 

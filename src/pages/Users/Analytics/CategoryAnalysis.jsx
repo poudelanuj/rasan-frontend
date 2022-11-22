@@ -4,6 +4,7 @@ import { Empty } from "antd";
 import { isEmpty } from "lodash";
 import { AnalysisTimeSelector } from "../../../components/analysisTimeSelector";
 import PieChart from "../../../charts/PieChart";
+import { CustomCard } from "../../../components/customCard";
 import { getCategoryAnalytics } from "../../../api/analytics";
 import { GET_CATEGORY_ANALYTICS } from "../../../constants/queryKeys";
 
@@ -23,7 +24,7 @@ const CategoryAnalysis = ({ user }) => {
   }));
 
   return (
-    <div className="col-span-1">
+    <CustomCard className="col-span-1">
       <span className="flex justify-between">
         <h2 className="text-xl text-gray-700 mb-0">Categories</h2>
 
@@ -35,7 +36,7 @@ const CategoryAnalysis = ({ user }) => {
       ) : (
         <Empty />
       )}
-    </div>
+    </CustomCard>
   );
 };
 
