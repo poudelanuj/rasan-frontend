@@ -324,15 +324,17 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
               type="number"
               value={forms.find((item) => item.id === basketForm.id)?.quantity}
               onChange={(e) => {
-                setForms((prev) => {
-                  const temp = [...prev];
-                  const index = prev.findIndex(
-                    (item) => item.id === basketForm.id
-                  );
-                  temp[index]["quantity"] = e.target.value;
-                  return temp;
-                });
+                e.key !== "." &&
+                  setForms((prev) => {
+                    const temp = [...prev];
+                    const index = prev.findIndex(
+                      (item) => item.id === basketForm.id
+                    );
+                    temp[index]["quantity"] = e.target.value;
+                    return temp;
+                  });
               }}
+              onKeyDown={(event) => event.key === "." && event.preventDefault()}
             />
             <span
               className={`${

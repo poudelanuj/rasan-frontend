@@ -297,12 +297,11 @@ const UserInformation = ({ user }) => {
           />
         </div>
       </div> */}
-      <div className="w-7/12 mt-3 flex">
+      <div className="w-7/12 mt-3 flex gap-3">
         <DeleteUser phone={user.phone} title={"Delete User"} />
         <Button
-          className="ml-3 w-2/12 bg-primary"
+          className="bg-primary !flex gap-1 items-center"
           // disabled={user.is_verified}
-          icon={<AiFillCheckCircle className={"inline mr-1"} />}
           type="primary"
           onClick={() => {
             user.is_verified
@@ -310,6 +309,7 @@ const UserInformation = ({ user }) => {
               : verifyUserMutate({ key: user.id });
           }}
         >
+          <AiFillCheckCircle />
           {user.is_verified ? "Unverify" : "Verify User"}
         </Button>
       </div>

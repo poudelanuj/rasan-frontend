@@ -84,7 +84,7 @@ const OrdersList = () => {
       title: "Customer",
       dataIndex: "phone",
       key: "phone",
-      width: "20%",
+      width: "25%",
       render: (_, { phone, customer_name, id }) => {
         return (
           <div
@@ -122,14 +122,6 @@ const OrdersList = () => {
             </Tag>
           </>
         );
-      },
-    },
-    {
-      title: "Payment Method",
-      dataIndex: "payment",
-      key: "payment",
-      render: (_, { payment }) => {
-        return <>{capitalize(payment?.payment_method?.replaceAll("_", " "))}</>;
       },
     },
     {
@@ -313,6 +305,7 @@ const OrdersList = () => {
         rowSelection={{ ...rowSelection }}
         scroll={{ x: isEmpty(dataSource) && !isMobileView ? null : 1000 }}
         showSorterTooltip={false}
+        size="small"
       />
 
       <DeleteOrder

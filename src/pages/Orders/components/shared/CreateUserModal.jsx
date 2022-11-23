@@ -27,6 +27,7 @@ const CreateUserModal = ({
       refetchUserList();
       setSelectedUserPhone(data.data.phone);
       userForm.setFieldsValue({ user: data.data.phone });
+      form.resetFields();
     },
     onError: (error) => {
       openErrorNotification(error);
