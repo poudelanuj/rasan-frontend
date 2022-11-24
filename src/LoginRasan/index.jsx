@@ -5,7 +5,9 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthProvider";
 import { GET_USER_GROUPS, GET_USER_GROUPS_BY_ID } from "../constants/queryKeys";
 import { login, otpRequest } from "../context/LoginContext";
-import Logo from "../svgs/Logo2";
+import LoginIcon from "../svgs/LoginIcon";
+import RasanLogo from "../svgs/logo.png";
+import NepalFlag from "../svgs/nepalFlag.png";
 
 const LoginRasan = () => {
   const [form] = Form.useForm();
@@ -23,66 +25,56 @@ const LoginRasan = () => {
       setOnOTPReceived(true);
       setNumber(data.data.phone);
     },
+    onError: (err) => message.error(err.response.data?.errors?.detail),
   });
+
   const { mutate: loginMutate } = useMutation(login, {
     onSuccess: (data) => {
       message.success(data.message);
-      loginFinalise(
-        data.data.token,
-        data.data.profile,
-        data.data.groups,
-        () => {
-          // Send them back to the page they tried to visit when they were
-          // redirected to the login page. Use { replace: true } so we don't create
-          // another entry in the history stack for the login page.  This means that
-          // when they get to the protected page and click the back button, they
-          // won't end up back on the login page, which is also really nice for the
-          // user experience.
-          navigate("/");
-        }
+      loginFinalise(data.data.token, data.data.profile, data.data.groups, () =>
+        navigate("/")
       );
       queryClient.refetchQueries(["get-end-user"]);
       queryClient.refetchQueries([GET_USER_GROUPS]);
       queryClient.refetchQueries([GET_USER_GROUPS_BY_ID]);
     },
+    onError: (err) => message.error(err.response.data?.errors?.detail),
   });
 
   const onFinish = (values) => {
     otpRequestMutate({ number: `+977-${values["phone"]}` });
   };
+
   const onFinishLogin = (values) => {
     loginMutate({ otp: `${values["otp"]}`, phone: number });
   };
-  const onFinishFailed = (errorInfo) => {};
+
   return (
-    <div className="h-screen flex flex-col sm:pt-48 sm:justify-start justify-center items-center">
-      <div className="mx-auto mb-5">
-        <Logo />
-      </div>
-      <div className="text-3xl mb-3 text-center">Rasan Admin Panel</div>
-      <div className="text-gray-400 text-center mb-7">
-        Welcome back! To login, please enter your details.
-      </div>
+    <div className="sm:h-auto h-screen w-full sm:absolute sm:top-20 flex flex-col sm:justify-start justify-center items-center gap-6">
+      <img alt="" className="h-10" src={RasanLogo} />
+
+      <p className="text-xl leading-none my-0">Welcome to Rasan Admin Panel</p>
+
+      <LoginIcon />
+
       {onOTPReceived ? (
         <Form
           autoComplete="off"
-          className="flex flex-col items-center sm:w-[34%] w-full"
+          className="sm:w-80 w-3/4"
           form={form2}
           initialValues={{
             remember: true,
           }}
+          layout="vertical"
           name="basic"
           requiredMark="off"
-          wrapperCol={{
-            span: 16,
-          }}
           onFinish={onFinishLogin}
-          onFinishFailed={onFinishFailed}
         >
           <Form.Item
-            className="mx-auto w-[40%] flex justify-center"
-            label={"OTP"}
+            className="!mb-3"
+            label="Enter your OTP"
             name="otp"
+            requiredMark="optional"
             rules={[
               { required: true, message: "Please provide your OTP pin" },
               {
@@ -93,13 +85,13 @@ const LoginRasan = () => {
               },
             ]}
           >
-            <Input className="!w-full" type="number" />
+            <Input className="h-10 !rounded-lg" type="number" />
           </Form.Item>
 
           <Button
-            className="bg-primary block w-8/12 mx-auto rounded-lg"
+            className="!bg-[#00B0C2] !rounded-lg w-full !text-white"
             htmlType="submit"
-            type="primary"
+            size="large"
           >
             Login
           </Button>
@@ -107,47 +99,46 @@ const LoginRasan = () => {
       ) : (
         <Form
           autoComplete="off"
-          className="flex flex-col items-center justify-center sm:w-[34%] w-full"
+          className="sm:w-80 w-3/4"
           form={form}
           initialValues={{
             remember: true,
           }}
+          layout="vertical"
           name="basic"
-          wrapperCol={{
-            span: 16,
-          }}
           onFinish={onFinish}
-          onFinishFailed={onFinishFailed}
         >
           <Form.Item
-            className="mx-auto w-3/5 flex justify-center !mb-3"
-            label={"Phone Number"}
+            className="!mb-3"
+            label="Enter your phone number"
             name="phone"
             requiredMark="optional"
             rules={[
               { required: true, message: "Please provide your phone number" },
               {
                 validator: (_, values) =>
-                  values.length !== 10
+                  values?.length !== 10
                     ? Promise.reject("Please provide 10 digit phone number")
                     : Promise.resolve(),
               },
             ]}
           >
-            <Input
-              addonBefore="+977"
-              className="!w-full rounded-full"
-              type="number"
-            />
+            <div className="!flex items-center h-10 border-stone-300 hover:border-blue-400 transition-all duration-300 border-[1.5px] rounded-lg">
+              <img alt="" className="object-fit pr-3 pl-4" src={NepalFlag} />
+
+              <p className="my-0 border-stone-300 border-l-[1.5px] h-full flex items-center pl-3">
+                +977
+              </p>
+              <Input bordered={false} type="number" />
+            </div>
           </Form.Item>
 
           <Button
-            className="block w-8/12 mx-auto"
+            className="!bg-[#00B0C2] !rounded-lg w-full !text-white"
             htmlType="submit"
-            shape="round"
-            type="primary"
+            size="large"
           >
-            Request OTP
+            Continue
           </Button>
         </Form>
       )}
