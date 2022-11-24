@@ -185,7 +185,7 @@ const MobileViewOrderList = () => {
               </div>
             </div>
 
-            <div className="flex items-center justify-between text-sm p-2 rounded-lg bg-gray-100">
+            <div className="flex items-center justify-between gap-3 text-sm p-2 rounded-lg bg-gray-100">
               <span>Customer</span>
               <span className="font-semibold">
                 {order.customer_name
@@ -208,7 +208,7 @@ const MobileViewOrderList = () => {
               </span>
             </div>
 
-            <div className="flex items-center justify-between text-sm p-2 pb-4 rounded-lg">
+            <div className="flex items-center justify-between gap-3 text-sm p-2 pb-4 rounded-lg">
               <span>Shop Name</span>
               <span className="font-semibold">{order.shop_name}</span>
             </div>

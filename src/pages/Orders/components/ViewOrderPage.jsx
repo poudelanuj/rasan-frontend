@@ -24,7 +24,7 @@ import {
 } from "@ant-design/icons";
 import { BsCheckCircleFill } from "react-icons/bs";
 import { useMutation, useQuery } from "react-query";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import moment from "moment";
 import { useEffect } from "react";
 import { uniqBy, isEmpty } from "lodash";
@@ -40,7 +40,11 @@ import {
 import CustomPageHeader from "../../../shared/PageHeader";
 import { useState } from "react";
 import { getAdminUsers } from "../../../api/users";
-import { updateOrder, updateOrderItem } from "../../../api/orders";
+import {
+  updateOrder,
+  updateOrderItem,
+  getPaginatedOrders,
+} from "../../../api/orders";
 import {
   DEFAULT_CARD_IMAGE,
   DELIVERY_STATUS,
@@ -67,11 +71,14 @@ const ViewOrderPage = () => {
 
   const { orderId: initialOrderId } = useParams();
 
-  const location = useLocation();
-
   const { Option } = Select;
 
   const [orderId, setOrderId] = useState(initialOrderId);
+
+  const [pageDirectionStatus, setPageDirectionStatus] =
+    useState("decrementing");
+
+  const [maxCount, setMaxCount] = useState(1);
 
   const [selectedProductSku, setSelectedSku] = useState();
 
@@ -102,7 +109,33 @@ const ViewOrderPage = () => {
     queryFn: () => getOrder(orderId),
     queryKey: ["getOrder", orderId],
     enabled: !!orderId,
+    retry: false,
+    onError: () => {
+      if (pageDirectionStatus === "decrementing" && Number(orderId) !== 1) {
+        setOrderId((prev) => Number(prev - 1));
+      }
+      if (
+        pageDirectionStatus === "incrementing" &&
+        orderId?.toString() !== maxCount?.toString()
+      ) {
+        setOrderId((prev) => Number(prev + 1));
+      }
+    },
   });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await getPaginatedOrders({
+        page: 1,
+        orderStatus: "all",
+        size: 1,
+        sort: ["-created_at"],
+        search: "",
+      });
+      !isEmpty(data) ? setMaxCount(data?.results[0]?.id) : setMaxCount(1);
+    };
+    fetchData();
+  }, [data]);
 
   const { data: productSkus, status: productsStatus } = useQuery({
     queryFn: () => getAllProductSkus(),
@@ -442,26 +475,19 @@ const ViewOrderPage = () => {
         extra={
           <Space>
             <Button
-              disabled={orderId === "1"}
+              disabled={Number(orderId) === 1}
               onClick={() => {
+                setPageDirectionStatus("decrementing");
                 setOrderId((prev) => Number(prev) - 1);
-                if (status !== "success") {
-                  setOrderId((prev) => Number(prev) - 1);
-                }
               }}
             >
               Previous
             </Button>
             <Button
-              disabled={
-                new URLSearchParams(location.search).get("max") ===
-                orderId.toString()
-              }
+              disabled={maxCount?.toString() === orderId?.toString()}
               onClick={() => {
+                setPageDirectionStatus("incrementing");
                 setOrderId((prev) => Number(prev) + 1);
-                if (status !== "success") {
-                  setOrderId((prev) => Number(prev) + 1);
-                }
               }}
             >
               Next

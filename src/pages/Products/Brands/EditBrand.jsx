@@ -16,11 +16,14 @@ import {
   GET_PAGINATED_BRANDS,
   GET_SINGLE_BRAND,
 } from "../../../constants/queryKeys";
+import { useNavigate } from "react-router-dom";
 
 const { Dragger } = Upload;
 
-function EditBrand({ slug, isOpen, closeModal, setPaginatedBrandsList }) {
+function EditBrand({ slug, isOpen, closeModal }) {
   const [openDeleteAlert, setOpenDeleteAlert] = useState(false);
+
+  const navigate = useNavigate();
 
   const [formState, setFormState] = useState({
     name: "",
@@ -29,32 +32,34 @@ function EditBrand({ slug, isOpen, closeModal, setPaginatedBrandsList }) {
     is_published: false,
     imageFile: null,
   });
-  const { data, status: brandStatus } = useQuery(
-    [GET_SINGLE_BRAND, slug],
-    () => getBrand(slug),
-    {
-      onSuccess: (data) => {
-        setFormState({
-          ...formState,
-          name: data.name,
-          name_np: data.name_np,
-          is_published: data.is_published,
-        });
-      },
-      onError: (error) => {
-        openErrorNotification(error);
-      },
-    }
-  );
+
+  const [form] = Form.useForm();
+
+  const { data, status: brandStatus } = useQuery({
+    queryKey: [GET_SINGLE_BRAND, slug],
+    queryFn: () => getBrand(slug),
+    enabled: !!slug,
+    onSuccess: (data) => {
+      setFormState({
+        ...formState,
+        name: data.name,
+        name_np: data.name_np,
+        is_published: data.is_published,
+      });
+    },
+    onError: (error) => {
+      openErrorNotification(error);
+    },
+  });
 
   const handleBrandDelete = useMutation(() => deleteBrand({ slug }), {
     onSuccess: (data) => {
       openSuccessNotification(
         data.data.message || "Brand deleted successfully"
       );
-      setPaginatedBrandsList([]);
+      navigate("/brands");
       queryClient.invalidateQueries([GET_PAGINATED_BRANDS]);
-      queryClient.invalidateQueries([[GET_SINGLE_BRAND, slug]]);
+      queryClient.invalidateQueries([GET_SINGLE_BRAND, slug]);
       queryClient.refetchQueries([GET_PAGINATED_BRANDS]);
       closeModal();
     },
@@ -70,9 +75,9 @@ function EditBrand({ slug, isOpen, closeModal, setPaginatedBrandsList }) {
         openSuccessNotification(
           data.data.message || "Brand updated successfully"
         );
-        setPaginatedBrandsList([]);
+        navigate("/brands");
         queryClient.invalidateQueries([GET_PAGINATED_BRANDS]);
-        queryClient.invalidateQueries([[GET_SINGLE_BRAND, slug]]);
+        queryClient.invalidateQueries([GET_SINGLE_BRAND, slug]);
         queryClient.refetchQueries([GET_PAGINATED_BRANDS]);
         closeModal();
       },
@@ -106,7 +111,7 @@ function EditBrand({ slug, isOpen, closeModal, setPaginatedBrandsList }) {
   };
 
   const handleSave = async () => {
-    if (formState.name && formState.image && formState.name_np) {
+    if (formState.name && formState.name_np) {
       let form_data = new FormData();
       form_data.append("name", formState.name);
       form_data.append("name_np", formState.name_np);
@@ -116,7 +121,9 @@ function EditBrand({ slug, isOpen, closeModal, setPaginatedBrandsList }) {
       handleBrandUpdate.mutate({ slug, form_data });
     } else {
       openErrorNotification({
-        response: { data: { message: "Please fill all the fields" } },
+        response: {
+          data: { errors: { detail: "Please fill all the fields" } },
+        },
       });
     }
   };
@@ -146,7 +153,11 @@ function EditBrand({ slug, isOpen, closeModal, setPaginatedBrandsList }) {
         )}
 
         {data && (
-          <Form className="flex flex-col justify-between flex-1">
+          <Form
+            className="flex flex-col justify-between flex-1"
+            form={form}
+            onFinish={() => form.validateFields().then(() => handleSave())}
+          >
             <div className="grid gap-[1rem] grid-cols-[100%]">
               <Dragger {...props}>
                 <p className="ant-upload-drag-icon">
@@ -168,20 +179,20 @@ function EditBrand({ slug, isOpen, closeModal, setPaginatedBrandsList }) {
 
               <Form.Item
                 className="!mb-0"
+                initialValue={formState?.name}
                 name="name"
                 rules={[
                   { required: true, message: "Brand name is required" },
                   {
                     validator: async (_, value) => {
                       const res = await getPaginatedBrands(1, 1, value);
-
-                      if (value.toLowerCase() !== data?.name.toLowerCase()) {
+                      if (value?.toLowerCase() !== data?.name.toLowerCase()) {
                         if (
                           !isEmpty(
                             res.results?.find(
                               (product) =>
                                 product.name.toLowerCase() ===
-                                value.toLowerCase()
+                                value?.toLowerCase()
                             )
                           )
                         )
@@ -212,7 +223,8 @@ function EditBrand({ slug, isOpen, closeModal, setPaginatedBrandsList }) {
 
               <Form.Item
                 className="!mb-0"
-                name="nepaliName"
+                initialValue={formState?.name_np}
+                name="name_np"
                 rules={[{ required: true, message: "Brand name is required" }]}
               >
                 <div className="flex flex-col">
@@ -229,6 +241,7 @@ function EditBrand({ slug, isOpen, closeModal, setPaginatedBrandsList }) {
                   <Input
                     className="!bg-[#FFFFFF] !border-[1px] !border-[#D9D9D9] !rounded-[2px] !p-[8px_12px]"
                     id="name"
+                    name="name_np"
                     placeholder="Eg. हुलास"
                     type="text"
                     value={formState.name_np}
@@ -256,10 +269,7 @@ function EditBrand({ slug, isOpen, closeModal, setPaginatedBrandsList }) {
                 }
                     p-[8px_12px] min-w-[5rem] rounded-[4px] border-[1px] transition-colors ml-5`}
                 disabled={handleBrandUpdate.status === "loading"}
-                type="button"
-                onClick={async (e) => {
-                  await handleSave(e);
-                }}
+                type="submit"
               >
                 {handleBrandUpdate.status === "loading" ? "Saving..." : "Save"}
               </button>

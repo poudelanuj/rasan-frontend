@@ -297,7 +297,6 @@ const CategoryList = () => {
         <EditCategory
           closeModal={() => setIsEditCategoryOpen(false)}
           isOpen={isEditCategoryOpen}
-          setPaginatedCategoriesList={setCategories}
           slug={selectedCategorySlug}
         />
       )}

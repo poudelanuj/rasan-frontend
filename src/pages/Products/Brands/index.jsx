@@ -288,7 +288,6 @@ function BrandsScreen() {
         <EditBrand
           closeModal={() => setIsEditBrandOpen(false)}
           isOpen={isEditBrandOpen}
-          setPaginatedBrandsList={setPaginatedBrands}
           slug={selectedBrandSlug}
         />
       )}

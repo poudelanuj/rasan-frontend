@@ -252,11 +252,15 @@ const BasketModal = ({ isModalOpen, onClose, basket }) => {
               <span>Quantity</span>
               <Input
                 defaultValue={1}
+                onkeypress="return event.charCode >= 48 && event.charCode <= 57"
                 placeholder="Quantity"
                 type="number"
                 onChange={(e) => {
-                  setQuantity(e.target.value);
+                  e.key !== "." && setQuantity(e.target.value);
                 }}
+                onKeyDown={(event) =>
+                  event.key === "." && event.preventDefault()
+                }
               />
               <span
                 className={`${

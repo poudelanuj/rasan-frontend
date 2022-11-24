@@ -19,10 +19,13 @@ import {
   getPaginatedProductGroups,
   updateProductGroup,
 } from "../../../api/products/productGroups";
+import { useNavigate } from "react-router-dom";
 
 const { Dragger } = Upload;
 
-function EditProductGroup({ slug, isOpen, closeModal, setProductGroupsList }) {
+function EditProductGroup({ slug, isOpen, closeModal }) {
+  const navigate = useNavigate();
+
   const [openDeleteAlert, setOpenDeleteAlert] = useState(false);
 
   const [formState, setFormState] = useState({
@@ -32,6 +35,9 @@ function EditProductGroup({ slug, isOpen, closeModal, setProductGroupsList }) {
     imageFile: null,
     is_featured: false,
   });
+
+  const [form] = Form.useForm();
+
   const queryClient = useQueryClient();
 
   const { data: productGroupData, status: productGroupStatus } = useQuery(
@@ -60,7 +66,7 @@ function EditProductGroup({ slug, isOpen, closeModal, setProductGroupsList }) {
         openSuccessNotification(
           data.data.message || "Rasan Choice deleted successfully"
         );
-        if (setProductGroupsList) setProductGroupsList([]);
+        navigate("/product-groups");
         queryClient.invalidateQueries([GET_PAGINATED_PRODUCT_GROUPS]);
         queryClient.invalidateQueries([[GET_SINGLE_PRODUCT_GROUP, slug]]);
         queryClient.refetchQueries([GET_PAGINATED_PRODUCT_GROUPS]);
@@ -79,7 +85,7 @@ function EditProductGroup({ slug, isOpen, closeModal, setProductGroupsList }) {
         openSuccessNotification(
           data.data.message || "Category updated successfully"
         );
-        if (setProductGroupsList) setProductGroupsList([]);
+        navigate("/product-groups");
         queryClient.invalidateQueries([GET_PAGINATED_PRODUCT_GROUPS]);
         queryClient.invalidateQueries([[GET_SINGLE_PRODUCT_GROUP, slug]]);
         queryClient.refetchQueries([GET_PAGINATED_PRODUCT_GROUPS]);
@@ -103,7 +109,9 @@ function EditProductGroup({ slug, isOpen, closeModal, setProductGroupsList }) {
       handleUpdateProductGroup.mutate({ slug, form_data });
     } else {
       openErrorNotification({
-        response: { data: { message: "Please fill all the fields" } },
+        response: {
+          data: { errors: { message: "Please fill all the fields" } },
+        },
       });
     }
   };
@@ -153,7 +161,11 @@ function EditProductGroup({ slug, isOpen, closeModal, setProductGroupsList }) {
           </div>
         )}
         {productGroupData && (
-          <Form className="flex flex-col justify-between flex-1">
+          <Form
+            className="flex flex-col justify-between flex-1"
+            form={form}
+            onFinish={() => form.validateFields().then(() => handleSave())}
+          >
             <div className="grid gap-[1rem] grid-cols-[100%]">
               <Dragger {...props}>
                 <p className="ant-upload-drag-icon">
@@ -175,6 +187,7 @@ function EditProductGroup({ slug, isOpen, closeModal, setProductGroupsList }) {
 
               <Form.Item
                 className="!mb-0"
+                initialValue={formState?.name}
                 name="name"
                 rules={[
                   { required: true, message: "Product name is required" },
@@ -184,14 +197,14 @@ function EditProductGroup({ slug, isOpen, closeModal, setProductGroupsList }) {
 
                       if (
                         productGroupData.name.toLowerCase() !==
-                        value.toLowerCase()
+                        value?.toLowerCase()
                       ) {
                         if (
                           !isEmpty(
                             data.results?.find(
                               (product) =>
                                 product.name.toLowerCase() ===
-                                value.toLowerCase()
+                                value?.toLowerCase()
                             )
                           )
                         )
@@ -223,7 +236,8 @@ function EditProductGroup({ slug, isOpen, closeModal, setProductGroupsList }) {
 
               <Form.Item
                 className={"!mb-0"}
-                name={"nepaliName"}
+                initialValue={formState?.name_np}
+                name={"name_np"}
                 rules={[
                   { required: true, message: "Product name is required" },
                 ]}
@@ -243,7 +257,7 @@ function EditProductGroup({ slug, isOpen, closeModal, setProductGroupsList }) {
                   <Input
                     className="!bg-[#FFFFFF] !border-[1px] !border-[#D9D9D9] !rounded-[2px] !p-[8px_12px]"
                     id="name"
-                    name="nepaliName"
+                    name="name_np"
                     placeholder="Eg. आमाको मुख हेर्ने दिन विशेष"
                     type="text"
                     value={formState.name_np}
@@ -278,10 +292,7 @@ function EditProductGroup({ slug, isOpen, closeModal, setProductGroupsList }) {
 
               <button
                 className="bg-[#00B0C2] text-white p-[8px_12px] ml-5 min-w-[5rem] rounded-[4px] border-[1px] border-[#00B0C2] hover:bg-[#12919f] transition-colors"
-                type="button"
-                onClick={async () => {
-                  await handleSave();
-                }}
+                type="submit"
               >
                 {handleUpdateProductGroup.status === "loading"
                   ? "Saving..."

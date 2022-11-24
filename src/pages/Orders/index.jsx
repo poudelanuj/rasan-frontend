@@ -20,7 +20,7 @@ const Orders = () => {
 
   const searchInput = useRef();
 
-  const [pageSize, setPageSize] = useState(20);
+  const [pageSize, setPageSize] = useState(50);
   const [page, setPage] = useState(1);
   const [orderStatus, setOrderStatus] = useState("all");
   const [orders, setOrders] = useState([]);

@@ -6,7 +6,7 @@ export const getBrandAnalytics = async ({ user_id, address, date }) => {
       address || ""
     }&date=${date || "today"}`
   );
-  return res.data;
+  return res.data.data;
 };
 
 export const getCategoryAnalytics = async ({ user_id, address, date }) => {
@@ -15,7 +15,7 @@ export const getCategoryAnalytics = async ({ user_id, address, date }) => {
       address || ""
     }&date=${date || "today"}`
   );
-  return res.data;
+  return res.data.data;
 };
 
 export const getOrderAnalytics = async ({
@@ -37,7 +37,7 @@ export const getOrderAnalytics = async ({
     }`
   );
 
-  return res.data;
+  return res.data.data;
 };
 
 export const getProductAnalytics = async ({
@@ -55,7 +55,7 @@ export const getProductAnalytics = async ({
     }`
   );
 
-  return res.data;
+  return res.data.data;
 };
 
 export const getProductSkuAnalytics = async ({
@@ -73,5 +73,5 @@ export const getProductSkuAnalytics = async ({
     }`
   );
 
-  return res.data;
+  return res.data.data;
 };

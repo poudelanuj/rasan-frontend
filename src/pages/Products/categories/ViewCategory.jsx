@@ -16,6 +16,7 @@ import {
 } from "../../../utils";
 import { DEFAULT_RASAN_IMAGE } from "../../../constants";
 import ButtonWPermission from "../../../shared/ButtonWPermission";
+import ProductSkuAnalytics from "../../../components/Analytics/ProductSkuAnalytics";
 
 const { TabPane } = Tabs;
 
@@ -142,6 +143,9 @@ function Category() {
           </TabPane>
           <TabPane key="2" tab="SKU">
             <SkuTab slug={slug} />
+          </TabPane>
+          <TabPane key="3" tab="Analytics">
+            {category && <ProductSkuAnalytics category_id={category.id} />}
           </TabPane>
         </Tabs>
       </div>

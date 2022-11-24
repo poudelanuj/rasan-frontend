@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { UploadOutlined } from "@ant-design/icons";
 import { useMutation, useQueryClient } from "react-query";
-import { Form, Input, Modal, Switch, Upload } from "antd";
+import { Form, Input, Modal, Switch, Upload, Button } from "antd";
 import { isEmpty } from "lodash";
 import { getPaginatedProductGroups } from "../../../api/products/productGroups";
 import { createProductGroup } from "../../../context/CategoryContext";
@@ -23,6 +23,9 @@ function AddProductGroup({ isOpen, closeModal, setProductGroupsList }) {
     imageFile: null,
     is_featured: false,
   });
+
+  const [form] = Form.useForm();
+
   const queryClient = useQueryClient();
 
   const handleAddProductGroups = useMutation(createProductGroup, {
@@ -50,7 +53,7 @@ function AddProductGroup({ isOpen, closeModal, setProductGroupsList }) {
       handleAddProductGroups.mutate({ form_data });
     } else {
       openErrorNotification({
-        response: { data: { message: "Please fill all fields" } },
+        response: { data: { errors: { message: "Please fill all fields" } } },
       });
     }
   };
@@ -82,7 +85,11 @@ function AddProductGroup({ isOpen, closeModal, setProductGroupsList }) {
       visible={isOpen}
       onCancel={closeModal}
     >
-      <Form className="flex flex-col justify-between flex-1">
+      <Form
+        className="flex flex-col justify-between flex-1"
+        form={form}
+        onFinish={() => form.validateFields().then(() => handleSave())}
+      >
         <div className="grid gap-[1rem] grid-cols-[100%]">
           <Dragger {...props}>
             <p className="ant-upload-drag-icon">
@@ -110,7 +117,7 @@ function AddProductGroup({ isOpen, closeModal, setProductGroupsList }) {
                     !isEmpty(
                       data.results?.find(
                         (product) =>
-                          product.name.toLowerCase() === value.toLowerCase()
+                          product.name.toLowerCase() === value?.toLowerCase()
                       )
                     )
                   )
@@ -141,7 +148,7 @@ function AddProductGroup({ isOpen, closeModal, setProductGroupsList }) {
 
           <Form.Item
             className={"!mb-0"}
-            name={"nepaliName"}
+            name={"name_np"}
             rules={[{ required: true, message: "Product name is required" }]}
           >
             <div className="flex flex-col">
@@ -159,7 +166,7 @@ function AddProductGroup({ isOpen, closeModal, setProductGroupsList }) {
               <Input
                 className="!bg-[#FFFFFF] !border-[1px] !border-[#D9D9D9] !rounded-[2px] !p-[8px_12px]"
                 id="name"
-                name={"nepaliName"}
+                name={"name_np"}
                 placeholder="Eg. आमाको मुख हेर्ने दिन विशेष"
                 type="text"
                 value={formState.name_np}
@@ -184,15 +191,9 @@ function AddProductGroup({ isOpen, closeModal, setProductGroupsList }) {
           </div>
         </div>
         <div className="flex justify-end">
-          <button
-            className="text-[#00B0C2] p-[8px_12px] min-w-[5rem] rounded-[4px] border-[1px] border-[#00B0C2] hover:bg-[#effdff] transition-colors"
-            type="button"
-            onClick={async () => {
-              await handleSave();
-            }}
-          >
+          <Button htmlType="button" type="primary">
             Create
-          </button>
+          </Button>
         </div>
       </Form>
     </Modal>

@@ -14,8 +14,9 @@ import { ALERT_TYPE } from "../../../../constants";
 import Alert from "../../../../shared/Alert";
 import { GET_PRODUCTS_FROM_BRAND } from "../../../../constants/queryKeys";
 import { bulkDelete, bulkPublish } from "../../../../api/products";
-import { uniqBy } from "lodash";
+import { uniqBy, isEmpty } from "lodash";
 import { getProductsFromBrand } from "../../../../api/brands";
+import { useAuth } from "../../../../AuthProvider";
 
 const { Option } = Select;
 
@@ -80,6 +81,8 @@ const columns = [
   },
 ];
 function TabAll({ slug }) {
+  const { isMobileView } = useAuth();
+
   const [openAlert, setOpenAlert] = useState(false);
   const [alertType, setAlertType] = useState("");
 
@@ -256,7 +259,9 @@ function TabAll({ slug }) {
             rowClassName="cursor-pointer"
             rowKey="slug"
             rowSelection={rowSelection}
-            scroll={{ x: 1000 }}
+            scroll={{
+              x: isEmpty(paginatedProducts) && !isMobileView ? null : 1000,
+            }}
             onRow={(record) => {
               return {
                 onClick: (_) => {

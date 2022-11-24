@@ -18,6 +18,7 @@ const CreateUserModal = ({
       openSuccessNotification(data.message);
       setIsCreateUserOpen(false);
       refetchUserList();
+      form.resetFields();
     },
     onError: (error) => {
       openErrorNotification(error);

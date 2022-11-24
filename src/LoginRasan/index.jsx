@@ -72,6 +72,7 @@ const LoginRasan = () => {
             remember: true,
           }}
           name="basic"
+          requiredMark="off"
           wrapperCol={{
             span: 16,
           }}
@@ -96,7 +97,7 @@ const LoginRasan = () => {
           </Form.Item>
 
           <Button
-            className="bg-primary block w-8/12 mx-auto"
+            className="bg-primary block w-8/12 mx-auto rounded-lg"
             htmlType="submit"
             type="primary"
           >
@@ -119,9 +120,10 @@ const LoginRasan = () => {
           onFinishFailed={onFinishFailed}
         >
           <Form.Item
-            className="mx-auto w-3/5 flex justify-center"
+            className="mx-auto w-3/5 flex justify-center !mb-3"
             label={"Phone Number"}
             name="phone"
+            requiredMark="optional"
             rules={[
               { required: true, message: "Please provide your phone number" },
               {
@@ -132,12 +134,17 @@ const LoginRasan = () => {
               },
             ]}
           >
-            <Input addonBefore="+977" className="!w-full" type="number" />
+            <Input
+              addonBefore="+977"
+              className="!w-full rounded-full"
+              type="number"
+            />
           </Form.Item>
 
           <Button
-            className="bg-primary block w-8/12 mx-auto"
+            className="block w-8/12 mx-auto"
             htmlType="submit"
+            shape="round"
             type="primary"
           >
             Request OTP

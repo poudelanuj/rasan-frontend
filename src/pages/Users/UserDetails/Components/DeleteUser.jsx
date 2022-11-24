@@ -14,7 +14,7 @@ const DeleteUser = ({ title, phone }) => {
       navigate("/users");
     },
     onError: (error) => {
-      message.error(error.message);
+      message.error(error.response.data?.errors?.detail);
     },
   });
 

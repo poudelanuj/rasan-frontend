@@ -4,7 +4,7 @@ import UserInformation from "./UserInformation";
 
 import LiveUserBasket from "./BasketList";
 import OrderList from "./OrderList";
-import UserAnalytics from "../Analytics";
+import UserAnalytics from "./Analytics";
 
 const { TabPane } = Tabs;
 
@@ -21,7 +21,7 @@ const UserTab = ({ user }) => {
         <LiveUserBasket user={user} />
       </TabPane>
       <TabPane key="4" tab="Analytics">
-        <UserAnalytics user={user} />
+        {user && <UserAnalytics user_id={user.id} />}
       </TabPane>
     </Tabs>
   );

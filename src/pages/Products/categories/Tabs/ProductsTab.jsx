@@ -10,11 +10,12 @@ import {
 } from "../../../../utils/openNotification";
 import { parseSlug } from "../../../../utils";
 import { GET_CATEGORY_PRODUCTS } from "../../../../constants/queryKeys";
-import { uniqBy } from "lodash";
+import { uniqBy, isEmpty } from "lodash";
 import { getProductsFromCategory } from "../../../../api/categories";
 import { ALERT_TYPE } from "../../../../constants";
 import Alert from "../../../../shared/Alert";
 import { bulkDelete, bulkPublish } from "../../../../api/products";
+import { useAuth } from "../../../../AuthProvider";
 
 const { Option } = Select;
 
@@ -76,6 +77,8 @@ const columns = [
 ];
 
 function TabAll({ slug }) {
+  const { isMobileView } = useAuth();
+
   const [openAlert, setOpenAlert] = useState(false);
   const [alertType, setAlertType] = useState("");
 
@@ -247,7 +250,7 @@ function TabAll({ slug }) {
             rowClassName="cursor-pointer"
             rowKey="slug"
             rowSelection={rowSelection}
-            scroll={{ x: 1000 }}
+            scroll={{ x: isEmpty(products) && !isMobileView ? null : 1000 }}
             onRow={(record) => {
               return {
                 onClick: (_) => {
