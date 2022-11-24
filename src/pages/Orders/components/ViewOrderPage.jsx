@@ -507,12 +507,14 @@ const ViewOrderPage = () => {
 
         {data && (
           <Steps
-            className="site-navigation-steps !mb-4 bg-[#F0F2F5] rounded-lg"
+            className={`site-navigation-steps !mb-4 bg-[#F0F2F5] rounded-lg ${
+              isMobileView && "!p-4"
+            }`}
             current={
               ORDER_STATUS_ENUMS.find(({ id }) => data.status === id)?.index ||
               ORDER_STATUS_ENUMS.length
             }
-            type="navigation"
+            type={isMobileView ? "inline" : "navigation"}
             onChange={(val) => {
               const status = ORDER_STATUS_ENUMS.find(
                 (_, index) => val === index

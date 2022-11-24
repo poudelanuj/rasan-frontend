@@ -18,9 +18,13 @@ const BrandAnalytics = ({ user_id, address }) => {
 
   const pieData = brandAnalytics?.map((x) => ({
     key: x.brand.id,
-    type: x.brand.name,
+    id: x.brand.name,
+    label: x.brand.name,
     value: x.amount,
     percentage: x.percentage,
+    color: `rgb(${Math.floor(Math.random() * 225)},${Math.floor(
+      Math.random() * 225
+    )},${Math.floor(Math.random() * 225)})`,
   }));
 
   return (

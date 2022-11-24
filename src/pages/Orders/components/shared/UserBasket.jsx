@@ -210,8 +210,8 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
   }, [forms]);
 
   return (
-    <div>
-      <p className="font-semibold mt-6">
+    <div className="my-4">
+      <p className="font-semibold">
         {user?.full_name || ""} {user?.phone || ""}
       </p>
 
