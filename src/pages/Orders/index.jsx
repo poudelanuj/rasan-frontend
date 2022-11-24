@@ -84,7 +84,7 @@ const Orders = () => {
         }}
       >
         <Tabs
-          className="bg-white sm:!p-6 !p-4 rounded-lg"
+          className="bg-white sm:!py-2 sm:!px-6 !p-4 rounded-lg"
           defaultActiveKey="all"
           tabBarGutter={21}
           onTabClick={(tabKey) => {
