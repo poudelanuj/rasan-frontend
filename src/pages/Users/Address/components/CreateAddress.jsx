@@ -60,7 +60,9 @@ const CreateAddress = ({ isCreateAddressOpen, setIsCreateAddressOpen }) => {
     {
       onSuccess: () => {
         refetchAddress();
+        form.resetFields();
         setAddressInput({ ...addressInput, area: "" });
+        setIsCreateAddressOpen(false);
       },
     }
   );
@@ -70,10 +72,18 @@ const CreateAddress = ({ isCreateAddressOpen, setIsCreateAddressOpen }) => {
       footer={
         <Button
           htmlType="submit"
+          loading={handleCreateArea.isLoading}
           type="primary"
-          onClick={() => setIsCreateAddressOpen(false)}
+          onClick={() =>
+            form.validateFields().then(() =>
+              handleCreateArea.mutate({
+                city: selectedCity,
+                name: addressInput.area,
+              })
+            )
+          }
         >
-          Done
+          Add
         </Button>
       }
       title="Create Address"
@@ -120,6 +130,7 @@ const CreateAddress = ({ isCreateAddressOpen, setIsCreateAddressOpen }) => {
               option.children.toLowerCase().includes(input.toLowerCase())
             }
             loading={addressListStatus === "loading"}
+            placeholder="Select province"
             showSearch
             onSelect={(value) => {
               setSelectedProvince(value);
@@ -178,6 +189,7 @@ const CreateAddress = ({ isCreateAddressOpen, setIsCreateAddressOpen }) => {
               option.children.toLowerCase().includes(input.toLowerCase())
             }
             loading={addressListStatus === "loading"}
+            placeholder="Select city"
             onSelect={(value) => {
               setSelectedCity(value);
               form.resetFields(["area"]);
@@ -204,55 +216,12 @@ const CreateAddress = ({ isCreateAddressOpen, setIsCreateAddressOpen }) => {
             },
           ]}
         >
-          <Select
-            dropdownRender={(menu) => (
-              <>
-                {menu}
-                {selectedProvince && selectedCity && (
-                  <>
-                    <Divider style={{ margin: "8px 0" }} />
-                    <Space style={{ padding: "0 8px 4px" }}>
-                      <Input
-                        name="area"
-                        placeholder="Enter area"
-                        value={addressInput.area}
-                        onChange={handleAddressInputChange}
-                      />
-                      <Button
-                        icon={<PlusOutlined />}
-                        loading={handleCreateArea.isLoading}
-                        type="primary"
-                        onClick={() =>
-                          handleCreateArea.mutate({
-                            name: addressInput.area,
-                            city: selectedCity,
-                          })
-                        }
-                      >
-                        Add Area
-                      </Button>
-                    </Space>
-                  </>
-                )}
-              </>
-            )}
-            filterOption={(input, option) =>
-              option.children.toLowerCase().includes(input.toLowerCase())
-            }
-            loading={addressListStatus === "loading"}
-          >
-            {addressList &&
-              addressList
-                .find(
-                  (item) => item.id?.toString() === selectedProvince?.toString()
-                )
-                ?.cities?.find(
-                  (item) => item.id?.toString() === selectedCity?.toString()
-                )
-                ?.areas?.map((area) => (
-                  <Select.Option key={area.id}>{area.name}</Select.Option>
-                ))}
-          </Select>
+          <Input
+            name="area"
+            placeholder="Enter area"
+            value={addressInput.area}
+            onChange={handleAddressInputChange}
+          />
         </Form.Item>
       </Form>
     </Modal>
