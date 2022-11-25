@@ -71,7 +71,7 @@ export const deleteArea = async (id) => {
 
 export const updateProvince = async ({ id, name }) => {
   const res = await axios.put(
-    `/api/profile/admin/address-meta-province/${id}`,
+    `/api/profile/admin/address-meta-province/${id}/`,
     { name, is_active: true }
   );
 
@@ -79,7 +79,7 @@ export const updateProvince = async ({ id, name }) => {
 };
 
 export const updateCity = async ({ id, name, province }) => {
-  const res = await axios.put(`/api/profile/admin/address-meta-city/${id}`, {
+  const res = await axios.put(`/api/profile/admin/address-meta-city/${id}/`, {
     name,
     is_active: true,
     province,
@@ -89,7 +89,7 @@ export const updateCity = async ({ id, name, province }) => {
 };
 
 export const updateArea = async ({ id, name, city }) => {
-  const res = await axios.put(`/api/profile/admin/address-meta-area/${id}`, {
+  const res = await axios.put(`/api/profile/admin/address-meta-area/${id}/`, {
     name,
     is_active: true,
     city,
