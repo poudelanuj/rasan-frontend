@@ -245,15 +245,6 @@ const CreateOrder = () => {
             </Form.Item>
           </div>
 
-          {!!selectedUserPhone &&
-            userList &&
-            userList.find((el) => el.phone === selectedUserPhone) && (
-              <UserBasket
-                setBasketItemsStatus={setBasketItemsStatus}
-                user={userList.find((el) => el.phone === selectedUserPhone)}
-              />
-            )}
-
           <div className="grid sm:grid-cols-3 sm:gap-3 mt-4">
             <Form.Item
               className="!mb-1"
@@ -341,6 +332,15 @@ const CreateOrder = () => {
               </Select>
             </Form.Item>
           </div>
+
+          {!!selectedUserPhone &&
+            userList &&
+            userList.find((el) => el.phone === selectedUserPhone) && (
+              <UserBasket
+                setBasketItemsStatus={setBasketItemsStatus}
+                user={userList.find((el) => el.phone === selectedUserPhone)}
+              />
+            )}
 
           <div className="w-full flex justify-end">
             <ButtonWPermission

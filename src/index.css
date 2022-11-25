@@ -61,5 +61,5 @@ input::-webkit-inner-spin-button {
 .ant-table.ant-table-small .ant-table-title,
 .ant-table.ant-table-small tfoot > tr > td,
 .ant-table.ant-table-small tfoot > tr > th {
-  padding: 5px !important;
+  padding: 4px !important;
 }

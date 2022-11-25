@@ -210,8 +210,8 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
   }, [forms]);
 
   return (
-    <div>
-      <p className="font-semibold mt-6">
+    <div className="my-4">
+      <p className="font-semibold">
         {user?.full_name || ""} {user?.phone || ""}
       </p>
 
@@ -235,12 +235,12 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
       {forms?.map((basketForm, index) => (
         <Form
           key={basketForm.id}
-          className="w-full flex sm:flex-row flex-col !items-start gap-2"
+          className="w-full flex sm:flex-row flex-col sm:!items-end gap-2 !mb-2"
           layout={isMobileView ? "horizontal" : "vertical"}
         >
           <Form.Item
             className="sm:w-auto w-full !mb-0"
-            label={!isMobileView && "Product SKU"}
+            label={!isMobileView && index === 0 && "Product SKU"}
           >
             <Select
               className="sm:!w-[200px]"
@@ -273,7 +273,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
           </Form.Item>
           <Form.Item
             className="sm:w-auto w-full !mb-0"
-            label={!isMobileView && "Pack Size"}
+            label={!isMobileView && index === 0 && "Pack Size"}
             tooltip="Select Pack Size"
           >
             <Select
@@ -314,7 +314,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
 
           <Form.Item
             className="sm:w-auto w-full relative !mb-0"
-            label={!isMobileView && "Quantity"}
+            label={!isMobileView && index === 0 && "Quantity"}
             name="quantity"
           >
             <Input
@@ -350,7 +350,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
 
           <Form.Item
             className="sm:w-auto w-full !mb-0"
-            label={!isMobileView && "Price Per Piece"}
+            label={!isMobileView && index === 0 && "Price Per Piece"}
           >
             <Input
               addonBefore={isMobileView && "Price Per Piece"}
@@ -367,7 +367,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
 
           <Form.Item
             className="sm:w-auto w-full !mb-0"
-            label={!isMobileView && "Total Amount"}
+            label={!isMobileView && index === 0 && "Total Amount"}
           >
             <Input
               addonBefore={isMobileView && "Total Amount"}
@@ -381,7 +381,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
 
           <Form.Item
             className="sm:w-auto w-full !mb-0"
-            label={!isMobileView && "Loyalty"}
+            label={!isMobileView && index === 0 && "Loyalty"}
           >
             <Input
               addonBefore={isMobileView && "Loyalty"}
@@ -401,7 +401,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
 
           <Form.Item
             className="sm:w-auto w-full !mb-0"
-            label={!isMobileView && "Cashback"}
+            label={!isMobileView && index === 0 && "Cashback"}
           >
             <Input
               addonBefore={isMobileView && "Cashback"}
@@ -419,8 +419,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
             />
           </Form.Item>
 
-          <Form.Item>
-            <div className="sm:h-[30px]" />
+          <Form.Item className="sm:!mb-0">
             {index + 1 === forms.length ? (
               <ButtonWPermission
                 codename="add_basketitem"
