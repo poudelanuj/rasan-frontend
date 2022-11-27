@@ -237,8 +237,8 @@ const CreateOrder = () => {
                     ?.addresses?.map((address) => (
                       <Option key={address.id} value={address.id}>{`${
                         address.detail_address || ""
-                      } ${address.area.name} - ${address.city.name}, ${
-                        address.province.name
+                      } ${address.area?.name} - ${address.city?.name}, ${
+                        address.province?.name
                       }`}</Option>
                     ))}
               </Select>
