@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "react-query";
 import { isEmpty } from "lodash";
-import { Button, Collapse, Form, Input, Space } from "antd";
+import { Button, Collapse, Form, Input, message, Space } from "antd";
 import {
   EditOutlined,
   DeleteOutlined,
@@ -201,6 +201,17 @@ const AddressPage = () => {
                         onClick={(event) => {
                           event.stopPropagation();
                           event.preventDefault();
+                          const provinceExist = !isEmpty(
+                            addressTree?.find(
+                              (province) =>
+                                province.title.toLowerCase() ===
+                                provinceInput.name.toLowerCase()
+                            )
+                          );
+                          if (provinceExist)
+                            return message.error(
+                              `${provinceInput.name} is taken. Try something else`
+                            );
                           handleUpdateProvince.mutate(provinceInput);
                         }}
                       >
@@ -287,6 +298,19 @@ const AddressPage = () => {
                               onClick={(event) => {
                                 event.stopPropagation();
                                 event.preventDefault();
+                                const cityExist = addressTree
+                                  ?.find(
+                                    (Province) => Province.id === province.id
+                                  )
+                                  .children?.find(
+                                    (city) =>
+                                      city.title.toLowerCase() ===
+                                      cityInput.name.toLowerCase()
+                                  );
+                                if (cityExist)
+                                  return message.error(
+                                    `${cityInput.name} is taken. Try something else`
+                                  );
                                 handleUpdateCity.mutate(cityInput);
                               }}
                             >
@@ -344,7 +368,6 @@ const AddressPage = () => {
                       <Input
                         className={`${
                           city.id !== cityInput.id &&
-                          province.id !== cityInput.province &&
                           "pointer-events-none !border-none !bg-inherit !p-0"
                         }`}
                         defaultValue={city.title}
@@ -375,7 +398,6 @@ const AddressPage = () => {
                           <Input
                             className={`${
                               area.id !== areaInput.id &&
-                              city.id !== areaInput.city &&
                               "pointer-events-none !border-none !bg-inherit !p-0"
                             }`}
                             defaultValue={area.title}
@@ -404,6 +426,22 @@ const AddressPage = () => {
                                 type="primary"
                                 onClick={(event) => {
                                   event.preventDefault();
+                                  const areaExist = addressTree
+                                    ?.find(
+                                      (Province) => Province.id === province.id
+                                    )
+                                    .children?.find(
+                                      (City) => City.id === city.id
+                                    )
+                                    .children?.find(
+                                      (area) =>
+                                        area.title.toLowerCase() ===
+                                        areaInput.name.toLowerCase()
+                                    );
+                                  if (areaExist)
+                                    return message.error(
+                                      `${areaInput.name} is taken. Try something else`
+                                    );
                                   handleUpdateArea.mutate(areaInput);
                                 }}
                               >
@@ -513,7 +551,7 @@ const AddressPage = () => {
                       <Form.Item className="!mb-0">
                         <Button
                           htmlType="submit"
-                          loading={handleDeleteArea.isLoading}
+                          loading={handleCreateArea.isLoading}
                           type="primary"
                         >
                           Add Area
