@@ -35,7 +35,6 @@ const CreateOrder = () => {
 
   const [selectedUserPhone, setSelectedUserPhone] = useState();
   const [basketItemsStatus, setBasketItemsStatus] = useState(STATUS.idle);
-  const [selectedShippingAddress, setSelectedShippingAddress] = useState(null);
   const [page, setPage] = useState(1);
 
   const [userList, setUserList] = useState([]);
@@ -166,13 +165,6 @@ const CreateOrder = () => {
                   }, 200);
                 }}
                 onSelect={(value) => {
-                  userList &&
-                    setSelectedShippingAddress(
-                      userList
-                        .find((user) => user.phone === value)
-                        ?.addresses?.find((address) => address.is_default)?.id
-                    );
-
                   form.setFieldsValue({
                     shipping_address: userList
                       ?.find((user) => user.phone === value)
@@ -237,9 +229,7 @@ const CreateOrder = () => {
                 loading={userListStatus === "loading" || refetchingUserList}
                 optionFilterProp="children"
                 placeholder="Select Shipping Address"
-                value={selectedShippingAddress}
                 showSearch
-                onSelect={(value) => setSelectedShippingAddress(value)}
               >
                 {userList &&
                   userList
@@ -381,10 +371,10 @@ const CreateOrder = () => {
 
           {!!selectedUserPhone && (
             <CreateShippingModal
+              form={form}
               isCreateShippingOpen={isCreateShippingOpen}
               refetchUserList={refetchUserList}
               setIsCreateShippingOpen={setIsCreateShippingOpen}
-              setSelectedShippingAddress={setSelectedShippingAddress}
               setUserList={setUserList}
               userId={
                 userList?.find((el) => el.phone === selectedUserPhone)?.id

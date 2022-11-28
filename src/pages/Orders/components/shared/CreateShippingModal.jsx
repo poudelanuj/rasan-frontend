@@ -14,10 +14,10 @@ import {
 const CreateShippingModal = ({
   isCreateShippingOpen,
   setIsCreateShippingOpen,
-  setSelectedShippingAddress,
   userId,
   setUserList,
   refetchUserList,
+  form: orderForm,
 }) => {
   const [form] = Form.useForm();
   const [selectedProvince, setSelectedProvince] = useState(null);
@@ -36,8 +36,7 @@ const CreateShippingModal = ({
         setIsCreateShippingOpen(false);
         setUserList((prev) => prev.filter((user) => user.id !== userId));
         refetchUserList();
-        setSelectedShippingAddress(null);
-        setSelectedShippingAddress(data.data.id);
+        orderForm.setFieldsValue({ shipping_address: data.data.id });
       },
       onError: (error) => {
         openErrorNotification(error);
