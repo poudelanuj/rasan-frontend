@@ -15,7 +15,7 @@ const Analytics = () => {
 
   const [address, setAddress] = useState("");
 
-  const { data: addressList, refetch: refetchAddress } = useQuery({
+  const { data: addressList } = useQuery({
     queryFn: getAddresses,
     queryKey: [GET_ADDRESSES],
   });

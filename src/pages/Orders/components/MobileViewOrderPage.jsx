@@ -61,8 +61,9 @@ const MobileViewOrderPage = ({
                         <div className="flex items-center">
                           <Input
                             className={`!bg-inherit !text-black text-right !px-0 font-semibold ${
-                              isProductEditableId !== orderItem.id &&
-                              "!border-none"
+                              isProductEditableId !== orderItem.id
+                                ? "!border-none"
+                                : "!border-blue-400 !pr-2"
                             }`}
                             disabled={isProductEditableId !== orderItem.id}
                             id={orderItem.id}

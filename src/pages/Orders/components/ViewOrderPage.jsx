@@ -505,7 +505,7 @@ const ViewOrderPage = () => {
           onClose={() => setOpenChangePayment(false)}
         />
 
-        {data && (
+        {data && !isMobileView && (
           <Steps
             className={`site-navigation-steps !mb-4 bg-[#F0F2F5] rounded-lg ${
               isMobileView && "!p-4"
@@ -574,17 +574,17 @@ const ViewOrderPage = () => {
           <Spin />
         ) : (
           user && (
-            <div className="flex sm:flex-row flex-col gap-2 pb-4">
+            <div className="flex flex-row sm:pb-4 pb-2">
               <img
                 alt={user.full_name}
-                className="sm:mr-3 sm:h-14 sm:w-14 h-20 w-20 object-cover"
+                className="sm:block hidden sm:mr-3 sm:h-14 sm:w-14 h-20 w-20 object-cover"
                 src={user.profile_picture.thumbnail || rasanDefault}
               />
-              <div className="flex flex-col sm:gap-0 gap-2">
+              <div className="flex flex-col sm:gap-0 gap-1">
                 <div className="font-medium text-lg">
                   {user.full_name || "User"}
                 </div>
-                <div className="flex sm:flex-row flex-col sm:items-center sm:gap-0 gap-2 text-light_text">
+                <div className="flex sm:flex-row flex-col sm:items-center sm:gap-0 gap-1 text-light_text">
                   <div className="flex items-center pr-4">
                     <HomeOutlined className="mr-1" />
                     {user.shop.name}
@@ -603,8 +603,8 @@ const ViewOrderPage = () => {
           )
         )}
 
-        <div className="flex sm:flex-row flex-col sm:!items-center !items-start justify-between w-full">
-          <Space className="mb-4" size="middle">
+        <div className="flex sm:flex-row flex-col !items-start justify-between w-full">
+          <Space className="sm:mb-4 mb-2" size="middle">
             {/* <Tag color={getOrderStatusColor(data?.status)}>
               {data?.status?.replaceAll("_", " ")?.toUpperCase()}
             </Tag> */}
@@ -696,7 +696,7 @@ const ViewOrderPage = () => {
                   </Select>
                 </Form.Item>
 
-                <Form.Item>
+                <Form.Item className="!mb-0">
                   <Button
                     htmlType="submit"
                     loading={onAssignedToUpdate.status === "loading"}
@@ -712,7 +712,7 @@ const ViewOrderPage = () => {
 
         {data && data.payment && (
           <Descriptions
-            className={"mt-6"}
+            className={"sm:mt-6 mt-2"}
             column={isMobileView ? 1 : 3}
             title={
               <Space className="w-full flex sm:flex-row flex-col-reverse sm:!items-center !items-start justify-between">

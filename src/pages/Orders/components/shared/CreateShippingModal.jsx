@@ -36,6 +36,7 @@ const CreateShippingModal = ({
         setIsCreateShippingOpen(false);
         setUserList((prev) => prev.filter((user) => user.id !== userId));
         refetchUserList();
+        setSelectedShippingAddress(null);
         setSelectedShippingAddress(data.data.id);
       },
       onError: (error) => {

@@ -166,8 +166,18 @@ const CreateOrder = () => {
                   }, 200);
                 }}
                 onSelect={(value) => {
-                  setSelectedShippingAddress(null);
-                  form.resetFields(["shipping_address"]);
+                  userList &&
+                    setSelectedShippingAddress(
+                      userList
+                        .find((user) => user.phone === value)
+                        ?.addresses?.find((address) => address.is_default)?.id
+                    );
+
+                  form.setFieldsValue({
+                    shipping_address: userList
+                      ?.find((user) => user.phone === value)
+                      ?.addresses?.find((address) => address.is_default)?.id,
+                  });
                   setSelectedUserPhone(value);
                 }}
               >
