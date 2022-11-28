@@ -1,7 +1,6 @@
-import { nanoid } from "nanoid";
-import { DeleteOutlined, MinusOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Form, Input, Select, Space, Table } from "antd";
-import { useState, useEffect } from "react";
+import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import { Input, Select, Table } from "antd";
+import { useState } from "react";
 import { useMutation, useQuery } from "react-query";
 import { isEmpty } from "lodash";
 import {
@@ -16,7 +15,6 @@ import {
 import { getAllProductSkus } from "../../../../api/products/productSku";
 import { GET_ALL_PRODUCT_SKUS } from "../../../../constants/queryKeys";
 import { STATUS } from "../../../../constants";
-import ButtonWPermission from "../../../../shared/ButtonWPermission";
 import { useAuth } from "../../../../AuthProvider";
 import MobileViewOrderPage from "../MobileViewOrderPage";
 
@@ -25,15 +23,12 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
 
   const { basket_id } = user;
 
-  const [selectedProductSku, setSelectedSku] = useState();
+  const [selectedProductSku, setSelectedProductSku] = useState();
 
-  const [forms, setForms] = useState([
-    {
-      id: nanoid(),
-      product_pack: null,
-      quantity: 1,
-    },
-  ]);
+  const [form, setForm] = useState({
+    product_pack: null,
+    quantity: 1,
+  });
 
   const {
     data: basketData,
@@ -46,13 +41,48 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
     enabled: !!basket_id,
   });
 
+  // *********** FORM ************ //
+  const { data: productSkus, status: productsStatus } = useQuery({
+    queryFn: () => getAllProductSkus(),
+    queryKey: [GET_ALL_PRODUCT_SKUS],
+  });
+
+  // *********** FORM ************ //
+  const handleBasketSubmit = useMutation(
+    ({ product_pack, quantity }) =>
+      addBasketItem({
+        product_pack: product_pack?.id,
+        number_of_packs: quantity,
+        basket: basket_id,
+      }),
+    {
+      onSuccess: (data) => {
+        openSuccessNotification(data.message || "Item Added");
+        setSelectedProductSku(null);
+        setBasketItemsStatus(STATUS.success);
+        setForm({
+          product_pack: null,
+          quantity: 1,
+        });
+      },
+      onError: (error) => {
+        openErrorNotification(error);
+      },
+      onSettled: () => {
+        refetchBasketItems();
+      },
+    }
+  );
+
   const dataSource = basketData?.items?.map(
     ({ id, number_of_packs, product_pack, product_sku }) => {
       const productPack = product_sku.product_packs.find(
         (item) => item.id === product_pack
       );
 
-      const pricePerPiece = productPack?.price_per_piece;
+      const pricePerPiece = product_sku.product.includes_vat
+        ? (productPack?.price_per_piece / 1.13).toFixed(2)
+        : productPack?.price_per_piece;
 
       const numberOfPacks = number_of_packs;
       const numberOfItemsPerPack = productPack?.number_of_items;
@@ -66,10 +96,11 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
         productName: product_sku?.name,
         quantity: numberOfPacks,
         packSize: numberOfItemsPerPack,
-        price: pricePerPiece,
-        total: pricePerPiece * numberOfPacks * numberOfItemsPerPack,
         loyaltyPoints: loyaltyPointsPerPack * numberOfPacks,
         cashback: cashbackPerPack * numberOfPacks,
+        price: pricePerPiece,
+        hasVat: product_sku.product.includes_vat,
+        total: pricePerPiece * numberOfPacks * numberOfItemsPerPack,
       };
     }
   );
@@ -91,123 +122,192 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
       title: "Product Name",
       dataIndex: "productName",
       key: "productName",
+      width: "20%",
+      render: (text) => {
+        return text === "isForm" ? (
+          <Select
+            loading={productsStatus === "loading"}
+            placeholder="Select Product SKU"
+            showSearch
+            onSelect={(value) => {
+              setSelectedProductSku(value);
+              setForm({
+                ...form,
+                product_pack: productSkus.find((item) => item.slug === value)
+                  ?.product_packs[0],
+              });
+            }}
+          >
+            {productSkus &&
+              productSkus.map((item) => (
+                <Select.Option key={item.slug} value={item.slug}>
+                  {item.name}
+                </Select.Option>
+              ))}
+          </Select>
+        ) : (
+          <>{text}</>
+        );
+      },
     },
     {
       title: "Quantity",
       dataIndex: "quantity",
       key: "quantity",
+      width: "12%",
+      render: (text) => {
+        return text === "isForm" ? (
+          <>
+            <Input
+              className="w-20"
+              placeholder="Quantity"
+              type="number"
+              value={form?.quantity}
+              onChange={(e) => {
+                e.key !== "." && setForm({ ...form, quantity: e.target.value });
+              }}
+              onKeyDown={(event) => event.key === "." && event.preventDefault()}
+            />
+            <span
+              className={`${
+                form.quantity < 0 ? "block" : "hidden"
+              } absolute text-xs text-red-600`}
+            >
+              Negative value not allowed
+            </span>
+          </>
+        ) : (
+          <>{text}</>
+        );
+      },
     },
     {
       title: "Pack Size",
       dataIndex: "packSize",
       key: "packSize",
-    },
-    {
-      title: "Price",
-      dataIndex: "price",
-      key: "price",
-      render: (text) => <>Rs. {text}/pc</>,
-    },
-    {
-      title: "Total",
-      dataIndex: "total",
-      key: "total",
-      render: (text) => <>Rs. {text}</>,
+      width: "12%",
+      render: (text) => {
+        return text === "isForm" ? (
+          <Select
+            key={selectedProductSku}
+            defaultValue={
+              productSkus &&
+              productSkus.find((item) => item.slug === selectedProductSku)
+                ?.product_packs[0].id
+            }
+            placeholder="Select Pack Size"
+            showSearch
+            onSelect={(value) => {
+              setForm({
+                ...form,
+                product_pack: productSkus
+                  .find((item) => item.slug === selectedProductSku)
+                  ?.product_packs?.find((pack) => pack.id === value),
+              });
+            }}
+          >
+            {productSkus &&
+              productSkus
+                .find((item) => item.slug === selectedProductSku)
+                ?.product_packs?.map((pack) => (
+                  <Select.Option key={pack.id} value={pack.id}>
+                    {pack.number_of_items}
+                  </Select.Option>
+                ))}
+          </Select>
+        ) : (
+          <>{text}</>
+        );
+      },
     },
     {
       title: "Loyalty Points",
       dataIndex: "loyaltyPoints",
       key: "loyaltyPoints",
+      width: "12%",
+      render: (text) => {
+        return text === "isForm" ? (
+          <span>
+            {parseInt(
+              form?.product_pack?.loyalty_cashback?.loyalty_points_per_pack,
+              10
+            ) * form?.quantity || 0}
+          </span>
+        ) : (
+          <>{text}</>
+        );
+      },
     },
     {
       title: "Cashback",
       dataIndex: "cashback",
       key: "cashback",
-      render: (text) => <>Rs. {text}</>,
+      width: "12%",
+      render: (text) => (
+        <>
+          Rs.{" "}
+          {text === "isForm"
+            ? parseInt(
+                form?.product_pack?.loyalty_cashback?.cashback_amount_per_pack,
+                10
+              ) * form?.quantity || 0
+            : text}
+        </>
+      ),
+    },
+    {
+      title: "Price",
+      dataIndex: "price",
+      key: "price",
+      width: "12%",
+      render: (text) => (
+        <>
+          Rs. {text === "isForm" ? form?.product_pack?.price_per_piece : text}
+          /pc
+        </>
+      ),
+    },
+    {
+      title: "Tax",
+      dataIndex: "hasVat",
+      key: "hasVat",
+      width: "7%",
+      render: (_, { hasVat }) => <>{hasVat ? "13%" : ""}</>,
+    },
+    {
+      title: "Total",
+      dataIndex: "total",
+      key: "total",
+      width: "12%",
+      render: (text) => (
+        <>
+          Rs.{" "}
+          {text === "isForm"
+            ? form?.product_pack?.price_per_piece *
+                form?.product_pack?.number_of_items *
+                form?.quantity || 0
+            : text}
+        </>
+      ),
     },
     {
       title: "Action",
       dataIndex: "action",
       key: "action",
-      render: (_, { id }) => (
+      render: (text, { id }) => (
         <div>
-          <DeleteOutlined
-            className="mx-3"
-            onClick={() => handleItemDelete.mutate(id)}
-          />
+          {text === "isForm" ? (
+            <PlusOutlined
+              className="cursor-pointer"
+              onClick={() => handleBasketSubmit.mutate(form)}
+            />
+          ) : (
+            <DeleteOutlined onClick={() => handleItemDelete.mutate(id)} />
+          )}
         </div>
       ),
     },
   ];
-
-  // *********** FORM ************ //
-  const { data: productSkus, status: productsStatus } = useQuery({
-    queryFn: () => getAllProductSkus(),
-    queryKey: [GET_ALL_PRODUCT_SKUS],
-  });
-
-  // *********** FORM ************ //
-  const handleBasketSubmit = useMutation(
-    () =>
-      Promise.all(
-        forms
-          .filter((item) => item.product_pack !== null)
-          .map((form) =>
-            addBasketItem({
-              product_pack: form.product_pack?.id,
-              number_of_packs: form.quantity,
-              basket: basket_id,
-            })
-          )
-      ),
-    {
-      onSuccess: (data) => {
-        openSuccessNotification(data.message || "Item Added");
-        setForms([
-          {
-            id: nanoid(),
-            product_pack: null,
-            quantity: 1,
-          },
-        ]);
-        setSelectedSku(null);
-        setBasketItemsStatus(STATUS.success);
-      },
-      onError: (error) => {
-        openErrorNotification(error);
-      },
-      onSettled: () => {
-        refetchBasketItems();
-      },
-    }
-  );
-
-  // *********** FORM ************ //
-  const getTotalAmount = (formId) => {
-    const basketForm = forms.find((item) => item.id === formId);
-    const productPack = basketForm?.product_pack;
-
-    return (
-      productPack?.price_per_piece *
-      productPack?.number_of_items *
-      basketForm?.quantity
-    );
-  };
-
-  const handleAddForm = () => {
-    const newId = nanoid();
-    setForms((prev) => [
-      ...prev,
-      { id: newId, product_pack: null, quantity: 1 },
-    ]);
-  };
-
-  useEffect(() => {
-    if (forms[0]?.product_pack !== null)
-      setBasketItemsStatus(STATUS.processing);
-    else setBasketItemsStatus(STATUS.idle);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [forms]);
 
   return (
     <div className="my-4">
@@ -221,263 +321,73 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
           orderItems={dataSource}
         />
       ) : (
-        <Table
-          columns={columns}
-          dataSource={dataSource || []}
-          loading={isBasketItemsRefetching || basketDataStatus === "loading"}
-          scroll={{ x: isEmpty(dataSource) && !isMobileView ? null : 1000 }}
-        />
-      )}
-
-      <hr className="my-5" />
-      <h2 className="font-medium text-base mb-5">Add Item</h2>
-
-      {forms?.map((basketForm, index) => (
-        <Form
-          key={basketForm.id}
-          className="w-full flex sm:flex-row flex-col sm:!items-end gap-2 !mb-2"
-          layout={isMobileView ? "horizontal" : "vertical"}
-        >
-          <Form.Item
-            className="sm:w-auto w-full !mb-0"
-            label={!isMobileView && index === 0 && "Product SKU"}
-          >
-            <Select
-              className="sm:!w-[200px]"
-              loading={productsStatus === "loading"}
-              placeholder="Select Product SKU"
-              showSearch
-              onSelect={(value) => {
-                setSelectedSku(value);
-                setForms((prev) => {
-                  const productPack = productSkus.find(
-                    (item) => item.slug === value
-                  )?.product_packs[0];
-
-                  const temp = [...prev];
-                  const index = prev.findIndex(
-                    (item) => item.id === basketForm.id
-                  );
-                  temp[index]["product_pack"] = productPack;
-                  return temp;
-                });
-              }}
-            >
-              {productSkus &&
-                productSkus.map((item) => (
-                  <Select.Option key={item.slug} value={item.slug}>
-                    {item.name}
-                  </Select.Option>
-                ))}
-            </Select>
-          </Form.Item>
-          <Form.Item
-            className="sm:w-auto w-full !mb-0"
-            label={!isMobileView && index === 0 && "Pack Size"}
-            tooltip="Select Pack Size"
-          >
-            <Select
-              key={selectedProductSku}
-              className="sm:!w-36"
-              defaultValue={
-                productSkus &&
-                productSkus.find((item) => item.slug === selectedProductSku)
-                  ?.product_packs[0].id
-              }
-              placeholder="Select Pack Size"
-              showSearch
-              onSelect={(value) => {
-                setForms((prev) => {
-                  const productPack = productSkus
-                    .find((item) => item.slug === selectedProductSku)
-                    ?.product_packs?.find((pack) => pack.id === value);
-
-                  const temp = [...prev];
-                  const index = prev.findIndex(
-                    (item) => item.id === basketForm.id
-                  );
-                  temp[index]["product_pack"] = productPack;
-                  return temp;
-                });
-              }}
-            >
-              {productSkus &&
-                productSkus
-                  .find((item) => item.slug === selectedProductSku)
-                  ?.product_packs?.map((pack) => (
-                    <Select.Option key={pack.id} value={pack.id}>
-                      {pack.number_of_items}
-                    </Select.Option>
-                  ))}
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            className="sm:w-auto w-full relative !mb-0"
-            label={!isMobileView && index === 0 && "Quantity"}
-            name="quantity"
-          >
-            <Input
-              addonBefore={isMobileView && "Quantity"}
-              className="sm:!w-20"
-              placeholder="Quantity"
-              type="number"
-              value={forms.find((item) => item.id === basketForm.id)?.quantity}
-              onChange={(e) => {
-                e.key !== "." &&
-                  setForms((prev) => {
-                    const temp = [...prev];
-                    const index = prev.findIndex(
-                      (item) => item.id === basketForm.id
-                    );
-                    temp[index]["quantity"] = e.target.value;
-                    return temp;
-                  });
-              }}
-              onKeyDown={(event) => event.key === "." && event.preventDefault()}
-            />
-            <span
-              className={`${
-                forms[forms.findIndex((item) => item.id === basketForm.id)]
-                  .quantity < 0
-                  ? "block"
-                  : "hidden"
-              } absolute text-xs text-red-600`}
-            >
-              Negative value not allowed
-            </span>
-          </Form.Item>
-
-          <Form.Item
-            className="sm:w-auto w-full !mb-0"
-            label={!isMobileView && index === 0 && "Price Per Piece"}
-          >
-            <Input
-              addonBefore={isMobileView && "Price Per Piece"}
-              className="!bg-inherit !text-black"
-              placeholder="Price"
-              type="number"
-              value={
-                forms.find((item) => item.id === basketForm.id)?.product_pack
-                  ?.price_per_piece
-              }
-              disabled
-            />
-          </Form.Item>
-
-          <Form.Item
-            className="sm:w-auto w-full !mb-0"
-            label={!isMobileView && index === 0 && "Total Amount"}
-          >
-            <Input
-              addonBefore={isMobileView && "Total Amount"}
-              className="!bg-inherit !text-black"
-              placeholder="Total amount"
-              type="number"
-              value={getTotalAmount(basketForm.id)}
-              disabled
-            />
-          </Form.Item>
-
-          <Form.Item
-            className="sm:w-auto w-full !mb-0"
-            label={!isMobileView && index === 0 && "Loyalty"}
-          >
-            <Input
-              addonBefore={isMobileView && "Loyalty"}
-              className="!bg-inherit !text-black"
-              placeholder="Loyalty points"
-              type="number"
-              value={
-                parseInt(
-                  forms.find((item) => item.id === basketForm.id)?.product_pack
-                    ?.loyalty_cashback?.loyalty_points_per_pack,
-                  10
-                ) * forms.find((item) => item.id === basketForm.id)?.quantity
-              }
-              disabled
-            />
-          </Form.Item>
-
-          <Form.Item
-            className="sm:w-auto w-full !mb-0"
-            label={!isMobileView && index === 0 && "Cashback"}
-          >
-            <Input
-              addonBefore={isMobileView && "Cashback"}
-              className="!bg-inherit !text-black"
-              placeholder="Cashback"
-              type="number"
-              value={
-                parseInt(
-                  forms.find((item) => item.id === basketForm.id)?.product_pack
-                    ?.loyalty_cashback?.cashback_amount_per_pack,
-                  10
-                ) * forms.find((item) => item.id === basketForm.id)?.quantity
-              }
-              disabled
-            />
-          </Form.Item>
-
-          <Form.Item className="sm:!mb-0">
-            {index + 1 === forms.length ? (
-              <ButtonWPermission
-                codename="add_basketitem"
-                disabled={forms.some(({ quantity }) => quantity < 0)}
-                icon={<PlusOutlined />}
-                type="primary"
-                onClick={handleAddForm}
-              />
-            ) : (
-              <Button
-                icon={<MinusOutlined />}
-                type="ghost"
-                onClick={() =>
-                  setForms((prev) => {
-                    let temp = [...prev];
-                    temp = temp.filter((item) => item.id !== basketForm.id);
-                    return temp;
-                  })
-                }
-              />
-            )}
-          </Form.Item>
-        </Form>
-      ))}
-
-      <div className="w-full flex sm:justify-end justify-start">
-        <Space>
-          <Button
-            size="middle"
-            type="danger"
-            onClick={() => {
-              setForms([
+        <>
+          <Table
+            columns={columns}
+            dataSource={
+              (dataSource && [
+                ...dataSource,
                 {
-                  id: nanoid(),
-                  product_pack: null,
-                  quantity: 1,
+                  productName: "isForm",
+                  quantity: "isForm",
+                  packSize: "isForm",
+                  price: "isForm",
+                  total: "isForm",
+                  loyaltyPoints: "isForm",
+                  cashback: "isForm",
+                  action: "isForm",
                 },
-              ]);
-            }}
-          >
-            Clear
-          </Button>
-
-          <ButtonWPermission
-            codename="add_basketitem"
-            disabled={
-              forms[0]?.product_pack === null ||
-              forms.some(({ quantity }) => quantity < 0)
+              ]) ||
+              []
             }
-            loading={handleBasketSubmit.status === "loading"}
-            size="middle"
-            type="primary"
-            onClick={() => handleBasketSubmit.mutate()}
-          >
-            Save Items To Basket
-          </ButtonWPermission>
-        </Space>
-      </div>
+            loading={isBasketItemsRefetching || basketDataStatus === "loading"}
+            pagination={false}
+            scroll={{ x: isEmpty(dataSource) && !isMobileView ? null : 1000 }}
+          />
+
+          <div className="w-full flex flex-col gap-2 items-end mt-2 text-sm">
+            <span className=" flex gap-10">
+              <span>SubTotal</span>
+              <span>
+                Rs.{" "}
+                {parseFloat(
+                  dataSource?.reduce((prev, curr) => prev + curr.total, 0)
+                ).toFixed(2)}
+              </span>
+            </span>
+            <span className="flex gap-10">
+              <span>Tax (13%)</span>
+              <span>
+                Rs.{" "}
+                {parseFloat(
+                  dataSource?.reduce((prev, curr) => {
+                    if (curr.hasVat) return prev + curr.price;
+                    return prev;
+                  }, 0)
+                ).toFixed(2)}
+              </span>
+            </span>
+
+            <span className="flex gap-10">
+              <span>Total</span>
+              <span>
+                Rs.{" "}
+                {(
+                  parseFloat(
+                    dataSource?.reduce((prev, curr) => prev + curr.total, 0)
+                  ) +
+                  parseFloat(
+                    dataSource?.reduce((prev, curr) => {
+                      if (curr.hasVat) return prev + curr.price;
+                      return prev;
+                    }, 0)
+                  )
+                ).toFixed(2)}
+              </span>
+            </span>
+          </div>
+        </>
+      )}
     </div>
   );
 };

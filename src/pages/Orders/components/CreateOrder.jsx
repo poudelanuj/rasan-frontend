@@ -23,6 +23,7 @@ import {
 } from "../../../utils/openNotification";
 import CreateShippingModal from "./shared/CreateShippingModal";
 import CreateUserModal from "./shared/CreateUserModal";
+import MobileOrderBasket from "./shared/MobileOrderBasket";
 import UserBasket from "./shared/UserBasket";
 
 const CreateOrder = () => {
@@ -35,7 +36,6 @@ const CreateOrder = () => {
 
   const [selectedUserPhone, setSelectedUserPhone] = useState();
   const [basketItemsStatus, setBasketItemsStatus] = useState(STATUS.idle);
-  const [selectedShippingAddress, setSelectedShippingAddress] = useState(null);
   const [page, setPage] = useState(1);
 
   const [userList, setUserList] = useState([]);
@@ -166,8 +166,11 @@ const CreateOrder = () => {
                   }, 200);
                 }}
                 onSelect={(value) => {
-                  setSelectedShippingAddress(null);
-                  form.resetFields(["shipping_address"]);
+                  form.setFieldsValue({
+                    shipping_address: userList
+                      ?.find((user) => user.phone === value)
+                      ?.addresses?.find((address) => address.is_default)?.id,
+                  });
                   setSelectedUserPhone(value);
                 }}
               >
@@ -227,9 +230,7 @@ const CreateOrder = () => {
                 loading={userListStatus === "loading" || refetchingUserList}
                 optionFilterProp="children"
                 placeholder="Select Shipping Address"
-                value={selectedShippingAddress}
                 showSearch
-                onSelect={(value) => setSelectedShippingAddress(value)}
               >
                 {userList &&
                   userList
@@ -237,8 +238,8 @@ const CreateOrder = () => {
                     ?.addresses?.map((address) => (
                       <Option key={address.id} value={address.id}>{`${
                         address.detail_address || ""
-                      } ${address.area.name} - ${address.city.name}, ${
-                        address.province.name
+                      } ${address.area?.name} - ${address.city?.name}, ${
+                        address.province?.name
                       }`}</Option>
                     ))}
               </Select>
@@ -335,12 +336,18 @@ const CreateOrder = () => {
 
           {!!selectedUserPhone &&
             userList &&
-            userList.find((el) => el.phone === selectedUserPhone) && (
+            userList.find((el) => el.phone === selectedUserPhone) &&
+            (isMobileView ? (
+              <MobileOrderBasket
+                setBasketItemsStatus={setBasketItemsStatus}
+                user={userList.find((el) => el.phone === selectedUserPhone)}
+              />
+            ) : (
               <UserBasket
                 setBasketItemsStatus={setBasketItemsStatus}
                 user={userList.find((el) => el.phone === selectedUserPhone)}
               />
-            )}
+            ))}
 
           <div className="w-full flex justify-end">
             <ButtonWPermission
@@ -371,10 +378,10 @@ const CreateOrder = () => {
 
           {!!selectedUserPhone && (
             <CreateShippingModal
+              form={form}
               isCreateShippingOpen={isCreateShippingOpen}
               refetchUserList={refetchUserList}
               setIsCreateShippingOpen={setIsCreateShippingOpen}
-              setSelectedShippingAddress={setSelectedShippingAddress}
               setUserList={setUserList}
               userId={
                 userList?.find((el) => el.phone === selectedUserPhone)?.id
