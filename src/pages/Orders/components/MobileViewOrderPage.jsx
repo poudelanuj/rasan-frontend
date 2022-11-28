@@ -10,6 +10,7 @@ const MobileViewOrderPage = ({
   deleteMutation,
   refetchOrderItems,
   orderId,
+  isCreate,
 }) => {
   const [isProductEditableId, setIsProductEditableId] = useState(null);
 
@@ -57,7 +58,7 @@ const MobileViewOrderPage = ({
                         {startCase(item === "id" ? item.toUpperCase() : item)}
                       </span>
 
-                      {item === "price" ? (
+                      {item === "price" && !isCreate ? (
                         <div className="flex items-center">
                           <Input
                             className={`!bg-inherit !text-black text-right !px-0 font-semibold ${
@@ -87,12 +88,14 @@ const MobileViewOrderPage = ({
                       ) : (
                         <span className="font-semibold">
                           {(() => {
-                            return item === "total"
-                              ? productPriceEditVal?.find(
-                                  (product) => product.id === orderItem.id
-                                )?.price *
-                                  orderItem.numberOfItemsPerPack *
-                                  orderItem.numberOfPacks
+                            return item === "total" && !isCreate
+                              ? parseFloat(
+                                  productPriceEditVal?.find(
+                                    (product) => product.id === orderItem.id
+                                  )?.price *
+                                    orderItem.numberOfItemsPerPack *
+                                    orderItem.numberOfPacks
+                                ).toFixed(2)
                               : orderItem[item];
                           })()}
                         </span>
@@ -101,7 +104,6 @@ const MobileViewOrderPage = ({
                   )
               )}
             </div>
-
             <Button
               className="!rounded-lg text-sm px-3 mr-3"
               danger
@@ -109,50 +111,50 @@ const MobileViewOrderPage = ({
             >
               <span>Delete</span>
             </Button>
+            {!isCreate &&
+              (isProductEditableId === orderItem.id ? (
+                <span className="inline-flex items-center gap-3">
+                  <Button
+                    className="!rounded-lg text-sm px-3"
+                    type="primary"
+                    onClick={() =>
+                      handleItemUpdate.mutate({
+                        orderId,
+                        itemId: isProductEditableId,
+                        data: {
+                          price_per_piece: productPriceEditVal?.find(
+                            (product) => product.id === isProductEditableId
+                          )?.price,
+                        },
+                      })
+                    }
+                  >
+                    Save
+                  </Button>
 
-            {isProductEditableId === orderItem.id ? (
-              <span className="inline-flex items-center gap-3">
+                  <Button
+                    className="!rounded-lg text-sm px-3"
+                    onClick={() => {
+                      setIsProductEditableId(null);
+                      setProductPriceEditVal(
+                        orderItems?.map(({ id, price }) => ({
+                          id,
+                          price,
+                        }))
+                      );
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </span>
+              ) : (
                 <Button
                   className="!rounded-lg text-sm px-3"
-                  type="primary"
-                  onClick={() =>
-                    handleItemUpdate.mutate({
-                      orderId,
-                      itemId: isProductEditableId,
-                      data: {
-                        price_per_piece: productPriceEditVal?.find(
-                          (product) => product.id === isProductEditableId
-                        )?.price,
-                      },
-                    })
-                  }
+                  onClick={() => setIsProductEditableId(orderItem.id)}
                 >
-                  Save
+                  Edit
                 </Button>
-
-                <Button
-                  className="!rounded-lg text-sm px-3"
-                  onClick={() => {
-                    setIsProductEditableId(null);
-                    setProductPriceEditVal(
-                      orderItems?.map(({ id, price }) => ({
-                        id,
-                        price,
-                      }))
-                    );
-                  }}
-                >
-                  Cancel
-                </Button>
-              </span>
-            ) : (
-              <Button
-                className="!rounded-lg text-sm px-3"
-                onClick={() => setIsProductEditableId(orderItem.id)}
-              >
-                Edit
-              </Button>
-            )}
+              ))}
 
             <Divider
               className={`bg-slate-300 ${

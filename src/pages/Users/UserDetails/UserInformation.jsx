@@ -180,13 +180,7 @@ const UserInformation = ({ user }) => {
                 <Form.Item label="Alternative Number" name="alternate_number">
                   <Input addonBefore="+977" type="number" />
                 </Form.Item>
-                <Form.Item
-                  label="Date of Birth"
-                  name="date_of_birth"
-                  rules={[
-                    { required: true, message: "Please provide date of birth" },
-                  ]}
-                >
+                <Form.Item label="Date of Birth" name="date_of_birth">
                   <DatePicker format={"YYYY-MM-DD"} />
                 </Form.Item>
 

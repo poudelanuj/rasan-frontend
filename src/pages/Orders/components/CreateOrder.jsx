@@ -23,6 +23,7 @@ import {
 } from "../../../utils/openNotification";
 import CreateShippingModal from "./shared/CreateShippingModal";
 import CreateUserModal from "./shared/CreateUserModal";
+import MobileOrderBasket from "./shared/MobileOrderBasket";
 import UserBasket from "./shared/UserBasket";
 
 const CreateOrder = () => {
@@ -335,12 +336,18 @@ const CreateOrder = () => {
 
           {!!selectedUserPhone &&
             userList &&
-            userList.find((el) => el.phone === selectedUserPhone) && (
+            userList.find((el) => el.phone === selectedUserPhone) &&
+            (isMobileView ? (
+              <MobileOrderBasket
+                setBasketItemsStatus={setBasketItemsStatus}
+                user={userList.find((el) => el.phone === selectedUserPhone)}
+              />
+            ) : (
               <UserBasket
                 setBasketItemsStatus={setBasketItemsStatus}
                 user={userList.find((el) => el.phone === selectedUserPhone)}
               />
-            )}
+            ))}
 
           <div className="w-full flex justify-end">
             <ButtonWPermission

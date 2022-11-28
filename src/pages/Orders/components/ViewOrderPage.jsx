@@ -21,6 +21,7 @@ import {
   ExclamationCircleOutlined,
   EditOutlined,
   CloseCircleOutlined,
+  PlusOutlined,
 } from "@ant-design/icons";
 import { BsCheckCircleFill } from "react-icons/bs";
 import { useMutation, useQuery } from "react-query";
@@ -198,7 +199,9 @@ const ViewOrderPage = () => {
 
   const dataSource = data?.items?.map(
     ({ id, number_of_packs, product_pack }) => {
-      const pricePerPiece = product_pack?.price_per_piece;
+      const pricePerPiece = product_pack.product_sku.product.includes_vat
+        ? (product_pack.product_sku?.price_per_piece / 1.13).toFixed(2)
+        : product_pack.product_sku?.price_per_piece;
 
       const numberOfPacks = number_of_packs;
       const numberOfItemsPerPack = product_pack?.number_of_items;
@@ -213,6 +216,7 @@ const ViewOrderPage = () => {
         quantity: numberOfPacks,
         packSize: numberOfItemsPerPack,
         price: pricePerPiece,
+        hasVat: product_pack.product_sku.product.includes_vat,
         total: pricePerPiece * numberOfPacks * numberOfItemsPerPack,
         loyaltyPoints: loyaltyPointsPerPack * numberOfPacks,
         cashback: cashbackPerPack * numberOfPacks,
@@ -295,124 +299,268 @@ const ViewOrderPage = () => {
       title: "Product Name",
       dataIndex: "productName",
       key: "productName",
+      width: "20%",
+      render: (text) =>
+        text === "isForm" ? (
+          <Select
+            placeholder="Select Product SKU"
+            showSearch
+            onSelect={(value) => {
+              setSelectedSku(value);
+              setSelectedPack(
+                productSkus &&
+                  productSkus.find((item) => item.slug === value)
+                    ?.product_packs[0]
+              );
+              setQuantity(1);
+            }}
+          >
+            {productSkus &&
+              productSkus.map((item) => (
+                <Select.Option key={item.slug} value={item.slug}>
+                  {item.name}
+                </Select.Option>
+              ))}
+          </Select>
+        ) : (
+          <>{text}</>
+        ),
     },
     {
       title: "Quantity",
       dataIndex: "quantity",
       key: "quantity",
+      width: "12%",
+      render: (text) =>
+        text === "isForm" ? (
+          <>
+            <Input
+              placeholder="Quantity"
+              type="number"
+              value={quantity}
+              onChange={(e) => {
+                setQuantity(e.target.value);
+              }}
+            />
+            <span
+              className={`${
+                quantity < 0 ? "block" : "hidden"
+              } absolute text-xs text-red-600`}
+            >
+              Negative value not allowed
+            </span>
+          </>
+        ) : (
+          <>{text}</>
+        ),
     },
     {
       title: "Pack Size",
       dataIndex: "packSize",
       key: "packSize",
-    },
-    {
-      title: "Price (per piece)",
-      dataIndex: "price",
-      key: "price",
-      render: (_, { id }) => (
-        <div className="flex items-center">
-          <span>Rs.</span>
-          <Input
-            className={`!bg-inherit !text-black !w-24 ${
-              isProductEditableId !== id && "!border-none"
-            }`}
-            disabled={isProductEditableId !== id}
-            id={id}
-            name="price"
-            value={
-              productPriceEditVal?.find((product) => product.id === id)?.price
+      width: "12%",
+      render: (text) =>
+        text === "isForm" ? (
+          <Select
+            key={selectedProductSku}
+            defaultValue={
+              productSkus &&
+              productSkus.find((item) => item.slug === selectedProductSku)
+                ?.product_packs[0].id
             }
-            onChange={(event) => {
-              const { id, name, value } = event.target;
-              setProductPriceEditVal((prev) =>
-                prev.map((product) => ({
-                  ...product,
-                  [Number(id) === product.id && name]: value,
-                }))
-              );
-            }}
-          />
-        </div>
-      ),
-    },
-    {
-      title: "Total",
-      dataIndex: "total",
-      key: "total",
-      render: (_, { id, numberOfItemsPerPack, numberOfPacks }) => (
-        <>
-          Rs.{" "}
-          {productPriceEditVal?.find((product) => product.id === id)?.price *
-            numberOfItemsPerPack *
-            numberOfPacks}
-        </>
-      ),
+            placeholder="Select Pack Size"
+            showSearch
+            onSelect={(value) =>
+              setSelectedPack(
+                productSkus &&
+                  productSkus
+                    .find((item) => item.slug === selectedProductSku)
+                    ?.product_packs?.find((pack) => pack.id === value)
+              )
+            }
+          >
+            {productSkus &&
+              productSkus
+                .find((item) => item.slug === selectedProductSku)
+                ?.product_packs?.map((pack) => (
+                  <Select.Option key={pack.id} value={pack.id}>
+                    {pack.number_of_items}
+                  </Select.Option>
+                ))}
+          </Select>
+        ) : (
+          <>{text}</>
+        ),
     },
     {
       title: "Loyalty Points",
       dataIndex: "loyaltyPoints",
       key: "loyaltyPoints",
+      width: "12%",
+      render: (text) =>
+        text === "isForm" ? (
+          <span>
+            {parseInt(
+              selectedProductPack?.loyalty_cashback?.loyalty_points_per_pack,
+              10
+            ) * quantity || 0}
+          </span>
+        ) : (
+          <>{text}</>
+        ),
     },
     {
       title: "Cashback",
       dataIndex: "cashback",
       key: "cashback",
-      render: (text) => <>Rs. {text}</>,
+      width: "12%",
+      render: (text) =>
+        text === "isForm" ? (
+          <span>
+            Rs.{" "}
+            {parseInt(
+              selectedProductPack?.loyalty_cashback?.cashback_amount_per_pack,
+              10
+            ) * quantity || 0}
+          </span>
+        ) : (
+          <>Rs. {text}</>
+        ),
     },
+    {
+      title: "Price",
+      dataIndex: "price",
+      key: "price",
+      width: "12%",
+      render: (text, { id, hasVat }) =>
+        text === "isForm" ? (
+          <span>Rs. {selectedProductPack?.price_per_piece || 0}</span>
+        ) : (
+          <div className="flex items-center">
+            <span>Rs.</span>
+            <Input
+              className={`!bg-inherit !text-black !w-24 ${
+                isProductEditableId !== id && "!border-none"
+              }`}
+              disabled={isProductEditableId !== id}
+              id={id}
+              name="price"
+              value={
+                hasVat
+                  ? parseFloat(
+                      productPriceEditVal?.find((product) => product.id === id)
+                        ?.price / 1.13
+                    ).toFixed(2)
+                  : parseFloat(
+                      productPriceEditVal?.find((product) => product.id === id)
+                        ?.price
+                    ).toFixed(2)
+              }
+              onChange={(event) => {
+                const { id, name, value } = event.target;
+                setProductPriceEditVal((prev) =>
+                  prev.map((product) => ({
+                    ...product,
+                    [Number(id) === product.id && name]: value,
+                  }))
+                );
+              }}
+            />
+          </div>
+        ),
+    },
+    {
+      title: "Tax",
+      dataIndex: "hasVat",
+      key: "hasVat",
+      width: "7%",
+      render: (_, { hasVat }) => <>{hasVat ? "13%" : ""}</>,
+    },
+    {
+      title: "Total",
+      dataIndex: "total",
+      key: "total",
+      width: "12%",
+      render: (text, { id, numberOfItemsPerPack, numberOfPacks, hasVat }) =>
+        text === "isForm" ? (
+          <span>Rs. {getTotalAmount() || 0}</span>
+        ) : (
+          <>
+            Rs.{" "}
+            {parseFloat(
+              (hasVat
+                ? parseFloat(
+                    productPriceEditVal?.find((product) => product.id === id)
+                      ?.price / 1.13
+                  ).toFixed(2)
+                : productPriceEditVal?.find((product) => product.id === id)
+                    ?.price) *
+                numberOfItemsPerPack *
+                numberOfPacks
+            ).toFixed(2)}
+          </>
+        ),
+    },
+
     {
       title: "Action",
       dataIndex: "action",
       key: "action",
       width: "12%",
-      render: (_, { id }) => (
-        <div className="inline-flex items-center gap-3">
-          <DeleteOutlined
+      render: (text, { id }) =>
+        text === "isForm" ? (
+          <PlusOutlined
             className="cursor-pointer"
-            onClick={() => handleItemDelete.mutate(id)}
+            onClick={() => handleAddItem.mutate()}
           />
-
-          {isProductEditableId === id ? (
-            <span className="inline-flex items-center gap-3">
-              <Button
-                size="small"
-                type="primary"
-                onClick={() =>
-                  handleItemUpdate.mutate({
-                    orderId,
-                    itemId: isProductEditableId,
-                    data: {
-                      price_per_piece: productPriceEditVal?.find(
-                        (product) => product.id === isProductEditableId
-                      )?.price,
-                    },
-                  })
-                }
-              >
-                Save
-              </Button>
-
-              <CloseCircleOutlined
-                className="cursor-pointer"
-                onClick={() => {
-                  setIsProductEditableId(null);
-                  setProductPriceEditVal(
-                    data?.items?.map(({ id, product_pack }) => ({
-                      id,
-                      price: product_pack?.price_per_piece,
-                    }))
-                  );
-                }}
-              />
-            </span>
-          ) : (
-            <EditOutlined
+        ) : (
+          <div className="inline-flex items-center gap-3">
+            <DeleteOutlined
               className="cursor-pointer"
-              onClick={() => setIsProductEditableId(id)}
+              onClick={() => handleItemDelete.mutate(id)}
             />
-          )}
-        </div>
-      ),
+
+            {isProductEditableId === id ? (
+              <span className="inline-flex items-center gap-3">
+                <Button
+                  size="small"
+                  type="primary"
+                  onClick={() =>
+                    handleItemUpdate.mutate({
+                      orderId,
+                      itemId: isProductEditableId,
+                      data: {
+                        price_per_piece: productPriceEditVal?.find(
+                          (product) => product.id === isProductEditableId
+                        )?.price,
+                      },
+                    })
+                  }
+                >
+                  Save
+                </Button>
+
+                <CloseCircleOutlined
+                  className="cursor-pointer"
+                  onClick={() => {
+                    setIsProductEditableId(null);
+                    setProductPriceEditVal(
+                      data?.items?.map(({ id, product_pack }) => ({
+                        id,
+                        price: product_pack?.price_per_piece,
+                      }))
+                    );
+                  }}
+                />
+              </span>
+            ) : (
+              <EditOutlined
+                className="cursor-pointer"
+                onClick={() => setIsProductEditableId(id)}
+              />
+            )}
+          </div>
+        ),
     },
   ];
 
@@ -801,192 +949,264 @@ const ViewOrderPage = () => {
               refetchOrderItems={refetchOrderItems}
             />
           ) : (
-            <Table
-              columns={columns}
-              dataSource={dataSource || []}
-              scroll={{ x: isEmpty(dataSource) && !isMobileView ? null : 1000 }}
-            />
+            <>
+              <Table
+                columns={columns}
+                dataSource={
+                  (dataSource && [
+                    ...dataSource,
+                    {
+                      productName: "isForm",
+                      quantity: "isForm",
+                      packSize: "isForm",
+                      price: "isForm",
+                      total: "isForm",
+                      loyaltyPoints: "isForm",
+                      cashback: "isForm",
+                      action: "isForm",
+                    },
+                  ]) ||
+                  []
+                }
+                pagination={false}
+                scroll={{
+                  x: isEmpty(dataSource) && !isMobileView ? null : 1000,
+                }}
+              />
+
+              <div className="w-full flex flex-col gap-2 items-end mt-2 text-sm">
+                <span className=" flex gap-10">
+                  <span>SubTotal</span>
+                  <span>
+                    Rs.{" "}
+                    {parseFloat(
+                      dataSource?.reduce((prev, curr) => prev + curr.total, 0)
+                    ).toFixed(2)}
+                  </span>
+                </span>
+                <span className="flex gap-10">
+                  <span>Tax (13%)</span>
+                  <span>
+                    Rs.{" "}
+                    {parseFloat(
+                      dataSource?.reduce((prev, curr) => {
+                        if (curr.hasVat) return prev + curr.price;
+                        return prev;
+                      }, 0)
+                    ).toFixed(2)}
+                  </span>
+                </span>
+
+                <span className="flex gap-10">
+                  <span>Total</span>
+                  <span>
+                    Rs.{" "}
+                    {(
+                      parseFloat(
+                        dataSource?.reduce((prev, curr) => prev + curr.total, 0)
+                      ) +
+                      parseFloat(
+                        dataSource?.reduce((prev, curr) => {
+                          if (curr.hasVat) return prev + curr.price;
+                          return prev;
+                        }, 0)
+                      )
+                    ).toFixed(2)}
+                  </span>
+                </span>
+              </div>
+            </>
           ))}
 
-        <hr className="my-5" />
-        <h2 className="font-medium text-base mb-5">Add Item</h2>
+        {isMobileView && (
+          <>
+            <hr className="my-5" />
+            <h2 className="font-medium text-base mb-5">Add Item</h2>
 
-        {(handleAddItem.status === "loading" ||
-          productsStatus === "loading") && (
-          <Spin className="mb-5 flex justify-center" />
-        )}
+            {(handleAddItem.status === "loading" ||
+              productsStatus === "loading") && (
+              <Spin className="mb-5 flex justify-center" />
+            )}
 
-        {handleAddItem.status !== "loading" && productsStatus === "success" && (
-          <Form
-            className="w-full flex sm:flex-row flex-col !items-start gap-2"
-            layout={isMobileView ? "horizontal" : "vertical"}
-          >
-            <Form.Item
-              className="sm:w-auto w-full !mb-0"
-              label={!isMobileView && "Product SKU"}
-            >
-              <Select
-                className="sm:!w-[200px]"
-                placeholder="Select Product SKU"
-                showSearch
-                onSelect={(value) => {
-                  setSelectedSku(value);
-                  setSelectedPack(
-                    productSkus &&
-                      productSkus.find((item) => item.slug === value)
-                        ?.product_packs[0]
-                  );
-                  setQuantity(1);
-                }}
-              >
-                {productSkus &&
-                  productSkus.map((item) => (
-                    <Select.Option key={item.slug} value={item.slug}>
-                      {item.name}
-                    </Select.Option>
-                  ))}
-              </Select>
-            </Form.Item>
-            <Form.Item
-              className="sm:w-auto w-full !mb-0 !flex"
-              label={!isMobileView && "Pack Size"}
-              tooltip="Select Pack Size"
-            >
-              <Select
-                key={selectedProductSku}
-                className="sm:!w-36"
-                defaultValue={
-                  productSkus &&
-                  productSkus.find((item) => item.slug === selectedProductSku)
-                    ?.product_packs[0].id
-                }
-                placeholder="Select Pack Size"
-                showSearch
-                onSelect={(value) =>
-                  setSelectedPack(
-                    productSkus &&
-                      productSkus
-                        .find((item) => item.slug === selectedProductSku)
-                        ?.product_packs?.find((pack) => pack.id === value)
-                  )
-                }
-              >
-                {productSkus &&
-                  productSkus
-                    .find((item) => item.slug === selectedProductSku)
-                    ?.product_packs?.map((pack) => (
-                      <Select.Option key={pack.id} value={pack.id}>
-                        {pack.number_of_items}
-                      </Select.Option>
-                    ))}
-              </Select>
-            </Form.Item>
+            {handleAddItem.status !== "loading" &&
+              productsStatus === "success" && (
+                <Form
+                  className="w-full flex sm:flex-row flex-col !items-start gap-2"
+                  layout={isMobileView ? "horizontal" : "vertical"}
+                >
+                  <Form.Item
+                    className="sm:w-auto w-full !mb-0"
+                    label={!isMobileView && "Product SKU"}
+                  >
+                    <Select
+                      className="sm:!w-[200px]"
+                      placeholder="Select Product SKU"
+                      showSearch
+                      onSelect={(value) => {
+                        setSelectedSku(value);
+                        setSelectedPack(
+                          productSkus &&
+                            productSkus.find((item) => item.slug === value)
+                              ?.product_packs[0]
+                        );
+                        setQuantity(1);
+                      }}
+                    >
+                      {productSkus &&
+                        productSkus.map((item) => (
+                          <Select.Option key={item.slug} value={item.slug}>
+                            {item.name}
+                          </Select.Option>
+                        ))}
+                    </Select>
+                  </Form.Item>
+                  <Form.Item
+                    className="sm:w-auto w-full !mb-0 !flex"
+                    label={!isMobileView && "Pack Size"}
+                    tooltip="Select Pack Size"
+                  >
+                    <Select
+                      key={selectedProductSku}
+                      className="sm:!w-36"
+                      defaultValue={
+                        productSkus &&
+                        productSkus.find(
+                          (item) => item.slug === selectedProductSku
+                        )?.product_packs[0].id
+                      }
+                      placeholder="Select Pack Size"
+                      showSearch
+                      onSelect={(value) =>
+                        setSelectedPack(
+                          productSkus &&
+                            productSkus
+                              .find((item) => item.slug === selectedProductSku)
+                              ?.product_packs?.find((pack) => pack.id === value)
+                        )
+                      }
+                    >
+                      {productSkus &&
+                        productSkus
+                          .find((item) => item.slug === selectedProductSku)
+                          ?.product_packs?.map((pack) => (
+                            <Select.Option key={pack.id} value={pack.id}>
+                              {pack.number_of_items}
+                            </Select.Option>
+                          ))}
+                    </Select>
+                  </Form.Item>
 
-            <Form.Item
-              className="sm:w-auto w-full relative !mb-0"
-              label={!isMobileView && "Quantity"}
-              name="quantity"
-            >
-              <Input
-                addonBefore={isMobileView && "Quantity"}
-                className="sm:!w-20 "
-                placeholder="Quantity"
-                type="number"
-                value={quantity}
-                onChange={(e) => {
-                  setQuantity(e.target.value);
-                }}
-              />
-              <span
-                className={`${
-                  quantity < 0 ? "block" : "hidden"
-                } absolute text-xs text-red-600`}
-              >
-                Negative value not allowed
-              </span>
-            </Form.Item>
+                  <Form.Item
+                    className="sm:w-auto w-full relative !mb-0"
+                    label={!isMobileView && "Quantity"}
+                    name="quantity"
+                  >
+                    <Input
+                      addonBefore={isMobileView && "Quantity"}
+                      className="sm:!w-20 "
+                      placeholder="Quantity"
+                      type="number"
+                      value={quantity}
+                      onChange={(e) => {
+                        setQuantity(e.target.value);
+                      }}
+                    />
+                    <span
+                      className={`${
+                        quantity < 0 ? "block" : "hidden"
+                      } absolute text-xs text-red-600`}
+                    >
+                      Negative value not allowed
+                    </span>
+                  </Form.Item>
 
-            <Form.Item
-              className="sm:w-auto w-full !mb-0"
-              label={!isMobileView && "Price Per Piece"}
-            >
-              <Input
-                addonBefore={isMobileView && "Price Per Piece"}
-                className="!bg-inherit !text-black"
-                placeholder="Price"
-                type="number"
-                value={selectedProductPack?.price_per_piece}
-                disabled
-              />
-            </Form.Item>
+                  <Form.Item
+                    className="sm:w-auto w-full !mb-0"
+                    label={!isMobileView && "Price Per Piece"}
+                  >
+                    <Input
+                      addonBefore={isMobileView && "Price Per Piece"}
+                      className="!bg-inherit !text-black"
+                      placeholder="Price"
+                      type="number"
+                      value={selectedProductPack?.price_per_piece}
+                      disabled
+                    />
+                  </Form.Item>
 
-            <Form.Item
-              className="sm:w-auto w-full !mb-0"
-              label={!isMobileView && "Total Amount"}
-            >
-              <Input
-                addonBefore={isMobileView && "Total Amount"}
-                className="!bg-inherit !text-black"
-                placeholder="Total amount"
-                type="number"
-                value={getTotalAmount()}
-                disabled
-              />
-            </Form.Item>
+                  <Form.Item
+                    className="sm:w-auto w-full !mb-0"
+                    label={!isMobileView && "Total Amount"}
+                  >
+                    <Input
+                      addonBefore={isMobileView && "Total Amount"}
+                      className="!bg-inherit !text-black"
+                      placeholder="Total amount"
+                      type="number"
+                      value={getTotalAmount()}
+                      disabled
+                    />
+                  </Form.Item>
 
-            <Form.Item
-              className="sm:w-auto w-full !mb-0"
-              label={!isMobileView && "Loyalty"}
-            >
-              <Input
-                addonBefore={isMobileView && "Loyalty"}
-                className="!bg-inherit !text-black"
-                placeholder="Loyalty points"
-                type="number"
-                value={
-                  parseInt(
-                    selectedProductPack?.loyalty_cashback
-                      ?.loyalty_points_per_pack,
-                    10
-                  ) * quantity
-                }
-                disabled
-              />
-            </Form.Item>
+                  <Form.Item
+                    className="sm:w-auto w-full !mb-0"
+                    label={!isMobileView && "Loyalty"}
+                  >
+                    <Input
+                      addonBefore={isMobileView && "Loyalty"}
+                      className="!bg-inherit !text-black"
+                      placeholder="Loyalty points"
+                      type="number"
+                      value={
+                        parseInt(
+                          selectedProductPack?.loyalty_cashback
+                            ?.loyalty_points_per_pack,
+                          10
+                        ) * quantity
+                      }
+                      disabled
+                    />
+                  </Form.Item>
 
-            <Form.Item
-              className="sm:w-auto w-full !mb-0"
-              label={!isMobileView && "Cashback"}
-            >
-              <Input
-                addonBefore={isMobileView && "Cashback"}
-                className="!bg-inherit !text-black"
-                placeholder="Cashback"
-                type="number"
-                value={
-                  parseInt(
-                    selectedProductPack?.loyalty_cashback
-                      ?.cashback_amount_per_pack,
-                    10
-                  ) * quantity
-                }
-                disabled
-              />
-            </Form.Item>
+                  <Form.Item
+                    className="sm:w-auto w-full !mb-0"
+                    label={!isMobileView && "Cashback"}
+                  >
+                    <Input
+                      addonBefore={isMobileView && "Cashback"}
+                      className="!bg-inherit !text-black"
+                      placeholder="Cashback"
+                      type="number"
+                      value={
+                        parseInt(
+                          selectedProductPack?.loyalty_cashback
+                            ?.cashback_amount_per_pack,
+                          10
+                        ) * quantity
+                      }
+                      disabled
+                    />
+                  </Form.Item>
 
-            <Form.Item>
-              <Button
-                className="bg-blue-500 sm:!mt-[30px]"
-                disabled={
-                  !(selectedProductPack && selectedProductSku && quantity > 0)
-                }
-                type="primary"
-                onClick={() => handleAddItem.mutate()}
-              >
-                Add Item
-              </Button>
-            </Form.Item>
-          </Form>
+                  <Form.Item>
+                    <Button
+                      className="bg-blue-500 sm:!mt-[30px]"
+                      disabled={
+                        !(
+                          selectedProductPack &&
+                          selectedProductSku &&
+                          quantity > 0
+                        )
+                      }
+                      type="primary"
+                      onClick={() => handleAddItem.mutate()}
+                    >
+                      Add Item
+                    </Button>
+                  </Form.Item>
+                </Form>
+              )}
+          </>
         )}
       </div>
     </>
