@@ -21,11 +21,16 @@ export const getAllBrands = async () => {
   return res.data.data.results;
 };
 
-export const getPaginatedBrands = async (page, pageSize, search) => {
+export const getPaginatedBrands = async (
+  page,
+  pageSize,
+  search,
+  isPublished
+) => {
   const res = await axios.get(
     `/api/product/admin/brands/?page=${page || 1}&size=${
       pageSize || 20
-    }&search=${search || ""}`
+    }&search=${search || ""}&is_published=${isPublished}`
   );
   return res.data.data;
 };

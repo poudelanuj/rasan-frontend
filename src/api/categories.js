@@ -21,11 +21,16 @@ export const getAllCategories = async () => {
   return res.data.data.results;
 };
 
-export const getPaginatedCategories = async (page, pageSize, search) => {
+export const getPaginatedCategories = async (
+  page,
+  pageSize,
+  search,
+  isPublished
+) => {
   const res = await axios.get(
     `/api/product/admin/categories/?page=${page || 1}&size=${
       pageSize || 20
-    }&search=${search || ""}`
+    }&search=${search || ""}&is_published=${isPublished}`
   );
   return res.data.data;
 };

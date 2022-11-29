@@ -11,6 +11,7 @@ import {
   Tag,
   Steps,
   Modal,
+  message,
 } from "antd";
 import axios from "../../../axios";
 import {
@@ -228,9 +229,10 @@ const ViewOrderPage = () => {
 
   useEffect(() => {
     setProductPriceEditVal(
-      data?.items?.map(({ id, product_pack }) => ({
+      data?.items?.map(({ id, product_pack, number_of_packs }) => ({
         id,
         price: product_pack?.price_per_piece,
+        number_of_packs,
       }))
     );
   }, [data]);
@@ -331,7 +333,7 @@ const ViewOrderPage = () => {
       dataIndex: "quantity",
       key: "quantity",
       width: "12%",
-      render: (text) =>
+      render: (text, { id }) =>
         text === "isForm" ? (
           <>
             <Input
@@ -351,7 +353,28 @@ const ViewOrderPage = () => {
             </span>
           </>
         ) : (
-          <>{text}</>
+          <Input
+            className={`!bg-inherit !text-black !w-24 ${
+              isProductEditableId !== id && "!border-none"
+            }`}
+            disabled={isProductEditableId !== id}
+            id={id}
+            name="number_of_packs"
+            value={
+              productPriceEditVal?.find((product) => product.id === id)
+                ?.number_of_packs
+            }
+            onChange={(event) => {
+              const { id, name, value } = event.target;
+              if (value < 0) message.error("Negative values not allowed");
+              setProductPriceEditVal((prev) =>
+                prev.map((product) => ({
+                  ...product,
+                  [Number(id) === product.id && name]: value,
+                }))
+              );
+            }}
+          />
         ),
     },
     {
@@ -496,7 +519,8 @@ const ViewOrderPage = () => {
                 : productPriceEditVal?.find((product) => product.id === id)
                     ?.price) *
                 numberOfItemsPerPack *
-                numberOfPacks
+                productPriceEditVal?.find((product) => product.id === id)
+                  ?.number_of_packs
             ).toFixed(2)}
           </>
         ),
@@ -525,7 +549,13 @@ const ViewOrderPage = () => {
                 <Button
                   size="small"
                   type="primary"
-                  onClick={() =>
+                  onClick={() => {
+                    if (
+                      productPriceEditVal?.find(
+                        (product) => product.id === isProductEditableId
+                      )?.number_of_packs < 0
+                    )
+                      return message.error("Negative values not allowed");
                     handleItemUpdate.mutate({
                       orderId,
                       itemId: isProductEditableId,
@@ -533,9 +563,12 @@ const ViewOrderPage = () => {
                         price_per_piece: productPriceEditVal?.find(
                           (product) => product.id === isProductEditableId
                         )?.price,
+                        number_of_packs: productPriceEditVal?.find(
+                          (product) => product.id === isProductEditableId
+                        )?.number_of_packs,
                       },
-                    })
-                  }
+                    });
+                  }}
                 >
                   Save
                 </Button>
@@ -545,10 +578,13 @@ const ViewOrderPage = () => {
                   onClick={() => {
                     setIsProductEditableId(null);
                     setProductPriceEditVal(
-                      data?.items?.map(({ id, product_pack }) => ({
-                        id,
-                        price: product_pack?.price_per_piece,
-                      }))
+                      data?.items?.map(
+                        ({ id, product_pack, number_of_packs }) => ({
+                          id,
+                          price: product_pack?.price_per_piece,
+                          number_of_packs,
+                        })
+                      )
                     );
                   }}
                 />

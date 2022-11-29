@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Pagination, Select, Spin } from "antd";
+import { Pagination, Select, Spin, Tabs } from "antd";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 
 import Alert from "../../../shared/Alert";
@@ -39,9 +39,11 @@ const CategoryList = () => {
   const [selectedCategorySlug, setSelectedCategorySlug] = useState(""); // * For Edit
 
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
+  const [pageSize, setPageSize] = useState(50);
   const [categories, setCategories] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
+
+  const [isPublished, setIsPublished] = useState(true);
 
   let timeout = 0;
 
@@ -51,8 +53,13 @@ const CategoryList = () => {
     refetch: refetchCategories,
     isRefetching,
   } = useQuery(
-    [GET_PAGINATED_CATEGORIES, page.toString() + pageSize.toString()],
-    () => getPaginatedCategories(page, pageSize, searchText.current)
+    [
+      GET_PAGINATED_CATEGORIES,
+      page.toString() + pageSize.toString(),
+      isPublished,
+    ],
+    () =>
+      getPaginatedCategories(page, pageSize, searchText.current, isPublished)
   );
 
   useEffect(() => {
@@ -65,7 +72,7 @@ const CategoryList = () => {
   useEffect(() => {
     refetchCategories();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize]);
+  }, [page, pageSize, isPublished]);
 
   const handleBulkPublish = useMutation(
     ({ slugs, isPublish }) => bulkPublish({ slugs, isPublish }),
@@ -246,29 +253,65 @@ const CategoryList = () => {
             </ButtonWPermission>
           </div>
         </div>
+
         {categories && (
           <>
-            <div className="grid gap-8 grid-cols-[repeat(auto-fill,_minmax(200px,_1fr))]">
-              {categories.map((category, index) => (
-                <CategoryWidget
-                  key={category.slug}
-                  completeLink={`/category-list/${category.slug}`}
-                  editClick={() => {
-                    setIsEditCategoryOpen(true);
-                    setSelectedCategorySlug(category.slug);
-                  }}
-                  id={index + 1}
-                  image={
-                    category.category_image.thumbnail || DEFAULT_RASAN_IMAGE
-                  }
-                  is_published={category.is_published}
-                  selectedCategories={selectedCategories}
-                  setSelectedCategories={setSelectedCategories}
-                  slug={category.slug}
-                  title={category.name}
-                />
-              ))}
-            </div>
+            <Tabs
+              defaultActiveKey="published"
+              onTabClick={(key) => {
+                setPage(1);
+                setIsPublished(key === "published");
+              }}
+            >
+              <Tabs.TabPane key="published" tab="Published">
+                <div className="grid gap-8 grid-cols-[repeat(auto-fill,_minmax(200px,_1fr))]">
+                  {categories.map((category, index) => (
+                    <CategoryWidget
+                      key={category.slug}
+                      completeLink={`/category-list/${category.slug}`}
+                      editClick={() => {
+                        setIsEditCategoryOpen(true);
+                        setSelectedCategorySlug(category.slug);
+                      }}
+                      id={index + 1}
+                      image={
+                        category.category_image.thumbnail || DEFAULT_RASAN_IMAGE
+                      }
+                      is_published={category.is_published}
+                      selectedCategories={selectedCategories}
+                      setSelectedCategories={setSelectedCategories}
+                      slug={category.slug}
+                      title={category.name}
+                    />
+                  ))}
+                </div>
+              </Tabs.TabPane>
+
+              <Tabs.TabPane key="unpublished" tab="Unpublished">
+                <div className="grid gap-8 grid-cols-[repeat(auto-fill,_minmax(200px,_1fr))]">
+                  {categories.map((category, index) => (
+                    <CategoryWidget
+                      key={category.slug}
+                      completeLink={`/category-list/${category.slug}`}
+                      editClick={() => {
+                        setIsEditCategoryOpen(true);
+                        setSelectedCategorySlug(category.slug);
+                      }}
+                      id={index + 1}
+                      image={
+                        category.category_image.thumbnail || DEFAULT_RASAN_IMAGE
+                      }
+                      is_published={category.is_published}
+                      selectedCategories={selectedCategories}
+                      setSelectedCategories={setSelectedCategories}
+                      slug={category.slug}
+                      title={category.name}
+                    />
+                  ))}
+                </div>
+              </Tabs.TabPane>
+            </Tabs>
+
             <div className="flex justify-end bg-white w-full mt-10">
               <Pagination
                 current={page}

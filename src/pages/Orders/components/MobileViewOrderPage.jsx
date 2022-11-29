@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useState } from "react";
 import { useMutation } from "react-query";
-import { Button, Divider, Input } from "antd";
+import { Button, Divider, Input, message } from "antd";
 import { startCase } from "lodash";
 import { updateOrderItem } from "../../../api/orders";
 import { openSuccessNotification, openErrorNotification } from "../../../utils";
@@ -18,9 +18,10 @@ const MobileViewOrderPage = ({
 
   useEffect(() => {
     setProductPriceEditVal(
-      orderItems?.map(({ id, price }) => ({
+      orderItems?.map(({ id, price, quantity }) => ({
         id,
         price,
+        number_of_packs: quantity,
       }))
     );
   }, [orderItems]);
@@ -55,7 +56,13 @@ const MobileViewOrderPage = ({
                       className="flex items-center justify-between text-sm p-2 rounded-lg odd:bg-gray-100"
                     >
                       <span>
-                        {startCase(item === "id" ? item.toUpperCase() : item)}
+                        {startCase(
+                          item === "id"
+                            ? item.toUpperCase()
+                            : item === "hasVat"
+                            ? "Tax"
+                            : item
+                        )}
                       </span>
 
                       {item === "price" && !isCreate ? (
@@ -85,6 +92,33 @@ const MobileViewOrderPage = ({
                             }}
                           />
                         </div>
+                      ) : item === "quantity" && !isCreate ? (
+                        <div className="flex items-center">
+                          <Input
+                            className={`!bg-inherit !text-black text-right !px-0 font-semibold ${
+                              isProductEditableId !== orderItem.id
+                                ? "!border-none"
+                                : "!border-blue-400 !pr-2"
+                            }`}
+                            disabled={isProductEditableId !== orderItem.id}
+                            id={orderItem.id}
+                            name="number_of_packs"
+                            value={
+                              productPriceEditVal?.find(
+                                (product) => product.id === orderItem.id
+                              )?.number_of_packs
+                            }
+                            onChange={(event) => {
+                              const { id, name, value } = event.target;
+                              setProductPriceEditVal((prev) =>
+                                prev.map((product) => ({
+                                  ...product,
+                                  [Number(id) === product.id && name]: value,
+                                }))
+                              );
+                            }}
+                          />
+                        </div>
                       ) : (
                         <span className="font-semibold">
                           {(() => {
@@ -94,8 +128,12 @@ const MobileViewOrderPage = ({
                                     (product) => product.id === orderItem.id
                                   )?.price *
                                     orderItem.numberOfItemsPerPack *
-                                    orderItem.numberOfPacks
+                                    productPriceEditVal?.find(
+                                      (product) => product.id === orderItem.id
+                                    )?.number_of_packs
                                 ).toFixed(2)
+                              : item === "hasVat" && orderItem["hasVat"]
+                              ? "13%"
                               : orderItem[item];
                           })()}
                         </span>
@@ -117,7 +155,13 @@ const MobileViewOrderPage = ({
                   <Button
                     className="!rounded-lg text-sm px-3"
                     type="primary"
-                    onClick={() =>
+                    onClick={() => {
+                      if (
+                        productPriceEditVal?.find(
+                          (product) => product.id === isProductEditableId
+                        )?.number_of_packs < 0
+                      )
+                        return message.error("Negative values not allowed");
                       handleItemUpdate.mutate({
                         orderId,
                         itemId: isProductEditableId,
@@ -125,9 +169,12 @@ const MobileViewOrderPage = ({
                           price_per_piece: productPriceEditVal?.find(
                             (product) => product.id === isProductEditableId
                           )?.price,
+                          number_of_packs: productPriceEditVal?.find(
+                            (product) => product.id === isProductEditableId
+                          )?.number_of_packs,
                         },
-                      })
-                    }
+                      });
+                    }}
                   >
                     Save
                   </Button>
@@ -137,9 +184,10 @@ const MobileViewOrderPage = ({
                     onClick={() => {
                       setIsProductEditableId(null);
                       setProductPriceEditVal(
-                        orderItems?.map(({ id, price }) => ({
+                        orderItems?.map(({ id, price, quantity }) => ({
                           id,
                           price,
+                          number_of_packs: quantity,
                         }))
                       );
                     }}

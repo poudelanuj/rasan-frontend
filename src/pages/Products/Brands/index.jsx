@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import { uniqBy } from "lodash";
-import { Pagination, Select, Spin } from "antd";
+import { Pagination, Select, Spin, Tabs } from "antd";
 import { SearchOutlined, LoadingOutlined } from "@ant-design/icons";
 
 import CategoryWidget from "../categories/shared/CategoryWidget";
@@ -35,9 +35,10 @@ function BrandsScreen() {
   const [selectedBrandSlug, setSelectedBrandSlug] = useState(""); // * For Edit
 
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
+  const [pageSize, setPageSize] = useState(50);
   const [paginatedBrands, setPaginatedBrands] = useState([]);
   const [selectedBrands, setSelectedBrands] = useState([]);
+  const [isPublished, setIsPublished] = useState(true);
 
   const searchText = useRef();
 
@@ -49,8 +50,8 @@ function BrandsScreen() {
     refetch: refetchBrands,
     isRefetching,
   } = useQuery(
-    [GET_PAGINATED_BRANDS, page.toString() + pageSize.toString()],
-    () => getPaginatedBrands(page, pageSize, searchText.current)
+    [GET_PAGINATED_BRANDS, page.toString() + pageSize.toString(), isPublished],
+    () => getPaginatedBrands(page, pageSize, searchText.current, isPublished)
   );
 
   useEffect(() => {
@@ -63,7 +64,7 @@ function BrandsScreen() {
   useEffect(() => {
     refetchBrands();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize]);
+  }, [page, pageSize, isPublished]);
 
   const queryClient = useQueryClient();
 
@@ -242,25 +243,58 @@ function BrandsScreen() {
             </ButtonWPermission>
           </div>
         </div>
-        <div className="grid gap-8 grid-cols-[repeat(auto-fill,_minmax(200px,_1fr))]">
-          {paginatedBrands.map((brand, index) => (
-            <CategoryWidget
-              key={brand.slug}
-              completeLink={`/brands/${brand.slug}`}
-              editClick={() => {
-                setIsEditBrandOpen(true);
-                setSelectedBrandSlug(brand.slug);
-              }}
-              id={brand.sn}
-              image={brand.brand_image.thumbnail || DEFAULT_RASAN_IMAGE}
-              is_published={brand.is_published}
-              selectedCategories={selectedBrands}
-              setSelectedCategories={setSelectedBrands}
-              slug={brand.slug}
-              title={brand.name}
-            />
-          ))}
-        </div>
+
+        <Tabs
+          defaultActiveKey="published"
+          onTabClick={(key) => {
+            setPage(1);
+            setIsPublished(key === "published");
+          }}
+        >
+          <Tabs.TabPane key="published" tab="Published">
+            <div className="grid gap-8 grid-cols-[repeat(auto-fill,_minmax(200px,_1fr))]">
+              {paginatedBrands.map((brand, index) => (
+                <CategoryWidget
+                  key={brand.slug}
+                  completeLink={`/brands/${brand.slug}`}
+                  editClick={() => {
+                    setIsEditBrandOpen(true);
+                    setSelectedBrandSlug(brand.slug);
+                  }}
+                  id={brand.sn}
+                  image={brand.brand_image.thumbnail || DEFAULT_RASAN_IMAGE}
+                  is_published={brand.is_published}
+                  selectedCategories={selectedBrands}
+                  setSelectedCategories={setSelectedBrands}
+                  slug={brand.slug}
+                  title={brand.name}
+                />
+              ))}
+            </div>
+          </Tabs.TabPane>
+
+          <Tabs.TabPane key="unpublished" tab="Unublished">
+            <div className="grid gap-8 grid-cols-[repeat(auto-fill,_minmax(200px,_1fr))]">
+              {paginatedBrands.map((brand, index) => (
+                <CategoryWidget
+                  key={brand.slug}
+                  completeLink={`/brands/${brand.slug}`}
+                  editClick={() => {
+                    setIsEditBrandOpen(true);
+                    setSelectedBrandSlug(brand.slug);
+                  }}
+                  id={brand.sn}
+                  image={brand.brand_image.thumbnail || DEFAULT_RASAN_IMAGE}
+                  is_published={brand.is_published}
+                  selectedCategories={selectedBrands}
+                  setSelectedCategories={setSelectedBrands}
+                  slug={brand.slug}
+                  title={brand.name}
+                />
+              ))}
+            </div>
+          </Tabs.TabPane>
+        </Tabs>
         <div className="flex justify-end bg-white w-full mt-10">
           <Pagination
             current={page}
