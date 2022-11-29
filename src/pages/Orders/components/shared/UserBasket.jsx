@@ -345,7 +345,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
             scroll={{ x: isEmpty(dataSource) && !isMobileView ? null : 1000 }}
           />
 
-          <div className="w-full px-[8.9%] flex flex-col gap-2 items-end mt-2 text-sm">
+          <div className="w-full px-[9.5%] flex flex-col gap-2 items-end mt-2 text-sm">
             <span className="flex gap-10">
               <span>SubTotal</span>
               <span>
