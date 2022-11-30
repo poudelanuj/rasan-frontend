@@ -33,7 +33,9 @@ const AddressPage = () => {
 
   const [isCreateAddressOpen, setIsCreateAddressOpen] = useState(false);
 
-  const [activePanel, setActivePanel] = useState([]);
+  const [activeProvincePanel, setActiveProvincePanel] = useState([]);
+
+  const [activeCityPanel, setActiveCityPanel] = useState([]);
 
   const [provinceInput, setProvinceInput] = useState({ id: null, name: "" });
 
@@ -182,11 +184,14 @@ const AddressPage = () => {
         addressTree.map((province) => (
           <Collapse
             key={province.key}
-            activeKey={activePanel}
+            activeKey={activeProvincePanel}
             destroyInactivePanel
-            onChange={(key) =>
-              key.length >= 2 ? setActivePanel(key[1]) : setActivePanel(key)
-            }
+            onChange={(key) => {
+              key.length >= 2
+                ? setActiveProvincePanel(key[1])
+                : setActiveProvincePanel(key);
+              cityForm.resetFields();
+            }}
           >
             <Panel
               key={province.key}
@@ -282,7 +287,17 @@ const AddressPage = () => {
               }
             >
               {province.children.map((city) => (
-                <Collapse key={city.key}>
+                <Collapse
+                  key={city.key}
+                  activeKey={activeCityPanel}
+                  destroyInactivePanel
+                  onChange={(key) => {
+                    key.length >= 2
+                      ? setActiveCityPanel(key[1])
+                      : setActiveCityPanel(key);
+                    areaForm.resetFields();
+                  }}
+                >
                   <Panel
                     key={city.key}
                     className="mb-4"

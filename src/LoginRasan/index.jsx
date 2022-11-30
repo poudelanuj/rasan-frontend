@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useMutation, useQueryClient } from "react-query";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthProvider";
+import OtpInput from "otp-input-react";
 import { GET_USER_GROUPS, GET_USER_GROUPS_BY_ID } from "../constants/queryKeys";
 import { login, otpRequest } from "../context/LoginContext";
 import LoginIcon from "../svgs/LoginIcon";
@@ -60,7 +61,7 @@ const LoginRasan = () => {
       {onOTPReceived ? (
         <Form
           autoComplete="off"
-          className="sm:w-80 w-3/4"
+          className="sm:w-fit w-3/4"
           form={form2}
           initialValues={{
             remember: true,
@@ -85,7 +86,15 @@ const LoginRasan = () => {
               },
             ]}
           >
-            <Input className="h-10 !rounded-lg" type="number" />
+            <OtpInput
+              OTPLength={6}
+              className="flex items-center sm:gap-5 gap-2"
+              disabled={false}
+              inputClassName="sm:!w-[2.7rem] sm:!h-[2.7rem] !w-[2.5rem] !h-[2.5rem] !mx-0 rounded-[4px] border border-[rgba(0,0,0,0.3)]"
+              name="otp"
+              otpType="number"
+              autoFocus
+            />
           </Form.Item>
 
           <Button
