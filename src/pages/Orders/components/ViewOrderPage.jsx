@@ -1010,7 +1010,7 @@ const ViewOrderPage = () => {
                 }}
               />
 
-              <div className="w-full flex flex-col gap-2 items-end mt-2 text-sm">
+              <div className="w-full px-[8.2%] flex flex-col gap-2 items-end mt-2 text-sm">
                 <span className=" flex gap-10">
                   <span>SubTotal</span>
                   <span>

@@ -76,15 +76,7 @@ const LoginRasan = () => {
             label="Enter your OTP"
             name="otp"
             requiredMark="optional"
-            rules={[
-              { required: true, message: "Please provide your OTP pin" },
-              {
-                validator: (_, values) =>
-                  values.length !== 6
-                    ? Promise.reject("Please provide 6 digit OTP pin")
-                    : Promise.resolve(),
-              },
-            ]}
+            rules={[{ required: true, message: "Please provide your OTP pin" }]}
           >
             <OtpInput
               OTPLength={6}
