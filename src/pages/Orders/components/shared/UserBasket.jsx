@@ -80,9 +80,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
         (item) => item.id === product_pack
       );
 
-      const pricePerPiece = product_sku.product.includes_vat
-        ? (productPack?.price_per_piece / 1.13).toFixed(2)
-        : productPack?.price_per_piece;
+      const pricePerPiece = productPack?.price_per_piece;
 
       const numberOfPacks = number_of_packs;
       const numberOfItemsPerPack = productPack?.number_of_items;
@@ -104,6 +102,39 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
       };
     }
   );
+
+  const total = {
+    subTotal: parseFloat(
+      dataSource?.reduce((prev, curr) => {
+        if (curr.hasVat)
+          return (
+            prev +
+            (curr.numberOfItemsPerPack * curr.numberOfPacks * curr.price) / 1.13
+          );
+
+        return (
+          prev + curr.numberOfItemsPerPack * curr.numberOfPacks * curr.price
+        );
+      }, 0)
+    ).toFixed(2),
+
+    tax: parseFloat(
+      dataSource?.reduce((prev, curr) => {
+        if (curr.hasVat)
+          return (
+            prev +
+            ((curr.numberOfItemsPerPack * curr.numberOfPacks * curr.price) /
+              1.13) *
+              0.13
+          );
+        return 0;
+      }, 0)
+    ).toFixed(2),
+
+    getGrandTotal: function () {
+      return (parseFloat(this.subTotal) + parseFloat(this.tax)).toFixed(2);
+    },
+  };
 
   const handleItemDelete = useMutation((itemId) => deleteBasketItem(itemId), {
     onSuccess: (data) => {
@@ -262,10 +293,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
       width: "12%",
       render: (text) => (
         <>
-          Rs.{" "}
-          {text === "isForm"
-            ? parseFloat(form?.product_pack?.price_per_piece).toFixed(2)
-            : parseFloat(text).toFixed(2)}
+          Rs. {text === "isForm" ? form?.product_pack?.price_per_piece : text}
           /pc
         </>
       ),
@@ -286,12 +314,10 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
         <>
           Rs.{" "}
           {text === "isForm"
-            ? parseFloat(
-                form?.product_pack?.price_per_piece *
-                  form?.product_pack?.number_of_items *
-                  form?.quantity || 0
-              ).toFixed(2)
-            : parseFloat(text).toFixed(2)}
+            ? form?.product_pack?.price_per_piece *
+                form?.product_pack?.number_of_items *
+                form?.quantity || 0
+            : text}
         </>
       ),
     },
@@ -353,42 +379,16 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
           <div className="w-full px-[9.5%] flex flex-col gap-2 items-end mt-2 text-sm">
             <span className="flex gap-10">
               <span>SubTotal</span>
-              <span>
-                Rs.{" "}
-                {parseFloat(
-                  dataSource?.reduce((prev, curr) => prev + curr.total, 0)
-                ).toFixed(2)}
-              </span>
+              <span>Rs. {total.subTotal}</span>
             </span>
             <span className="flex gap-10">
               <span>Tax (13%)</span>
-              <span>
-                Rs.{" "}
-                {parseFloat(
-                  dataSource?.reduce((prev, curr) => {
-                    if (curr.hasVat) return prev + curr.total * 0.13;
-                    return 0;
-                  }, 0)
-                ).toFixed(2)}
-              </span>
+              <span>Rs. {total.tax}</span>
             </span>
 
             <span className="flex gap-10">
               <span>Total</span>
-              <span>
-                Rs.{" "}
-                {(
-                  parseFloat(
-                    dataSource?.reduce((prev, curr) => prev + curr.total, 0)
-                  ) +
-                  parseFloat(
-                    dataSource?.reduce((prev, curr) => {
-                      if (curr.hasVat) return prev + curr.total * 0.13;
-                      return 0;
-                    }, 0)
-                  )
-                ).toFixed(2)}
-              </span>
+              <span>Rs. {total.getGrandTotal()}</span>
             </span>
           </div>
         </>

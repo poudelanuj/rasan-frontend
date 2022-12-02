@@ -200,9 +200,7 @@ const ViewOrderPage = () => {
 
   const dataSource = data?.items?.map(
     ({ id, number_of_packs, product_pack }) => {
-      const pricePerPiece = product_pack.product_sku.product.includes_vat
-        ? (product_pack?.price_per_piece / 1.13).toFixed(2)
-        : product_pack?.price_per_piece;
+      const pricePerPiece = product_pack?.price_per_piece;
 
       const numberOfPacks = number_of_packs;
       const numberOfItemsPerPack = product_pack?.number_of_items;
@@ -226,6 +224,39 @@ const ViewOrderPage = () => {
       };
     }
   );
+
+  const total = {
+    subTotal: parseFloat(
+      dataSource?.reduce((prev, curr) => {
+        if (curr.hasVat)
+          return (
+            prev +
+            (curr.numberOfItemsPerPack * curr.numberOfPacks * curr.price) / 1.13
+          );
+
+        return (
+          prev + curr.numberOfItemsPerPack * curr.numberOfPacks * curr.price
+        );
+      }, 0)
+    ).toFixed(2),
+
+    tax: parseFloat(
+      dataSource?.reduce((prev, curr) => {
+        if (curr.hasVat)
+          return (
+            prev +
+            ((curr.numberOfItemsPerPack * curr.numberOfPacks * curr.price) /
+              1.13) *
+              0.13
+          );
+        return 0;
+      }, 0)
+    ).toFixed(2),
+
+    getGrandTotal: function () {
+      return (parseFloat(this.subTotal) + parseFloat(this.tax)).toFixed(2);
+    },
+  };
 
   useEffect(() => {
     setProductPriceEditVal(
@@ -455,7 +486,7 @@ const ViewOrderPage = () => {
       dataIndex: "price",
       key: "price",
       width: "12%",
-      render: (text, { id, hasVat }) =>
+      render: (text, { id }) =>
         text === "isForm" ? (
           <span>Rs. {selectedProductPack?.price_per_piece || 0}</span>
         ) : (
@@ -469,15 +500,7 @@ const ViewOrderPage = () => {
               id={id}
               name="price"
               value={
-                hasVat
-                  ? parseFloat(
-                      productPriceEditVal?.find((product) => product.id === id)
-                        ?.price / 1.13
-                    ).toFixed(2)
-                  : parseFloat(
-                      productPriceEditVal?.find((product) => product.id === id)
-                        ?.price
-                    ).toFixed(2)
+                productPriceEditVal?.find((product) => product.id === id)?.price
               }
               onChange={(event) => {
                 const { id, name, value } = event.target;
@@ -504,22 +527,16 @@ const ViewOrderPage = () => {
       dataIndex: "total",
       key: "total",
       width: "12%",
-      render: (text, { id, numberOfItemsPerPack, numberOfPacks, hasVat }) =>
+      render: (text, { id, numberOfItemsPerPack }) =>
         text === "isForm" ? (
           <span>Rs. {getTotalAmount() || 0}</span>
         ) : (
           <>
             Rs.{" "}
-            {parseFloat(
-              (hasVat
-                ? productPriceEditVal?.find((product) => product.id === id)
-                    ?.price / 1.13
-                : productPriceEditVal?.find((product) => product.id === id)
-                    ?.price) *
-                numberOfItemsPerPack *
-                productPriceEditVal?.find((product) => product.id === id)
-                  ?.number_of_packs
-            ).toFixed(2)}
+            {productPriceEditVal?.find((product) => product.id === id)?.price *
+              numberOfItemsPerPack *
+              productPriceEditVal?.find((product) => product.id === id)
+                ?.number_of_packs}
           </>
         ),
     },
@@ -1011,42 +1028,16 @@ const ViewOrderPage = () => {
               <div className="w-full px-[8.2%] flex flex-col gap-2 items-end mt-2 text-sm">
                 <span className=" flex gap-10">
                   <span>SubTotal</span>
-                  <span>
-                    Rs.{" "}
-                    {parseFloat(
-                      dataSource?.reduce((prev, curr) => prev + curr.total, 0)
-                    ).toFixed(2)}
-                  </span>
+                  <span>Rs. {total.subTotal}</span>
                 </span>
                 <span className="flex gap-10">
                   <span>Tax (13%)</span>
-                  <span>
-                    Rs.{" "}
-                    {parseFloat(
-                      dataSource?.reduce((prev, curr) => {
-                        if (curr.hasVat) return prev + curr.total * 0.13;
-                        return 0;
-                      }, 0)
-                    ).toFixed(2)}
-                  </span>
+                  <span>Rs. {total.tax}</span>
                 </span>
 
                 <span className="flex gap-10">
                   <span>Total</span>
-                  <span>
-                    Rs.{" "}
-                    {(
-                      parseFloat(
-                        dataSource?.reduce((prev, curr) => prev + curr.total, 0)
-                      ) +
-                      parseFloat(
-                        dataSource?.reduce((prev, curr) => {
-                          if (curr.hasVat) return prev + curr.total * 0.13;
-                          return 0;
-                        }, 0)
-                      )
-                    ).toFixed(2)}
-                  </span>
+                  <span>Rs. {total.getGrandTotal()}</span>
                 </span>
               </div>
             </>
