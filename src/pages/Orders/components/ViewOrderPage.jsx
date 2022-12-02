@@ -60,13 +60,10 @@ import { updateOrderStatus } from "../../../context/OrdersContext";
 import { useAuth } from "../../../AuthProvider";
 import { getUser } from "../../../context/UserContext";
 import rasanDefault from "../../../assets/images/rasan-default.png";
-import { getMetaCityAddress } from "../../../api/userAddresses";
-import {
-  GET_ALL_PRODUCT_SKUS,
-  GET_META_CITY_ADDRESS,
-} from "../../../constants/queryKeys";
+import { GET_ALL_PRODUCT_SKUS } from "../../../constants/queryKeys";
 import { getAllProductSkus } from "../../../api/products/productSku";
 import MobileViewOrderPage from "./MobileViewOrderPage";
+import ViewOrderShipping from "./shared/ViewOrderShipping";
 
 const ViewOrderPage = () => {
   const { userGroupIds, isMobileView } = useAuth();
@@ -95,6 +92,8 @@ const ViewOrderPage = () => {
   const [productPriceEditVal, setProductPriceEditVal] = useState([]);
 
   const [isVoucherPreviewVisible, setIsVoucherPreviewVisible] = useState(false);
+
+  const [isViewOrderShippingOpen, setIsViewOrderShippingOpen] = useState(false);
 
   const [page, setPage] = useState(1);
 
@@ -144,15 +143,13 @@ const ViewOrderPage = () => {
     queryKey: [GET_ALL_PRODUCT_SKUS],
   });
 
-  const { data: user, status: userStatus } = useQuery({
+  const {
+    data: user,
+    refetch: refetchUser,
+    status: userStatus,
+  } = useQuery({
     queryFn: () => data && getUser(data && data.user_profile_id),
     queryKey: ["get-user", data && data.user],
-    enabled: !!data,
-  });
-
-  const { data: address } = useQuery({
-    queryFn: () => data && getMetaCityAddress(data && data.shipping_address),
-    queryKey: [GET_META_CITY_ADDRESS, data && data.shipping_address],
     enabled: !!data,
   });
 
@@ -200,9 +197,7 @@ const ViewOrderPage = () => {
 
   const dataSource = data?.items?.map(
     ({ id, number_of_packs, product_pack }) => {
-      const pricePerPiece = product_pack.product_sku.product.includes_vat
-        ? (product_pack.product_sku?.price_per_piece / 1.13).toFixed(2)
-        : product_pack.product_sku?.price_per_piece;
+      const pricePerPiece = product_pack?.price_per_piece;
 
       const numberOfPacks = number_of_packs;
       const numberOfItemsPerPack = product_pack?.number_of_items;
@@ -226,6 +221,39 @@ const ViewOrderPage = () => {
       };
     }
   );
+
+  const total = {
+    subTotal: parseFloat(
+      dataSource?.reduce((prev, curr) => {
+        if (curr.hasVat)
+          return (
+            prev +
+            (curr.numberOfItemsPerPack * curr.numberOfPacks * curr.price) / 1.13
+          );
+
+        return (
+          prev + curr.numberOfItemsPerPack * curr.numberOfPacks * curr.price
+        );
+      }, 0)
+    ).toFixed(2),
+
+    tax: parseFloat(
+      dataSource?.reduce((prev, curr) => {
+        if (curr.hasVat)
+          return (
+            prev +
+            ((curr.numberOfItemsPerPack * curr.numberOfPacks * curr.price) /
+              1.13) *
+              0.13
+          );
+        return 0;
+      }, 0)
+    ).toFixed(2),
+
+    getGrandTotal: function () {
+      return (parseFloat(this.subTotal) + parseFloat(this.tax)).toFixed(2);
+    },
+  };
 
   useEffect(() => {
     setProductPriceEditVal(
@@ -305,6 +333,7 @@ const ViewOrderPage = () => {
       render: (text) =>
         text === "isForm" ? (
           <Select
+            className="w-full"
             placeholder="Select Product SKU"
             showSearch
             onSelect={(value) => {
@@ -332,11 +361,12 @@ const ViewOrderPage = () => {
       title: "Quantity",
       dataIndex: "quantity",
       key: "quantity",
-      width: "12%",
+      width: "9%",
       render: (text, { id }) =>
         text === "isForm" ? (
           <>
             <Input
+              className="w-fit"
               placeholder="Quantity"
               type="number"
               value={quantity}
@@ -354,7 +384,7 @@ const ViewOrderPage = () => {
           </>
         ) : (
           <Input
-            className={`!bg-inherit !text-black !w-24 ${
+            className={`w-fit !bg-inherit !text-black ${
               isProductEditableId !== id && "!border-none"
             }`}
             disabled={isProductEditableId !== id}
@@ -386,6 +416,7 @@ const ViewOrderPage = () => {
         text === "isForm" ? (
           <Select
             key={selectedProductSku}
+            className="w-32"
             defaultValue={
               productSkus &&
               productSkus.find((item) => item.slug === selectedProductSku)
@@ -455,7 +486,7 @@ const ViewOrderPage = () => {
       dataIndex: "price",
       key: "price",
       width: "12%",
-      render: (text, { id, hasVat }) =>
+      render: (text, { id }) =>
         text === "isForm" ? (
           <span>Rs. {selectedProductPack?.price_per_piece || 0}</span>
         ) : (
@@ -469,15 +500,7 @@ const ViewOrderPage = () => {
               id={id}
               name="price"
               value={
-                hasVat
-                  ? parseFloat(
-                      productPriceEditVal?.find((product) => product.id === id)
-                        ?.price / 1.13
-                    ).toFixed(2)
-                  : parseFloat(
-                      productPriceEditVal?.find((product) => product.id === id)
-                        ?.price
-                    ).toFixed(2)
+                productPriceEditVal?.find((product) => product.id === id)?.price
               }
               onChange={(event) => {
                 const { id, name, value } = event.target;
@@ -504,24 +527,16 @@ const ViewOrderPage = () => {
       dataIndex: "total",
       key: "total",
       width: "12%",
-      render: (text, { id, numberOfItemsPerPack, numberOfPacks, hasVat }) =>
+      render: (text, { id, numberOfItemsPerPack }) =>
         text === "isForm" ? (
           <span>Rs. {getTotalAmount() || 0}</span>
         ) : (
           <>
             Rs.{" "}
-            {parseFloat(
-              (hasVat
-                ? parseFloat(
-                    productPriceEditVal?.find((product) => product.id === id)
-                      ?.price / 1.13
-                  ).toFixed(2)
-                : productPriceEditVal?.find((product) => product.id === id)
-                    ?.price) *
-                numberOfItemsPerPack *
-                productPriceEditVal?.find((product) => product.id === id)
-                  ?.number_of_packs
-            ).toFixed(2)}
+            {productPriceEditVal?.find((product) => product.id === id)?.price *
+              numberOfItemsPerPack *
+              productPriceEditVal?.find((product) => product.id === id)
+                ?.number_of_packs}
           </>
         ),
     },
@@ -779,7 +794,32 @@ const ViewOrderPage = () => {
                   </div>
                   <div className="flex items-center pr-4">
                     <EnvironmentOutlined className="mr-1" />
-                    Delivered at: {address?.name}
+                    {!data?.shipping_address ? (
+                      <Button
+                        size="small"
+                        onClick={() => setIsViewOrderShippingOpen(true)}
+                      >
+                        Select Shipping Address
+                      </Button>
+                    ) : (
+                      <>
+                        Shipping address:{" "}
+                        {
+                          user.addresses?.find(
+                            (add) => add.id === data?.shipping_address
+                          )?.detail_address
+                        }
+                      </>
+                    )}
+
+                    <ViewOrderShipping
+                      closeModal={() => setIsViewOrderShippingOpen(false)}
+                      isOpen={isViewOrderShippingOpen}
+                      refetchOrder={refetchOrderItems}
+                      refetchUser={refetchUser}
+                      user={user}
+                      userId={data?.user_profile_id}
+                    />
                   </div>
                 </div>
               </div>
@@ -1013,42 +1053,16 @@ const ViewOrderPage = () => {
               <div className="w-full px-[8.2%] flex flex-col gap-2 items-end mt-2 text-sm">
                 <span className=" flex gap-10">
                   <span>SubTotal</span>
-                  <span>
-                    Rs.{" "}
-                    {parseFloat(
-                      dataSource?.reduce((prev, curr) => prev + curr.total, 0)
-                    ).toFixed(2)}
-                  </span>
+                  <span>Rs. {total.subTotal}</span>
                 </span>
                 <span className="flex gap-10">
                   <span>Tax (13%)</span>
-                  <span>
-                    Rs.{" "}
-                    {parseFloat(
-                      dataSource?.reduce((prev, curr) => {
-                        if (curr.hasVat) return prev + curr.price;
-                        return prev;
-                      }, 0)
-                    ).toFixed(2)}
-                  </span>
+                  <span>Rs. {total.tax}</span>
                 </span>
 
                 <span className="flex gap-10">
                   <span>Total</span>
-                  <span>
-                    Rs.{" "}
-                    {(
-                      parseFloat(
-                        dataSource?.reduce((prev, curr) => prev + curr.total, 0)
-                      ) +
-                      parseFloat(
-                        dataSource?.reduce((prev, curr) => {
-                          if (curr.hasVat) return prev + curr.price;
-                          return prev;
-                        }, 0)
-                      )
-                    ).toFixed(2)}
-                  </span>
+                  <span>Rs. {total.getGrandTotal()}</span>
                 </span>
               </div>
             </>

@@ -52,9 +52,7 @@ const MobileViewOrderForm = ({ user, setBasketItemsStatus }) => {
         (item) => item.id === product_pack
       );
 
-      const pricePerPiece = product_sku.product.includes_vat
-        ? (productPack?.price_per_piece / 1.13).toFixed(2)
-        : productPack?.price_per_piece;
+      const pricePerPiece = productPack?.price_per_piece;
 
       const numberOfPacks = number_of_packs;
       const numberOfItemsPerPack = productPack?.number_of_items;
@@ -70,7 +68,7 @@ const MobileViewOrderForm = ({ user, setBasketItemsStatus }) => {
         packSize: numberOfItemsPerPack,
         loyaltyPoints: loyaltyPointsPerPack * numberOfPacks,
         cashback: cashbackPerPack * numberOfPacks,
-        price: parseFloat(pricePerPiece),
+        price: pricePerPiece,
         hasVat: product_sku.product.includes_vat,
         total: pricePerPiece * numberOfPacks * numberOfItemsPerPack,
       };

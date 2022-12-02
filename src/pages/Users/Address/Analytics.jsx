@@ -43,10 +43,7 @@ const Analytics = () => {
           {province.children?.map((city) => (
             <SubMenu key={city.name} title={city.title} menu>
               {city.children?.map((area) => (
-                <Menu.Item
-                  key={area.name}
-                  onClick={() => setAddress(area.title)}
-                >
+                <Menu.Item key={area.name} onClick={() => setAddress(area.id)}>
                   {area.title}
                 </Menu.Item>
               ))}

@@ -80,9 +80,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
         (item) => item.id === product_pack
       );
 
-      const pricePerPiece = product_sku.product.includes_vat
-        ? (productPack?.price_per_piece / 1.13).toFixed(2)
-        : productPack?.price_per_piece;
+      const pricePerPiece = productPack?.price_per_piece;
 
       const numberOfPacks = number_of_packs;
       const numberOfItemsPerPack = productPack?.number_of_items;
@@ -105,6 +103,31 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
     }
   );
 
+  const total = {
+    subTotal: parseFloat(
+      dataSource?.reduce((prev, curr) => {
+        if (curr.hasVat)
+          return prev + (curr.packSize * curr.quantity * curr.price) / 1.13;
+
+        return prev + curr.packSize * curr.quantity * curr.price;
+      }, 0)
+    ).toFixed(2),
+
+    tax: parseFloat(
+      dataSource?.reduce((prev, curr) => {
+        if (curr.hasVat)
+          return (
+            prev + ((curr.packSize * curr.quantity * curr.price) / 1.13) * 0.13
+          );
+        return 0;
+      }, 0)
+    ).toFixed(2),
+
+    getGrandTotal: function () {
+      return (parseFloat(this.subTotal) + parseFloat(this.tax)).toFixed(2);
+    },
+  };
+
   const handleItemDelete = useMutation((itemId) => deleteBasketItem(itemId), {
     onSuccess: (data) => {
       openSuccessNotification(data.message || "Item Deleted");
@@ -126,6 +149,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
       render: (text) => {
         return text === "isForm" ? (
           <Select
+            className="w-full"
             loading={productsStatus === "loading"}
             placeholder="Select Product SKU"
             showSearch
@@ -154,12 +178,12 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
       title: "Quantity",
       dataIndex: "quantity",
       key: "quantity",
-      width: "12%",
+      width: "9%",
       render: (text) => {
         return text === "isForm" ? (
           <>
             <Input
-              className="w-20"
+              className="w-fit"
               placeholder="Quantity"
               type="number"
               value={form?.quantity}
@@ -190,6 +214,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
         return text === "isForm" ? (
           <Select
             key={selectedProductSku}
+            className="w-32"
             defaultValue={
               productSkus &&
               productSkus.find((item) => item.slug === selectedProductSku)
@@ -348,42 +373,16 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
           <div className="w-full px-[9.5%] flex flex-col gap-2 items-end mt-2 text-sm">
             <span className="flex gap-10">
               <span>SubTotal</span>
-              <span>
-                Rs.{" "}
-                {parseFloat(
-                  dataSource?.reduce((prev, curr) => prev + curr.total, 0)
-                ).toFixed(2)}
-              </span>
+              <span>Rs. {total.subTotal}</span>
             </span>
             <span className="flex gap-10">
               <span>Tax (13%)</span>
-              <span>
-                Rs.{" "}
-                {parseFloat(
-                  dataSource?.reduce((prev, curr) => {
-                    if (curr.hasVat) return prev + curr.price;
-                    return prev;
-                  }, 0)
-                ).toFixed(2)}
-              </span>
+              <span>Rs. {total.tax}</span>
             </span>
 
             <span className="flex gap-10">
               <span>Total</span>
-              <span>
-                Rs.{" "}
-                {(
-                  parseFloat(
-                    dataSource?.reduce((prev, curr) => prev + curr.total, 0)
-                  ) +
-                  parseFloat(
-                    dataSource?.reduce((prev, curr) => {
-                      if (curr.hasVat) return prev + curr.price;
-                      return prev;
-                    }, 0)
-                  )
-                ).toFixed(2)}
-              </span>
+              <span>Rs. {total.getGrandTotal()}</span>
             </span>
           </div>
         </>

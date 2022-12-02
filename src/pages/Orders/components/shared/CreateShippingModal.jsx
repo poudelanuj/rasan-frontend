@@ -34,9 +34,11 @@ const CreateShippingModal = ({
       onSuccess: (data) => {
         openSuccessNotification(data.message);
         setIsCreateShippingOpen(false);
-        setUserList((prev) => prev.filter((user) => user.id !== userId));
-        refetchUserList();
-        orderForm.setFieldsValue({ shipping_address: data.data.id });
+        setUserList &&
+          setUserList((prev) => prev.filter((user) => user.id !== userId));
+        refetchUserList && refetchUserList();
+        orderForm &&
+          orderForm.setFieldsValue({ shipping_address: data.data.id });
       },
       onError: (error) => {
         openErrorNotification(error);
