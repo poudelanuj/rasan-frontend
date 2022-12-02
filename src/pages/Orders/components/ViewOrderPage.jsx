@@ -60,13 +60,10 @@ import { updateOrderStatus } from "../../../context/OrdersContext";
 import { useAuth } from "../../../AuthProvider";
 import { getUser } from "../../../context/UserContext";
 import rasanDefault from "../../../assets/images/rasan-default.png";
-import { getMetaCityAddress } from "../../../api/userAddresses";
-import {
-  GET_ALL_PRODUCT_SKUS,
-  GET_META_CITY_ADDRESS,
-} from "../../../constants/queryKeys";
+import { GET_ALL_PRODUCT_SKUS } from "../../../constants/queryKeys";
 import { getAllProductSkus } from "../../../api/products/productSku";
 import MobileViewOrderPage from "./MobileViewOrderPage";
+import ViewOrderShipping from "./shared/ViewOrderShipping";
 
 const ViewOrderPage = () => {
   const { userGroupIds, isMobileView } = useAuth();
@@ -95,6 +92,8 @@ const ViewOrderPage = () => {
   const [productPriceEditVal, setProductPriceEditVal] = useState([]);
 
   const [isVoucherPreviewVisible, setIsVoucherPreviewVisible] = useState(false);
+
+  const [isViewOrderShippingOpen, setIsViewOrderShippingOpen] = useState(false);
 
   const [page, setPage] = useState(1);
 
@@ -144,15 +143,13 @@ const ViewOrderPage = () => {
     queryKey: [GET_ALL_PRODUCT_SKUS],
   });
 
-  const { data: user, status: userStatus } = useQuery({
+  const {
+    data: user,
+    refetch: refetchUser,
+    status: userStatus,
+  } = useQuery({
     queryFn: () => data && getUser(data && data.user_profile_id),
     queryKey: ["get-user", data && data.user],
-    enabled: !!data,
-  });
-
-  const { data: address } = useQuery({
-    queryFn: () => data && getMetaCityAddress(data && data.shipping_address),
-    queryKey: [GET_META_CITY_ADDRESS, data && data.shipping_address],
     enabled: !!data,
   });
 
@@ -797,7 +794,32 @@ const ViewOrderPage = () => {
                   </div>
                   <div className="flex items-center pr-4">
                     <EnvironmentOutlined className="mr-1" />
-                    Delivered at: {address?.name}
+                    {!data?.shipping_address ? (
+                      <Button
+                        size="small"
+                        onClick={() => setIsViewOrderShippingOpen(true)}
+                      >
+                        Select Shipping Address
+                      </Button>
+                    ) : (
+                      <>
+                        Shipping address:{" "}
+                        {
+                          user.addresses?.find(
+                            (add) => add.id === data?.shipping_address
+                          )?.detail_address
+                        }
+                      </>
+                    )}
+
+                    <ViewOrderShipping
+                      closeModal={() => setIsViewOrderShippingOpen(false)}
+                      isOpen={isViewOrderShippingOpen}
+                      refetchOrder={refetchOrderItems}
+                      refetchUser={refetchUser}
+                      user={user}
+                      userId={data?.user_profile_id}
+                    />
                   </div>
                 </div>
               </div>
