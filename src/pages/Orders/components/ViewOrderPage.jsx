@@ -336,6 +336,7 @@ const ViewOrderPage = () => {
       render: (text) =>
         text === "isForm" ? (
           <Select
+            className="w-full"
             placeholder="Select Product SKU"
             showSearch
             onSelect={(value) => {
@@ -363,11 +364,12 @@ const ViewOrderPage = () => {
       title: "Quantity",
       dataIndex: "quantity",
       key: "quantity",
-      width: "12%",
+      width: "9%",
       render: (text, { id }) =>
         text === "isForm" ? (
           <>
             <Input
+              className="w-fit"
               placeholder="Quantity"
               type="number"
               value={quantity}
@@ -385,7 +387,7 @@ const ViewOrderPage = () => {
           </>
         ) : (
           <Input
-            className={`!bg-inherit !text-black !w-24 ${
+            className={`w-fit !bg-inherit !text-black ${
               isProductEditableId !== id && "!border-none"
             }`}
             disabled={isProductEditableId !== id}
@@ -417,6 +419,7 @@ const ViewOrderPage = () => {
         text === "isForm" ? (
           <Select
             key={selectedProductSku}
+            className="w-32"
             defaultValue={
               productSkus &&
               productSkus.find((item) => item.slug === selectedProductSku)

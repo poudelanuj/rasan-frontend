@@ -107,14 +107,9 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
     subTotal: parseFloat(
       dataSource?.reduce((prev, curr) => {
         if (curr.hasVat)
-          return (
-            prev +
-            (curr.numberOfItemsPerPack * curr.numberOfPacks * curr.price) / 1.13
-          );
+          return prev + (curr.packSize * curr.quantity * curr.price) / 1.13;
 
-        return (
-          prev + curr.numberOfItemsPerPack * curr.numberOfPacks * curr.price
-        );
+        return prev + curr.packSize * curr.quantity * curr.price;
       }, 0)
     ).toFixed(2),
 
@@ -122,10 +117,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
       dataSource?.reduce((prev, curr) => {
         if (curr.hasVat)
           return (
-            prev +
-            ((curr.numberOfItemsPerPack * curr.numberOfPacks * curr.price) /
-              1.13) *
-              0.13
+            prev + ((curr.packSize * curr.quantity * curr.price) / 1.13) * 0.13
           );
         return 0;
       }, 0)
@@ -157,6 +149,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
       render: (text) => {
         return text === "isForm" ? (
           <Select
+            className="w-full"
             loading={productsStatus === "loading"}
             placeholder="Select Product SKU"
             showSearch
@@ -185,12 +178,12 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
       title: "Quantity",
       dataIndex: "quantity",
       key: "quantity",
-      width: "12%",
+      width: "9%",
       render: (text) => {
         return text === "isForm" ? (
           <>
             <Input
-              className="w-20"
+              className="w-fit"
               placeholder="Quantity"
               type="number"
               value={form?.quantity}
@@ -221,6 +214,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
         return text === "isForm" ? (
           <Select
             key={selectedProductSku}
+            className="w-32"
             defaultValue={
               productSkus &&
               productSkus.find((item) => item.slug === selectedProductSku)
