@@ -201,8 +201,8 @@ const ViewOrderPage = () => {
   const dataSource = data?.items?.map(
     ({ id, number_of_packs, product_pack }) => {
       const pricePerPiece = product_pack.product_sku.product.includes_vat
-        ? (product_pack.product_sku?.price_per_piece / 1.13).toFixed(2)
-        : product_pack.product_sku?.price_per_piece;
+        ? (product_pack?.price_per_piece / 1.13).toFixed(2)
+        : product_pack?.price_per_piece;
 
       const numberOfPacks = number_of_packs;
       const numberOfItemsPerPack = product_pack?.number_of_items;
@@ -512,10 +512,8 @@ const ViewOrderPage = () => {
             Rs.{" "}
             {parseFloat(
               (hasVat
-                ? parseFloat(
-                    productPriceEditVal?.find((product) => product.id === id)
-                      ?.price / 1.13
-                  ).toFixed(2)
+                ? productPriceEditVal?.find((product) => product.id === id)
+                    ?.price / 1.13
                 : productPriceEditVal?.find((product) => product.id === id)
                     ?.price) *
                 numberOfItemsPerPack *
@@ -1026,8 +1024,8 @@ const ViewOrderPage = () => {
                     Rs.{" "}
                     {parseFloat(
                       dataSource?.reduce((prev, curr) => {
-                        if (curr.hasVat) return prev + curr.price;
-                        return prev;
+                        if (curr.hasVat) return prev + curr.total * 0.13;
+                        return 0;
                       }, 0)
                     ).toFixed(2)}
                   </span>
@@ -1043,8 +1041,8 @@ const ViewOrderPage = () => {
                       ) +
                       parseFloat(
                         dataSource?.reduce((prev, curr) => {
-                          if (curr.hasVat) return prev + curr.price;
-                          return prev;
+                          if (curr.hasVat) return prev + curr.total * 0.13;
+                          return 0;
                         }, 0)
                       )
                     ).toFixed(2)}

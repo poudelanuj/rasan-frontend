@@ -262,7 +262,10 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
       width: "12%",
       render: (text) => (
         <>
-          Rs. {text === "isForm" ? form?.product_pack?.price_per_piece : text}
+          Rs.{" "}
+          {text === "isForm"
+            ? parseFloat(form?.product_pack?.price_per_piece).toFixed(2)
+            : parseFloat(text).toFixed(2)}
           /pc
         </>
       ),
@@ -283,10 +286,12 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
         <>
           Rs.{" "}
           {text === "isForm"
-            ? form?.product_pack?.price_per_piece *
-                form?.product_pack?.number_of_items *
-                form?.quantity || 0
-            : text}
+            ? parseFloat(
+                form?.product_pack?.price_per_piece *
+                  form?.product_pack?.number_of_items *
+                  form?.quantity || 0
+              ).toFixed(2)
+            : parseFloat(text).toFixed(2)}
         </>
       ),
     },
@@ -361,8 +366,8 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
                 Rs.{" "}
                 {parseFloat(
                   dataSource?.reduce((prev, curr) => {
-                    if (curr.hasVat) return prev + curr.price;
-                    return prev;
+                    if (curr.hasVat) return prev + curr.total * 0.13;
+                    return 0;
                   }, 0)
                 ).toFixed(2)}
               </span>
@@ -378,8 +383,8 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
                   ) +
                   parseFloat(
                     dataSource?.reduce((prev, curr) => {
-                      if (curr.hasVat) return prev + curr.price;
-                      return prev;
+                      if (curr.hasVat) return prev + curr.total * 0.13;
+                      return 0;
                     }, 0)
                   )
                 ).toFixed(2)}
