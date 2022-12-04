@@ -20,6 +20,33 @@ export const createUser = async (data) => {
   return response.data;
 };
 
+export const createBulkUser = async (data) => {
+  Promise.all(
+    data.forEach(async (user) => {
+      if (!user["VAT NO"]) delete user["VAT NO"];
+
+      await axios.post(
+        "/api/auth/create-user/admin/",
+        (() => {
+          if (user["VAT NO"])
+            return {
+              full_name: user["PARTY NAME"],
+              phone: `+977-${user["MOBILE NO"]}`,
+              shop_name: user["PARTY NAME"],
+              pan_vat_number: user["VAT NO"],
+            };
+          else
+            return {
+              full_name: user["PARTY NAME"],
+              phone: `+977-${user["MOBILE NO"]}`,
+              shop_name: user["PARTY NAME"],
+            };
+        })()
+      );
+    })
+  );
+};
+
 export const getAdminUsers = async (groupIds, page, pageSize, search, sort) => {
   const res = await axios.get(
     `/api/profile/admin/user-list/?group_ids=${groupIds}&page=${page}&size=${
