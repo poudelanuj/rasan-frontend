@@ -10,7 +10,7 @@ import {
   Breadcrumb,
 } from "antd";
 import { useCallback, useState } from "react";
-import { useQuery, useMutation } from "react-query";
+import { useQuery, useMutation, useQueryClient } from "react-query";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { isEmpty } from "lodash";
 import { getAllBrands } from "../../../api/brands";
@@ -29,6 +29,7 @@ import {
   openSuccessNotification,
 } from "../../../utils/openNotification";
 import { useAuth } from "../../../AuthProvider";
+import { GET_PRODUCT } from "../../../constants/queryKeys";
 
 const EditProduct = () => {
   const { isMobileView } = useAuth();
@@ -39,6 +40,8 @@ const EditProduct = () => {
 
   const navigate = useNavigate();
   const { slug } = useParams();
+
+  const queryClient = useQueryClient();
 
   const fileUploadOptions = {
     maxCount: 1,
@@ -90,7 +93,9 @@ const EditProduct = () => {
           });
           return;
         }
-        if (formValues[key]) formData.append(key, formValues[key]);
+        if (key === "includes_vat") {
+          formData.append(key, formValues[key]);
+        } else if (formValues[key]) formData.append(key, formValues[key]);
       });
       if (selectedImage) formData.append("product_image", selectedImage);
 
@@ -99,6 +104,7 @@ const EditProduct = () => {
     {
       onSuccess: (data) => {
         openSuccessNotification(data.message || "Product Updated");
+        queryClient.refetchQueries([GET_PRODUCT, slug]);
         navigate(`../${data.data.slug}`);
       },
       onError: (error) => {

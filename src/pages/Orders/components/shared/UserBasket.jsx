@@ -145,7 +145,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
       title: "Product Name",
       dataIndex: "productName",
       key: "productName",
-      width: "20%",
+      width: "40%",
       render: (text) => {
         return text === "isForm" ? (
           <Select
@@ -209,12 +209,12 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
       title: "Pack Size",
       dataIndex: "packSize",
       key: "packSize",
-      width: "12%",
+      width: "9%",
       render: (text) => {
         return text === "isForm" ? (
           <Select
             key={selectedProductSku}
-            className="w-32"
+            className="w-20"
             defaultValue={
               productSkus &&
               productSkus.find((item) => item.slug === selectedProductSku)
