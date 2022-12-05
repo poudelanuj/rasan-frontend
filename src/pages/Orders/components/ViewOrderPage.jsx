@@ -334,6 +334,9 @@ const ViewOrderPage = () => {
         text === "isForm" ? (
           <Select
             className="w-full"
+            dropdownMatchSelectWidth={false}
+            dropdownRender={(menu) => <div className="!w-[40rem]">{menu}</div>}
+            dropdownStyle={{ overflowWrap: "anywhere" }}
             placeholder="Select Product SKU"
             showSearch
             onSelect={(value) => {

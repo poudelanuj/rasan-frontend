@@ -17,6 +17,7 @@ import {
   openSuccessNotification,
 } from "../../../utils/openNotification";
 import { useAuth } from "../../../AuthProvider";
+import { DEFAULT_RASAN_IMAGE } from "../../../constants";
 
 const ProductSkuDetails = ({ productSku, slug, refetchProductSku }) => {
   const navigate = useNavigate();
@@ -40,7 +41,9 @@ const ProductSkuDetails = ({ productSku, slug, refetchProductSku }) => {
             <img
               alt="product"
               className="w-[100%] h-[100%] rounded object-cover"
-              src={productSku?.product_sku_image?.full_size}
+              src={
+                productSku?.product_sku_image?.full_size || DEFAULT_RASAN_IMAGE
+              }
             />
           </div>
 
