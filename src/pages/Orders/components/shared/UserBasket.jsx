@@ -150,6 +150,10 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
         return text === "isForm" ? (
           <Select
             className="w-full"
+            dropdownAlign={{ offset: [-40, 4] }}
+            dropdownMatchSelectWidth={false}
+            dropdownRender={(menu) => <div className="!w-[40rem]">{menu}</div>}
+            dropdownStyle={{ overflowWrap: "anywhere" }}
             loading={productsStatus === "loading"}
             placeholder="Select Product SKU"
             showSearch
@@ -218,7 +222,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
             defaultValue={
               productSkus &&
               productSkus.find((item) => item.slug === selectedProductSku)
-                ?.product_packs[0].id
+                ?.product_packs[0]?.id
             }
             placeholder="Select Pack Size"
             showSearch

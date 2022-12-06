@@ -63,3 +63,8 @@ input::-webkit-inner-spin-button {
 .ant-table.ant-table-small tfoot > tr > th {
   padding: 4px !important;
 }
+
+.ant-select-item-option-content {
+  white-space: normal !important;
+  height: auto !important;
+}

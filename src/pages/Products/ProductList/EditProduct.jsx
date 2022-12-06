@@ -56,7 +56,7 @@ const EditProduct = () => {
 
   const { data: product, status: productStatus } = useQuery({
     queryFn: () => getProduct(slug),
-    queryKey: ["get-product", slug],
+    queryKey: [GET_PRODUCT, slug],
     enabled: !!slug,
   });
 
