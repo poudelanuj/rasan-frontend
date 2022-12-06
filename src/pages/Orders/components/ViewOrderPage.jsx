@@ -257,6 +257,19 @@ const ViewOrderPage = () => {
     },
   };
 
+  const getMarginPrice = (id) => {
+    const price = dataSource?.find((product) => product.id === id)?.price;
+
+    const mrp = data?.items?.find((product) => product.id === id)?.product_pack
+      ?.mrp_per_piece;
+
+    const cashback = dataSource?.find((product) => product.id === id)?.cashback;
+
+    const marginPrice = mrp - price + cashback;
+
+    return parseFloat(price - marginPrice * 0.2).toFixed(2);
+  };
+
   useEffect(() => {
     setProductPriceEditVal(
       data?.items?.map(({ id, product_pack, number_of_packs }) => ({
@@ -487,11 +500,7 @@ const ViewOrderPage = () => {
         ),
     },
     {
-      title: (
-        <Tooltip title="Please do not enter price below 2% of the original price">
-          Price <QuestionCircleOutlined className="pl-1" />
-        </Tooltip>
-      ),
+      title: "Price",
       dataIndex: "price",
       key: "price",
       width: "12%",
@@ -521,6 +530,14 @@ const ViewOrderPage = () => {
                 );
               }}
             />
+            <Tooltip
+              className={`${id === isProductEditableId ? "!block" : "!hidden"}`}
+              title={`Please do not enter the price below Rs.${getMarginPrice(
+                id
+              )}`}
+            >
+              <QuestionCircleOutlined className="pl-1" />
+            </Tooltip>
           </div>
         ),
     },
