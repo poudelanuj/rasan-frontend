@@ -12,6 +12,7 @@ import {
   Steps,
   Modal,
   message,
+  Tooltip,
 } from "antd";
 import axios from "../../../axios";
 import {
@@ -23,6 +24,7 @@ import {
   EditOutlined,
   CloseCircleOutlined,
   PlusOutlined,
+  QuestionCircleOutlined,
 } from "@ant-design/icons";
 import { BsCheckCircleFill } from "react-icons/bs";
 import { useMutation, useQuery } from "react-query";
@@ -423,7 +425,7 @@ const ViewOrderPage = () => {
             defaultValue={
               productSkus &&
               productSkus.find((item) => item.slug === selectedProductSku)
-                ?.product_packs[0].id
+                ?.product_packs[0]?.id
             }
             placeholder="Select Pack Size"
             showSearch
@@ -485,7 +487,11 @@ const ViewOrderPage = () => {
         ),
     },
     {
-      title: "Price",
+      title: (
+        <Tooltip title="Please do not enter price below 2% of the original price">
+          Price <QuestionCircleOutlined className="pl-1" />
+        </Tooltip>
+      ),
       dataIndex: "price",
       key: "price",
       width: "12%",

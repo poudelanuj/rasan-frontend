@@ -150,6 +150,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
         return text === "isForm" ? (
           <Select
             className="w-full"
+            dropdownAlign={{ offset: [-40, 4] }}
             dropdownMatchSelectWidth={false}
             dropdownRender={(menu) => <div className="!w-[40rem]">{menu}</div>}
             dropdownStyle={{ overflowWrap: "anywhere" }}
