@@ -1,14 +1,4 @@
-import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
-import {
-  Upload,
-  Form,
-  Input,
-  Select,
-  Button,
-  Switch,
-  Space,
-  Breadcrumb,
-} from "antd";
+import { Upload, Form, Input, Select, Button, Space, Breadcrumb } from "antd";
 import { useCallback, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
@@ -424,15 +414,6 @@ const AddProductSku = () => {
                       </Select.Option>
                     ))}
                 </Select>
-              </Form.Item>
-
-              <Form.Item label="Is Vat Included?" name="includes_vat">
-                <Switch
-                  checkedChildren={<CheckOutlined />}
-                  className="flex"
-                  defaultChecked={false}
-                  unCheckedChildren={<CloseOutlined />}
-                />
               </Form.Item>
             </div>
 
