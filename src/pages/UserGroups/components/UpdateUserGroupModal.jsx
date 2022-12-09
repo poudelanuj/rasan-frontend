@@ -127,7 +127,9 @@ const UpdateUserGroupModal = ({
           >
             <Select
               defaultValue={initialPermission.map((el) => el.id)}
-              filterOption={false}
+              filterOption={(input, option) =>
+                option.children.toLowerCase().includes(input.toLowerCase())
+              }
               mode="multiple"
               placeholder="Select permissions"
               allowClear
@@ -149,13 +151,6 @@ const UpdateUserGroupModal = ({
                   ...prev,
                 ])
               }
-              onSearch={(val) => {
-                setSelectPermission(() =>
-                  permissions.filter((permission) =>
-                    permission.name.toLowerCase().includes(val.toLowerCase())
-                  )
-                );
-              }}
             >
               {selectPermission &&
                 selectPermission.map((el) => (

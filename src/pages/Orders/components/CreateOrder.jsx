@@ -40,6 +40,8 @@ const CreateOrder = () => {
 
   const [userList, setUserList] = useState([]);
 
+  const searchRef = useRef("");
+
   const navigate = useNavigate();
 
   let timeout = 0;
@@ -50,7 +52,7 @@ const CreateOrder = () => {
     refetch: refetchUserList,
     isRefetching: refetchingUserList,
   } = useQuery({
-    queryFn: () => getUsers(page, "", 100, ["-id"]),
+    queryFn: () => getUsers(page, searchRef.current, 100, ["-id"]),
     queryKey: ["getUserList", page.toString()],
   });
 
@@ -160,6 +162,7 @@ const CreateOrder = () => {
                   if (timeout) clearTimeout(timeout);
                   timeout = setTimeout(async () => {
                     setPage(1);
+                    searchRef.current = val;
                     const res = await getUsers(page, val, 100, ["-id"]);
                     setUserList([]);
                     setUserList(res.results);

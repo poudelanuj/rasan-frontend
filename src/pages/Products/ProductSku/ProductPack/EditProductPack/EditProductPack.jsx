@@ -1,4 +1,4 @@
-import React from "react";
+import { useEffect } from "react";
 import { useMutation, useQuery } from "react-query";
 import { Modal, Form, Select, Input, Space, Button, Spin } from "antd";
 import { getProductSku } from "../../../../../api/products/productSku";
@@ -22,6 +22,8 @@ function EditProductPack({
   closeModal,
   refetchProductSku,
 }) {
+  const [form] = Form.useForm();
+
   const { data: productSku, status: productSkuStatus } = useQuery({
     queryFn: () => getProductSku(productSkuSlug),
     queryKey: [GET_PRODUCT_SKU, productSkuSlug],
@@ -50,6 +52,16 @@ function EditProductPack({
     }
   );
 
+  useEffect(() => {
+    if (productPack && productSku)
+      form.setFieldsValue({
+        product_sku: productSku.slug,
+        number_of_items: productPack.number_of_items,
+        price_per_piece: productPack.price_per_piece,
+        mrp_per_piece: productPack.mrp_per_piece,
+      });
+  }, [form, productPack, productSku]);
+
   return (
     <>
       <Modal
@@ -59,18 +71,17 @@ function EditProductPack({
         onCancel={() => closeModal()}
       >
         <Form
+          form={form}
           layout="vertical"
           onFinish={(values) => onFormSubmit.mutate(values)}
         >
           <Form.Item
-            initialValue={productSku.slug}
             label="Product Sku"
             name="product_sku"
             rules={[{ required: true, message: "Product Sku is required" }]}
           >
             {productSkuStatus === "success" && productSku ? (
               <Select
-                defaultValue={productSku.slug}
                 loading={productSkuStatus === "loading"}
                 placeholder="Select Product Sku"
                 disabled
@@ -100,38 +111,27 @@ function EditProductPack({
                   { required: true, message: "Number of items required" },
                 ]}
               >
-                <Input
-                  defaultValue={productPack?.number_of_items}
-                  type="number"
-                />
+                <Input type="number" />
               </Form.Item>
 
               <Form.Item
-                initialValue={productPack?.price_per_piece}
                 label="Price Per Piece"
                 name="price_per_piece"
                 rules={[
                   { required: true, message: "Price per piece is required" },
                 ]}
               >
-                <Input
-                  defaultValue={productPack?.price_per_piece}
-                  type="number"
-                />
+                <Input type="number" />
               </Form.Item>
 
               <Form.Item
-                initialValue={productPack?.mrp_per_piece}
                 label="MRP Per Piece"
                 name="mrp_per_piece"
                 rules={[
                   { required: true, message: "MRP per piece is required" },
                 ]}
               >
-                <Input
-                  defaultValue={productPack?.mrp_per_piece}
-                  type="number"
-                />
+                <Input type="number" />
               </Form.Item>
 
               <Form.Item>

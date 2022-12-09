@@ -51,9 +51,9 @@ const AddressForm = ({ address, id }) => {
 
   useEffect(() => {
     let data = {
-      province: address.province.id,
-      city: address.city.id,
-      area: address.area.id,
+      province: address.province?.id,
+      city: address.city?.id,
+      area: address.area?.id,
       detail_address: address.detail_address,
       map_longitude: address.map_longitude,
       map_latitude: address.map_latitude,

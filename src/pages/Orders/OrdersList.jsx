@@ -140,7 +140,7 @@ const OrdersList = () => {
       dataIndex: "created_at",
       key: "created_at",
       render: (_, { created_at }) => {
-        return <>{moment(created_at).format("ll")}</>;
+        return <>{moment(created_at).format("lll")}</>;
       },
       sorter: true,
       onHeaderCell: (header) => {

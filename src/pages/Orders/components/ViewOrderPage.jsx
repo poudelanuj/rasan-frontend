@@ -248,7 +248,7 @@ const ViewOrderPage = () => {
               1.13) *
               0.13
           );
-        return 0;
+        return prev + 0;
       }, 0)
     ).toFixed(2),
 
@@ -347,30 +347,35 @@ const ViewOrderPage = () => {
       width: "40%",
       render: (text) =>
         text === "isForm" ? (
-          <Select
-            className="w-full"
-            dropdownMatchSelectWidth={false}
-            dropdownRender={(menu) => <div className="!w-[40rem]">{menu}</div>}
-            dropdownStyle={{ overflowWrap: "anywhere" }}
-            placeholder="Select Product SKU"
-            showSearch
-            onSelect={(value) => {
-              setSelectedSku(value);
-              setSelectedPack(
-                productSkus &&
-                  productSkus.find((item) => item.slug === value)
-                    ?.product_packs[0]
-              );
-              setQuantity(1);
-            }}
-          >
-            {productSkus &&
-              productSkus.map((item) => (
-                <Select.Option key={item.slug} value={item.slug}>
-                  {item.name}
-                </Select.Option>
-              ))}
-          </Select>
+          <div id="dropdown">
+            <Select
+              className="w-full"
+              dropdownMatchSelectWidth={false}
+              dropdownRender={(menu) => (
+                <div className="!w-[40rem]">{menu}</div>
+              )}
+              dropdownStyle={{ overflowWrap: "anywhere" }}
+              getPopupContainer={() => document.getElementById("dropdown")}
+              placeholder="Select Product SKU"
+              showSearch
+              onSelect={(value) => {
+                setSelectedSku(value);
+                setSelectedPack(
+                  productSkus &&
+                    productSkus.find((item) => item.slug === value)
+                      ?.product_packs[0]
+                );
+                setQuantity(1);
+              }}
+            >
+              {productSkus &&
+                productSkus.map((item) => (
+                  <Select.Option key={item.slug} value={item.slug}>
+                    {item.name}
+                  </Select.Option>
+                ))}
+            </Select>
+          </div>
         ) : (
           <>{text}</>
         ),
@@ -532,9 +537,7 @@ const ViewOrderPage = () => {
             />
             <Tooltip
               className={`${id === isProductEditableId ? "!block" : "!hidden"}`}
-              title={`Please do not enter the price below Rs.${getMarginPrice(
-                id
-              )}`}
+              title={`Base Rate: Rs. ${getMarginPrice(id)}`}
             >
               <QuestionCircleOutlined className="pl-1" />
             </Tooltip>

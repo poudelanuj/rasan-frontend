@@ -1,4 +1,5 @@
 import { Form, Input, message, Modal, Select } from "antd";
+import { isEmpty } from "lodash";
 import React, { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import {
@@ -45,7 +46,7 @@ const AddressCreationForm = ({ visible, onCancel, id }) => {
   const onFinish = (values) => {
     const form_data = new FormData();
     for (let key in values) {
-      form_data.append(key, values[key]);
+      if (values[key]) form_data.append(key, values[key]);
     }
     addressMutation({ data: form_data, key: id });
   };
@@ -134,9 +135,16 @@ const AddressCreationForm = ({ visible, onCancel, id }) => {
             },
           ]}
         >
-          <Select placeholder="Please select an area" onChange={onchange}>
-            {!!areas?.length &&
-              areas.map((area) => (
+          <Select
+            filterOption={(input, option) =>
+              option.children.toLowerCase().includes(input.toLowerCase())
+            }
+            placeholder="Please select an area"
+            showSearch
+            onChange={onchange}
+          >
+            {!isEmpty(areas) &&
+              areas?.map((area) => (
                 <Select.Option
                   key={area.id}
                   disabled={!area.is_active}

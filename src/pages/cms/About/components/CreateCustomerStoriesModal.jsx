@@ -149,7 +149,7 @@ const CreateCustomerStoriesModal = ({
           name="content"
           rules={[{ required: true, message: "Please input content" }]}
         >
-          <TextArea autoSize showCount />
+          <TextArea autoSize={{ minRows: 4, maxRows: 5 }} showCount />
         </Form.Item>
       </Form>
     </Modal>

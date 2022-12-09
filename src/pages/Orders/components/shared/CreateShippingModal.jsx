@@ -141,6 +141,7 @@ const CreateShippingModal = ({
               option.children.toLowerCase().includes(input.toLowerCase())
             }
             loading={addressListStatus === "loading"}
+            showSearch
           >
             {addressList &&
               addressList
