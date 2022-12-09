@@ -68,3 +68,11 @@ input::-webkit-inner-spin-button {
   white-space: normal !important;
   height: auto !important;
 }
+
+#dropdown {
+  position: relative;
+}
+#dropdown .ant-select-dropdown {
+  top: unset !important;
+  bottom: 0 !important;
+}

@@ -148,31 +148,36 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
       width: "40%",
       render: (text) => {
         return text === "isForm" ? (
-          <Select
-            className="w-full"
-            dropdownAlign={{ offset: [-40, 4] }}
-            dropdownMatchSelectWidth={false}
-            dropdownRender={(menu) => <div className="!w-[40rem]">{menu}</div>}
-            dropdownStyle={{ overflowWrap: "anywhere" }}
-            loading={productsStatus === "loading"}
-            placeholder="Select Product SKU"
-            showSearch
-            onSelect={(value) => {
-              setSelectedProductSku(value);
-              setForm({
-                ...form,
-                product_pack: productSkus.find((item) => item.slug === value)
-                  ?.product_packs[0],
-              });
-            }}
-          >
-            {productSkus &&
-              productSkus.map((item) => (
-                <Select.Option key={item.slug} value={item.slug}>
-                  {item.name}
-                </Select.Option>
-              ))}
-          </Select>
+          <div id="dropdown">
+            <Select
+              className="w-full"
+              dropdownAlign={{ offset: [-40, 4] }}
+              dropdownMatchSelectWidth={false}
+              dropdownRender={(menu) => (
+                <div className="!w-[40rem]">{menu}</div>
+              )}
+              dropdownStyle={{ overflowWrap: "anywhere" }}
+              getPopupContainer={() => document.getElementById("dropdown")}
+              loading={productsStatus === "loading"}
+              placeholder="Select Product SKU"
+              showSearch
+              onSelect={(value) => {
+                setSelectedProductSku(value);
+                setForm({
+                  ...form,
+                  product_pack: productSkus.find((item) => item.slug === value)
+                    ?.product_packs[0],
+                });
+              }}
+            >
+              {productSkus &&
+                productSkus.map((item) => (
+                  <Select.Option key={item.slug} value={item.slug}>
+                    {item.name}
+                  </Select.Option>
+                ))}
+            </Select>
+          </div>
         ) : (
           <>{text}</>
         );
