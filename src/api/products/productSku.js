@@ -1,17 +1,22 @@
 import axios from "../../axios";
 
-export const getAllProductSkus = async () => {
+export const getAllProductSkus = async (
+  { isDropdown } = { isDropdown: false }
+) => {
   const res = await axios.get(
-    "/api/product/admin/product-skus/?page=1&size=100"
+    isDropdown
+      ? `/api/product/admin/product-skus/?page=1&size=100&is_published=true`
+      : `/api/product/admin/product-skus/?page=1&size=100`
   );
-
   let [nextUrl, page] = [res.data.data.next, 2];
 
   const allResData = [...res.data.data.results];
 
   while (nextUrl !== null) {
     const res = await axios.get(
-      `/api/product/admin/product-skus/?page=${page}&size=100`
+      isDropdown
+        ? `/api/product/admin/product-skus/?page=${page}&size=100&is_published=true`
+        : `/api/product/admin/product-skus/?page=${page}&size=100`
     );
     nextUrl = res.data.data.next;
     allResData.push(...res.data.data.results);

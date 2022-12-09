@@ -43,8 +43,8 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
 
   // *********** FORM ************ //
   const { data: productSkus, status: productsStatus } = useQuery({
-    queryFn: () => getAllProductSkus(),
-    queryKey: [GET_ALL_PRODUCT_SKUS],
+    queryFn: () => getAllProductSkus({ isDropdown: true }),
+    queryKey: [GET_ALL_PRODUCT_SKUS, { isDropdown: true }],
   });
 
   // *********** FORM ************ //
