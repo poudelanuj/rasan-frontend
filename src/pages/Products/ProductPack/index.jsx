@@ -17,20 +17,7 @@ import { GET_PRODUCT_PACK_CSV } from "../../../constants/queryKeys";
 import CustomPageHeader from "../../../shared/PageHeader";
 import { openErrorNotification, openSuccessNotification } from "../../../utils";
 import { useAuth } from "../../../AuthProvider";
-
-const JSONToCSV = (objArray) => {
-  let csvrecord = Object.keys(objArray[0]).join(",") + "\n";
-  objArray.forEach(function (jsonrecord) {
-    csvrecord +=
-      Object.values(jsonrecord)
-        .map((record) =>
-          Array.isArray(record) ? `"'${record.join("\n")}'"` : record
-        )
-        .join(",") + "\n";
-  });
-
-  return csvrecord;
-};
+import Export from "./Export";
 
 const ProductPack = () => {
   const { isMobileView } = useAuth();
@@ -52,6 +39,8 @@ const ProductPack = () => {
   const [pageSize, setPageSize] = useState(20);
 
   const [isPublished, setIsPublished] = useState(true);
+
+  const [isExportOpen, setIsExportOpen] = useState(false);
 
   const [sortObj, setSortObj] = useState({
     sortType: {
@@ -140,10 +129,10 @@ const ProductPack = () => {
             csvParse(csv).map((cs) => {
               return {
                 ...cs,
-                category_name: cs.category_name
-                  .replace("'", "")
-                  .replace("'", "")
-                  .split("\n"),
+                category_name: cs?.category_name
+                  ?.replace("'", "")
+                  ?.replace("'", "")
+                  ?.split("\n"),
               };
             })
           );
@@ -309,40 +298,16 @@ const ProductPack = () => {
           <Button
             className="bg-cyan-500 text-white"
             type="default"
-            onClick={async () => {
-              const data = await getProductPackCSV({
-                shouldPaginate: false,
-                isPublished,
-              });
-              const blob = new Blob(
-                [
-                  JSONToCSV(
-                    data.map((product) => {
-                      delete product["product_slug"];
-                      delete product["product_sku_slug"];
-                      delete product["brand_slug"];
-                      delete product["category_slug"];
-                      delete product["is_published"];
-                      return product;
-                    })
-                  ),
-                ],
-                {
-                  type: "text/csv;charset=utf-8;",
-                }
-              );
-              const url = URL.createObjectURL(blob);
-              const link = document.createElement("a");
-              link.setAttribute("href", url);
-              link.setAttribute("download", "export.csv");
-              link.style.visibility = "hidden";
-              document.body.appendChild(link);
-              link.click();
-              document.body.removeChild(link);
-            }}
+            onClick={() => setIsExportOpen(true)}
           >
             Export
           </Button>
+
+          <Export
+            closeModal={() => setIsExportOpen(false)}
+            isOpen={isExportOpen}
+            isPublished={isPublished}
+          />
         </div>
 
         <Tabs
