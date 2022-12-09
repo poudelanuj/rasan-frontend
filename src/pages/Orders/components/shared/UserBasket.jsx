@@ -119,7 +119,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
           return (
             prev + ((curr.packSize * curr.quantity * curr.price) / 1.13) * 0.13
           );
-        return 0;
+        return prev + 0;
       }, 0)
     ).toFixed(2),
 

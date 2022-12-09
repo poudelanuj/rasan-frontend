@@ -248,7 +248,7 @@ const ViewOrderPage = () => {
               1.13) *
               0.13
           );
-        return 0;
+        return prev + 0;
       }, 0)
     ).toFixed(2),
 
@@ -537,9 +537,7 @@ const ViewOrderPage = () => {
             />
             <Tooltip
               className={`${id === isProductEditableId ? "!block" : "!hidden"}`}
-              title={`Please do not enter the price below Rs.${getMarginPrice(
-                id
-              )}`}
+              title={`Base Rate: Rs. ${getMarginPrice(id)}`}
             >
               <QuestionCircleOutlined className="pl-1" />
             </Tooltip>
