@@ -34,20 +34,27 @@ const Export = ({ isOpen, closeModal, isPublished }) => {
       .reduce((prev, curr) => ({ ...prev, ...curr }))
   );
 
-  const [inderminate, setInderminate] = useState(true);
+  const [indeterminate, setIndeterminate] = useState(true);
 
   const handleChange = (name, isChecked) =>
     setCheckedFields((prev) => ({ ...prev, [name]: isChecked }));
 
   useEffect(() => {
-    setInderminate(Object.values(checkedFields).every((value) => value));
+    setIndeterminate(Object.values(checkedFields).every((value) => value));
   }, [checkedFields]);
 
   return (
     <Modal
       title="Select the necessary fields"
       visible={isOpen}
-      onCancel={closeModal}
+      onCancel={() => {
+        closeModal();
+        setCheckedFields(
+          fields
+            .map((field) => ({ [field]: true }))
+            .reduce((prev, curr) => ({ ...prev, ...curr }))
+        );
+      }}
       onOk={async () => {
         const data = await getProductPackCSV({
           shouldPaginate: false,
@@ -84,12 +91,17 @@ const Export = ({ isOpen, closeModal, isPublished }) => {
         link.click();
         document.body.removeChild(link);
         closeModal();
+        setCheckedFields(
+          fields
+            .map((field) => ({ [field]: true }))
+            .reduce((prev, curr) => ({ ...prev, ...curr }))
+        );
       }}
     >
       <div className="flex gap-2 items-center mb-4">
         <Switch
-          checked={inderminate}
-          disabled={inderminate}
+          checked={indeterminate}
+          disabled={indeterminate}
           size="small"
           onChange={() => {
             setCheckedFields(
@@ -97,7 +109,7 @@ const Export = ({ isOpen, closeModal, isPublished }) => {
                 .map((field) => ({ [field]: true }))
                 .reduce((prev, curr) => ({ ...prev, ...curr }))
             );
-            setInderminate(true);
+            setIndeterminate(true);
           }}
         />
         <p className="m-0">Check All</p>

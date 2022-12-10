@@ -141,8 +141,8 @@ const ViewOrderPage = () => {
   }, [data]);
 
   const { data: productSkus, status: productsStatus } = useQuery({
-    queryFn: () => getAllProductSkus(),
-    queryKey: [GET_ALL_PRODUCT_SKUS],
+    queryFn: () => getAllProductSkus({ isDropdown: true }),
+    queryKey: [GET_ALL_PRODUCT_SKUS, { isDropdown: true }],
   });
 
   const {
@@ -352,7 +352,13 @@ const ViewOrderPage = () => {
               className="w-full"
               dropdownMatchSelectWidth={false}
               dropdownRender={(menu) => (
-                <div className="!w-[40rem]">{menu}</div>
+                <div
+                  className={`!w-[40rem] min-h-[${
+                    dataSource?.length < 9 ? dataSource?.length * 32 : 8 * 32
+                  }px]`}
+                >
+                  {menu}
+                </div>
               )}
               dropdownStyle={{ overflowWrap: "anywhere" }}
               getPopupContainer={() => document.getElementById("dropdown")}
