@@ -7,7 +7,6 @@ import SidebarMenu from "./SidebarMenu";
 import { useAuth } from "./AuthProvider";
 import { getEndUser } from "./context/UserContext";
 import Logo from "./svgs/Logo";
-import { useEffect } from "react";
 const { Header, Content, Sider } = Layout;
 
 const headerItem = (logout) => (
@@ -38,13 +37,6 @@ const AppLayout = () => {
   );
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-
-  useEffect(() => {
-    document.body.addEventListener(
-      "click",
-      () => (document.body.style.zoom = "100%")
-    );
-  }, []);
 
   return (
     <Layout>

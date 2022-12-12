@@ -1,7 +1,12 @@
 import { Fragment, useEffect, useState } from "react";
 import { useMutation } from "react-query";
-import { Button, Divider, Input, message } from "antd";
-import { startCase } from "lodash";
+import { Input, message } from "antd";
+import {
+  EditOutlined,
+  DeleteOutlined,
+  CloseCircleOutlined,
+  SaveOutlined,
+} from "@ant-design/icons";
 import { updateOrderItem } from "../../../api/orders";
 import { openSuccessNotification, openErrorNotification } from "../../../utils";
 
@@ -43,172 +48,184 @@ const MobileViewOrderPage = ({
   );
   return (
     <>
-      {orderItems &&
-        orderItems.map((orderItem, index) => (
-          <Fragment key={orderItem.id}>
-            <div className="w-full flex flex-col gap-2 mb-2">
-              {Object.keys(orderItem).map(
-                (item) =>
-                  item !== "numberOfItemsPerPack" &&
-                  item !== "numberOfPacks" && (
-                    <div
-                      key={item}
-                      className="flex items-center justify-between text-sm p-2 rounded-lg odd:bg-gray-100"
-                    >
-                      <span>
-                        {startCase(
-                          item === "id"
-                            ? item.toUpperCase()
-                            : item === "hasVat"
-                            ? "Tax"
-                            : item
-                        )}
-                      </span>
+      <span className="flex justify-between border-b mb-3 border-b-slate-300">
+        <p className="mb-2 font-semibold">Product Name</p>
+        <p className="mb-2 font-semibold">Actions</p>
+      </span>
 
-                      {item === "price" && !isCreate ? (
-                        <div className="flex items-center">
-                          <Input
-                            className={`!bg-inherit !text-black text-right !px-0 font-semibold ${
-                              isProductEditableId !== orderItem.id
-                                ? "!border-none"
-                                : "!border-blue-400 !pr-2"
-                            }`}
-                            disabled={isProductEditableId !== orderItem.id}
-                            id={orderItem.id}
-                            name="price"
-                            value={
-                              productPriceEditVal?.find(
-                                (product) => product.id === orderItem.id
-                              )?.price
-                            }
-                            onChange={(event) => {
-                              const { id, name, value } = event.target;
-                              setProductPriceEditVal((prev) =>
-                                prev.map((product) => ({
-                                  ...product,
-                                  [Number(id) === product.id && name]: value,
-                                }))
-                              );
-                            }}
-                          />
-                        </div>
-                      ) : item === "quantity" && !isCreate ? (
-                        <div className="flex items-center">
-                          <Input
-                            className={`!bg-inherit !text-black text-right !px-0 font-semibold ${
-                              isProductEditableId !== orderItem.id
-                                ? "!border-none"
-                                : "!border-blue-400 !pr-2"
-                            }`}
-                            disabled={isProductEditableId !== orderItem.id}
-                            id={orderItem.id}
-                            name="number_of_packs"
-                            value={
+      {orderItems &&
+        orderItems.map((orderItem) => (
+          <Fragment key={orderItem.id}>
+            <div className="w-full flex justify-between border-b border-b-gray-300 mb-3">
+              <div className="flex flex-col gap-3">
+                <p className="font-semibold my-0">{orderItem.productName}</p>
+
+                <div className="grid grid-cols-2 gap-x-8">
+                  <div
+                    className={`flex gap-2 items-center ${!isCreate && "mb-4"}`}
+                  >
+                    <p className={!isCreate && "my-0"}>Quantity: </p>
+                    {!isCreate ? (
+                      <Input
+                        className={`!bg-inherit !text-black text-left !p-0 font-semibold ${
+                          isProductEditableId !== orderItem.id
+                            ? "!border-none"
+                            : "!border-blue-400"
+                        }`}
+                        disabled={isProductEditableId !== orderItem.id}
+                        id={orderItem.id}
+                        name="number_of_packs"
+                        value={
+                          productPriceEditVal?.find(
+                            (product) => product.id === orderItem.id
+                          )?.number_of_packs
+                        }
+                        onChange={(event) => {
+                          const { id, name, value } = event.target;
+                          setProductPriceEditVal((prev) =>
+                            prev.map((product) => ({
+                              ...product,
+                              [Number(id) === product.id && name]: value,
+                            }))
+                          );
+                        }}
+                      />
+                    ) : (
+                      <p className="font-semibold">{orderItem.quantity}</p>
+                    )}
+                  </div>
+
+                  <div
+                    className={`flex gap-2 items-center ${!isCreate && "mb-4"}`}
+                  >
+                    <p className={!isCreate && "my-0"}>Price: </p>
+                    {!isCreate ? (
+                      <Input
+                        className={`!bg-inherit !text-black text-left !p-0 !w-fit font-semibold ${
+                          isProductEditableId !== orderItem.id
+                            ? "!border-none"
+                            : "!border-blue-400"
+                        }`}
+                        disabled={isProductEditableId !== orderItem.id}
+                        id={orderItem.id}
+                        name="price"
+                        value={
+                          productPriceEditVal?.find(
+                            (product) => product.id === orderItem.id
+                          )?.price
+                        }
+                        onChange={(event) => {
+                          const { id, name, value } = event.target;
+                          setProductPriceEditVal((prev) =>
+                            prev.map((product) => ({
+                              ...product,
+                              [Number(id) === product.id && name]: value,
+                            }))
+                          );
+                        }}
+                      />
+                    ) : (
+                      <p className="font-semibold">Rs.{orderItem.price}</p>
+                    )}
+                  </div>
+
+                  <span className="flex gap-2">
+                    <p>Pack Size: </p>
+                    <p className="font-semibold">{orderItem.packSize}</p>
+                  </span>
+
+                  <span className="flex gap-2">
+                    <p>VAT: </p>
+                    <p className="font-semibold">
+                      {orderItem.hasVat ? "13%" : ""}
+                    </p>
+                  </span>
+
+                  <span className="flex gap-2">
+                    <p>Cashback: </p>
+                    <p className="font-semibold">Rs.{orderItem.cashback}</p>
+                  </span>
+
+                  <span className="flex gap-2">
+                    <p>Loyalty: </p>
+                    <p className="font-semibold">Rs.{orderItem.loyalty}</p>
+                  </span>
+
+                  <span className="flex gap-2">
+                    <p>Total: </p>
+                    <p className="font-semibold">
+                      Rs.
+                      {!isCreate
+                        ? parseFloat(
+                            productPriceEditVal?.find(
+                              (product) => product.id === orderItem.id
+                            )?.price *
+                              orderItem.numberOfItemsPerPack *
                               productPriceEditVal?.find(
                                 (product) => product.id === orderItem.id
                               )?.number_of_packs
-                            }
-                            onChange={(event) => {
-                              const { id, name, value } = event.target;
-                              setProductPriceEditVal((prev) =>
-                                prev.map((product) => ({
-                                  ...product,
-                                  [Number(id) === product.id && name]: value,
-                                }))
-                              );
-                            }}
-                          />
-                        </div>
-                      ) : (
-                        <span className="font-semibold">
-                          {(() => {
-                            return item === "total" && !isCreate
-                              ? parseFloat(
-                                  productPriceEditVal?.find(
-                                    (product) => product.id === orderItem.id
-                                  )?.price *
-                                    orderItem.numberOfItemsPerPack *
-                                    productPriceEditVal?.find(
-                                      (product) => product.id === orderItem.id
-                                    )?.number_of_packs
-                                ).toFixed(2)
-                              : item === "hasVat" && orderItem["hasVat"]
-                              ? "13%"
-                              : orderItem[item];
-                          })()}
-                        </span>
-                      )}
-                    </div>
-                  )
-              )}
+                          ).toFixed(2)
+                        : orderItem.total}
+                    </p>
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-3 px-2.5">
+                <DeleteOutlined
+                  className="cursor-pointer text-xl !text-red-500"
+                  onClick={() => deleteMutation(orderItem.id)}
+                />
+
+                {!isCreate &&
+                  (isProductEditableId === orderItem.id ? (
+                    <span className="flex flex-col items-center gap-3">
+                      <SaveOutlined
+                        className="cursor-pointer text-xl"
+                        onClick={() => {
+                          if (
+                            productPriceEditVal?.find(
+                              (product) => product.id === isProductEditableId
+                            )?.number_of_packs < 0
+                          )
+                            return message.error("Negative values not allowed");
+                          handleItemUpdate.mutate({
+                            orderId,
+                            itemId: isProductEditableId,
+                            data: {
+                              price_per_piece: productPriceEditVal?.find(
+                                (product) => product.id === isProductEditableId
+                              )?.price,
+                              number_of_packs: productPriceEditVal?.find(
+                                (product) => product.id === isProductEditableId
+                              )?.number_of_packs,
+                            },
+                          });
+                        }}
+                      />
+
+                      <CloseCircleOutlined
+                        className="cursor-pointer text-xl"
+                        onClick={() => {
+                          setIsProductEditableId(null);
+                          setProductPriceEditVal(
+                            orderItems?.map(({ id, price, quantity }) => ({
+                              id,
+                              price,
+                              number_of_packs: quantity,
+                            }))
+                          );
+                        }}
+                      />
+                    </span>
+                  ) : (
+                    <EditOutlined
+                      className="cursor-pointer text-xl"
+                      onClick={() => setIsProductEditableId(orderItem.id)}
+                    />
+                  ))}
+              </div>
             </div>
-            <Button
-              className="!rounded-lg text-sm px-3 mr-3"
-              danger
-              onClick={() => deleteMutation(orderItem.id)}
-            >
-              <span>Delete</span>
-            </Button>
-            {!isCreate &&
-              (isProductEditableId === orderItem.id ? (
-                <span className="inline-flex items-center gap-3">
-                  <Button
-                    className="!rounded-lg text-sm px-3"
-                    type="primary"
-                    onClick={() => {
-                      if (
-                        productPriceEditVal?.find(
-                          (product) => product.id === isProductEditableId
-                        )?.number_of_packs < 0
-                      )
-                        return message.error("Negative values not allowed");
-                      handleItemUpdate.mutate({
-                        orderId,
-                        itemId: isProductEditableId,
-                        data: {
-                          price_per_piece: productPriceEditVal?.find(
-                            (product) => product.id === isProductEditableId
-                          )?.price,
-                          number_of_packs: productPriceEditVal?.find(
-                            (product) => product.id === isProductEditableId
-                          )?.number_of_packs,
-                        },
-                      });
-                    }}
-                  >
-                    Save
-                  </Button>
-
-                  <Button
-                    className="!rounded-lg text-sm px-3"
-                    onClick={() => {
-                      setIsProductEditableId(null);
-                      setProductPriceEditVal(
-                        orderItems?.map(({ id, price, quantity }) => ({
-                          id,
-                          price,
-                          number_of_packs: quantity,
-                        }))
-                      );
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                </span>
-              ) : (
-                <Button
-                  className="!rounded-lg text-sm px-3"
-                  onClick={() => setIsProductEditableId(orderItem.id)}
-                >
-                  Edit
-                </Button>
-              ))}
-
-            <Divider
-              className={`bg-slate-300 ${
-                index + 1 === orderItems?.length && "!hidden"
-              }`}
-            />
           </Fragment>
         ))}
     </>

@@ -231,7 +231,6 @@ const MobileViewOrderForm = ({ user, setBasketItemsStatus }) => {
         />
       )}
 
-      <hr className="my-5" />
       <h2 className="font-medium text-base mb-5">Add Item</h2>
 
       {forms?.map((basketForm, index) => (

@@ -9,7 +9,6 @@ import {
   Spin,
   Table,
   Tag,
-  Steps,
   Modal,
   message,
   Tooltip,
@@ -26,12 +25,11 @@ import {
   PlusOutlined,
   QuestionCircleOutlined,
 } from "@ant-design/icons";
-import { BsCheckCircleFill } from "react-icons/bs";
 import { useMutation, useQuery } from "react-query";
 import { useParams } from "react-router-dom";
 import moment from "moment";
-import { useEffect } from "react";
-import { uniqBy, isEmpty } from "lodash";
+import { useEffect, useState } from "react";
+import { isEmpty } from "lodash";
 import {
   addOrderItem,
   deleteOrderItem,
@@ -42,18 +40,11 @@ import {
   openSuccessNotification,
 } from "../../../utils/openNotification";
 import CustomPageHeader from "../../../shared/PageHeader";
-import { useState } from "react";
-import { getAdminUsers } from "../../../api/users";
-import {
-  updateOrder,
-  updateOrderItem,
-  getPaginatedOrders,
-} from "../../../api/orders";
+import { updateOrderItem, getPaginatedOrders } from "../../../api/orders";
 import {
   DEFAULT_CARD_IMAGE,
   DELIVERY_STATUS,
   ORDER_INVOICE_URL,
-  ORDER_STATUS_ENUMS,
   PAYMENT_STATUS,
 } from "../../../constants";
 // import getOrderStatusColor from "../../../shared/tagColor";
@@ -66,13 +57,12 @@ import { GET_ALL_PRODUCT_SKUS } from "../../../constants/queryKeys";
 import { getAllProductSkus } from "../../../api/products/productSku";
 import MobileViewOrderPage from "./MobileViewOrderPage";
 import ViewOrderShipping from "./shared/ViewOrderShipping";
+import AssignUser from "./shared/AssignUser";
 
 const ViewOrderPage = () => {
-  const { userGroupIds, isMobileView } = useAuth();
+  const { isMobileView } = useAuth();
 
   const { orderId: initialOrderId } = useParams();
-
-  const { Option } = Select;
 
   const [orderId, setOrderId] = useState(initialOrderId);
 
@@ -83,7 +73,7 @@ const ViewOrderPage = () => {
 
   const [selectedProductSku, setSelectedSku] = useState();
 
-  const [selectedProductPack, setSelectedPack] = useState();
+  const [selectedProductPack, setSelectedPack] = useState(null);
 
   const [quantity, setQuantity] = useState(1);
 
@@ -97,18 +87,9 @@ const ViewOrderPage = () => {
 
   const [isViewOrderShippingOpen, setIsViewOrderShippingOpen] = useState(false);
 
-  const [page, setPage] = useState(1);
+  const [isAssignUserOpen, setIsAssignUserOpen] = useState(false);
 
-  const [userList, setUserList] = useState([]);
-
-  let timeout = 0;
-
-  const {
-    data,
-    status,
-    refetch: refetchOrderItems,
-    isRefetching,
-  } = useQuery({
+  const { data, refetch: refetchOrderItems } = useQuery({
     queryFn: () => getOrder(orderId),
     queryKey: ["getOrder", orderId],
     enabled: !!orderId,
@@ -151,30 +132,9 @@ const ViewOrderPage = () => {
     status: userStatus,
   } = useQuery({
     queryFn: () => data && getUser(data && data.user_profile_id),
-    queryKey: ["get-user", data && data.user],
+    queryKey: ["get-user", data && data.user_profile_id],
     enabled: !!data,
   });
-
-  const {
-    data: dataUser,
-    status: usersStatus,
-    refetch: refetchUserList,
-  } = useQuery({
-    queryFn: () => userGroupIds && getAdminUsers(userGroupIds, page, 100, ""),
-    queryKey: ["getUserList", userGroupIds, page.toString()],
-    enabled: !!userGroupIds,
-  });
-
-  useEffect(() => {
-    if (dataUser) {
-      setUserList((prev) => uniqBy([...prev, ...dataUser.results], "id"));
-    }
-  }, [dataUser]);
-
-  useEffect(() => {
-    refetchUserList();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
 
   const handleAddItem = useMutation(
     () =>
@@ -185,6 +145,7 @@ const ViewOrderPage = () => {
     {
       onSuccess: (data) => {
         openSuccessNotification(data.message || "Item Added");
+        setSelectedPack(null);
       },
       onError: (error) => {
         openErrorNotification(error);
@@ -223,6 +184,16 @@ const ViewOrderPage = () => {
       };
     }
   );
+
+  useEffect(() => {
+    let shouldPress = selectedProductPack;
+    window.addEventListener("keydown", (e) => {
+      if (e.code === "Enter" && shouldPress) handleAddItem.mutate();
+    });
+
+    return () => (shouldPress = false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedProductPack]);
 
   const total = {
     subTotal: parseFloat(
@@ -312,22 +283,6 @@ const ViewOrderPage = () => {
     }
   );
 
-  const onAssignedToUpdate = useMutation(
-    (formValues) =>
-      updateOrder(orderId, { assigned_to: formValues["assigned_to"] }),
-    {
-      onSuccess: (data) => {
-        openSuccessNotification(data.message || "Order Updated");
-      },
-      onSettled: () => {
-        // refetchOrders();
-      },
-      onError: (error) => {
-        openErrorNotification(error);
-      },
-    }
-  );
-
   const getPaymentStatusColor = (status) => {
     switch (status) {
       case PAYMENT_STATUS[0]:
@@ -339,6 +294,87 @@ const ViewOrderPage = () => {
     }
   };
 
+  const descriptionColumns = [
+    {
+      title: "Payment Amount",
+      dataIndex: "payment_amount",
+      key: "payment_amount",
+      render: (text) => <span className="flex gap-0.5">Rs. {text}</span>,
+    },
+    {
+      title: "Payment Status",
+      dataIndex: "status",
+      key: "status",
+      render: (_, { status }) => (
+        <Tag color={getPaymentStatusColor(status)}>
+          {status.replaceAll("_", " ").toUpperCase()}
+        </Tag>
+      ),
+    },
+    {
+      title: "Completed At",
+      dataIndex: "completed_at",
+      key: "completed_at",
+      render: (_, { completed_at }) =>
+        completed_at ? <>{moment(completed_at).format("ll hh:mm a")}</> : "-",
+    },
+    {
+      title: "Total Amount",
+      dataIndex: "total_amount",
+      key: "total_amount",
+      render: (text) => <span className="flex gap-0.5">Rs. {text}</span>,
+    },
+    {
+      title: "Cashback Applied",
+      dataIndex: "cashback_applied",
+      key: "cashback_applied",
+      render: (text) => <span className="flex gap-0.5">Rs. {text}</span>,
+    },
+    {
+      title: "Cashback Earned",
+      dataIndex: "cashback_earned",
+      key: "cashback_earned",
+      render: (text) => <span className="flex gap-0.5">Rs. {text}</span>,
+    },
+    {
+      title: "PID",
+      dataIndex: "pid",
+      key: "pid",
+    },
+    {
+      title: "REF ID",
+      dataIndex: "refId",
+      key: "refId",
+    },
+    {
+      title: "Voucher Image",
+      dataIndex: "voucher_image",
+      key: "voucher_image",
+      render: (_, { voucher_image }) =>
+        voucher_image ? (
+          <div>
+            <span
+              className="text-blue-500 cursor-pointer hover:underline my-0 py-0 transition-all"
+              onClick={() => setIsVoucherPreviewVisible(true)}
+            >
+              View Preview
+            </span>
+            <Image
+              className="hidden"
+              preview={{
+                visible: isVoucherPreviewVisible,
+                onVisibleChange: (visible) =>
+                  setIsVoucherPreviewVisible(visible),
+              }}
+              src={data.payment.voucher_image || DEFAULT_CARD_IMAGE}
+            />
+          </div>
+        ) : (
+          "-"
+        ),
+    },
+  ];
+
   const columns = [
     {
       title: "Product Name",
@@ -349,20 +385,14 @@ const ViewOrderPage = () => {
         text === "isForm" ? (
           <div id="dropdown">
             <Select
+              bordered={false}
               className="w-full"
               dropdownMatchSelectWidth={false}
               dropdownRender={(menu) => (
-                <div
-                  className={`!w-[40rem] min-h-[${
-                    dataSource?.length < 9 ? dataSource?.length * 32 : 8 * 32
-                  }px]`}
-                >
-                  {menu}
-                </div>
+                <div className="!w-[40rem]">{menu}</div>
               )}
               dropdownStyle={{ overflowWrap: "anywhere" }}
-              getPopupContainer={() => document.getElementById("dropdown")}
-              placeholder="Select Product SKU"
+              getPopupContainer={() => document.body}
               showSearch
               onSelect={(value) => {
                 setSelectedSku(value);
@@ -395,8 +425,8 @@ const ViewOrderPage = () => {
         text === "isForm" ? (
           <>
             <Input
-              className="w-fit"
-              placeholder="Quantity"
+              bordered={false}
+              className="w-fit !border-0 px-0"
               type="number"
               value={quantity}
               onChange={(e) => {
@@ -443,34 +473,37 @@ const ViewOrderPage = () => {
       width: "9%",
       render: (text) =>
         text === "isForm" ? (
-          <Select
-            key={selectedProductSku}
-            className="w-20"
-            defaultValue={
-              productSkus &&
-              productSkus.find((item) => item.slug === selectedProductSku)
-                ?.product_packs[0]?.id
-            }
-            placeholder="Select Pack Size"
-            showSearch
-            onSelect={(value) =>
-              setSelectedPack(
+          <div id="dropdown">
+            <Select
+              key={selectedProductSku}
+              bordered={false}
+              className="w-20"
+              defaultValue={
                 productSkus &&
-                  productSkus
-                    .find((item) => item.slug === selectedProductSku)
-                    ?.product_packs?.find((pack) => pack.id === value)
-              )
-            }
-          >
-            {productSkus &&
-              productSkus
-                .find((item) => item.slug === selectedProductSku)
-                ?.product_packs?.map((pack) => (
-                  <Select.Option key={pack.id} value={pack.id}>
-                    {pack.number_of_items}
-                  </Select.Option>
-                ))}
-          </Select>
+                productSkus.find((item) => item.slug === selectedProductSku)
+                  ?.product_packs[0]?.id
+              }
+              getPopupContainer={() => document.body}
+              showSearch
+              onSelect={(value) =>
+                setSelectedPack(
+                  productSkus &&
+                    productSkus
+                      .find((item) => item.slug === selectedProductSku)
+                      ?.product_packs?.find((pack) => pack.id === value)
+                )
+              }
+            >
+              {productSkus &&
+                productSkus
+                  .find((item) => item.slug === selectedProductSku)
+                  ?.product_packs?.map((pack) => (
+                    <Select.Option key={pack.id} value={pack.id}>
+                      {pack.number_of_items}
+                    </Select.Option>
+                  ))}
+            </Select>
+          </div>
         ) : (
           <>{text}</>
         ),
@@ -479,7 +512,7 @@ const ViewOrderPage = () => {
       title: "Loyalty Points",
       dataIndex: "loyaltyPoints",
       key: "loyaltyPoints",
-      width: "12%",
+      width: "14%",
       render: (text) =>
         text === "isForm" ? (
           <span>
@@ -496,33 +529,37 @@ const ViewOrderPage = () => {
       title: "Cashback",
       dataIndex: "cashback",
       key: "cashback",
-      width: "12%",
+      width: "10%",
       render: (text) =>
         text === "isForm" ? (
-          <span>
-            Rs.{" "}
+          <span className="flex gap-0.5">
+            <span>Rs.</span>
             {parseInt(
               selectedProductPack?.loyalty_cashback?.cashback_amount_per_pack,
               10
             ) * quantity || 0}
           </span>
         ) : (
-          <>Rs. {text}</>
+          <span className="flex gap-0.5">
+            <span>Rs.</span> {text}
+          </span>
         ),
     },
     {
       title: "Price",
       dataIndex: "price",
       key: "price",
-      width: "12%",
+      width: "10%",
       render: (text, { id }) =>
         text === "isForm" ? (
-          <span>Rs. {selectedProductPack?.price_per_piece || 0}</span>
+          <span className="flex gap-0.5">
+            Rs. {selectedProductPack?.price_per_piece || 0}
+          </span>
         ) : (
-          <div className="flex items-center">
+          <div className="flex items-center gap-0.5">
             <span>Rs.</span>
             <Input
-              className={`!bg-inherit !text-black !w-24 ${
+              className={`!bg-inherit !text-black !w-24 !pl-0 ${
                 isProductEditableId !== id && "!border-none"
               }`}
               disabled={isProductEditableId !== id}
@@ -564,31 +601,27 @@ const ViewOrderPage = () => {
       width: "12%",
       render: (text, { id, numberOfItemsPerPack }) =>
         text === "isForm" ? (
-          <span>Rs. {getTotalAmount() || 0}</span>
+          <span className="flex items-center gap-0.5">
+            <span>Rs.</span> {getTotalAmount() || 0}
+          </span>
         ) : (
-          <>
-            Rs.{" "}
+          <span className="flex items-center gap-0.5">
+            <span> Rs.</span>
             {productPriceEditVal?.find((product) => product.id === id)?.price *
               numberOfItemsPerPack *
               productPriceEditVal?.find((product) => product.id === id)
                 ?.number_of_packs}
-          </>
+          </span>
         ),
     },
 
     {
-      title: "Action",
+      title: <span className="px-3">Action</span>,
       dataIndex: "action",
       key: "action",
-      width: "12%",
       render: (text, { id }) =>
-        text === "isForm" ? (
-          <PlusOutlined
-            className="cursor-pointer"
-            onClick={() => handleAddItem.mutate()}
-          />
-        ) : (
-          <div className="inline-flex items-center gap-3">
+        text !== "isForm" && (
+          <div className="inline-flex items-center gap-3 px-3">
             <DeleteOutlined
               className="cursor-pointer"
               onClick={() => handleItemDelete.mutate(id)}
@@ -732,6 +765,15 @@ const ViewOrderPage = () => {
       />
 
       <div className="p-6 rounded-lg bg-[#FFFFFF]">
+        {data && (
+          <AssignUser
+            assignedTo={data.assigned_to}
+            closeModal={() => setIsAssignUserOpen(false)}
+            isOpen={isAssignUserOpen}
+            orderId={orderId}
+          />
+        )}
+
         <ChangePayment
           isOpen={openChangePayment}
           orderType={data?.type}
@@ -739,354 +781,266 @@ const ViewOrderPage = () => {
           onClose={() => setOpenChangePayment(false)}
         />
 
-        {data && !isMobileView && (
-          <Steps
-            className={`site-navigation-steps !mb-4 bg-[#F0F2F5] rounded-lg ${
-              isMobileView && "!p-4"
-            }`}
-            current={
-              ORDER_STATUS_ENUMS.find(({ id }) => data.status === id)?.index ||
-              ORDER_STATUS_ENUMS.length
-            }
-            type={isMobileView ? "inline" : "navigation"}
-            onChange={(val) => {
-              const status = ORDER_STATUS_ENUMS.find(
-                (_, index) => val === index
-              );
-
-              showConfirm(status.name, status.id);
-            }}
-          >
-            {ORDER_STATUS_ENUMS.map(({ name, id }, index) => (
-              <Steps.Step
-                key={id}
-                icon={
-                  ORDER_STATUS_ENUMS.find((status) => status.id === data.status)
-                    ?.index > index && (
-                    <BsCheckCircleFill
-                      className="text-3xl"
-                      style={{ color: "#52C41A" }}
-                    />
-                  )
-                }
-                status={
-                  data.status === id
-                    ? "process"
-                    : ORDER_STATUS_ENUMS.find(
-                        (status) => status.id === data.status
-                      )?.index > index
-                    ? "finish"
-                    : "wait"
-                }
-                title={
-                  <span
-                    className={`${
-                      ORDER_STATUS_ENUMS.find(
-                        (status) => status.id === data.status
-                      )?.index > index && "text-[#52C41A]"
-                    }`}
-                  >
-                    {name}
-                  </span>
-                }
-              />
-            ))}
-            {isEmpty(
-              ORDER_STATUS_ENUMS.find((status) => status.id === data.status)
-            ) && (
-              <Steps.Step
-                status={"error"}
-                title={
-                  DELIVERY_STATUS.find(({ id }) => id === data.status)?.name
-                }
-              />
-            )}
-          </Steps>
-        )}
-
-        {userStatus === "loading" ? (
-          <Spin />
-        ) : (
-          user && (
-            <div className="flex flex-row sm:pb-4 pb-2">
-              <img
-                alt={user.full_name}
-                className="sm:block hidden sm:mr-3 sm:h-14 sm:w-14 h-20 w-20 object-cover"
-                src={user.profile_picture.thumbnail || rasanDefault}
-              />
-              <div className="flex flex-col sm:gap-0 gap-1">
-                <div className="font-medium text-lg">
-                  {user.full_name || "User"}
-                </div>
-                <div className="flex sm:flex-row flex-col sm:items-center sm:gap-0 gap-1 text-light_text">
-                  <div className="flex items-center pr-4">
-                    <HomeOutlined className="mr-1" />
-                    {user.shop.name}
+        <div className="w-full flex sm:flex-row flex-col justify-between sm:items-center items-start sm:gap-0 gap-3">
+          {userStatus === "loading" ? (
+            <Spin />
+          ) : (
+            user && (
+              <div className="flex flex-row sm:pb-4 pb-2">
+                <img
+                  alt={user.full_name}
+                  className="sm:block hidden sm:mr-3 sm:h-14 sm:w-14 h-20 w-20 object-cover"
+                  src={user.profile_picture.thumbnail || rasanDefault}
+                />
+                <div className="flex flex-col sm:gap-0 gap-1">
+                  <div className="font-medium text-lg">
+                    {user.full_name || "User"}
                   </div>
-                  <div className="flex items-center pr-4">
-                    <PhoneOutlined className="mr-1" />
-                    {user.phone}
-                  </div>
-                  <div className="flex items-center pr-4">
-                    <EnvironmentOutlined className="mr-1" />
-                    {!data?.shipping_address ? (
-                      <Button
-                        size="small"
-                        onClick={() => setIsViewOrderShippingOpen(true)}
-                      >
-                        Select Shipping Address
-                      </Button>
-                    ) : (
-                      <>
-                        Shipping address:{" "}
-                        {
-                          user.addresses?.find(
-                            (add) => add.id === data?.shipping_address
-                          )?.detail_address
-                        }
-                      </>
-                    )}
+                  <div className="flex sm:flex-row flex-col sm:items-center sm:gap-0 gap-1 text-light_text">
+                    <div className="flex items-center pr-4">
+                      <HomeOutlined className="mr-1" />
+                      {user.shop.name}
+                    </div>
+                    <div className="flex items-center pr-4">
+                      <PhoneOutlined className="mr-1" />
+                      {user.phone}
+                    </div>
+                    <div className="flex items-center pr-4">
+                      <EnvironmentOutlined className="mr-1" />
+                      {!data?.shipping_address ? (
+                        <Button
+                          size="small"
+                          onClick={() => setIsViewOrderShippingOpen(true)}
+                        >
+                          Select Shipping Address
+                        </Button>
+                      ) : (
+                        <>
+                          Shipping address:{" "}
+                          {
+                            user.addresses?.find(
+                              (add) => add.id === data?.shipping_address
+                            )?.detail_address
+                          }
+                        </>
+                      )}
 
-                    <ViewOrderShipping
-                      closeModal={() => setIsViewOrderShippingOpen(false)}
-                      isOpen={isViewOrderShippingOpen}
-                      refetchOrder={refetchOrderItems}
-                      refetchUser={refetchUser}
-                      user={user}
-                      userId={data?.user_profile_id}
-                    />
+                      <ViewOrderShipping
+                        closeModal={() => setIsViewOrderShippingOpen(false)}
+                        isOpen={isViewOrderShippingOpen}
+                        refetchOrder={refetchOrderItems}
+                        refetchUser={refetchUser}
+                        user={user}
+                        userId={data?.user_profile_id}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          )
-        )}
+            )
+          )}
 
-        <div className="flex sm:flex-row flex-col !items-start justify-between w-full">
-          <Space className="sm:mb-4 mb-2" size="middle">
-            {/* <Tag color={getOrderStatusColor(data?.status)}>
-              {data?.status?.replaceAll("_", " ")?.toUpperCase()}
-            </Tag> */}
+          <div className="flex flex-col sm:items-end gap-2">
+            <span className="text-gray-500 font-normal text-sm">
+              {moment(data?.created_at).format("lll")}
+            </span>
 
-            <Button type="danger">
-              <a
-                href={ORDER_INVOICE_URL.replace("{ORDER_ID}", orderId)}
-                rel="noreferrer"
-                target="_blank"
-              >
-                Invoice
-              </a>
-            </Button>
-
-            {data && (
-              <>
-                <Select
-                  className="sm:w-44 w-full"
-                  disabled={handleUpdateStatus.status === "loading"}
-                  placeholder="Select Order Status"
-                  value={data.status}
-                  showSearch
-                  onChange={(value) =>
-                    showConfirm(
-                      DELIVERY_STATUS.find(({ id }) => id === value).name,
-                      value
-                    )
-                  }
-                >
-                  {DELIVERY_STATUS.map(({ name, id }) => (
-                    <Select.Option key={id} value={id}>
-                      {name}
-                    </Select.Option>
-                  ))}
-                </Select>
-                {handleUpdateStatus.status === "loading" && (
-                  <Spin size="small" />
-                )}
-              </>
-            )}
-          </Space>
-
-          <Form
-            className="sm:!w-auto !w-full"
-            onFinish={(values) => onAssignedToUpdate.mutate(values)}
-          >
-            {data && (
-              <div className="flex sm:flex-row gap-2 flex-col">
-                <Form.Item
-                  className="!mb-0"
-                  initialValue={data?.assigned_to}
-                  label="Assign To"
-                  name="assigned_to"
-                >
+            <Space className="sm:mb-4 mb-2" size="small">
+              {data && (
+                <>
                   <Select
-                    className="sm:!w-[300px] w-full"
-                    defaultValue={data?.assigned_to}
-                    filterOption={false}
-                    loading={usersStatus === "loading"}
-                    mode="multiple"
-                    placeholder="Select Users"
+                    className="sm:w-44 w-full"
+                    disabled={handleUpdateStatus.status === "loading"}
+                    placeholder="Select Order Status"
+                    value={data.status}
                     showSearch
-                    onPopupScroll={() =>
-                      data?.next && setPage((prev) => prev + 1)
+                    onChange={(value) =>
+                      showConfirm(
+                        DELIVERY_STATUS.find(({ id }) => id === value).name,
+                        value
+                      )
                     }
-                    onSearch={(val) => {
-                      if (timeout) clearTimeout(timeout);
-                      timeout = setTimeout(async () => {
-                        setPage(1);
-                        const res = await getAdminUsers(
-                          userGroupIds,
-                          page,
-                          100,
-                          val
-                        );
-                        setUserList([]);
-                        setUserList(res.results);
-                      }, 200);
-                    }}
                   >
-                    {userList &&
-                      userList.map((user) => (
-                        <Option key={user.id} value={user.phone}>
-                          {user.full_name
-                            ? `${user.full_name} (${user.phone})`
-                            : user.phone}
-                        </Option>
-                      ))}
+                    {DELIVERY_STATUS.map(({ name, id }) => (
+                      <Select.Option key={id} value={id}>
+                        {name}
+                      </Select.Option>
+                    ))}
                   </Select>
-                </Form.Item>
+                  {handleUpdateStatus.status === "loading" && (
+                    <Spin size="small" />
+                  )}
+                </>
+              )}
 
-                <Form.Item className="!mb-0">
-                  <Button
-                    htmlType="submit"
-                    loading={onAssignedToUpdate.status === "loading"}
-                    type="primary"
-                  >
-                    SAVE
-                  </Button>
-                </Form.Item>
-              </div>
-            )}
-          </Form>
+              <Button type="danger">
+                <a
+                  href={ORDER_INVOICE_URL.replace("{ORDER_ID}", orderId)}
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  Invoice
+                </a>
+              </Button>
+
+              <Button
+                className="!bg-[#00A0B0] !border-none"
+                type="primary"
+                onClick={() => setIsAssignUserOpen(true)}
+              >
+                Assign User
+              </Button>
+            </Space>
+          </div>
         </div>
 
         {data && data.payment && (
           <Descriptions
-            className={"sm:mt-6 mt-2"}
-            column={isMobileView ? 1 : 3}
+            bordered={isMobileView}
+            className="sm:my-6 my-3"
+            column={1}
             title={
-              <Space className="w-full flex sm:flex-row flex-col-reverse sm:!items-center !items-start justify-between">
-                <div className="inline-flex gap-2 items-center">
-                  <span className="font-medium text-base">Order Payment</span>
-                  <Button
-                    type="primary"
-                    onClick={() => setOpenChangePayment((prev) => !prev)}
-                  >
-                    Change Payment
-                  </Button>
-                </div>
-                <span className="text-gray-500 font-normal text-sm">
-                  {moment(data?.created_at).format("ll")}
-                </span>
-              </Space>
+              <div className="inline-flex gap-2 items-center">
+                <span className="font-medium text-base">Order Payment</span>
+                <Button
+                  className="!bg-[#00B0C2] !border-none"
+                  type="primary"
+                  onClick={() => setOpenChangePayment((prev) => !prev)}
+                >
+                  Change Payment
+                </Button>
+              </div>
             }
-            bordered
           >
-            <Descriptions.Item label="Payment Amount" span={1}>
-              {data.payment.payment_amount}
-            </Descriptions.Item>
-            <Descriptions.Item label="Payment Status" span={1}>
-              <Tag color={getPaymentStatusColor(data.payment.status)}>
-                {data.payment.status.replaceAll("_", " ").toUpperCase()}
-              </Tag>
-            </Descriptions.Item>
-            <Descriptions.Item label="Completed At" span={1}>
-              {data.payment.completed_at
-                ? moment(data.payment.completed_at).format("ll hh:mm a")
-                : "-"}
-            </Descriptions.Item>
-            <Descriptions.Item label="Total Amount" span={1}>
-              {data.total_amount}
-            </Descriptions.Item>
-            <Descriptions.Item label="Cashback Applied" span={1}>
-              {data.previous_cashback_applied}
-            </Descriptions.Item>
-            <Descriptions.Item label="Cashback Earned" span={1}>
-              {data.total_cashback_earned}
-            </Descriptions.Item>
-            <Descriptions.Item label="PID" span={3}>
-              {data.payment.pid || "-"}
-            </Descriptions.Item>
-            <Descriptions.Item label="REF ID" span={3}>
-              {data.payment.refId || "-"}
-            </Descriptions.Item>
-
-            <Descriptions.Item label="Voucher Image" span={2}>
-              {data.payment.voucher_image ? (
-                <div>
-                  <span
-                    className="text-blue-500 cursor-pointer hover:underline my-0 py-0 transition-all"
-                    onClick={() => setIsVoucherPreviewVisible(true)}
-                  >
-                    View Preview
-                  </span>
-                  <Image
-                    className="hidden"
-                    preview={{
-                      visible: isVoucherPreviewVisible,
-                      onVisibleChange: (visible) =>
-                        setIsVoucherPreviewVisible(visible),
-                    }}
-                    src={data.payment.voucher_image || DEFAULT_CARD_IMAGE}
-                    width={150}
-                  />
-                </div>
-              ) : (
-                "-"
-              )}
-            </Descriptions.Item>
+            {isMobileView ? (
+              <>
+                <Descriptions.Item label="Payment Amount" span={1}>
+                  {data.payment.payment_amount}
+                </Descriptions.Item>
+                <Descriptions.Item label="Payment Status" span={1}>
+                  <Tag color={getPaymentStatusColor(data.payment.status)}>
+                    {data.payment.status.replaceAll("_", " ").toUpperCase()}
+                  </Tag>
+                </Descriptions.Item>
+                <Descriptions.Item label="Completed At" span={1}>
+                  {data.payment.completed_at
+                    ? moment(data.payment.completed_at).format("ll hh:mm a")
+                    : "-"}
+                </Descriptions.Item>
+                <Descriptions.Item label="Total Amount" span={1}>
+                  {data.total_amount}
+                </Descriptions.Item>
+                <Descriptions.Item label="Cashback Applied" span={1}>
+                  {data.previous_cashback_applied}
+                </Descriptions.Item>
+                <Descriptions.Item label="Cashback Earned" span={1}>
+                  {data.total_cashback_earned}
+                </Descriptions.Item>
+                <Descriptions.Item label="PID" span={3}>
+                  {data.payment.pid || "-"}
+                </Descriptions.Item>
+                <Descriptions.Item label="REF ID" span={3}>
+                  {data.payment.refId || "-"}
+                </Descriptions.Item>
+                <Descriptions.Item label="Voucher Image" span={2}>
+                  {data.payment.voucher_image ? (
+                    <div>
+                      <span
+                        className="text-blue-500 cursor-pointer hover:underline my-0 py-0 transition-all"
+                        onClick={() => setIsVoucherPreviewVisible(true)}
+                      >
+                        View Preview
+                      </span>
+                      <Image
+                        className="hidden"
+                        preview={{
+                          visible: isVoucherPreviewVisible,
+                          onVisibleChange: (visible) =>
+                            setIsVoucherPreviewVisible(visible),
+                        }}
+                        src={data.payment.voucher_image || DEFAULT_CARD_IMAGE}
+                        width={150}
+                      />
+                    </div>
+                  ) : (
+                    "-"
+                  )}
+                </Descriptions.Item>
+              </>
+            ) : (
+              <Descriptions.Item className="!p-0">
+                <Table
+                  className="w-full"
+                  columns={descriptionColumns}
+                  dataSource={[
+                    {
+                      payment_amount: data.payment.payment_amount,
+                      status: data.payment.status,
+                      completed_at: data.payment.completed_at,
+                      total_amount: data.total_amount,
+                      cashback_applied: data.previous_cashback_applied,
+                      cashback_earned: data.total_cashback_earned,
+                      pid: data.payment.pid,
+                      refId: data.payment.refId,
+                      voucher_image: data.payment.voucher_image,
+                    },
+                  ]}
+                  pagination={false}
+                />
+              </Descriptions.Item>
+            )}
           </Descriptions>
         )}
-        <br />
-        <br />
 
-        <h2 className="font-medium text-base mb-5">Order Items</h2>
-        {!isRefetching &&
-          status === "success" &&
-          (isMobileView ? (
-            <MobileViewOrderPage
-              deleteMutation={(id) => handleItemDelete.mutate(id)}
-              orderId={orderId}
-              orderItems={dataSource}
-              refetchOrderItems={refetchOrderItems}
+        <h2 className="font-medium text-base mb-5">Ordered Items</h2>
+
+        {isMobileView ? (
+          <MobileViewOrderPage
+            deleteMutation={(id) => handleItemDelete.mutate(id)}
+            orderId={orderId}
+            orderItems={dataSource}
+            refetchOrderItems={refetchOrderItems}
+          />
+        ) : (
+          <div id="order-table">
+            <Table
+              columns={columns}
+              dataSource={
+                (dataSource && [
+                  ...dataSource,
+                  {
+                    productName: "isForm",
+                    quantity: "isForm",
+                    packSize: "isForm",
+                    price: "isForm",
+                    total: "isForm",
+                    loyaltyPoints: "isForm",
+                    cashback: "isForm",
+                    action: "isForm",
+                  },
+                ]) ||
+                []
+              }
+              getPopupContainer={() => document.getElementById("order-table")}
+              pagination={false}
+              scroll={{
+                x: isEmpty(dataSource) && !isMobileView ? null : 1000,
+              }}
+              bordered
             />
-          ) : (
-            <>
-              <Table
-                columns={columns}
-                dataSource={
-                  (dataSource && [
-                    ...dataSource,
-                    {
-                      productName: "isForm",
-                      quantity: "isForm",
-                      packSize: "isForm",
-                      price: "isForm",
-                      total: "isForm",
-                      loyaltyPoints: "isForm",
-                      cashback: "isForm",
-                      action: "isForm",
-                    },
-                  ]) ||
-                  []
-                }
-                pagination={false}
-                scroll={{
-                  x: isEmpty(dataSource) && !isMobileView ? null : 1000,
-                }}
-              />
 
-              <div className="w-full px-[8.2%] flex flex-col gap-2 items-end mt-2 text-sm">
-                <span className=" flex gap-10">
+            <div className="w-full flex justify-between mt-3 text-sm">
+              <Button
+                className="!p-0 !border-none !bg-inherit !text-[#00B0C2]"
+                disabled={!selectedProductSku}
+                icon={<PlusOutlined className="cursor-pointer w-fit" />}
+                onClick={() => handleAddItem.mutate()}
+              >
+                Add new SKU
+              </Button>
+
+              <div className="flex flex-col gap-2 items-end">
+                <span className="flex gap-10">
                   <span>SubTotal</span>
                   <span>Rs. {total.subTotal}</span>
                 </span>
@@ -1097,15 +1051,18 @@ const ViewOrderPage = () => {
 
                 <span className="flex gap-10">
                   <span>Total</span>
-                  <span>Rs. {total.getGrandTotal()}</span>
+                  <span className="font-semibold">
+                    Rs. {total.getGrandTotal()}
+                  </span>
                 </span>
               </div>
-            </>
-          ))}
+            </div>
+          </div>
+        )}
 
         {isMobileView && (
           <>
-            <hr className="my-5" />
+            <hr className="sm:block hidden my-5" />
             <h2 className="font-medium text-base mb-5">Add Item</h2>
 
             {(handleAddItem.status === "loading" ||

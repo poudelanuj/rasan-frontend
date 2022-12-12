@@ -1,6 +1,6 @@
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
-import { Input, Select, Table } from "antd";
-import { useState } from "react";
+import { Button, Input, Select, Table } from "antd";
+import { useState, useEffect } from "react";
 import { useMutation, useQuery } from "react-query";
 import { isEmpty } from "lodash";
 import {
@@ -30,12 +30,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
     quantity: 1,
   });
 
-  const {
-    data: basketData,
-    status: basketDataStatus,
-    refetch: refetchBasketItems,
-    isRefetching: isBasketItemsRefetching,
-  } = useQuery({
+  const { data: basketData, refetch: refetchBasketItems } = useQuery({
     queryFn: () => getBasketInfo(basket_id),
     queryKey: ["getBasketInfo", basket_id],
     enabled: !!basket_id,
@@ -64,6 +59,10 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
           product_pack: null,
           quantity: 1,
         });
+        window.removeEventListener("keydown", (e) => {
+          if (e.code === "Enter")
+            form.product_pack && handleBasketSubmit.mutate(form);
+        });
       },
       onError: (error) => {
         openErrorNotification(error);
@@ -73,6 +72,16 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
       },
     }
   );
+
+  useEffect(() => {
+    let shouldPress = form.product_pack;
+    window.addEventListener("keydown", (e) => {
+      if (e.code === "Enter" && shouldPress) handleBasketSubmit.mutate(form);
+    });
+
+    return () => (shouldPress = false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form]);
 
   const dataSource = basketData?.items?.map(
     ({ id, number_of_packs, product_pack, product_sku }) => {
@@ -150,16 +159,15 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
         return text === "isForm" ? (
           <div id="dropdown">
             <Select
-              className="w-full"
-              dropdownAlign={{ offset: [-40, 4] }}
+              bordered={false}
+              className="w-full !border-0"
               dropdownMatchSelectWidth={false}
               dropdownRender={(menu) => (
                 <div className="!w-[40rem]">{menu}</div>
               )}
               dropdownStyle={{ overflowWrap: "anywhere" }}
-              getPopupContainer={() => document.getElementById("dropdown")}
+              getPopupContainer={() => document.body}
               loading={productsStatus === "loading"}
-              placeholder="Select Product SKU"
               showSearch
               onSelect={(value) => {
                 setSelectedProductSku(value);
@@ -192,8 +200,8 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
         return text === "isForm" ? (
           <>
             <Input
-              className="w-fit"
-              placeholder="Quantity"
+              bordered={false}
+              className="w-fit !border-0 !px-0"
               type="number"
               value={form?.quantity}
               onChange={(e) => {
@@ -221,34 +229,37 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
       width: "9%",
       render: (text) => {
         return text === "isForm" ? (
-          <Select
-            key={selectedProductSku}
-            className="w-20"
-            defaultValue={
-              productSkus &&
-              productSkus.find((item) => item.slug === selectedProductSku)
-                ?.product_packs[0]?.id
-            }
-            placeholder="Select Pack Size"
-            showSearch
-            onSelect={(value) => {
-              setForm({
-                ...form,
-                product_pack: productSkus
+          <div id="dropdown">
+            <Select
+              key={selectedProductSku}
+              bordered={false}
+              className="w-20"
+              defaultValue={
+                productSkus &&
+                productSkus.find((item) => item.slug === selectedProductSku)
+                  ?.product_packs[0]?.id
+              }
+              getPopupContainer={() => document.body}
+              showSearch
+              onSelect={(value) => {
+                setForm({
+                  ...form,
+                  product_pack: productSkus
+                    .find((item) => item.slug === selectedProductSku)
+                    ?.product_packs?.find((pack) => pack.id === value),
+                });
+              }}
+            >
+              {productSkus &&
+                productSkus
                   .find((item) => item.slug === selectedProductSku)
-                  ?.product_packs?.find((pack) => pack.id === value),
-              });
-            }}
-          >
-            {productSkus &&
-              productSkus
-                .find((item) => item.slug === selectedProductSku)
-                ?.product_packs?.map((pack) => (
-                  <Select.Option key={pack.id} value={pack.id}>
-                    {pack.number_of_items}
-                  </Select.Option>
-                ))}
-          </Select>
+                  ?.product_packs?.map((pack) => (
+                    <Select.Option key={pack.id} value={pack.id}>
+                      {pack.number_of_items}
+                    </Select.Option>
+                  ))}
+            </Select>
+          </div>
         ) : (
           <>{text}</>
         );
@@ -258,7 +269,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
       title: "Loyalty Points",
       dataIndex: "loyaltyPoints",
       key: "loyaltyPoints",
-      width: "12%",
+      width: "14%",
       render: (text) => {
         return text === "isForm" ? (
           <span>
@@ -278,27 +289,32 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
       key: "cashback",
       width: "12%",
       render: (text) => (
-        <>
-          Rs.{" "}
-          {text === "isForm"
-            ? parseInt(
-                form?.product_pack?.loyalty_cashback?.cashback_amount_per_pack,
-                10
-              ) * form?.quantity || 0
-            : text}
-        </>
+        <div className="flex gap-0.5">
+          <span> Rs.</span>
+          <span>
+            {text === "isForm"
+              ? parseInt(
+                  form?.product_pack?.loyalty_cashback
+                    ?.cashback_amount_per_pack,
+                  10
+                ) * form?.quantity || 0
+              : text}
+          </span>
+        </div>
       ),
     },
     {
       title: "Price",
       dataIndex: "price",
       key: "price",
-      width: "12%",
+      width: "10%",
       render: (text) => (
-        <>
-          Rs. {text === "isForm" ? form?.product_pack?.price_per_piece : text}
-          /pc
-        </>
+        <div className="flex gap-0.5">
+          Rs.
+          <span>
+            {text === "isForm" ? form?.product_pack?.price_per_piece : text}
+          </span>
+        </div>
       ),
     },
     {
@@ -314,28 +330,25 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
       key: "total",
       width: "12%",
       render: (text) => (
-        <>
-          Rs.{" "}
-          {text === "isForm"
-            ? form?.product_pack?.price_per_piece *
-                form?.product_pack?.number_of_items *
-                form?.quantity || 0
-            : text}
-        </>
+        <div className="flex gap-0.5">
+          Rs.
+          <span>
+            {text === "isForm"
+              ? form?.product_pack?.price_per_piece *
+                  form?.product_pack?.number_of_items *
+                  form?.quantity || 0
+              : text}
+          </span>
+        </div>
       ),
     },
     {
-      title: "Action",
+      title: <span className="px-3">Action</span>,
       dataIndex: "action",
       key: "action",
       render: (text, { id }) => (
-        <div>
-          {text === "isForm" ? (
-            <PlusOutlined
-              className="cursor-pointer"
-              onClick={() => handleBasketSubmit.mutate(form)}
-            />
-          ) : (
+        <div className="px-3">
+          {text !== "isForm" && (
             <DeleteOutlined onClick={() => handleItemDelete.mutate(id)} />
           )}
         </div>
@@ -374,25 +387,38 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
               ]) ||
               []
             }
-            loading={isBasketItemsRefetching || basketDataStatus === "loading"}
             pagination={false}
             scroll={{ x: isEmpty(dataSource) && !isMobileView ? null : 1000 }}
+            bordered
           />
 
-          <div className="w-full px-[9.5%] flex flex-col gap-2 items-end mt-2 text-sm">
-            <span className="flex gap-10">
-              <span>SubTotal</span>
-              <span>Rs. {total.subTotal}</span>
-            </span>
-            <span className="flex gap-10">
-              <span>Tax (13%)</span>
-              <span>Rs. {total.tax}</span>
-            </span>
+          <div className="w-full flex justify-between mt-3 text-sm">
+            <Button
+              className="!p-0 !border-none !bg-inherit !text-[#00B0C2]"
+              disabled={!selectedProductSku || !form.product_pack}
+              icon={<PlusOutlined className="cursor-pointer w-fit" />}
+              onClick={() => handleBasketSubmit.mutate(form)}
+            >
+              Add new SKU
+            </Button>
 
-            <span className="flex gap-10">
-              <span>Total</span>
-              <span>Rs. {total.getGrandTotal()}</span>
-            </span>
+            <div className="flex flex-col gap-2 items-end">
+              <span className="flex gap-10">
+                <span>SubTotal</span>
+                <span>Rs. {total.subTotal}</span>
+              </span>
+              <span className="flex gap-10">
+                <span>Tax (13%)</span>
+                <span>Rs. {total.tax}</span>
+              </span>
+
+              <span className="flex gap-10">
+                <span>Total</span>
+                <span className="font-semibold">
+                  Rs. {total.getGrandTotal()}
+                </span>
+              </span>
+            </div>
           </div>
         </>
       )}
