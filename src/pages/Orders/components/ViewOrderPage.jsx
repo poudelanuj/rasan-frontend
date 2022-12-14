@@ -28,7 +28,7 @@ import {
 import { useMutation, useQuery } from "react-query";
 import { useParams } from "react-router-dom";
 import moment from "moment";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { isEmpty } from "lodash";
 import {
   addOrderItem,
@@ -68,6 +68,10 @@ const ViewOrderPage = () => {
 
   const [pageDirectionStatus, setPageDirectionStatus] =
     useState("decrementing");
+
+  const quantityRef = useRef(null);
+
+  const [isInitialClick, setIsInitialClick] = useState(false);
 
   const [maxCount, setMaxCount] = useState(1);
 
@@ -186,14 +190,15 @@ const ViewOrderPage = () => {
   );
 
   useEffect(() => {
-    let shouldPress = selectedProductPack;
+    let shouldPress = selectedProductPack && !isInitialClick;
     window.addEventListener("keydown", (e) => {
       if (e.code === "Enter" && shouldPress) handleAddItem.mutate();
+      setIsInitialClick(false);
     });
 
     return () => (shouldPress = false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedProductPack]);
+  }, [selectedProductPack, isInitialClick]);
 
   const total = {
     subTotal: parseFloat(
@@ -400,6 +405,8 @@ const ViewOrderPage = () => {
                       ?.product_packs[0]
                 );
                 setQuantity(1);
+                setIsInitialClick(true);
+                quantityRef.current.focus();
               }}
             >
               {productSkus &&
@@ -422,6 +429,7 @@ const ViewOrderPage = () => {
       render: (text, { id }) =>
         text === "isForm" ? (
           <Input
+            ref={quantityRef}
             bordered={false}
             className="w-fit !border-0 px-0"
             type="number"

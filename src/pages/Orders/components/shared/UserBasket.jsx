@@ -1,6 +1,6 @@
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Input, Select, Table } from "antd";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useMutation, useQuery } from "react-query";
 import { isEmpty } from "lodash";
 import {
@@ -24,6 +24,10 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
   const { basket_id } = user;
 
   const [selectedProductSku, setSelectedProductSku] = useState();
+
+  const quantityRef = useRef(null);
+
+  const [isInitialClick, setIsInitialClick] = useState(false);
 
   const [form, setForm] = useState({
     product_pack: null,
@@ -74,14 +78,15 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
   );
 
   useEffect(() => {
-    let shouldPress = form.product_pack;
+    let shouldPress = form.product_pack && !isInitialClick;
     window.addEventListener("keydown", (e) => {
       if (e.code === "Enter" && shouldPress) handleBasketSubmit.mutate(form);
+      setIsInitialClick(false);
     });
 
     return () => (shouldPress = false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form]);
+  }, [form, isInitialClick]);
 
   const dataSource = basketData?.items?.map(
     ({ id, number_of_packs, product_pack, product_sku }) => {
@@ -176,6 +181,8 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
                   product_pack: productSkus.find((item) => item.slug === value)
                     ?.product_packs[0],
                 });
+                setIsInitialClick(true);
+                quantityRef.current.focus();
               }}
             >
               {productSkus &&
@@ -199,6 +206,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
       render: (text) => {
         return text === "isForm" ? (
           <Input
+            ref={quantityRef}
             bordered={false}
             className="w-fit !border-0 !px-0"
             type="number"
