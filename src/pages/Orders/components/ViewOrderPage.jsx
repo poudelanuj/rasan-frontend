@@ -231,12 +231,10 @@ const ViewOrderPage = () => {
   const getMarginPrice = (id) => {
     const price = dataSource?.find((product) => product.id === id)?.price;
 
-    const mrp = data?.items?.find((product) => product.id === id)?.product_pack
-      ?.mrp_per_piece;
+    const cp = data?.items?.find((product) => product.id === id)?.product_pack
+      ?.cost_price_per_piece;
 
-    const cashback = dataSource?.find((product) => product.id === id)?.cashback;
-
-    const marginPrice = mrp - price + cashback;
+    const marginPrice = price - (price - cp) * 0.2;
 
     return parseFloat(price - marginPrice * 0.2).toFixed(2);
   };
@@ -423,24 +421,18 @@ const ViewOrderPage = () => {
       width: "9%",
       render: (text, { id }) =>
         text === "isForm" ? (
-          <>
-            <Input
-              bordered={false}
-              className="w-fit !border-0 px-0"
-              type="number"
-              value={quantity}
-              onChange={(e) => {
-                setQuantity(e.target.value);
-              }}
-            />
-            <span
-              className={`${
-                quantity < 0 ? "block" : "hidden"
-              } absolute text-xs text-red-600`}
-            >
-              Negative value not allowed
-            </span>
-          </>
+          <Input
+            bordered={false}
+            className="w-fit !border-0 px-0"
+            type="number"
+            value={quantity}
+            onChange={(e) => {
+              setQuantity(e.target.value);
+            }}
+            onKeyDown={(event) =>
+              (event.key === "." || event.key === "-") && event.preventDefault()
+            }
+          />
         ) : (
           <Input
             className={`w-fit !bg-inherit !text-black ${
@@ -449,13 +441,13 @@ const ViewOrderPage = () => {
             disabled={isProductEditableId !== id}
             id={id}
             name="number_of_packs"
+            type="number"
             value={
               productPriceEditVal?.find((product) => product.id === id)
                 ?.number_of_packs
             }
             onChange={(event) => {
               const { id, name, value } = event.target;
-              if (value < 0) message.error("Negative values not allowed");
               setProductPriceEditVal((prev) =>
                 prev.map((product) => ({
                   ...product,
@@ -463,6 +455,9 @@ const ViewOrderPage = () => {
                 }))
               );
             }}
+            onKeyDown={(event) =>
+              (event.key === "." || event.key === "-") && event.preventDefault()
+            }
           />
         ),
     },
@@ -565,6 +560,7 @@ const ViewOrderPage = () => {
               disabled={isProductEditableId !== id}
               id={id}
               name="price"
+              type="number"
               value={
                 productPriceEditVal?.find((product) => product.id === id)?.price
               }
@@ -577,6 +573,7 @@ const ViewOrderPage = () => {
                   }))
                 );
               }}
+              onKeyDown={(event) => event.key === "-" && event.preventDefault()}
             />
             <Tooltip
               className={`${id === isProductEditableId ? "!block" : "!hidden"}`}
@@ -630,6 +627,34 @@ const ViewOrderPage = () => {
             {isProductEditableId === id ? (
               <span className="inline-flex items-center gap-3">
                 <Button
+                  disabled={(() => {
+                    const baseCondition =
+                      !parseInt(
+                        productPriceEditVal?.find(
+                          (product) => product.id === id
+                        )?.number_of_packs
+                      ) > 0 ||
+                      !parseFloat(
+                        productPriceEditVal?.find(
+                          (product) => product.id === id
+                        )?.price
+                      ) > 0;
+
+                    if (
+                      JSON.parse(localStorage.getItem("groups") || "[]")?.[0]
+                        ?.name === "superadmin"
+                    )
+                      return baseCondition;
+
+                    return (
+                      baseCondition ||
+                      parseFloat(
+                        productPriceEditVal?.find(
+                          (product) => product.id === id
+                        )?.price
+                      ) < getMarginPrice(id)
+                    );
+                  })()}
                   size="small"
                   type="primary"
                   onClick={() => {
@@ -1032,7 +1057,7 @@ const ViewOrderPage = () => {
             <div className="w-full flex justify-between mt-3 text-sm">
               <Button
                 className="!p-0 !border-none !bg-inherit !text-[#00B0C2]"
-                disabled={!selectedProductSku}
+                disabled={!selectedProductSku || !(quantity > 0)}
                 icon={<PlusOutlined className="cursor-pointer w-fit" />}
                 onClick={() => handleAddItem.mutate()}
               >
@@ -1152,6 +1177,10 @@ const ViewOrderPage = () => {
                       onChange={(e) => {
                         setQuantity(e.target.value);
                       }}
+                      onKeyDown={(event) =>
+                        (event.key === "." || event.key === "-") &&
+                        event.preventDefault()
+                      }
                     />
                     <span
                       className={`${

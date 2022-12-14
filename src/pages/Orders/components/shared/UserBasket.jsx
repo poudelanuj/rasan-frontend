@@ -198,25 +198,18 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
       width: "9%",
       render: (text) => {
         return text === "isForm" ? (
-          <>
-            <Input
-              bordered={false}
-              className="w-fit !border-0 !px-0"
-              type="number"
-              value={form?.quantity}
-              onChange={(e) => {
-                e.key !== "." && setForm({ ...form, quantity: e.target.value });
-              }}
-              onKeyDown={(event) => event.key === "." && event.preventDefault()}
-            />
-            <span
-              className={`${
-                form.quantity < 0 ? "block" : "hidden"
-              } absolute text-xs text-red-600`}
-            >
-              Negative value not allowed
-            </span>
-          </>
+          <Input
+            bordered={false}
+            className="w-fit !border-0 !px-0"
+            type="number"
+            value={form?.quantity}
+            onChange={(e) => {
+              e.key !== "." && setForm({ ...form, quantity: e.target.value });
+            }}
+            onKeyDown={(event) =>
+              (event.key === "." || event.key === "-") && event.preventDefault()
+            }
+          />
         ) : (
           <>{text}</>
         );
@@ -395,7 +388,11 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
           <div className="w-full flex justify-between mt-3 text-sm">
             <Button
               className="!p-0 !border-none !bg-inherit !text-[#00B0C2]"
-              disabled={!selectedProductSku || !form.product_pack}
+              disabled={
+                !selectedProductSku ||
+                !form.product_pack ||
+                !(form.quantity > 0)
+              }
               icon={<PlusOutlined className="cursor-pointer w-fit" />}
               onClick={() => handleBasketSubmit.mutate(form)}
             >

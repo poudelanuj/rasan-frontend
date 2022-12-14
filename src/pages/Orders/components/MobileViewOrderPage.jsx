@@ -46,6 +46,7 @@ const MobileViewOrderPage = ({
       },
     }
   );
+
   return (
     <>
       <span className="flex justify-between border-b mb-3 border-b-slate-300">
@@ -75,6 +76,7 @@ const MobileViewOrderPage = ({
                         disabled={isProductEditableId !== orderItem.id}
                         id={orderItem.id}
                         name="number_of_packs"
+                        type="number"
                         value={
                           productPriceEditVal?.find(
                             (product) => product.id === orderItem.id
@@ -89,6 +91,10 @@ const MobileViewOrderPage = ({
                             }))
                           );
                         }}
+                        onKeyDown={(event) =>
+                          (event.key === "." || event.key === "-") &&
+                          event.preventDefault()
+                        }
                       />
                     ) : (
                       <p className="font-semibold">{orderItem.quantity}</p>
@@ -109,6 +115,7 @@ const MobileViewOrderPage = ({
                         disabled={isProductEditableId !== orderItem.id}
                         id={orderItem.id}
                         name="price"
+                        type="number"
                         value={
                           productPriceEditVal?.find(
                             (product) => product.id === orderItem.id
@@ -123,6 +130,9 @@ const MobileViewOrderPage = ({
                             }))
                           );
                         }}
+                        onKeyDown={(event) =>
+                          event.key === "-" && event.preventDefault()
+                        }
                       />
                     ) : (
                       <p className="font-semibold">Rs.{orderItem.price}</p>
@@ -184,9 +194,11 @@ const MobileViewOrderPage = ({
                         className="cursor-pointer text-xl"
                         onClick={() => {
                           if (
-                            productPriceEditVal?.find(
-                              (product) => product.id === isProductEditableId
-                            )?.number_of_packs < 0
+                            !(
+                              productPriceEditVal?.find(
+                                (product) => product.id === isProductEditableId
+                              )?.number_of_packs > 0
+                            )
                           )
                             return message.error("Negative values not allowed");
                           handleItemUpdate.mutate({
