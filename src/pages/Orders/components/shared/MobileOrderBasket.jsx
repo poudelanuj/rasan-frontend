@@ -1,9 +1,8 @@
 import { nanoid } from "nanoid";
-import { DeleteOutlined, MinusOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Form, Input, Select, Space, Table } from "antd";
+import { MinusOutlined, PlusOutlined } from "@ant-design/icons";
+import { Button, Form, Input, Select, Space } from "antd";
 import { useState, useEffect } from "react";
 import { useMutation, useQuery } from "react-query";
-import { isEmpty } from "lodash";
 import {
   addBasketItem,
   deleteBasketItem,
@@ -35,12 +34,7 @@ const MobileViewOrderForm = ({ user, setBasketItemsStatus }) => {
     },
   ]);
 
-  const {
-    data: basketData,
-    status: basketDataStatus,
-    refetch: refetchBasketItems,
-    isRefetching: isBasketItemsRefetching,
-  } = useQuery({
+  const { data: basketData, refetch: refetchBasketItems } = useQuery({
     queryFn: () => getBasketInfo(basket_id),
     queryKey: ["getBasketInfo", basket_id],
     enabled: !!basket_id,
@@ -86,60 +80,6 @@ const MobileViewOrderForm = ({ user, setBasketItemsStatus }) => {
       openErrorNotification(error);
     },
   });
-
-  const columns = [
-    {
-      title: "Product Name",
-      dataIndex: "productName",
-      key: "productName",
-    },
-    {
-      title: "Quantity",
-      dataIndex: "quantity",
-      key: "quantity",
-    },
-    {
-      title: "Pack Size",
-      dataIndex: "packSize",
-      key: "packSize",
-    },
-    {
-      title: "Price",
-      dataIndex: "price",
-      key: "price",
-      render: (text) => <>Rs. {text}/pc</>,
-    },
-    {
-      title: "Total",
-      dataIndex: "total",
-      key: "total",
-      render: (text) => <>Rs. {text}</>,
-    },
-    {
-      title: "Loyalty Points",
-      dataIndex: "loyaltyPoints",
-      key: "loyaltyPoints",
-    },
-    {
-      title: "Cashback",
-      dataIndex: "cashback",
-      key: "cashback",
-      render: (text) => <>Rs. {text}</>,
-    },
-    {
-      title: "Action",
-      dataIndex: "action",
-      key: "action",
-      render: (_, { id }) => (
-        <div>
-          <DeleteOutlined
-            className="mx-3"
-            onClick={() => handleItemDelete.mutate(id)}
-          />
-        </div>
-      ),
-    },
-  ];
 
   // *********** FORM ************ //
   const { data: productSkus, status: productsStatus } = useQuery({
@@ -215,25 +155,12 @@ const MobileViewOrderForm = ({ user, setBasketItemsStatus }) => {
       <p className="font-semibold">
         {user?.full_name || ""} {user?.phone || ""}
       </p>
-
-      {isMobileView ? (
-        <MobileViewOrderPage
-          deleteMutation={(id) => handleItemDelete.mutate(id)}
-          orderItems={dataSource}
-          isCreate
-        />
-      ) : (
-        <Table
-          columns={columns}
-          dataSource={dataSource || []}
-          loading={isBasketItemsRefetching || basketDataStatus === "loading"}
-          scroll={{ x: isEmpty(dataSource) && !isMobileView ? null : 1000 }}
-        />
-      )}
-
-      <hr className="my-5" />
+      <MobileViewOrderPage
+        deleteMutation={(id) => handleItemDelete.mutate(id)}
+        orderItems={dataSource}
+        isCreate
+      />
       <h2 className="font-medium text-base mb-5">Add Item</h2>
-
       {forms?.map((basketForm, index) => (
         <Form
           key={basketForm.id}
@@ -336,18 +263,11 @@ const MobileViewOrderForm = ({ user, setBasketItemsStatus }) => {
                     return temp;
                   });
               }}
-              onKeyDown={(event) => event.key === "." && event.preventDefault()}
+              onKeyDown={(event) =>
+                (event.key === "." || event.key === "-") &&
+                event.preventDefault()
+              }
             />
-            <span
-              className={`${
-                forms[forms.findIndex((item) => item.id === basketForm.id)]
-                  .quantity < 0
-                  ? "block"
-                  : "hidden"
-              } absolute text-xs text-red-600`}
-            >
-              Negative value not allowed
-            </span>
           </Form.Item>
 
           <Form.Item
@@ -446,7 +366,6 @@ const MobileViewOrderForm = ({ user, setBasketItemsStatus }) => {
           </Form.Item>
         </Form>
       ))}
-
       <div className="w-full flex sm:justify-end justify-start">
         <Space>
           <Button
@@ -469,7 +388,7 @@ const MobileViewOrderForm = ({ user, setBasketItemsStatus }) => {
             codename="add_basketitem"
             disabled={
               forms[0]?.product_pack === null ||
-              forms.some(({ quantity }) => quantity < 0)
+              forms.some(({ quantity }) => quantity <= 0)
             }
             loading={handleBasketSubmit.status === "loading"}
             size="middle"

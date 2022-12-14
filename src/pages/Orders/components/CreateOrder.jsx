@@ -1,6 +1,6 @@
 import { Form, Select } from "antd";
 import { capitalize, uniqBy } from "lodash";
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect, Fragment } from "react";
 import { useQuery, useMutation } from "react-query";
 import { useNavigate } from "react-router-dom";
 import { getUsers } from "../../../api/users";
@@ -115,108 +115,96 @@ const CreateOrder = () => {
 
   return (
     <>
-      <Form
-        form={form}
-        layout={isMobileView ? "horizontal" : "vertical"}
-        onFinish={(values) => onFinish.mutate(values)}
-      >
+      <Form form={form} layout={isMobileView ? "horizontal" : "vertical"}>
         <CustomPageHeader title={"Create New Order"} />
         {
           // todo
         }
 
         <div className="p-6 rounded-lg bg-white">
-          <div className="grid sm:grid-cols-2 gap-3">
+          <div
+            className="w-full flex sm:flex-row flex-col items-start justify-between"
+            id="order-form"
+          >
             <Form.Item
-              className="!mb-1"
-              label={
-                <div className="flex gap-3 items-center">
-                  <span>User</span>
-                  <ButtonWPermission
-                    className="p-0 m-0 bg-white"
-                    codename="add_user"
-                    size="small"
-                    type="primary"
-                    onClick={() => setIsCreateUserOpen(true)}
-                  >
-                    + Add New User
-                  </ButtonWPermission>
-                </div>
-              }
+              className="!mb-1 sm:basis-[35%] w-full"
+              label={"Customer"}
               name="user"
               rules={[
                 {
                   required: true,
-                  message: "User required",
+                  message: "Customer required",
                 },
               ]}
             >
-              <Select
-                className="w-full"
-                filterOption={false}
-                loading={userListStatus === "loading" || refetchingUserList}
-                placeholder="Select User"
-                showSearch
-                onPopupScroll={() => data?.next && setPage((prev) => prev + 1)}
-                onSearch={(val) => {
-                  if (timeout) clearTimeout(timeout);
-                  timeout = setTimeout(async () => {
-                    setPage(1);
-                    searchRef.current = val;
-                    const res = await getUsers(page, val, 100, ["-id"]);
-                    setUserList([]);
-                    setUserList(res.results);
-                  }, 200);
-                }}
-                onSelect={(value) => {
-                  form.setFieldsValue({
-                    shipping_address: userList
-                      ?.find((user) => user.phone === value)
-                      ?.addresses?.find((address) => address.is_default)?.id,
-                  });
-                  setSelectedUserPhone(value);
-                }}
-              >
-                {userList?.map((user, index) => {
-                  const isLastElement = userList?.length === index + 1;
-                  return isLastElement ? (
-                    <Option key={user.id} ref={scrollRef} value={user.phone}>
-                      {user.full_name
-                        ? `${user.full_name} (${user.phone})`
-                        : user.phone}
-                    </Option>
-                  ) : (
-                    <Option key={user.id} value={user.phone}>
-                      {user.full_name
-                        ? `${user.full_name} (${user.phone})${
-                            user.shop.name ? ` - ${user.shop.name}` : ""
-                          }`
-                        : `${user.phone}${
-                            user.shop.name ? ` - ${user.shop.name}` : ""
-                          }`}
-                    </Option>
-                  );
-                })}
-              </Select>
+              <div className="flex items-center border px-2">
+                <Select
+                  bordered={false}
+                  className="w-full truncate"
+                  filterOption={false}
+                  loading={userListStatus === "loading" || refetchingUserList}
+                  placeholder="Select Customer"
+                  showSearch
+                  onPopupScroll={() =>
+                    data?.next && setPage((prev) => prev + 1)
+                  }
+                  onSearch={(val) => {
+                    if (timeout) clearTimeout(timeout);
+                    timeout = setTimeout(async () => {
+                      setPage(1);
+                      searchRef.current = val;
+                      const res = await getUsers(page, val, 100, ["-id"]);
+                      setUserList([]);
+                      setUserList(res.results);
+                    }, 200);
+                  }}
+                  onSelect={(value) => {
+                    form.setFieldsValue({
+                      shipping_address: userList
+                        ?.find((user) => user.phone === value)
+                        ?.addresses?.find((address) => address.is_default)?.id,
+                      user: value,
+                    });
+                    setSelectedUserPhone(value);
+                  }}
+                >
+                  {userList?.map((user, index) => {
+                    const isLastElement = userList?.length === index + 1;
+                    return isLastElement ? (
+                      <Option key={user.id} ref={scrollRef} value={user.phone}>
+                        {user.full_name
+                          ? `${user.full_name} (${user.phone})`
+                          : user.phone}
+                      </Option>
+                    ) : (
+                      <Option key={user.id} value={user.phone}>
+                        {user.full_name
+                          ? `${user.full_name} (${user.phone})${
+                              user.shop.name ? ` - ${user.shop.name}` : ""
+                            }`
+                          : `${user.phone}${
+                              user.shop.name ? ` - ${user.shop.name}` : ""
+                            }`}
+                      </Option>
+                    );
+                  })}
+                </Select>
+
+                <ButtonWPermission
+                  className="p-0 m-0 !bg-[#00B0C2] !border-none"
+                  codename="add_user"
+                  size="small"
+                  type="primary"
+                  onClick={() => setIsCreateUserOpen(true)}
+                >
+                  + User
+                </ButtonWPermission>
+              </div>
             </Form.Item>
 
             <Form.Item
-              className="!mb-1"
-              label={
-                <div className="flex gap-3 items-center">
-                  <span>Shipping Address</span>
-                  <ButtonWPermission
-                    className="p-0 m-0 bg-white"
-                    codename="add_address"
-                    disabled={!selectedUserPhone}
-                    size="small"
-                    type="primary"
-                    onClick={() => setIsCreateShippingOpen(true)}
-                  >
-                    + Add Shipping Address
-                  </ButtonWPermission>
-                </div>
-              }
+              className="!mb-1 sm:basis-[35%] w-full"
+              label={"Shipping Address"}
               name="shipping_address"
               rules={[
                 {
@@ -225,33 +213,50 @@ const CreateOrder = () => {
                 },
               ]}
             >
-              <Select
-                className="w-full"
-                filterOption={(input, option) =>
-                  option.children.toLowerCase().includes(input.toLowerCase())
-                }
-                loading={userListStatus === "loading" || refetchingUserList}
-                optionFilterProp="children"
-                placeholder="Select Shipping Address"
-                showSearch
-              >
-                {userList &&
-                  userList
-                    .find((user) => user.phone === selectedUserPhone)
-                    ?.addresses?.map((address) => (
-                      <Option key={address.id} value={address.id}>{`${
-                        address.detail_address || ""
-                      } ${address.area?.name} - ${address.city?.name}, ${
-                        address.province?.name
-                      }`}</Option>
-                    ))}
-              </Select>
-            </Form.Item>
-          </div>
+              <div className="flex items-center border px-2">
+                <Select
+                  bordered={false}
+                  className="w-full truncate"
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                  loading={userListStatus === "loading" || refetchingUserList}
+                  optionFilterProp="children"
+                  placeholder="Select Shipping Address"
+                  showSearch
+                  onSelect={(value) => {
+                    form.setFieldsValue({ shipping_address: value });
+                  }}
+                >
+                  {userList &&
+                    userList
+                      .find((user) => user.phone === selectedUserPhone)
+                      ?.addresses?.map((address) => (
+                        <Option key={address.id} value={address.id}>{`${
+                          address.detail_address || ""
+                        } ${address.area?.name} - ${address.city?.name}, ${
+                          address.province?.name
+                        }`}</Option>
+                      ))}
+                </Select>
 
-          <div className="grid sm:grid-cols-3 sm:gap-3 mt-4">
+                <ButtonWPermission
+                  className={`p-0 m-0 ${
+                    !!selectedUserPhone && "!bg-[#00B0C2] !border-none"
+                  }`}
+                  codename="add_address"
+                  disabled={!selectedUserPhone}
+                  size="small"
+                  type="primary"
+                  onClick={() => setIsCreateShippingOpen(true)}
+                >
+                  + Shipping
+                </ButtonWPermission>
+              </div>
+            </Form.Item>
+
             <Form.Item
-              className="!mb-1"
+              className="!mb-1 sm:basis-[10%] w-full"
               initialValue={IN_PROCESS}
               label="Order Status"
               name="status"
@@ -263,7 +268,8 @@ const CreateOrder = () => {
               ]}
             >
               <Select
-                className="w-full"
+                bordered={false}
+                className="w-full border"
                 defaultValue={IN_PROCESS}
                 filterOption={(input, option) =>
                   option.children.toLowerCase().includes(input.toLowerCase())
@@ -281,7 +287,7 @@ const CreateOrder = () => {
             </Form.Item>
 
             <Form.Item
-              className="!mb-1"
+              className="!mb-1 sm:basis-[10%] w-full"
               initialValue={CASH_ON_DELIVERY}
               label="Payment Method"
               name="payment_method"
@@ -293,7 +299,8 @@ const CreateOrder = () => {
               ]}
             >
               <Select
-                className="w-full"
+                bordered={false}
+                className="w-full border"
                 defaultValue={CASH_ON_DELIVERY}
                 filterOption={(input, option) =>
                   option.children.toLowerCase().includes(input.toLowerCase())
@@ -311,6 +318,7 @@ const CreateOrder = () => {
             </Form.Item>
 
             <Form.Item
+              className="!mb-1 sm:basis-[10%] w-full"
               initialValue={UNPAID}
               label="Payment Status"
               name="payment_status"
@@ -322,7 +330,8 @@ const CreateOrder = () => {
               ]}
             >
               <Select
-                className="w-full"
+                bordered={false}
+                className="w-full border"
                 defaultValue={UNPAID}
                 filterOption={(input, option) =>
                   option.children.toLowerCase().includes(input.toLowerCase())
@@ -354,15 +363,21 @@ const CreateOrder = () => {
 
           <div className="w-full flex justify-end">
             <ButtonWPermission
+              className={`p-0 m-0 ${
+                onFinish.status !== "loading" &&
+                basketItemsStatus !== STATUS.processing &&
+                "!bg-[#00B0C2] !border-none"
+              }`}
               codename="add_order"
               disabled={
                 onFinish.status === "loading" ||
                 basketItemsStatus === STATUS.processing
               }
-              htmlType="submit"
               loading={onFinish.status === "loading"}
-              size="large"
               type="primary"
+              onClick={() =>
+                form.validateFields().then((values) => onFinish.mutate(values))
+              }
             >
               {basketItemsStatus === STATUS.processing
                 ? "Please save basket items to create order"

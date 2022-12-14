@@ -210,7 +210,7 @@ const EditProductSku = () => {
               <div className="grid sm:grid-cols-4 grid-cols-2 gap-2">
                 <Form.Item
                   initialValue={productSku.quantity}
-                  label="Quantity"
+                  label="Weight/Volume"
                   name="quantity"
                   rules={[{ required: true, message: "Quantity is required" }]}
                 >
