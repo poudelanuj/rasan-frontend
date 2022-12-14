@@ -25,7 +25,8 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
 
   const [selectedProductSku, setSelectedProductSku] = useState();
 
-  const quantityRef = useRef(null);
+  const quantityRef = useRef(null),
+    productSkuRef = useRef(null);
 
   const [isInitialClick, setIsInitialClick] = useState(false);
 
@@ -73,6 +74,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
       },
       onSettled: () => {
         refetchBasketItems();
+        productSkuRef.current.focus();
       },
     }
   );
@@ -164,6 +166,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
         return text === "isForm" ? (
           <div id="dropdown">
             <Select
+              ref={productSkuRef}
               bordered={false}
               className="w-full !border-0"
               dropdownMatchSelectWidth={false}

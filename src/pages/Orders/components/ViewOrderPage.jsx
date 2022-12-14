@@ -69,7 +69,8 @@ const ViewOrderPage = () => {
   const [pageDirectionStatus, setPageDirectionStatus] =
     useState("decrementing");
 
-  const quantityRef = useRef(null);
+  const quantityRef = useRef(null),
+    productSkuRef = useRef(null);
 
   const [isInitialClick, setIsInitialClick] = useState(false);
 
@@ -158,6 +159,7 @@ const ViewOrderPage = () => {
         refetchOrderItems();
         // refetchOrders();
         setSelectedPack(null);
+        productSkuRef.current.focus();
       },
     }
   );
@@ -239,7 +241,7 @@ const ViewOrderPage = () => {
     const cp = data?.items?.find((product) => product.id === id)?.product_pack
       ?.cost_price_per_piece;
 
-    const marginPrice = price - (price - cp) * 0.2;
+    const marginPrice = price - cp;
 
     return parseFloat(price - marginPrice * 0.2).toFixed(2);
   };
@@ -388,6 +390,7 @@ const ViewOrderPage = () => {
         text === "isForm" ? (
           <div id="dropdown">
             <Select
+              ref={productSkuRef}
               bordered={false}
               className="w-full"
               dropdownMatchSelectWidth={false}
