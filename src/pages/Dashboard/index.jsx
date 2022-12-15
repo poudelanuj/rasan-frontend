@@ -16,11 +16,11 @@ import TicketsAssigned from "./shared/TicketsAssigned";
 import OrdersAssigned from "./shared/OrdersAssigned";
 import OrderMetrics from "./OrderMetrics";
 import TicketMetrics from "./TicketsMetrics";
-import { capitalize } from "lodash";
+import { capitalize, isEmpty } from "lodash";
 import CustomPageHeader from "../../shared/PageHeader";
 
 const Dashboard = () => {
-  const { logout } = useAuth();
+  const { logout, permissions } = useAuth();
   const [ticketTimeKey, setTicketTimeKey] = useState(
     DASHBOARD_TIME_KEYS[0].value
   );
@@ -115,10 +115,17 @@ const Dashboard = () => {
           <OrdersAssigned />
         </div>
 
-        <div className="bg-white p-6 mt-8 rounded-lg">
-          <h3 className="text-xl">My Tickets</h3>
-          <TicketsAssigned />
-        </div>
+        {!isEmpty(
+          permissions &&
+            permissions.filter(
+              (permission) => permission.codename === "view_ticket"
+            )
+        ) && (
+          <div className="bg-white p-6 mt-8 rounded-lg">
+            <h3 className="text-xl">My Tickets</h3>
+            <TicketsAssigned />
+          </div>
+        )}
       </div>
     </>
   );

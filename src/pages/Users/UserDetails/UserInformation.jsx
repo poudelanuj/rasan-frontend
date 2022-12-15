@@ -94,7 +94,7 @@ const UserInformation = ({ user }) => {
       if (formValues[key]) {
         switch (key) {
           case "phone":
-            formData.append(key, `+977-${formValues[key]}`);
+            // formData.append(key, `+977-${formValues[key]}`);
             break;
 
           case "alternate_number":
@@ -175,7 +175,7 @@ const UserInformation = ({ user }) => {
                     },
                   ]}
                 >
-                  <Input addonBefore="+977" type="number" />
+                  <Input addonBefore="+977" type="number" disabled />
                 </Form.Item>
                 <Form.Item label="Alternative Number" name="alternate_number">
                   <Input addonBefore="+977" type="number" />

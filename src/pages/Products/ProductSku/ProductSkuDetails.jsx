@@ -141,15 +141,18 @@ const ProductSkuDetails = ({ productSku, slug, refetchProductSku }) => {
               <span className="font-medium">{productSku.sn}</span>
             </Descriptions.Item>
 
-            <Descriptions.Item label="Quantity">
+            <Descriptions.Item label="Weight/Volume">
               <span className="font-medium">{productSku.quantity}</span>
             </Descriptions.Item>
 
-            <Descriptions.Item label="Cost Price/Piece">
-              <span className="font-medium">
-                {productSku.cost_price_per_piece}
-              </span>
-            </Descriptions.Item>
+            {JSON.parse(localStorage.getItem("groups") || "[]")?.[0]?.name ===
+              "superadmin" && (
+              <Descriptions.Item label="Cost Price/Piece">
+                <span className="font-medium">
+                  {productSku.cost_price_per_piece}
+                </span>
+              </Descriptions.Item>
+            )}
 
             <Descriptions.Item label="Price/Piece">
               <span className="font-medium">{productSku.price_per_piece}</span>

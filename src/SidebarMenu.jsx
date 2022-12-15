@@ -187,7 +187,7 @@ const SidebarMenu = ({ setIsDrawerOpen }) => {
 
   return (
     <Menu
-      defaultOpenKeys={["sub1"]}
+      defaultOpenKeys={["/"]}
       defaultSelectedKeys={["0"]}
       items={sidebarItems}
       mode="inline"

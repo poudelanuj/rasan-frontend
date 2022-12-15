@@ -26,16 +26,24 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
   const [selectedProductSku, setSelectedProductSku] = useState();
 
   const quantityRef = useRef(null),
-    productSkuRef = useRef(null);
+    productSkuRef = useRef(null),
+    addNewSkuRef = useRef(null);
 
   const [isInitialClick, setIsInitialClick] = useState(false);
+
+  const [isProductSkuDropdownOpen, setIsProductSkuDropdownOpen] =
+    useState(false);
 
   const [form, setForm] = useState({
     product_pack: null,
     quantity: 1,
   });
 
-  const { data: basketData, refetch: refetchBasketItems } = useQuery({
+  const {
+    data: basketData,
+    refetch: refetchBasketItems,
+    isRefetching,
+  } = useQuery({
     queryFn: () => getBasketInfo(basket_id),
     queryKey: ["getBasketInfo", basket_id],
     enabled: !!basket_id,
@@ -74,7 +82,9 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
       },
       onSettled: () => {
         refetchBasketItems();
-        productSkuRef.current.focus();
+        setTimeout(() => {
+          !isRefetching && productSkuRef.current.focus();
+        }, 500);
       },
     }
   );
@@ -176,7 +186,10 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
               dropdownStyle={{ overflowWrap: "anywhere" }}
               getPopupContainer={() => document.body}
               loading={productsStatus === "loading"}
+              open={isProductSkuDropdownOpen}
               showSearch
+              onBlur={() => setIsProductSkuDropdownOpen(false)}
+              onFocus={() => setIsProductSkuDropdownOpen(true)}
               onSelect={(value) => {
                 setSelectedProductSku(value);
                 setForm({
@@ -184,6 +197,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
                   product_pack: productSkus.find((item) => item.slug === value)
                     ?.product_packs[0],
                 });
+                setIsProductSkuDropdownOpen(false);
                 setIsInitialClick(true);
                 quantityRef.current.focus();
               }}
@@ -245,6 +259,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
               }
               getPopupContainer={() => document.body}
               showSearch
+              onFocus={() => setIsInitialClick(true)}
               onSelect={(value) => {
                 setForm({
                   ...form,
@@ -252,6 +267,8 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
                     .find((item) => item.slug === selectedProductSku)
                     ?.product_packs?.find((pack) => pack.id === value),
                 });
+                setIsInitialClick(true);
+                addNewSkuRef.current.focus();
               }}
             >
               {productSkus &&
@@ -363,7 +380,8 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
   return (
     <div className="my-4">
       <p className="font-semibold">
-        {user?.full_name || ""} {user?.phone || ""}
+        {user?.full_name || ""} {user?.phone || ""}{" "}
+        {user.shop && user.shop?.name ? `(${user.shop?.name})` : ""}
       </p>
 
       {isMobileView ? (
@@ -398,6 +416,7 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
 
           <div className="w-full flex justify-between mt-3 text-sm">
             <Button
+              ref={addNewSkuRef}
               className="!p-0 !border-none !bg-inherit !text-[#00B0C2]"
               disabled={
                 !selectedProductSku ||

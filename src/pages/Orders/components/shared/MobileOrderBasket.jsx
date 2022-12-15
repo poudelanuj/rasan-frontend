@@ -16,12 +16,9 @@ import { getAllProductSkus } from "../../../../api/products/productSku";
 import { GET_ALL_PRODUCT_SKUS } from "../../../../constants/queryKeys";
 import { STATUS } from "../../../../constants";
 import ButtonWPermission from "../../../../shared/ButtonWPermission";
-import { useAuth } from "../../../../AuthProvider";
 import MobileViewOrderPage from "../MobileViewOrderPage";
 
 const MobileViewOrderForm = ({ user, setBasketItemsStatus }) => {
-  const { isMobileView } = useAuth();
-
   const { basket_id } = user;
 
   const [selectedProductSku, setSelectedSku] = useState();
@@ -152,8 +149,9 @@ const MobileViewOrderForm = ({ user, setBasketItemsStatus }) => {
 
   return (
     <div className="my-4">
-      <p className="font-semibold">
-        {user?.full_name || ""} {user?.phone || ""}
+      <p className="font-semibold break-all">
+        {user?.full_name || ""} {user?.phone || ""}{" "}
+        {user.shop && user.shop?.name ? `(${user.shop?.name})` : ""}
       </p>
       <MobileViewOrderPage
         deleteMutation={(id) => handleItemDelete.mutate(id)}
@@ -164,15 +162,11 @@ const MobileViewOrderForm = ({ user, setBasketItemsStatus }) => {
       {forms?.map((basketForm, index) => (
         <Form
           key={basketForm.id}
-          className="w-full flex sm:flex-row flex-col sm:!items-end gap-2 !mb-2"
-          layout={isMobileView ? "horizontal" : "vertical"}
+          className="w-full flex flex-col gap-2 !mb-2"
+          layout={"horizontal"}
         >
-          <Form.Item
-            className="sm:w-auto w-full !mb-0"
-            label={!isMobileView && index === 0 && "Product SKU"}
-          >
+          <Form.Item className="w-full !mb-0">
             <Select
-              className="sm:!w-[200px]"
               loading={productsStatus === "loading"}
               placeholder="Select Product SKU"
               showSearch
@@ -200,14 +194,9 @@ const MobileViewOrderForm = ({ user, setBasketItemsStatus }) => {
                 ))}
             </Select>
           </Form.Item>
-          <Form.Item
-            className="sm:w-auto w-full !mb-0"
-            label={!isMobileView && index === 0 && "Pack Size"}
-            tooltip="Select Pack Size"
-          >
+          <Form.Item className="w-full !mb-0" tooltip="Select Pack Size">
             <Select
               key={selectedProductSku}
-              className="sm:!w-36"
               defaultValue={
                 productSkus &&
                 productSkus.find((item) => item.slug === selectedProductSku)
@@ -241,14 +230,9 @@ const MobileViewOrderForm = ({ user, setBasketItemsStatus }) => {
             </Select>
           </Form.Item>
 
-          <Form.Item
-            className="sm:w-auto w-full relative !mb-0"
-            label={!isMobileView && index === 0 && "Quantity"}
-            name="quantity"
-          >
+          <Form.Item className="w-full !mb-0" name="quantity">
             <Input
-              addonBefore={isMobileView && "Quantity"}
-              className="sm:!w-20"
+              addonBefore={"Quantity"}
               placeholder="Quantity"
               type="number"
               value={forms.find((item) => item.id === basketForm.id)?.quantity}
@@ -270,12 +254,9 @@ const MobileViewOrderForm = ({ user, setBasketItemsStatus }) => {
             />
           </Form.Item>
 
-          <Form.Item
-            className="sm:w-auto w-full !mb-0"
-            label={!isMobileView && index === 0 && "Price Per Piece"}
-          >
+          <Form.Item className="w-full !mb-0">
             <Input
-              addonBefore={isMobileView && "Price Per Piece"}
+              addonBefore={"Price Per Piece"}
               className="!bg-inherit !text-black"
               placeholder="Price"
               type="number"
@@ -287,12 +268,9 @@ const MobileViewOrderForm = ({ user, setBasketItemsStatus }) => {
             />
           </Form.Item>
 
-          <Form.Item
-            className="sm:w-auto w-full !mb-0"
-            label={!isMobileView && index === 0 && "Total Amount"}
-          >
+          <Form.Item className="w-full !mb-0">
             <Input
-              addonBefore={isMobileView && "Total Amount"}
+              addonBefore={"Total Amount"}
               className="!bg-inherit !text-black"
               placeholder="Total amount"
               type="number"
@@ -301,12 +279,9 @@ const MobileViewOrderForm = ({ user, setBasketItemsStatus }) => {
             />
           </Form.Item>
 
-          <Form.Item
-            className="sm:w-auto w-full !mb-0"
-            label={!isMobileView && index === 0 && "Loyalty"}
-          >
+          <Form.Item className="w-full !mb-0">
             <Input
-              addonBefore={isMobileView && "Loyalty"}
+              addonBefore={"Loyalty"}
               className="!bg-inherit !text-black"
               placeholder="Loyalty points"
               type="number"
@@ -321,12 +296,9 @@ const MobileViewOrderForm = ({ user, setBasketItemsStatus }) => {
             />
           </Form.Item>
 
-          <Form.Item
-            className="sm:w-auto w-full !mb-0"
-            label={!isMobileView && index === 0 && "Cashback"}
-          >
+          <Form.Item className="w-full !mb-0">
             <Input
-              addonBefore={isMobileView && "Cashback"}
+              addonBefore={"Cashback"}
               className="!bg-inherit !text-black"
               placeholder="Cashback"
               type="number"
@@ -341,7 +313,7 @@ const MobileViewOrderForm = ({ user, setBasketItemsStatus }) => {
             />
           </Form.Item>
 
-          <Form.Item className="sm:!mb-0">
+          <Form.Item className="!mb-0">
             {index + 1 === forms.length ? (
               <ButtonWPermission
                 codename="add_basketitem"
@@ -366,7 +338,7 @@ const MobileViewOrderForm = ({ user, setBasketItemsStatus }) => {
           </Form.Item>
         </Form>
       ))}
-      <div className="w-full flex sm:justify-end justify-start">
+      <div className="w-full flex justify-start">
         <Space>
           <Button
             size="middle"
