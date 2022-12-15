@@ -12,6 +12,7 @@ import {
   Modal,
   message,
   Tooltip,
+  Drawer,
 } from "antd";
 import axios from "../../../axios";
 import {
@@ -70,9 +71,15 @@ const ViewOrderPage = () => {
     useState("decrementing");
 
   const quantityRef = useRef(null),
-    productSkuRef = useRef(null);
+    productSkuRef = useRef(null),
+    addNewSkuRef = useRef(null);
 
   const [isInitialClick, setIsInitialClick] = useState(false);
+
+  const [isProductSkuDropdownOpen, setIsProductSkuDropdownOpen] =
+    useState(false);
+
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const [maxCount, setMaxCount] = useState(1);
 
@@ -94,7 +101,11 @@ const ViewOrderPage = () => {
 
   const [isAssignUserOpen, setIsAssignUserOpen] = useState(false);
 
-  const { data, refetch: refetchOrderItems } = useQuery({
+  const {
+    data,
+    refetch: refetchOrderItems,
+    isRefetching,
+  } = useQuery({
     queryFn: () => getOrder(orderId),
     queryKey: ["getOrder", orderId],
     enabled: !!orderId,
@@ -150,16 +161,18 @@ const ViewOrderPage = () => {
     {
       onSuccess: (data) => {
         openSuccessNotification(data.message || "Item Added");
+        setSelectedSku(null);
         setSelectedPack(null);
+        setIsDrawerOpen(false);
       },
       onError: (error) => {
         openErrorNotification(error);
       },
       onSettled: () => {
         refetchOrderItems();
-        // refetchOrders();
-        setSelectedPack(null);
-        productSkuRef.current.focus();
+        setTimeout(() => {
+          !isRefetching && productSkuRef.current.focus();
+        }, 500);
       },
     }
   );
@@ -174,6 +187,7 @@ const ViewOrderPage = () => {
         product_pack?.loyalty_cashback?.cashback_amount_per_pack;
       const loyaltyPointsPerPack =
         product_pack?.loyalty_cashback?.loyalty_points_per_pack;
+      const originalPrice = product_pack.product_sku.price_per_piece;
 
       return {
         id,
@@ -187,6 +201,7 @@ const ViewOrderPage = () => {
         cashback: cashbackPerPack * numberOfPacks,
         numberOfPacks,
         numberOfItemsPerPack,
+        originalPrice,
       };
     }
   );
@@ -236,7 +251,9 @@ const ViewOrderPage = () => {
   };
 
   const getMarginPrice = (id) => {
-    const price = dataSource?.find((product) => product.id === id)?.price;
+    const price = dataSource?.find(
+      (product) => product.id === id
+    )?.originalPrice;
 
     const cp = data?.items?.find((product) => product.id === id)?.product_pack
       ?.cost_price_per_piece;
@@ -352,12 +369,12 @@ const ViewOrderPage = () => {
       key: "refId",
     },
     {
-      title: "Voucher Image",
+      title: <span className="px-3">Voucher Image</span>,
       dataIndex: "voucher_image",
       key: "voucher_image",
       render: (_, { voucher_image }) =>
         voucher_image ? (
-          <div>
+          <div className="px-3">
             <span
               className="text-blue-500 cursor-pointer hover:underline my-0 py-0 transition-all"
               onClick={() => setIsVoucherPreviewVisible(true)}
@@ -375,7 +392,7 @@ const ViewOrderPage = () => {
             />
           </div>
         ) : (
-          "-"
+          <span className="px-3">-</span>
         ),
     },
   ];
@@ -399,7 +416,10 @@ const ViewOrderPage = () => {
               )}
               dropdownStyle={{ overflowWrap: "anywhere" }}
               getPopupContainer={() => document.body}
+              open={isProductSkuDropdownOpen}
               showSearch
+              onBlur={() => setIsProductSkuDropdownOpen(false)}
+              onFocus={() => setIsProductSkuDropdownOpen(true)}
               onSelect={(value) => {
                 setSelectedSku(value);
                 setSelectedPack(
@@ -408,6 +428,7 @@ const ViewOrderPage = () => {
                       ?.product_packs[0]
                 );
                 setQuantity(1);
+                setIsProductSkuDropdownOpen(false);
                 setIsInitialClick(true);
                 quantityRef.current.focus();
               }}
@@ -491,14 +512,17 @@ const ViewOrderPage = () => {
               }
               getPopupContainer={() => document.body}
               showSearch
-              onSelect={(value) =>
+              onFocus={() => setIsInitialClick(true)}
+              onSelect={(value) => {
                 setSelectedPack(
                   productSkus &&
                     productSkus
                       .find((item) => item.slug === selectedProductSku)
                       ?.product_packs?.find((pack) => pack.id === value)
-                )
-              }
+                );
+                setIsInitialClick(true);
+                addNewSkuRef.current.focus();
+              }}
             >
               {productSkus &&
                 productSkus
@@ -939,7 +963,7 @@ const ViewOrderPage = () => {
               <div className="inline-flex gap-2 items-center">
                 <span className="font-medium text-base">Order Payment</span>
                 <Button
-                  className="!bg-[#00B0C2] !border-none"
+                  className="!bg-[#00A0B0] !border-none"
                   type="primary"
                   onClick={() => setOpenChangePayment((prev) => !prev)}
                 >
@@ -1006,7 +1030,7 @@ const ViewOrderPage = () => {
             ) : (
               <Descriptions.Item className="!p-0">
                 <Table
-                  className="w-full"
+                  className="w-full description-table"
                   columns={descriptionColumns}
                   dataSource={[
                     {
@@ -1022,6 +1046,7 @@ const ViewOrderPage = () => {
                     },
                   ]}
                   pagination={false}
+                  bordered
                 />
               </Descriptions.Item>
             )}
@@ -1033,6 +1058,7 @@ const ViewOrderPage = () => {
         {isMobileView ? (
           <MobileViewOrderPage
             deleteMutation={(id) => handleItemDelete.mutate(id)}
+            getMarginPrice={getMarginPrice}
             orderId={orderId}
             orderItems={dataSource}
             refetchOrderItems={refetchOrderItems}
@@ -1067,6 +1093,7 @@ const ViewOrderPage = () => {
 
             <div className="w-full flex justify-between mt-3 text-sm">
               <Button
+                ref={addNewSkuRef}
                 className="!p-0 !border-none !bg-inherit !text-[#00B0C2]"
                 disabled={!selectedProductSku || !(quantity > 0)}
                 icon={<PlusOutlined className="cursor-pointer w-fit" />}
@@ -1099,7 +1126,13 @@ const ViewOrderPage = () => {
         {isMobileView && (
           <>
             <hr className="sm:block hidden my-5" />
-            <h2 className="font-medium text-base mb-5">Add Item</h2>
+            <Button
+              className="!bg-[#00A0B0] !border-none"
+              type="primary"
+              onClick={() => setIsDrawerOpen(true)}
+            >
+              Add New Item
+            </Button>
 
             {(handleAddItem.status === "loading" ||
               productsStatus === "loading") && (
@@ -1108,185 +1141,167 @@ const ViewOrderPage = () => {
 
             {handleAddItem.status !== "loading" &&
               productsStatus === "success" && (
-                <Form
-                  className="w-full flex sm:flex-row flex-col !items-start gap-2"
-                  layout={isMobileView ? "horizontal" : "vertical"}
+                <Drawer
+                  extra={
+                    <Space>
+                      <Button onClick={() => setIsDrawerOpen(false)}>
+                        Cancel
+                      </Button>
+                      <Button
+                        className="bg-blue-500"
+                        disabled={
+                          !(
+                            selectedProductPack &&
+                            selectedProductSku &&
+                            quantity > 0
+                          )
+                        }
+                        type="primary"
+                        onClick={() => handleAddItem.mutate()}
+                      >
+                        Add
+                      </Button>
+                    </Space>
+                  }
+                  height={400}
+                  placement="bottom"
+                  title="Add Item"
+                  visible={isDrawerOpen}
+                  destroyOnClose
+                  onClose={() => setIsDrawerOpen(false)}
                 >
-                  <Form.Item
-                    className="sm:w-auto w-full !mb-0"
-                    label={!isMobileView && "Product SKU"}
-                  >
-                    <Select
-                      className="sm:!w-[200px]"
-                      placeholder="Select Product SKU"
-                      showSearch
-                      onSelect={(value) => {
-                        setSelectedSku(value);
-                        setSelectedPack(
-                          productSkus &&
-                            productSkus.find((item) => item.slug === value)
-                              ?.product_packs[0]
-                        );
-                        setQuantity(1);
-                      }}
-                    >
-                      {productSkus &&
-                        productSkus.map((item) => (
-                          <Select.Option key={item.slug} value={item.slug}>
-                            {item.name}
-                          </Select.Option>
-                        ))}
-                    </Select>
-                  </Form.Item>
-                  <Form.Item
-                    className="sm:w-auto w-full !mb-0 !flex"
-                    label={!isMobileView && "Pack Size"}
-                    tooltip="Select Pack Size"
-                  >
-                    <Select
-                      key={selectedProductSku}
-                      className="sm:!w-36"
-                      defaultValue={
-                        productSkus &&
-                        productSkus.find(
-                          (item) => item.slug === selectedProductSku
-                        )?.product_packs[0].id
-                      }
-                      placeholder="Select Pack Size"
-                      showSearch
-                      onSelect={(value) =>
-                        setSelectedPack(
-                          productSkus &&
-                            productSkus
-                              .find((item) => item.slug === selectedProductSku)
-                              ?.product_packs?.find((pack) => pack.id === value)
-                        )
-                      }
-                    >
-                      {productSkus &&
-                        productSkus
-                          .find((item) => item.slug === selectedProductSku)
-                          ?.product_packs?.map((pack) => (
-                            <Select.Option key={pack.id} value={pack.id}>
-                              {pack.number_of_items}
+                  <Form className="flex flex-col gap-2" layout="horizontal">
+                    <Form.Item className="!mb-0">
+                      <Select
+                        placeholder="Select Product SKU"
+                        showSearch
+                        onSelect={(value) => {
+                          setSelectedSku(value);
+                          setSelectedPack(
+                            productSkus &&
+                              productSkus.find((item) => item.slug === value)
+                                ?.product_packs[0]
+                          );
+                          setQuantity(1);
+                        }}
+                      >
+                        {productSkus &&
+                          productSkus.map((item) => (
+                            <Select.Option key={item.slug} value={item.slug}>
+                              {item.name}
                             </Select.Option>
                           ))}
-                    </Select>
-                  </Form.Item>
+                      </Select>
+                    </Form.Item>
+                    <Form.Item className="!mb-0" tooltip="Select Pack Size">
+                      <Select
+                        key={selectedProductSku}
+                        defaultValue={
+                          productSkus &&
+                          productSkus.find(
+                            (item) => item.slug === selectedProductSku
+                          )?.product_packs[0]?.id
+                        }
+                        placeholder="Select Pack Size"
+                        showSearch
+                        onSelect={(value) =>
+                          setSelectedPack(
+                            productSkus &&
+                              productSkus
+                                .find(
+                                  (item) => item.slug === selectedProductSku
+                                )
+                                ?.product_packs?.find(
+                                  (pack) => pack.id === value
+                                )
+                          )
+                        }
+                      >
+                        {productSkus &&
+                          productSkus
+                            .find((item) => item.slug === selectedProductSku)
+                            ?.product_packs?.map((pack) => (
+                              <Select.Option key={pack.id} value={pack.id}>
+                                {pack.number_of_items}
+                              </Select.Option>
+                            ))}
+                      </Select>
+                    </Form.Item>
 
-                  <Form.Item
-                    className="sm:w-auto w-full relative !mb-0"
-                    label={!isMobileView && "Quantity"}
-                    name="quantity"
-                  >
-                    <Input
-                      addonBefore={isMobileView && "Quantity"}
-                      className="sm:!w-20 "
-                      placeholder="Quantity"
-                      type="number"
-                      value={quantity}
-                      onChange={(e) => {
-                        setQuantity(e.target.value);
-                      }}
-                      onKeyDown={(event) =>
-                        (event.key === "." || event.key === "-") &&
-                        event.preventDefault()
-                      }
-                    />
-                    <span
-                      className={`${
-                        quantity < 0 ? "block" : "hidden"
-                      } absolute text-xs text-red-600`}
-                    >
-                      Negative value not allowed
-                    </span>
-                  </Form.Item>
+                    <Form.Item className="!mb-0" name="quantity">
+                      <Input
+                        addonBefore={isMobileView && "Quantity"}
+                        defaultValue={1}
+                        placeholder="Quantity"
+                        type="number"
+                        value={quantity}
+                        onChange={(e) => {
+                          setQuantity(e.target.value);
+                        }}
+                        onKeyDown={(event) =>
+                          (event.key === "." || event.key === "-") &&
+                          event.preventDefault()
+                        }
+                      />
+                    </Form.Item>
 
-                  <Form.Item
-                    className="sm:w-auto w-full !mb-0"
-                    label={!isMobileView && "Price Per Piece"}
-                  >
-                    <Input
-                      addonBefore={isMobileView && "Price Per Piece"}
-                      className="!bg-inherit !text-black"
-                      placeholder="Price"
-                      type="number"
-                      value={selectedProductPack?.price_per_piece}
-                      disabled
-                    />
-                  </Form.Item>
+                    <Form.Item className="!mb-0">
+                      <Input
+                        addonBefore="Price Per Piece"
+                        className="!bg-inherit !text-black"
+                        placeholder="Price"
+                        type="number"
+                        value={selectedProductPack?.price_per_piece}
+                        disabled
+                      />
+                    </Form.Item>
 
-                  <Form.Item
-                    className="sm:w-auto w-full !mb-0"
-                    label={!isMobileView && "Total Amount"}
-                  >
-                    <Input
-                      addonBefore={isMobileView && "Total Amount"}
-                      className="!bg-inherit !text-black"
-                      placeholder="Total amount"
-                      type="number"
-                      value={getTotalAmount()}
-                      disabled
-                    />
-                  </Form.Item>
+                    <Form.Item className="!mb-0">
+                      <Input
+                        addonBefore="Total Amount"
+                        className="!bg-inherit !text-black"
+                        placeholder="Total amount"
+                        type="number"
+                        value={getTotalAmount()}
+                        disabled
+                      />
+                    </Form.Item>
 
-                  <Form.Item
-                    className="sm:w-auto w-full !mb-0"
-                    label={!isMobileView && "Loyalty"}
-                  >
-                    <Input
-                      addonBefore={isMobileView && "Loyalty"}
-                      className="!bg-inherit !text-black"
-                      placeholder="Loyalty points"
-                      type="number"
-                      value={
-                        parseInt(
-                          selectedProductPack?.loyalty_cashback
-                            ?.loyalty_points_per_pack,
-                          10
-                        ) * quantity
-                      }
-                      disabled
-                    />
-                  </Form.Item>
+                    <Form.Item className="!mb-0">
+                      <Input
+                        addonBefore="Loyalty"
+                        className="!bg-inherit !text-black"
+                        placeholder="Loyalty points"
+                        type="number"
+                        value={
+                          parseInt(
+                            selectedProductPack?.loyalty_cashback
+                              ?.loyalty_points_per_pack,
+                            10
+                          ) * quantity
+                        }
+                        disabled
+                      />
+                    </Form.Item>
 
-                  <Form.Item
-                    className="sm:w-auto w-full !mb-0"
-                    label={!isMobileView && "Cashback"}
-                  >
-                    <Input
-                      addonBefore={isMobileView && "Cashback"}
-                      className="!bg-inherit !text-black"
-                      placeholder="Cashback"
-                      type="number"
-                      value={
-                        parseInt(
-                          selectedProductPack?.loyalty_cashback
-                            ?.cashback_amount_per_pack,
-                          10
-                        ) * quantity
-                      }
-                      disabled
-                    />
-                  </Form.Item>
-
-                  <Form.Item>
-                    <Button
-                      className="bg-blue-500 sm:!mt-[30px]"
-                      disabled={
-                        !(
-                          selectedProductPack &&
-                          selectedProductSku &&
-                          quantity > 0
-                        )
-                      }
-                      type="primary"
-                      onClick={() => handleAddItem.mutate()}
-                    >
-                      Add Item
-                    </Button>
-                  </Form.Item>
-                </Form>
+                    <Form.Item className="!mb-0">
+                      <Input
+                        addonBefore="Cashback"
+                        className="!bg-inherit !text-black"
+                        placeholder="Cashback"
+                        type="number"
+                        value={
+                          parseInt(
+                            selectedProductPack?.loyalty_cashback
+                              ?.cashback_amount_per_pack,
+                            10
+                          ) * quantity
+                        }
+                        disabled
+                      />
+                    </Form.Item>
+                  </Form>
+                </Drawer>
               )}
           </>
         )}

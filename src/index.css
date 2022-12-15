@@ -110,3 +110,11 @@ input::-webkit-inner-spin-button {
 .ant-table-bordered .ant-table-cell:last-child {
   padding: 0 !important;
 }
+
+.description-table
+  .ant-table-bordered
+  .ant-table-tbody
+  tr:last-child
+  .ant-table-cell {
+  padding-block: 10px !important;
+}

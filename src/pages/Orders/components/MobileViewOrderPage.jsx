@@ -1,11 +1,12 @@
 import { Fragment, useEffect, useState } from "react";
 import { useMutation } from "react-query";
-import { Input, message } from "antd";
+import { Input, message, Tooltip } from "antd";
 import {
   EditOutlined,
   DeleteOutlined,
   CloseCircleOutlined,
   SaveOutlined,
+  QuestionCircleOutlined,
 } from "@ant-design/icons";
 import { updateOrderItem } from "../../../api/orders";
 import { openSuccessNotification, openErrorNotification } from "../../../utils";
@@ -16,6 +17,7 @@ const MobileViewOrderPage = ({
   refetchOrderItems,
   orderId,
   isCreate,
+  getMarginPrice,
 }) => {
   const [isProductEditableId, setIsProductEditableId] = useState(null);
 
@@ -106,34 +108,49 @@ const MobileViewOrderPage = ({
                   >
                     <p className={!isCreate && "my-0"}>Price: </p>
                     {!isCreate ? (
-                      <Input
-                        className={`!bg-inherit !text-black text-left !p-0 !w-fit font-semibold ${
-                          isProductEditableId !== orderItem.id
-                            ? "!border-none"
-                            : "!border-blue-400"
-                        }`}
-                        disabled={isProductEditableId !== orderItem.id}
-                        id={orderItem.id}
-                        name="price"
-                        type="number"
-                        value={
-                          productPriceEditVal?.find(
-                            (product) => product.id === orderItem.id
-                          )?.price
-                        }
-                        onChange={(event) => {
-                          const { id, name, value } = event.target;
-                          setProductPriceEditVal((prev) =>
-                            prev.map((product) => ({
-                              ...product,
-                              [Number(id) === product.id && name]: value,
-                            }))
-                          );
-                        }}
-                        onKeyDown={(event) =>
-                          event.key === "-" && event.preventDefault()
-                        }
-                      />
+                      <>
+                        <Input
+                          className={`!bg-inherit !text-black text-left !p-0 !w-fit font-semibold ${
+                            isProductEditableId !== orderItem.id
+                              ? "!border-none"
+                              : "!border-blue-400"
+                          }`}
+                          disabled={isProductEditableId !== orderItem.id}
+                          id={orderItem.id}
+                          name="price"
+                          type="number"
+                          value={
+                            productPriceEditVal?.find(
+                              (product) => product.id === orderItem.id
+                            )?.price
+                          }
+                          onChange={(event) => {
+                            const { id, name, value } = event.target;
+                            setProductPriceEditVal((prev) =>
+                              prev.map((product) => ({
+                                ...product,
+                                [Number(id) === product.id && name]: value,
+                              }))
+                            );
+                          }}
+                          onKeyDown={(event) =>
+                            event.key === "-" && event.preventDefault()
+                          }
+                        />
+                        <Tooltip
+                          className={`${
+                            orderItem.id === isProductEditableId
+                              ? "!block"
+                              : "!hidden"
+                          }`}
+                          title={`Base Rate: Rs. ${getMarginPrice(
+                            orderItem.id
+                          )}`}
+                          trigger={["click"]}
+                        >
+                          <QuestionCircleOutlined className="pl-1" />
+                        </Tooltip>
+                      </>
                     ) : (
                       <p className="font-semibold">Rs.{orderItem.price}</p>
                     )}
@@ -158,7 +175,9 @@ const MobileViewOrderPage = ({
 
                   <span className="flex gap-2">
                     <p>Loyalty: </p>
-                    <p className="font-semibold">Rs.{orderItem.loyalty}</p>
+                    <p className="font-semibold">
+                      Rs.{orderItem.loyaltyPoints}
+                    </p>
                   </span>
 
                   <span className="flex gap-2">
@@ -193,26 +212,62 @@ const MobileViewOrderPage = ({
                       <SaveOutlined
                         className="cursor-pointer text-xl"
                         onClick={() => {
+                          const isDisabled = () => {
+                            const baseCondition =
+                              !parseInt(
+                                productPriceEditVal?.find(
+                                  (product) => product.id === orderItem.id
+                                )?.number_of_packs
+                              ) > 0 ||
+                              !parseFloat(
+                                productPriceEditVal?.find(
+                                  (product) =>
+                                    product.id === isProductEditableId
+                                )?.price
+                              ) > 0;
+
+                            if (
+                              JSON.parse(
+                                localStorage.getItem("groups") || "[]"
+                              )?.[0]?.name === "superadmin"
+                            )
+                              return baseCondition;
+
+                            return (
+                              baseCondition ||
+                              parseFloat(
+                                productPriceEditVal?.find(
+                                  (product) =>
+                                    product.id === isProductEditableId
+                                )?.price
+                              ) < getMarginPrice(isProductEditableId)
+                            );
+                          };
+
                           if (
                             !(
                               productPriceEditVal?.find(
                                 (product) => product.id === isProductEditableId
-                              )?.number_of_packs > 0
+                              )?.number_of_packs > -1
                             )
                           )
                             return message.error("Negative values not allowed");
-                          handleItemUpdate.mutate({
-                            orderId,
-                            itemId: isProductEditableId,
-                            data: {
-                              price_per_piece: productPriceEditVal?.find(
-                                (product) => product.id === isProductEditableId
-                              )?.price,
-                              number_of_packs: productPriceEditVal?.find(
-                                (product) => product.id === isProductEditableId
-                              )?.number_of_packs,
-                            },
-                          });
+
+                          if (!isDisabled())
+                            handleItemUpdate.mutate({
+                              orderId,
+                              itemId: isProductEditableId,
+                              data: {
+                                price_per_piece: productPriceEditVal?.find(
+                                  (product) =>
+                                    product.id === isProductEditableId
+                                )?.price,
+                                number_of_packs: productPriceEditVal?.find(
+                                  (product) =>
+                                    product.id === isProductEditableId
+                                )?.number_of_packs,
+                              },
+                            });
                         }}
                       />
 

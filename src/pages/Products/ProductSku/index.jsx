@@ -360,7 +360,15 @@ function ProductSkuScreen() {
             >
               <Tabs.TabPane key="published" tab="Published">
                 <Table
-                  columns={columns}
+                  columns={
+                    JSON.parse(localStorage.getItem("groups") || "[]")?.[0]
+                      ?.name === "superadmin"
+                      ? columns
+                      : columns.filter(
+                          (column) =>
+                            column.dataIndex !== "cost_price_per_piece"
+                        )
+                  }
                   dataSource={
                     productSkus?.map((item) => ({
                       ...item,
