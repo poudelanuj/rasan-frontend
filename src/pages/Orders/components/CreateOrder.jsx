@@ -1,6 +1,6 @@
 import { Form, Select } from "antd";
 import { capitalize, uniqBy } from "lodash";
-import { useState, useCallback, useRef, useEffect, Fragment } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation } from "react-query";
 import { useNavigate } from "react-router-dom";
 import { getUsers } from "../../../api/users";
@@ -35,6 +35,9 @@ const CreateOrder = () => {
   const [form] = Form.useForm();
 
   const [selectedUserPhone, setSelectedUserPhone] = useState();
+
+  const [selectedShipping, setSelectedShipping] = useState();
+
   const [basketItemsStatus, setBasketItemsStatus] = useState(STATUS.idle);
   const [page, setPage] = useState(1);
 
@@ -64,22 +67,6 @@ const CreateOrder = () => {
     refetchUserList();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
-
-  const observer = useRef();
-  const scrollRef = useCallback(
-    (node) => {
-      if (userListStatus === "loading") return;
-      if (observer.current) observer.current.disconnect();
-      observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && data?.next) {
-          setPage((prev) => prev + 1);
-          refetchUserList();
-        }
-      });
-      if (node) observer.current.observe(node);
-    },
-    [userListStatus, data?.next, refetchUserList]
-  );
 
   const onFinish = useMutation(
     ({
@@ -160,34 +147,37 @@ const CreateOrder = () => {
                   }}
                   onSelect={(value) => {
                     form.setFieldsValue({
-                      shipping_address: userList
-                        ?.find((user) => user.phone === value)
-                        ?.addresses?.find((address) => address.is_default)?.id,
+                      shipping_address:
+                        userList
+                          ?.find((user) => user.phone === value)
+                          ?.addresses?.find((address) => address.is_default)
+                          ?.id ??
+                        userList?.find((user) => user.phone === value)
+                          ?.addresses[0]?.id,
                       user: value,
                     });
                     setSelectedUserPhone(value);
+                    setSelectedShipping(
+                      userList
+                        ?.find((user) => user.phone === value)
+                        ?.addresses?.find((address) => address.is_default)
+                        ?.id ??
+                        userList?.find((user) => user.phone === value)
+                          ?.addresses[0]?.id
+                    );
                   }}
                 >
-                  {userList?.map((user, index) => {
-                    const isLastElement = userList?.length === index + 1;
-                    return isLastElement ? (
-                      <Option key={user.id} ref={scrollRef} value={user.phone}>
-                        {user.full_name
-                          ? `${user.full_name} (${user.phone})`
-                          : user.phone}
-                      </Option>
-                    ) : (
-                      <Option key={user.id} value={user.phone}>
-                        {user.full_name
-                          ? `${user.full_name} (${user.phone})${
-                              user.shop.name ? ` - ${user.shop.name}` : ""
-                            }`
-                          : `${user.phone}${
-                              user.shop.name ? ` - ${user.shop.name}` : ""
-                            }`}
-                      </Option>
-                    );
-                  })}
+                  {userList?.map((user) => (
+                    <Option key={user.id} value={user.phone}>
+                      {user.full_name
+                        ? `${user.full_name} (${user.phone})${
+                            user.shop.name ? ` - ${user.shop.name}` : ""
+                          }`
+                        : `${user.phone}${
+                            user.shop.name ? ` - ${user.shop.name}` : ""
+                          }`}
+                    </Option>
+                  ))}
                 </Select>
 
                 <ButtonWPermission
@@ -203,7 +193,7 @@ const CreateOrder = () => {
             </Form.Item>
 
             <Form.Item
-              className="!mb-1 sm:basis-[35%] w-full"
+              className="!mb-1 sm:basis-[35%] w-full flex"
               label={"Shipping Address"}
               name="shipping_address"
               rules={[
@@ -223,9 +213,11 @@ const CreateOrder = () => {
                   loading={userListStatus === "loading" || refetchingUserList}
                   optionFilterProp="children"
                   placeholder="Select Shipping Address"
+                  value={selectedShipping}
                   showSearch
                   onSelect={(value) => {
                     form.setFieldsValue({ shipping_address: value });
+                    setSelectedShipping(value);
                   }}
                 >
                   {userList &&
