@@ -94,8 +94,7 @@ const MobileViewOrderPage = ({
                           );
                         }}
                         onKeyDown={(event) =>
-                          (event.key === "." || event.key === "-") &&
-                          event.preventDefault()
+                          event.key === "-" && event.preventDefault()
                         }
                       />
                     ) : (

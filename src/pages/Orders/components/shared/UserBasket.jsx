@@ -14,11 +14,10 @@ import {
 } from "../../../../utils/openNotification";
 import { getAllProductSkus } from "../../../../api/products/productSku";
 import { GET_ALL_PRODUCT_SKUS } from "../../../../constants/queryKeys";
-import { STATUS } from "../../../../constants";
 import { useAuth } from "../../../../AuthProvider";
 import MobileViewOrderPage from "../MobileViewOrderPage";
 
-const UserBasket = ({ user, setBasketItemsStatus }) => {
+const UserBasket = ({ user }) => {
   const { isMobileView } = useAuth();
 
   const { basket_id } = user;
@@ -67,7 +66,6 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
       onSuccess: (data) => {
         openSuccessNotification(data.message || "Item Added");
         setSelectedProductSku(null);
-        setBasketItemsStatus(STATUS.success);
         setForm({
           product_pack: null,
           quantity: 1,
@@ -229,11 +227,9 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
             type="number"
             value={form?.quantity}
             onChange={(e) => {
-              e.key !== "." && setForm({ ...form, quantity: e.target.value });
+              setForm({ ...form, quantity: e.target.value });
             }}
-            onKeyDown={(event) =>
-              (event.key === "." || event.key === "-") && event.preventDefault()
-            }
+            onKeyDown={(event) => event.key === "-" && event.preventDefault()}
           />
         ) : (
           <>{text}</>
@@ -290,14 +286,15 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
       title: "Loyalty Points",
       dataIndex: "loyaltyPoints",
       key: "loyaltyPoints",
-      width: "14%",
+      width: "13%",
       render: (text) => {
         return text === "isForm" ? (
           <span>
             {parseInt(
-              form?.product_pack?.loyalty_cashback?.loyalty_points_per_pack,
+              form?.product_pack?.loyalty_cashback?.loyalty_points_per_pack *
+                form?.quantity,
               10
-            ) * form?.quantity || 0}
+            ) || 0}
           </span>
         ) : (
           <>{text}</>
@@ -308,17 +305,23 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
       title: "Cashback",
       dataIndex: "cashback",
       key: "cashback",
-      width: "12%",
+      width: "10%",
       render: (text) => (
         <div className="flex gap-0.5">
           <span> Rs.</span>
           <span>
             {text === "isForm"
-              ? parseInt(
-                  form?.product_pack?.loyalty_cashback
-                    ?.cashback_amount_per_pack,
-                  10
-                ) * form?.quantity || 0
+              ? !isNaN(
+                  parseFloat(
+                    form?.product_pack?.loyalty_cashback
+                      ?.cashback_amount_per_pack * form?.quantity
+                  ).toFixed(2)
+                )
+                ? parseFloat(
+                    form?.product_pack?.loyalty_cashback
+                      ?.cashback_amount_per_pack * form?.quantity
+                  ).toFixed(2)
+                : 0
               : text}
           </span>
         </div>
@@ -355,9 +358,19 @@ const UserBasket = ({ user, setBasketItemsStatus }) => {
           Rs.
           <span>
             {text === "isForm"
-              ? form?.product_pack?.price_per_piece *
-                  form?.product_pack?.number_of_items *
-                  form?.quantity || 0
+              ? !isNaN(
+                  parseFloat(
+                    form?.product_pack?.price_per_piece *
+                      form?.product_pack?.number_of_items *
+                      form?.quantity
+                  ).toFixed(2)
+                )
+                ? parseFloat(
+                    form?.product_pack?.price_per_piece *
+                      form?.product_pack?.number_of_items *
+                      form?.quantity
+                  ).toFixed(2)
+                : 0
               : text}
           </span>
         </div>
