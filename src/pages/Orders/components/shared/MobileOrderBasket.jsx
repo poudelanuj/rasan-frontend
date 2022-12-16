@@ -1,8 +1,7 @@
-import { nanoid } from "nanoid";
-import { MinusOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Form, Input, Select, Space } from "antd";
-import { useState, useEffect } from "react";
+import { Button, Form, Input, Select, Space, Drawer } from "antd";
+import { useState } from "react";
 import { useMutation, useQuery } from "react-query";
+import { PlusOutlined } from "@ant-design/icons";
 import {
   addBasketItem,
   deleteBasketItem,
@@ -14,22 +13,19 @@ import {
 } from "../../../../utils/openNotification";
 import { getAllProductSkus } from "../../../../api/products/productSku";
 import { GET_ALL_PRODUCT_SKUS } from "../../../../constants/queryKeys";
-import { STATUS } from "../../../../constants";
-import ButtonWPermission from "../../../../shared/ButtonWPermission";
 import MobileViewOrderPage from "../MobileViewOrderPage";
 
-const MobileViewOrderForm = ({ user, setBasketItemsStatus }) => {
+const MobileViewOrderForm = ({ user }) => {
   const { basket_id } = user;
 
   const [selectedProductSku, setSelectedSku] = useState();
 
-  const [forms, setForms] = useState([
-    {
-      id: nanoid(),
-      product_pack: null,
-      quantity: 1,
-    },
-  ]);
+  const [forms, setForms] = useState({
+    product_pack: null,
+    quantity: 1,
+  });
+
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const { data: basketData, refetch: refetchBasketItems } = useQuery({
     queryFn: () => getBasketInfo(basket_id),
@@ -87,65 +83,47 @@ const MobileViewOrderForm = ({ user, setBasketItemsStatus }) => {
   // *********** FORM ************ //
   const handleBasketSubmit = useMutation(
     () =>
-      Promise.all(
-        forms
-          .filter((item) => item.product_pack !== null)
-          .map((form) =>
-            addBasketItem({
-              product_pack: form.product_pack?.id,
-              number_of_packs: form.quantity,
-              basket: basket_id,
-            })
-          )
-      ),
+      addBasketItem({
+        product_pack: forms.product_pack?.id,
+        number_of_packs: forms.quantity,
+        basket: basket_id,
+      }),
     {
       onSuccess: (data) => {
         openSuccessNotification(data.message || "Item Added");
-        setForms([
-          {
-            id: nanoid(),
-            product_pack: null,
-            quantity: 1,
-          },
-        ]);
+        setForms({
+          product_pack: null,
+          quantity: 1,
+        });
         setSelectedSku(null);
-        setBasketItemsStatus(STATUS.success);
+        setIsDrawerOpen(false);
       },
       onError: (error) => {
         openErrorNotification(error);
       },
       onSettled: () => {
         refetchBasketItems();
+        setTimeout(
+          () =>
+            document.getElementById("create-order-btn").scrollIntoView({
+              behavior: "smooth",
+              block: "end",
+              inline: "nearest",
+            }),
+          500
+        );
       },
     }
   );
 
   // *********** FORM ************ //
-  const getTotalAmount = (formId) => {
-    const basketForm = forms.find((item) => item.id === formId);
-    const productPack = basketForm?.product_pack;
-
-    return (
-      productPack?.price_per_piece *
-      productPack?.number_of_items *
-      basketForm?.quantity
-    );
+  const getTotalAmount = () => {
+    return parseFloat(
+      forms.product_pack?.price_per_piece *
+        forms.product_pack?.number_of_items *
+        forms.quantity
+    ).toFixed(2);
   };
-
-  const handleAddForm = () => {
-    const newId = nanoid();
-    setForms((prev) => [
-      ...prev,
-      { id: newId, product_pack: null, quantity: 1 },
-    ]);
-  };
-
-  useEffect(() => {
-    if (forms[0]?.product_pack !== null)
-      setBasketItemsStatus(STATUS.processing);
-    else setBasketItemsStatus(STATUS.idle);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [forms]);
 
   return (
     <div className="my-4">
@@ -158,10 +136,43 @@ const MobileViewOrderForm = ({ user, setBasketItemsStatus }) => {
         orderItems={dataSource}
         isCreate
       />
-      <h2 className="font-medium text-base mb-5">Add Item</h2>
-      {forms?.map((basketForm, index) => (
+
+      <Button
+        className="!p-0 !border-none !bg-inherit !text-[#00B0C2]"
+        icon={<PlusOutlined className="cursor-pointer w-fit" />}
+        onClick={() => setIsDrawerOpen(true)}
+      >
+        Add new SKU
+      </Button>
+
+      <Drawer
+        extra={
+          <Space>
+            <Button onClick={() => setIsDrawerOpen(false)}>Cancel</Button>
+            <Button
+              className="bg-blue-500"
+              disabled={
+                !(
+                  forms.product_pack &&
+                  selectedProductSku &&
+                  forms.quantity > 0
+                )
+              }
+              type="primary"
+              onClick={() => handleBasketSubmit.mutate()}
+            >
+              Add
+            </Button>
+          </Space>
+        }
+        height={400}
+        placement="bottom"
+        title="Add Item"
+        visible={isDrawerOpen}
+        destroyOnClose
+        onClose={() => setIsDrawerOpen(false)}
+      >
         <Form
-          key={basketForm.id}
           className="w-full flex flex-col gap-2 !mb-2"
           layout={"horizontal"}
         >
@@ -172,18 +183,11 @@ const MobileViewOrderForm = ({ user, setBasketItemsStatus }) => {
               showSearch
               onSelect={(value) => {
                 setSelectedSku(value);
-                setForms((prev) => {
-                  const productPack = productSkus.find(
-                    (item) => item.slug === value
-                  )?.product_packs[0];
-
-                  const temp = [...prev];
-                  const index = prev.findIndex(
-                    (item) => item.id === basketForm.id
-                  );
-                  temp[index]["product_pack"] = productPack;
-                  return temp;
-                });
+                setForms((prev) => ({
+                  ...prev,
+                  product_pack: productSkus.find((item) => item.slug === value)
+                    ?.product_packs[0],
+                }));
               }}
             >
               {productSkus &&
@@ -205,18 +209,12 @@ const MobileViewOrderForm = ({ user, setBasketItemsStatus }) => {
               placeholder="Select Pack Size"
               showSearch
               onSelect={(value) => {
-                setForms((prev) => {
-                  const productPack = productSkus
+                setForms((prev) => ({
+                  ...prev,
+                  product_pack: productSkus
                     .find((item) => item.slug === selectedProductSku)
-                    ?.product_packs?.find((pack) => pack.id === value);
-
-                  const temp = [...prev];
-                  const index = prev.findIndex(
-                    (item) => item.id === basketForm.id
-                  );
-                  temp[index]["product_pack"] = productPack;
-                  return temp;
-                });
+                    ?.product_packs?.find((pack) => pack.id === value),
+                }));
               }}
             >
               {productSkus &&
@@ -235,22 +233,11 @@ const MobileViewOrderForm = ({ user, setBasketItemsStatus }) => {
               addonBefore={"Quantity"}
               placeholder="Quantity"
               type="number"
-              value={forms.find((item) => item.id === basketForm.id)?.quantity}
+              value={forms.quantity}
               onChange={(e) => {
-                e.key !== "." &&
-                  setForms((prev) => {
-                    const temp = [...prev];
-                    const index = prev.findIndex(
-                      (item) => item.id === basketForm.id
-                    );
-                    temp[index]["quantity"] = e.target.value;
-                    return temp;
-                  });
+                setForms((prev) => ({ ...prev, quantity: e.target.value }));
               }}
-              onKeyDown={(event) =>
-                (event.key === "." || event.key === "-") &&
-                event.preventDefault()
-              }
+              onKeyDown={(event) => event.key === "-" && event.preventDefault()}
             />
           </Form.Item>
 
@@ -260,10 +247,7 @@ const MobileViewOrderForm = ({ user, setBasketItemsStatus }) => {
               className="!bg-inherit !text-black"
               placeholder="Price"
               type="number"
-              value={
-                forms.find((item) => item.id === basketForm.id)?.product_pack
-                  ?.price_per_piece
-              }
+              value={forms.product_pack?.price_per_piece}
               disabled
             />
           </Form.Item>
@@ -274,7 +258,7 @@ const MobileViewOrderForm = ({ user, setBasketItemsStatus }) => {
               className="!bg-inherit !text-black"
               placeholder="Total amount"
               type="number"
-              value={getTotalAmount(basketForm.id)}
+              value={!isNaN(getTotalAmount()) ? getTotalAmount() : 0}
               disabled
             />
           </Form.Item>
@@ -285,13 +269,11 @@ const MobileViewOrderForm = ({ user, setBasketItemsStatus }) => {
               className="!bg-inherit !text-black"
               placeholder="Loyalty points"
               type="number"
-              value={
-                parseInt(
-                  forms.find((item) => item.id === basketForm.id)?.product_pack
-                    ?.loyalty_cashback?.loyalty_points_per_pack,
-                  10
-                ) * forms.find((item) => item.id === basketForm.id)?.quantity
-              }
+              value={parseInt(
+                forms.product_pack?.loyalty_cashback?.loyalty_points_per_pack *
+                  forms.quantity,
+                10
+              )}
               disabled
             />
           </Form.Item>
@@ -303,74 +285,23 @@ const MobileViewOrderForm = ({ user, setBasketItemsStatus }) => {
               placeholder="Cashback"
               type="number"
               value={
-                parseInt(
-                  forms.find((item) => item.id === basketForm.id)?.product_pack
-                    ?.loyalty_cashback?.cashback_amount_per_pack,
-                  10
-                ) * forms.find((item) => item.id === basketForm.id)?.quantity
+                !isNaN(
+                  parseFloat(
+                    forms.product_pack?.loyalty_cashback
+                      ?.cashback_amount_per_pack * forms.quantity
+                  ).toFixed(2)
+                )
+                  ? parseFloat(
+                      forms.product_pack?.loyalty_cashback
+                        ?.cashback_amount_per_pack * forms.quantity
+                    ).toFixed(2)
+                  : 0
               }
               disabled
             />
           </Form.Item>
-
-          <Form.Item className="!mb-0">
-            {index + 1 === forms.length ? (
-              <ButtonWPermission
-                codename="add_basketitem"
-                disabled={forms.some(({ quantity }) => quantity < 0)}
-                icon={<PlusOutlined />}
-                type="primary"
-                onClick={handleAddForm}
-              />
-            ) : (
-              <Button
-                icon={<MinusOutlined />}
-                type="ghost"
-                onClick={() =>
-                  setForms((prev) => {
-                    let temp = [...prev];
-                    temp = temp.filter((item) => item.id !== basketForm.id);
-                    return temp;
-                  })
-                }
-              />
-            )}
-          </Form.Item>
         </Form>
-      ))}
-      <div className="w-full flex justify-start">
-        <Space>
-          <Button
-            size="middle"
-            type="danger"
-            onClick={() => {
-              setForms([
-                {
-                  id: nanoid(),
-                  product_pack: null,
-                  quantity: 1,
-                },
-              ]);
-            }}
-          >
-            Clear
-          </Button>
-
-          <ButtonWPermission
-            codename="add_basketitem"
-            disabled={
-              forms[0]?.product_pack === null ||
-              forms.some(({ quantity }) => quantity <= 0)
-            }
-            loading={handleBasketSubmit.status === "loading"}
-            size="middle"
-            type="primary"
-            onClick={() => handleBasketSubmit.mutate()}
-          >
-            Save Items To Basket
-          </ButtonWPermission>
-        </Space>
-      </div>
+      </Drawer>
     </div>
   );
 };

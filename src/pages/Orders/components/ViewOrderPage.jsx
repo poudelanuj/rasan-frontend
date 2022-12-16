@@ -171,7 +171,14 @@ const ViewOrderPage = () => {
       onSettled: () => {
         refetchOrderItems();
         setTimeout(() => {
-          !isRefetching && productSkuRef.current.focus();
+          !isRefetching && !isMobileView && productSkuRef.current.focus();
+          !isRefetching &&
+            isMobileView &&
+            document.getElementById("add-new-item-btn").scrollIntoView({
+              behavior: "smooth",
+              block: "end",
+              inline: "nearest",
+            });
         }, 500);
       },
     }
@@ -402,7 +409,7 @@ const ViewOrderPage = () => {
       title: "Product Name",
       dataIndex: "productName",
       key: "productName",
-      width: "40%",
+      width: "45%",
       render: (text) =>
         text === "isForm" ? (
           <div id="dropdown">
@@ -461,9 +468,7 @@ const ViewOrderPage = () => {
             onChange={(e) => {
               setQuantity(e.target.value);
             }}
-            onKeyDown={(event) =>
-              (event.key === "." || event.key === "-") && event.preventDefault()
-            }
+            onKeyDown={(event) => event.key === "-" && event.preventDefault()}
           />
         ) : (
           <Input
@@ -487,9 +492,7 @@ const ViewOrderPage = () => {
                 }))
               );
             }}
-            onKeyDown={(event) =>
-              (event.key === "." || event.key === "-") && event.preventDefault()
-            }
+            onKeyDown={(event) => event.key === "-" && event.preventDefault()}
           />
         ),
     },
@@ -542,14 +545,15 @@ const ViewOrderPage = () => {
       title: "Loyalty Points",
       dataIndex: "loyaltyPoints",
       key: "loyaltyPoints",
-      width: "14%",
+      width: "13%",
       render: (text) =>
         text === "isForm" ? (
           <span>
             {parseInt(
-              selectedProductPack?.loyalty_cashback?.loyalty_points_per_pack,
+              selectedProductPack?.loyalty_cashback?.loyalty_points_per_pack *
+                quantity,
               10
-            ) * quantity || 0}
+            ) || 0}
           </span>
         ) : (
           <>{text}</>
@@ -564,10 +568,17 @@ const ViewOrderPage = () => {
         text === "isForm" ? (
           <span className="flex gap-0.5">
             <span>Rs.</span>
-            {parseInt(
-              selectedProductPack?.loyalty_cashback?.cashback_amount_per_pack,
-              10
-            ) * quantity || 0}
+            {!isNaN(
+              parseFloat(
+                selectedProductPack?.loyalty_cashback
+                  ?.cashback_amount_per_pack * quantity
+              ).toFixed(2)
+            )
+              ? parseFloat(
+                  selectedProductPack?.loyalty_cashback
+                    ?.cashback_amount_per_pack * quantity
+                ).toFixed(2)
+              : 0}
           </span>
         ) : (
           <span className="flex gap-0.5">
@@ -589,7 +600,7 @@ const ViewOrderPage = () => {
           <div className="flex items-center gap-0.5">
             <span>Rs.</span>
             <Input
-              className={`!bg-inherit !text-black !w-24 !pl-0 ${
+              className={`!bg-inherit !text-black !w-20 !pl-0 ${
                 isProductEditableId !== id && "!border-none"
               }`}
               disabled={isProductEditableId !== id}
@@ -634,15 +645,17 @@ const ViewOrderPage = () => {
       render: (text, { id, numberOfItemsPerPack }) =>
         text === "isForm" ? (
           <span className="flex items-center gap-0.5">
-            <span>Rs.</span> {getTotalAmount() || 0}
+            <span>Rs.</span> {!isNaN(getTotalAmount()) ? getTotalAmount() : 0}
           </span>
         ) : (
           <span className="flex items-center gap-0.5">
             <span> Rs.</span>
-            {productPriceEditVal?.find((product) => product.id === id)?.price *
-              numberOfItemsPerPack *
-              productPriceEditVal?.find((product) => product.id === id)
-                ?.number_of_packs}
+            {parseFloat(
+              productPriceEditVal?.find((product) => product.id === id)?.price *
+                numberOfItemsPerPack *
+                productPriceEditVal?.find((product) => product.id === id)
+                  ?.number_of_packs
+            ).toFixed(2)}
           </span>
         ),
     },
@@ -748,7 +761,7 @@ const ViewOrderPage = () => {
       selectedProductPack?.price_per_piece *
       selectedProductPack?.number_of_items *
       quantity
-    );
+    ).toFixed(2);
   };
 
   const handleUpdateStatus = useMutation(
@@ -856,17 +869,20 @@ const ViewOrderPage = () => {
                   <div className="font-medium text-lg">
                     {user.full_name || "User"}
                   </div>
-                  <div className="flex sm:flex-row flex-col sm:items-center sm:gap-0 gap-1 text-light_text">
-                    <div className="flex items-center pr-4">
-                      <HomeOutlined className="mr-1" />
+                  <div className="flex sm:flex-row flex-col sm:items-center sm:gap-4 gap-1 text-light_text">
+                    <div className="flex items-center gap-1">
+                      <HomeOutlined />
                       {user.shop.name}
                     </div>
-                    <div className="flex items-center pr-4">
-                      <PhoneOutlined className="mr-1" />
+                    <div className="flex items-center gap-1">
+                      <PhoneOutlined />
                       {user.phone}
                     </div>
-                    <div className="flex items-center pr-4">
-                      <EnvironmentOutlined className="mr-1" />
+                    <div
+                      className="flex items-center gap-1"
+                      style={{ overflowWrap: "anywhere" }}
+                    >
+                      <EnvironmentOutlined />
                       {!data?.shipping_address ? (
                         <Button
                           size="small"
@@ -877,11 +893,20 @@ const ViewOrderPage = () => {
                       ) : (
                         <>
                           Shipping address:{" "}
-                          {
+                          {`${
                             user.addresses?.find(
                               (add) => add.id === data?.shipping_address
                             )?.detail_address
-                          }
+                          }, 
+                            ${
+                              user.addresses?.find(
+                                (add) => add.id === data?.shipping_address
+                              )?.area.name
+                            }, ${
+                            user.addresses?.find(
+                              (add) => add.id === data?.shipping_address
+                            )?.city.name
+                          }`}
                         </>
                       )}
 
@@ -1128,6 +1153,7 @@ const ViewOrderPage = () => {
             <hr className="sm:block hidden my-5" />
             <Button
               className="!bg-[#00A0B0] !border-none"
+              id="add-new-item-btn"
               type="primary"
               onClick={() => setIsDrawerOpen(true)}
             >
@@ -1239,8 +1265,7 @@ const ViewOrderPage = () => {
                           setQuantity(e.target.value);
                         }}
                         onKeyDown={(event) =>
-                          (event.key === "." || event.key === "-") &&
-                          event.preventDefault()
+                          event.key === "-" && event.preventDefault()
                         }
                       />
                     </Form.Item>
@@ -1262,7 +1287,7 @@ const ViewOrderPage = () => {
                         className="!bg-inherit !text-black"
                         placeholder="Total amount"
                         type="number"
-                        value={getTotalAmount()}
+                        value={!isNaN(getTotalAmount()) ? getTotalAmount() : 0}
                         disabled
                       />
                     </Form.Item>
@@ -1273,13 +1298,11 @@ const ViewOrderPage = () => {
                         className="!bg-inherit !text-black"
                         placeholder="Loyalty points"
                         type="number"
-                        value={
-                          parseInt(
-                            selectedProductPack?.loyalty_cashback
-                              ?.loyalty_points_per_pack,
-                            10
-                          ) * quantity
-                        }
+                        value={parseInt(
+                          selectedProductPack?.loyalty_cashback
+                            ?.loyalty_points_per_pack * quantity,
+                          10
+                        )}
                         disabled
                       />
                     </Form.Item>
@@ -1291,11 +1314,17 @@ const ViewOrderPage = () => {
                         placeholder="Cashback"
                         type="number"
                         value={
-                          parseInt(
-                            selectedProductPack?.loyalty_cashback
-                              ?.cashback_amount_per_pack,
-                            10
-                          ) * quantity
+                          !isNaN(
+                            parseFloat(
+                              selectedProductPack?.loyalty_cashback
+                                ?.cashback_amount_per_pack * quantity
+                            ).toFixed(2)
+                          )
+                            ? parseFloat(
+                                selectedProductPack?.loyalty_cashback
+                                  ?.cashback_amount_per_pack * quantity
+                              ).toFixed(2)
+                            : 0
                         }
                         disabled
                       />

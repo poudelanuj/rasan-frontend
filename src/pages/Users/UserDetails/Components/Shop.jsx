@@ -25,7 +25,7 @@ const Shop = ({ user }) => {
     }
     shopMutation({ data: form_data, key: user.id });
   };
-  const onFinishFailed = (errorInfo) => {};
+
   return (
     <>
       <Form
@@ -42,13 +42,20 @@ const Shop = ({ user }) => {
           span: 16,
         }}
         onFinish={onFinish}
-        onFinishFailed={onFinishFailed}
       >
-        <Form.Item label="Name" name="name">
+        <Form.Item
+          label="Name"
+          name="name"
+          rules={[{ required: true, message: "Please provide shop name" }]}
+        >
           <Input />
         </Form.Item>
-        <Form.Item label="Pan Vat Number" name="pan_vat_number">
-          <Input />
+        <Form.Item
+          label="Pan Vat Number"
+          name="pan_vat_number"
+          rules={[{ required: true, message: "Please provide VAT number" }]}
+        >
+          <Input type="number" />
         </Form.Item>
 
         <Form.Item>

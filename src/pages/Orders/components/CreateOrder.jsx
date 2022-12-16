@@ -11,7 +11,6 @@ import {
   CASH_ON_DELIVERY,
   PAID,
   PAYMENT_METHODS,
-  STATUS,
   UNPAID,
 } from "../../../constants";
 import { createOrder } from "../../../context/OrdersContext";
@@ -38,7 +37,6 @@ const CreateOrder = () => {
 
   const [selectedShipping, setSelectedShipping] = useState();
 
-  const [basketItemsStatus, setBasketItemsStatus] = useState(STATUS.idle);
   const [page, setPage] = useState(1);
 
   const [userList, setUserList] = useState([]);
@@ -343,37 +341,29 @@ const CreateOrder = () => {
             userList.find((el) => el.phone === selectedUserPhone) &&
             (isMobileView ? (
               <MobileOrderBasket
-                setBasketItemsStatus={setBasketItemsStatus}
                 user={userList.find((el) => el.phone === selectedUserPhone)}
               />
             ) : (
               <UserBasket
-                setBasketItemsStatus={setBasketItemsStatus}
                 user={userList.find((el) => el.phone === selectedUserPhone)}
               />
             ))}
 
-          <div className="w-full flex justify-end">
+          <div className="w-full flex justify-end mt-4">
             <ButtonWPermission
               className={`p-0 m-0 ${
-                onFinish.status !== "loading" &&
-                basketItemsStatus !== STATUS.processing &&
-                "!bg-[#00B0C2] !border-none"
+                onFinish.status !== "loading" && "!bg-[#00B0C2] !border-none"
               }`}
               codename="add_order"
-              disabled={
-                onFinish.status === "loading" ||
-                basketItemsStatus === STATUS.processing
-              }
+              disabled={onFinish.status === "loading"}
+              id="create-order-btn"
               loading={onFinish.status === "loading"}
               type="primary"
               onClick={() =>
                 form.validateFields().then((values) => onFinish.mutate(values))
               }
             >
-              {basketItemsStatus === STATUS.processing
-                ? "Please save basket items to create order"
-                : "Create Order"}
+              Create Order
             </ButtonWPermission>
           </div>
 
