@@ -148,7 +148,9 @@ function ProductSkuScreen() {
         <div
           className="flex items-center gap-3 cursor-pointer text-blue-500 hover:underline"
           onClick={() => {
-            navigate("/product-sku/" + slug + `?search=${searchInput.current}`);
+            navigate(
+              "/product-sku/" + slug + `?search=${searchInput.current ?? ""}`
+            );
           }}
         >
           <img

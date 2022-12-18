@@ -39,9 +39,9 @@ function ProductSKU() {
         <>
           <CustomPageHeader
             breadcrumb={getHeaderBreadcrumb()}
-            path={`/product-sku?search=${new URLSearchParams(search).get(
-              "search"
-            )}`}
+            path={`/product-sku?search=${
+              new URLSearchParams(search).get("search") ?? ""
+            }`}
             title={productSku.name}
           />
 
