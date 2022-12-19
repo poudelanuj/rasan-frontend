@@ -1,4 +1,5 @@
 import axios from "../axios";
+import { ORDER_STATUS_ENUMS } from "../constants";
 
 export const getOrders = async () => {
   const res = await axios.get("/api/order/admin/orders/?page=1&size=100");
@@ -51,8 +52,16 @@ export const getPaginatedOrders = async ({
   sort,
   search,
 }) => {
+  const status =
+    orderStatus === "all"
+      ? ORDER_STATUS_ENUMS.filter(({ id }) => id !== "archived")
+          .map(({ id }) => id)
+          .toString()
+          .replaceAll(",", `&status=`)
+      : orderStatus;
+
   const res = await axios.get(
-    `/api/order/admin/orders/?status=${orderStatus}&page=${page || 1}&size=${
+    `/api/order/admin/orders/?status=${status}&page=${page || 1}&size=${
       size || 20
     }&sort=${sort || []}&search=${search || ""}`
   );

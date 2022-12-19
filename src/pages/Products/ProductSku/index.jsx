@@ -1,6 +1,6 @@
 import CustomPageHeader from "../../../shared/PageHeader";
 import { useEffect, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 import { Space, Table, Tag, Input, Tabs } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
@@ -25,6 +25,8 @@ import { useAuth } from "../../../AuthProvider";
 function ProductSkuScreen() {
   const { isMobileView } = useAuth();
 
+  const { search } = useLocation();
+
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [productSkus, setProductSkus] = useState([]);
@@ -42,7 +44,7 @@ function ProductSkuScreen() {
     sort: [],
   });
 
-  const searchInput = useRef("");
+  const searchInput = useRef(new URLSearchParams(search).get("search"));
 
   let timeout = 0;
 
@@ -146,7 +148,9 @@ function ProductSkuScreen() {
         <div
           className="flex items-center gap-3 cursor-pointer text-blue-500 hover:underline"
           onClick={() => {
-            navigate("/product-sku/" + slug);
+            navigate(
+              "/product-sku/" + slug + `?search=${searchInput.current ?? ""}`
+            );
           }}
         >
           <img
@@ -328,10 +332,13 @@ function ProductSkuScreen() {
           <div className="flex sm:flex-row flex-col-reverse sm:items-center items-start justify-between gap-2 mb-3">
             <div className="py-[3px] px-3 min-w-[18rem] border-[1px] border-[#D9D9D9] rounded-lg flex items-center justify-between">
               <SearchOutlined style={{ color: "#D9D9D9" }} />
-              <input
-                className="focus:outline-none w-full ml-1 placeholder:text-[#D9D9D9]"
+              <Input
+                bordered={false}
+                className="!p-0 ml-1 w-full placeholder:text-[#D9D9D9]"
+                defaultValue={searchInput.current}
                 placeholder={"Search product..."}
                 type="text"
+                allowClear
                 onChange={(e) => {
                   searchInput.current = e.target.value;
                   if (timeout) clearTimeout(timeout);

@@ -1,7 +1,7 @@
 import { Breadcrumb, Tabs } from "antd";
 import { useCallback } from "react";
 import { useQuery } from "react-query";
-import { Link, useParams, useSearchParams } from "react-router-dom";
+import { Link, useParams, useLocation } from "react-router-dom";
 import { getProductSku } from "../../../api/products/productSku";
 import OrderAnalytics from "../../../components/Analytics/OrderAnalytics";
 import { GET_PRODUCT_SKU } from "../../../constants/queryKeys";
@@ -11,9 +11,8 @@ import ProductSkuDetails from "./ProductSkuDetails";
 
 function ProductSKU() {
   const { slug } = useParams();
-  const [searchParam] = useSearchParams();
 
-  const pageHeaderPath = searchParam.get("path");
+  const { search } = useLocation();
 
   const {
     data: productSku,
@@ -40,7 +39,9 @@ function ProductSKU() {
         <>
           <CustomPageHeader
             breadcrumb={getHeaderBreadcrumb()}
-            path={pageHeaderPath}
+            path={`/product-sku?search=${
+              new URLSearchParams(search).get("search") ?? ""
+            }`}
             title={productSku.name}
           />
 
