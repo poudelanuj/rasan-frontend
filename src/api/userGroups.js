@@ -52,7 +52,12 @@ export const addUser = async ({ id, data }) => {
 };
 
 export const removeUser = async ({ id, data }) => {
-  const res = await axios.delete(`/api/auth/group/${id}/add-users/`, data);
+  const res = await axios.request({
+    url: `/api/auth/group/${id}/add-users/`,
+    method: "delete",
+    data,
+  });
+
   return res.data;
 };
 
