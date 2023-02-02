@@ -36,7 +36,7 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint --fix",
-    "start": "env-cmd -f .env.development react-scripts start",
+    "start": "env-cmd -f .env.production react-scripts start",
     "netlify-redirect:dev": " env-cmd -f .env.development node netlify/_redirects.js --development",
     "netlify-redirect:prod": "env-cmd -f .env.production node netlify/_redirects.js --production",
     "build:dev": "env-cmd -f .env.development react-scripts build && npm run netlify-redirect:dev",
@@ -72,6 +72,6 @@
     "prettier": "^2.7.1",
     "tailwindcss": "^3.0.24"
   },
-  "proxy": "http://188.68.35.52:8001",
-  "homepage": "http://188.68.35.52:8001/"
+  "proxy": "https://api.rasan.com.np",
+  "homepage": "https://api.rasan.com.np/"
 }
