@@ -12,4 +12,6 @@ axios.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+axios.defaults.baseURL = "https://api.rasan.com.np";
+
 export default axios;
