@@ -37,6 +37,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix",
     "start": "env-cmd -f .env.development react-scripts start",
+    "start:prod": "env-cmd -f .env.production react-scripts start",
     "netlify-redirect:dev": " env-cmd -f .env.development node netlify/_redirects.js --development",
     "netlify-redirect:prod": "env-cmd -f .env.production node netlify/_redirects.js --production",
     "build:dev": "env-cmd -f .env.development react-scripts build && npm run netlify-redirect:dev",

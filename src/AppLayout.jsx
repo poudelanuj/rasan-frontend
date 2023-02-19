@@ -29,9 +29,8 @@ const AppLayout = () => {
     ["get-end-user"],
     async () => getEndUser(),
     {
-      retry: false,
       onError: (err) => {
-        logout();
+        if (err.response.status === 401) logout();
       },
     }
   );
