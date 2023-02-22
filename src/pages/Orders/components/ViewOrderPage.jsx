@@ -267,7 +267,7 @@ const ViewOrderPage = () => {
 
     const marginPrice = price - cp;
 
-    return parseFloat(price - marginPrice * 0.2).toFixed(2);
+    return parseFloat(price - marginPrice * 0.05).toFixed(2);
   };
 
   useEffect(() => {
