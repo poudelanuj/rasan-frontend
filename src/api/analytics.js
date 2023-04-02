@@ -1,5 +1,27 @@
 import axios from "../axios";
 
+export const getUserOrderAnalytics = async ({
+  analytics_type = "",
+  date = "",
+  user_id,
+}) => {
+  const res = await axios.get(
+    `/api/analytics/order/?user_id=${user_id}&anaytics_type=${analytics_type}&date=${date}`
+  );
+  return res.data.data;
+};
+
+export const getUserCategoryAnalytics = async ({
+  analytics_type = "",
+  date = "",
+  user_id,
+}) => {
+  const res = await axios.get(
+    `/api/analytics/category/?user_id=${user_id}&anaytics_type=${analytics_type}&date=${date}`
+  );
+  return res.data.data;
+};
+
 export const getBrandAnalytics = async ({ user_id, address, date }) => {
   const res = await axios.get(
     `/api/analytics/admin/brand/?user_id=${user_id || ""}&address=${

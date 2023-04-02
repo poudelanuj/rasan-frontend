@@ -5,19 +5,24 @@ import { isEmpty } from "lodash";
 import { AnalysisTimeSelector } from "../AnalysisTimeSelector";
 import PieChart from "../../charts/PieChart";
 import { CustomCard } from "../CustomCard";
-import { getCategoryAnalytics } from "../../api/analytics";
+import {
+  getCategoryAnalytics,
+  getUserCategoryAnalytics,
+} from "../../api/analytics";
 import { GET_CATEGORY_ANALYTICS } from "../../constants/queryKeys";
 
-const CategoryAnalytics = ({ user_id, address }) => {
-  const [date, setDate] = useState("this_month");
+const CategoryAnalytics = ({ user_id, address, isAdmin, analytics_type }) => {
+  const [date, setDate] = useState("last_year");
 
   const { data: categoryAnalytics } = useQuery({
     queryFn: () =>
-      getCategoryAnalytics({
-        user_id,
-        address,
-        date,
-      }),
+      isAdmin
+        ? getCategoryAnalytics({
+            user_id,
+            address,
+            date,
+          })
+        : getUserCategoryAnalytics({ user_id, date, analytics_type }),
     queryKey: [GET_CATEGORY_ANALYTICS, { user_id, address, date }],
   });
 

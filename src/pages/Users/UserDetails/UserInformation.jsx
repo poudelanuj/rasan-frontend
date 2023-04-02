@@ -1,6 +1,6 @@
 import { Button, DatePicker, Form, Input, message } from "antd";
 import moment from "moment";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { AiFillCheckCircle } from "react-icons/ai";
 import { useMutation, useQueryClient } from "react-query";
 import {
@@ -10,8 +10,7 @@ import {
   updateUser,
   verifyUser,
 } from "../../../context/UserContext";
-import AddressCreationForm from "./Components/AddressCreationForm";
-import AddressForm from "./Components/AddressForm";
+
 import DeleteUser from "./Components/DeleteUser";
 import ProfilePicture from "./Components/ProfilePicture";
 import Shop from "./Components/Shop";
@@ -19,7 +18,6 @@ import Shop from "./Components/Shop";
 const UserInformation = ({ user }) => {
   const [form] = Form.useForm();
 
-  const [visible, setVisible] = useState(false);
   const queryClient = useQueryClient();
   const { mutate: updateUserMutation } = useMutation(updateUser, {
     onSuccess: (data) => {
@@ -121,7 +119,7 @@ const UserInformation = ({ user }) => {
   };
   const onFinishFailed = (errorInfo) => {};
   return (
-    <div className="user-information bg-white p-4 ">
+    <div className="user-information bg-white p-4">
       <div className="user-title-logout flex justify-between m-4">
         <div className="text-gray-700 text-xl">User Information</div>
         <div>
@@ -221,32 +219,6 @@ const UserInformation = ({ user }) => {
         </div>
       </div>
 
-      <div className="detail-form w-7/12 border mt-3 p-3 border-primary flex-col flex ">
-        <div className="text-gray-700 text-xl">Addresses</div>
-        {user?.addresses.map((address) => {
-          return (
-            <AddressForm key={address.id} address={address} id={user.id} />
-          );
-        })}
-        <div>
-          <Button
-            className="bg-primary w-full text-lg"
-            type="primary"
-            onClick={() => {
-              setVisible(true);
-            }}
-          >
-            New Address
-          </Button>
-          <AddressCreationForm
-            id={user.id}
-            visible={visible}
-            onCancel={() => {
-              setVisible(false);
-            }}
-          />
-        </div>
-      </div>
       <div className="detail-form w-7/12 border mt-3 p-3 border-primary flex-col flex ">
         <div className="text-gray-700 text-xl">Shop Information</div>
         <Shop user={user} />

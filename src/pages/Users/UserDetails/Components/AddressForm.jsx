@@ -1,4 +1,4 @@
-import { Button, Divider, Form, Input, message, Select } from "antd";
+import { Button, Form, Input, message, Select } from "antd";
 import React, { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import {
@@ -80,115 +80,112 @@ const AddressForm = ({ address, id }) => {
   };
   const onFinishFailed = (errorInfo) => {};
   return (
-    <>
-      <Form
-        autoComplete="off"
-        form={form}
-        initialValues={{
-          remember: true,
-        }}
-        labelCol={{
-          span: 8,
-        }}
-        name="basic"
-        // onValuesChange={onValuesChanged}
-        wrapperCol={{
-          span: 16,
-        }}
-        onFinish={onFinish}
-        onFinishFailed={onFinishFailed}
+    <Form
+      autoComplete="off"
+      form={form}
+      initialValues={{
+        remember: true,
+      }}
+      labelCol={{
+        span: 4,
+      }}
+      name="basic"
+      // onValuesChange={onValuesChanged}
+
+      onFinish={onFinish}
+      onFinishFailed={onFinishFailed}
+    >
+      <Form.Item
+        label="Province"
+        name="province"
+        rules={[
+          {
+            required: true,
+            message: "Please select your province!",
+          },
+        ]}
       >
-        <Form.Item
-          label="Province"
-          name="province"
-          rules={[
-            {
-              required: true,
-              message: "Please select your province!",
-            },
-          ]}
-        >
-          <Select
-            options={provinces}
-            placeholder="Please select a province"
-            onChange={onChangeProvince}
-          ></Select>
+        <Select
+          options={provinces}
+          placeholder="Please select a province"
+          onChange={onChangeProvince}
+        ></Select>
+      </Form.Item>
+      <Form.Item
+        label="City"
+        name="city"
+        rules={[
+          {
+            required: true,
+            message: "Please select your city!",
+          },
+        ]}
+      >
+        <Select placeholder="Please select a city" onChange={onChangeCity}>
+          {!!cities?.length &&
+            cities.map((city) => (
+              <Select.Option
+                key={city.id}
+                disabled={!city.is_active}
+                value={city.id}
+              >
+                {city.name}
+              </Select.Option>
+            ))}
+        </Select>
+      </Form.Item>
+      <Form.Item
+        label="Area"
+        name="area"
+        rules={[
+          {
+            required: true,
+            message: "Please select your area!",
+          },
+        ]}
+      >
+        <Select placeholder="Please select an area" onChange={onchange}>
+          {!!areas?.length &&
+            areas.map((area) => (
+              <Select.Option
+                key={area.id}
+                disabled={!area.is_active}
+                value={area.id}
+              >
+                {area.name}
+              </Select.Option>
+            ))}
+        </Select>
+      </Form.Item>
+      <Form.Item label="Detail Address" name="detail_address">
+        <Input />
+      </Form.Item>
+      <Form.Item label="Longitude" name="map_longitude">
+        <Input />
+      </Form.Item>
+      <Form.Item label="Latitude" name="map_latitude">
+        <Input />
+      </Form.Item>
+
+      <div className="flex gap-4 justify-end">
+        <Form.Item>
+          <Button className="bg-primary" htmlType="submit" type="primary">
+            Submit
+          </Button>
         </Form.Item>
-        <Form.Item
-          label="City"
-          name="city"
-          rules={[
-            {
-              required: true,
-              message: "Please select your city!",
-            },
-          ]}
-        >
-          <Select placeholder="Please select a city" onChange={onChangeCity}>
-            {!!cities?.length &&
-              cities.map((city) => (
-                <Select.Option
-                  key={city.id}
-                  disabled={!city.is_active}
-                  value={city.id}
-                >
-                  {city.name}
-                </Select.Option>
-              ))}
-          </Select>
+
+        <Form.Item>
+          <Button
+            danger
+            onClick={() => {
+              addressDeletion({ key: address.id });
+            }}
+          >
+            Delete
+          </Button>
         </Form.Item>
-        <Form.Item
-          label="Area"
-          name="area"
-          rules={[
-            {
-              required: true,
-              message: "Please select your area!",
-            },
-          ]}
-        >
-          <Select placeholder="Please select an area" onChange={onchange}>
-            {!!areas?.length &&
-              areas.map((area) => (
-                <Select.Option
-                  key={area.id}
-                  disabled={!area.is_active}
-                  value={area.id}
-                >
-                  {area.name}
-                </Select.Option>
-              ))}
-          </Select>
-        </Form.Item>
-        <Form.Item label="Detail Address" name="detail_address">
-          <Input />
-        </Form.Item>
-        <Form.Item label="Longitude" name="map_longitude">
-          <Input />
-        </Form.Item>
-        <Form.Item label="Latitude" name="map_latitude">
-          <Input />
-        </Form.Item>
-        <div className="flex justify-between">
-          <Form.Item>
-            <Button className="bg-primary" htmlType="submit" type="primary">
-              Submit
-            </Button>
-          </Form.Item>
-          <Form.Item>
-            <Button
-              danger
-              onClick={() => {
-                addressDeletion({ key: address.id });
-              }}
-            >
-              Delete
-            </Button>
-          </Form.Item>
-        </div>
-      </Form>
-      <Divider />
-    </>
+      </div>
+    </Form>
   );
 };
 
