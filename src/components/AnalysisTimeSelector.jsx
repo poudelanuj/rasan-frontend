@@ -20,11 +20,7 @@ const timeList = [
 
 export const AnalysisTimeSelector = ({ onChange }) => {
   return (
-    <Select
-      defaultValue="this_month"
-      style={{ width: 120 }}
-      onChange={onChange}
-    >
+    <Select defaultValue="last_year" style={{ width: 120 }} onChange={onChange}>
       <>
         {timeList.map((x) => (
           <Option key={x.key} value={x.key}>

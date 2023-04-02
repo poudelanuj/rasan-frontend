@@ -3,7 +3,7 @@ import { useQuery } from "react-query";
 import { isEmpty } from "lodash";
 import { Empty } from "antd";
 import { GET_ORDER_ANALYTICS } from "../../constants/queryKeys";
-import { getOrderAnalytics } from "../../api/analytics";
+import { getOrderAnalytics, getUserOrderAnalytics } from "../../api/analytics";
 import moment from "moment";
 import ColumnPlot from "../../charts/ColumnPlot";
 import { CustomCard } from "../CustomCard";
@@ -16,20 +16,24 @@ const OrderAnalytics = ({
   category_id,
   product_id,
   product_sku_id,
+  analytics_type,
+  isAdmin,
 }) => {
-  const [date, setDate] = useState("this_month");
+  const [date, setDate] = useState("last_year");
 
   const { data: orderAnalytics } = useQuery({
     queryFn: () =>
-      getOrderAnalytics({
-        user_id,
-        address,
-        brand_id,
-        category_id,
-        product_id,
-        product_sku_id,
-        date,
-      }),
+      isAdmin
+        ? getOrderAnalytics({
+            user_id,
+            address,
+            brand_id,
+            category_id,
+            product_id,
+            product_sku_id,
+            date,
+          })
+        : getUserOrderAnalytics({ user_id, date, analytics_type }),
     queryKey: [
       GET_ORDER_ANALYTICS,
       {

@@ -84,7 +84,7 @@ export const archiveBulkOrders = async (ids) => {
 
 export const getOrderMetrics = async (timeKey) => {
   const res = await axios.get(
-    `/api/order/admin/orders/metrics/?time_key=${timeKey}`
+    `/api/order/admin/orders/metrics/?date=${timeKey}`
   );
   return res.data.data;
 };

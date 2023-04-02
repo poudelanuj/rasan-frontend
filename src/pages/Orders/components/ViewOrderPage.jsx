@@ -27,7 +27,7 @@ import {
   QuestionCircleOutlined,
 } from "@ant-design/icons";
 import { useMutation, useQuery } from "react-query";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import moment from "moment";
 import { useEffect, useState, useRef } from "react";
 import { isEmpty } from "lodash";
@@ -62,6 +62,8 @@ import AssignUser from "./shared/AssignUser";
 
 const ViewOrderPage = () => {
   const { isMobileView } = useAuth();
+
+  const navigate = useNavigate();
 
   const { orderId: initialOrderId } = useParams();
 
@@ -866,7 +868,10 @@ const ViewOrderPage = () => {
                   src={user.profile_picture.thumbnail || rasanDefault}
                 />
                 <div className="flex flex-col sm:gap-0 gap-1">
-                  <div className="font-medium text-lg">
+                  <div
+                    className="font-medium text-lg cursor-pointer hover:underline"
+                    onClick={() => navigate("/user/" + user.id)}
+                  >
                     {user.full_name || "User"}
                   </div>
                   <div className="flex sm:flex-row flex-col sm:items-center sm:gap-4 gap-1 text-light_text">

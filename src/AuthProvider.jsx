@@ -23,10 +23,11 @@ export default function AuthProvider({ children }) {
     setUser(isLoggedIn());
   };
   const { data: userGroup } = useQuery({
-    queryFn: () =>
-      getUserGroupsById([
-        JSON.parse(localStorage.getItem("groups") || "[]")?.[0]?.id,
-      ]),
+    queryFn: () => {
+      const id = JSON.parse(localStorage.getItem("groups") || "[]")?.[0]?.id;
+
+      if (id) return getUserGroupsById([id]);
+    },
     queryKey: [GET_USER_GROUPS_BY_ID],
   });
 

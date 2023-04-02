@@ -1,29 +1,29 @@
 import { Card, Select } from "antd";
 import React, { useState } from "react";
 import { useQuery } from "react-query";
-import { getTicketMetrics } from "../../api/crm/tickets";
+// import { getTicketMetrics } from "../../api/crm/tickets";
 import { getOrderMetrics } from "../../api/orders";
 import { getEndUser } from "../../api/users";
 import { useAuth } from "../../AuthProvider";
 import {
   GET_ORDER_METRICS,
-  GET_TICKET_METRICS,
+  // GET_TICKET_METRICS,
 } from "../../constants/queryKeys";
-import Loader from "../../shared/Loader";
+// import Loader from "../../shared/Loader";
 import WelcomeCard from "./shared/WelcomeCard";
 import { DASHBOARD_TIME_KEYS } from "../../constants";
 import TicketsAssigned from "./shared/TicketsAssigned";
 import OrdersAssigned from "./shared/OrdersAssigned";
 import OrderMetrics from "./OrderMetrics";
-import TicketMetrics from "./TicketsMetrics";
+// import TicketMetrics from "./TicketsMetrics";
 import { capitalize, isEmpty } from "lodash";
 import CustomPageHeader from "../../shared/PageHeader";
 
 const Dashboard = () => {
   const { logout, permissions } = useAuth();
-  const [ticketTimeKey, setTicketTimeKey] = useState(
-    DASHBOARD_TIME_KEYS[0].value
-  );
+  // const [ticketTimeKey, setTicketTimeKey] = useState(
+  //   DASHBOARD_TIME_KEYS[0].value
+  // );
   const [orderTimeKey, setOrderTimeKey] = useState(
     DASHBOARD_TIME_KEYS[0].value
   );
@@ -33,10 +33,10 @@ const Dashboard = () => {
     queryKey: [GET_ORDER_METRICS, orderTimeKey],
   });
 
-  const { data: ticketMetrics, status: ticketsMetricsStatus } = useQuery({
-    queryFn: () => getTicketMetrics(ticketTimeKey),
-    queryKey: [GET_TICKET_METRICS, ticketTimeKey],
-  });
+  // const { data: ticketMetrics, status: ticketsMetricsStatus } = useQuery({
+  //   queryFn: () => getTicketMetrics(ticketTimeKey),
+  //   queryKey: [GET_TICKET_METRICS, ticketTimeKey],
+  // });
 
   const { data: userInfo } = useQuery(["get-end-user"], getEndUser, {
     retry: false,
@@ -47,8 +47,8 @@ const Dashboard = () => {
 
   return (
     <>
-      {(orderMetricsStatus === "loading" ||
-        ticketsMetricsStatus === "loading") && <Loader isOpen />}
+      {/* {(orderMetricsStatus === "loading" ||
+        ticketsMetricsStatus === "loading") && <Loader isOpen />} */}
 
       <div>
         <CustomPageHeader title="Dashboard" isBasicHeader />
@@ -65,7 +65,7 @@ const Dashboard = () => {
           />
 
           <div className="grow flex flex-col gap-3">
-            <Card bodyStyle={{ padding: 10 }} className="grow !rounded-lg">
+            {/* <Card bodyStyle={{ padding: 10 }} className="grow !rounded-lg">
               <div className="flex mb-2 justify-between items-center">
                 <h4 className="m-0">Tickets</h4>
 
@@ -85,7 +85,7 @@ const Dashboard = () => {
               </div>
 
               <TicketMetrics ticketMetrics={ticketMetrics} />
-            </Card>
+            </Card> */}
             <Card bodyStyle={{ padding: 10 }} className="grow !rounded-lg">
               <div className="flex mb-2 justify-between items-center">
                 <h4 className="m-0">Orders</h4>
