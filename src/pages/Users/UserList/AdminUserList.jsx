@@ -175,9 +175,7 @@ const AdminUserList = () => {
     <>
       <Search
         className="mb-4"
-        enterButton="Search"
         placeholder="Search User"
-        size="large"
         onChange={(e) => {
           searchText.current = e.target.value;
           if (timeout) clearTimeout(timeout);

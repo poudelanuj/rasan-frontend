@@ -3,10 +3,11 @@ import { uniqBy } from "lodash";
 import React, { useEffect, useState, useRef } from "react";
 import { createContext } from "react";
 import { useQuery } from "react-query";
+import { getAddresses } from "../../api/userAddresses";
 import { getPaginatedOrders } from "../../api/orders";
 import { useAuth } from "../../AuthProvider";
 import { DELIVERY_STATUS } from "../../constants";
-import { GET_PAGINATED_ORDERS } from "../../constants/queryKeys";
+import { GET_PAGINATED_ORDERS, GET_ADDRESSES } from "../../constants/queryKeys";
 import CustomPageHeader from "../../shared/PageHeader";
 import MobileViewOrderList from "./MobileViewOrderList";
 import OrdersList from "./OrdersList";
@@ -24,6 +25,13 @@ const Orders = () => {
   const [page, setPage] = useState(1);
   const [orderStatus, setOrderStatus] = useState("all");
   const [orders, setOrders] = useState([]);
+
+  const [selectedArea, setSelectedArea] = useState({
+    province: null,
+    city: null,
+    area: [],
+    isAreaChanged: false,
+  });
 
   const [sortObj, setSortObj] = useState({
     sortType: {
@@ -46,12 +54,20 @@ const Orders = () => {
         size: pageSize,
         sort: sortObj.sort,
         search: searchInput.current,
+        province: selectedArea.province,
+        city: selectedArea.city,
+        area: selectedArea.area,
       }),
     queryKey: [
       GET_PAGINATED_ORDERS,
       orderStatus + page.toString() + pageSize.toString(),
       sortObj.sort,
     ],
+  });
+
+  const { data: addressList } = useQuery({
+    queryFn: getAddresses,
+    queryKey: [GET_ADDRESSES],
   });
 
   useEffect(() => {
@@ -62,7 +78,7 @@ const Orders = () => {
   useEffect(() => {
     refetchOrders();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, orderStatus, sortObj, pageSize]);
+  }, [page, orderStatus, sortObj, pageSize, selectedArea]);
 
   return (
     <div>
@@ -81,6 +97,9 @@ const Orders = () => {
           sortObj,
           setSortObj,
           status: isRefetching ? "loading" : status,
+          addressList,
+          selectedArea,
+          setSelectedArea,
         }}
       >
         <Tabs

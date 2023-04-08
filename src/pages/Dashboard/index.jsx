@@ -25,7 +25,7 @@ const Dashboard = () => {
   //   DASHBOARD_TIME_KEYS[0].value
   // );
   const [orderTimeKey, setOrderTimeKey] = useState(
-    DASHBOARD_TIME_KEYS[0].value
+    DASHBOARD_TIME_KEYS[2].value
   );
 
   const { data: orderMetrics, status: orderMetricsStatus } = useQuery({
@@ -91,7 +91,7 @@ const Dashboard = () => {
                 <h4 className="m-0">Orders</h4>
 
                 <Select
-                  defaultValue={DASHBOARD_TIME_KEYS[0].value}
+                  defaultValue={DASHBOARD_TIME_KEYS[2].value}
                   loading={orderMetricsStatus === "loading"}
                   size="small"
                   style={{ width: 120 }}

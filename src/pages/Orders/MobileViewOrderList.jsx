@@ -10,11 +10,14 @@ import {
   Radio,
   Space,
   Spin,
+  Menu,
+  Select,
 } from "antd";
 import {
   RightOutlined,
   SearchOutlined,
   LoadingOutlined,
+  DownOutlined,
 } from "@ant-design/icons";
 import moment from "moment";
 import { capitalize } from "lodash";
@@ -38,6 +41,9 @@ const MobileViewOrderList = () => {
     setSortObj,
     status,
     searchInput,
+    selectedArea,
+    setSelectedArea,
+    addressList,
   } = useContext(OrderContext);
 
   const navigate = useNavigate();
@@ -113,6 +119,31 @@ const MobileViewOrderList = () => {
     </span>
   );
 
+  const addressMenu = (
+    <Menu
+      items={addressList?.map((address) => ({
+        key: address.id,
+        label: address.name,
+        children: address.cities?.map((city) => ({
+          key: city.id,
+          label: city.name,
+        })),
+      }))}
+      onClick={(e) => {
+        setSelectedArea(() => ({
+          province: addressList?.find(
+            (province) => province.id === Number(e.keyPath[1])
+          )?.name,
+          city: addressList
+            ?.find((province) => province.id === Number(e.keyPath[1]))
+            ?.cities?.find((city) => city.id === Number(e.key))?.name,
+          area: [],
+          isAreaChanged: false,
+        }));
+      }}
+    />
+  );
+
   return (
     <div className="sm:hidden">
       <div className="flex items-center gap-2 mb-2">
@@ -132,7 +163,7 @@ const MobileViewOrderList = () => {
         </ButtonWPermission>
       </div>
 
-      <div className="flex items-center gap-2 mb-4">
+      <div className="flex items-center gap-2 mb-2">
         <Dropdown overlay={menu}>
           <Button className="!rounded-lg text-sm px-3 w-24">
             <span>Sort</span>
@@ -159,6 +190,56 @@ const MobileViewOrderList = () => {
         {(status === "loading" || status === "refetching") && (
           <Spin indicator={<LoadingOutlined />} />
         )}
+      </div>
+
+      <div className="flex justify-between gap-2 mb-4">
+        <Dropdown overlay={addressMenu}>
+          <Button className="bg-white !rounded-lg" type="default">
+            {selectedArea.city ?? "Select city"}
+            <DownOutlined />
+          </Button>
+        </Dropdown>
+
+        <Select
+          className="!rounded-lg flex-1"
+          disabled={!selectedArea.city}
+          filterOption={(input, option) =>
+            (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+          }
+          mode="multiple"
+          optionFilterProp="children"
+          options={addressList
+            ?.find((province) => province.name === selectedArea.province)
+            ?.cities?.find((city) => city.name === selectedArea.city)
+            ?.areas?.map((area) => ({ value: area.name, label: area.name }))}
+          placeholder="Search to Select Area"
+          style={{ width: 200 }}
+          value={selectedArea.area}
+          showSearch
+          onChange={(val) =>
+            setSelectedArea((prev) => ({
+              ...prev,
+              area: val,
+              isAreaChanged: true,
+            }))
+          }
+        />
+
+        <Button
+          className="bg-white !rounded-lg"
+          disabled={!selectedArea.city}
+          type="default"
+          onClick={() =>
+            setSelectedArea({
+              city: null,
+              province: null,
+              area: [],
+              isAreaChanged: true,
+            })
+          }
+        >
+          Clear
+        </Button>
       </div>
 
       {dataSource.map((order) => (

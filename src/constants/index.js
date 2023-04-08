@@ -135,16 +135,20 @@ export const NOTIFICATION_DESTINATION_TYPES = ["offer", "notice"];
 
 export const DASHBOARD_TIME_KEYS = [
   {
-    name: "last 24 hours",
-    value: "last_24_hrs",
+    name: "today",
+    value: "today",
   },
   {
-    name: "last week",
-    value: "last_7_days",
+    name: "this week",
+    value: "this_week",
   },
   {
-    name: "last month",
-    value: "last_30_days",
+    name: "this month",
+    value: "this_month",
+  },
+  {
+    name: "this year",
+    value: "this_year",
   },
 ];
 
