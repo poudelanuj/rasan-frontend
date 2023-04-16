@@ -27,9 +27,9 @@ const CategoryAnalytics = ({ user_id, address, isAdmin, analytics_type }) => {
   });
 
   const pieData = categoryAnalytics?.map((x) => ({
-    key: x.category.id,
-    id: x.category.name,
-    label: x.category.name,
+    key: x.category?.id,
+    id: x.category?.name,
+    label: x.category?.name,
     value: x.amount,
     percentage: x.percentage,
     color: `rgb(${Math.floor(Math.random() * 225)},${Math.floor(

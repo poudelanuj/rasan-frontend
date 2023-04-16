@@ -1,10 +1,18 @@
 import axios from "../axios";
 
-export const getUsers = async (page, search, pageSize, sort) => {
+export const getUsers = async (
+  page,
+  search,
+  pageSize,
+  sort,
+  { province, city, area }
+) => {
   const res = await axios.get(
     `/api/profile/admin/user-list/?page=${page || 1}&search=${
       search || ""
-    }&size=${pageSize || 20}&sort=${sort || []}`
+    }&size=${pageSize || 20}&sort=${sort || []}&province=${
+      province || ""
+    }&area=${area || ""}&city=${city || ""}`
   );
 
   return res.data.data;

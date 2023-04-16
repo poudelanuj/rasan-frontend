@@ -1,8 +1,10 @@
 import { useState, useContext } from "react";
-import { Table, Tag, Button, Menu, Dropdown, Space, Input } from "antd";
+import { Table, Tag, Button, Menu, Dropdown, Space, Input, Select } from "antd";
+import { useMutation } from "react-query";
 import moment from "moment";
 import { useNavigate } from "react-router-dom";
 import { FaRegFileArchive } from "react-icons/fa";
+import { DownOutlined } from "@ant-design/icons";
 import getOrderStatusColor from "../../shared/tagColor";
 import DeleteOrder from "./components/DeleteOrder";
 import ButtonWPermission from "../../shared/ButtonWPermission";
@@ -12,7 +14,6 @@ import { archiveBulkOrders } from "../../api/orders";
 import { updateOrderStatus } from "../../context/OrdersContext";
 import { OrderContext } from ".";
 import { useAuth } from "../../AuthProvider";
-import { useMutation } from "react-query";
 import { openErrorNotification, openSuccessNotification } from "../../utils";
 
 const OrdersList = () => {
@@ -28,6 +29,9 @@ const OrdersList = () => {
     sortObj,
     setSortObj,
     searchInput,
+    addressList,
+    selectedArea,
+    setSelectedArea,
   } = useContext(OrderContext);
 
   const { isMobileView } = useAuth();
@@ -225,6 +229,31 @@ const OrdersList = () => {
     onError: (err) => openErrorNotification(err),
   });
 
+  const addressMenu = (
+    <Menu
+      items={addressList?.map((address) => ({
+        key: address.id,
+        label: address.name,
+        children: address.cities?.map((city) => ({
+          key: city.id,
+          label: city.name,
+        })),
+      }))}
+      onClick={(e) => {
+        setSelectedArea(() => ({
+          province: addressList?.find(
+            (province) => province.id === Number(e.keyPath[1])
+          )?.name,
+          city: addressList
+            ?.find((province) => province.id === Number(e.keyPath[1]))
+            ?.cities?.find((city) => city.id === Number(e.key))?.name,
+          area: [],
+          isAreaChanged: false,
+        }));
+      }}
+    />
+  );
+
   const bulkMenu = (
     <Menu
       items={[
@@ -247,32 +276,77 @@ const OrdersList = () => {
 
   return (
     <div className="hidden sm:block">
-      <div className="mb-2 flex sm:gap-5 gap-2 justify-between sm:flex-row flex-col">
-        <div className="flex sm:flex-row flex-col gap-2">
-          <ButtonWPermission
-            codename="add_order"
-            type="primary"
-            ghost
-            onClick={() => {
-              navigate("/orders/create-order");
-            }}
-          >
-            Create New Order
-          </ButtonWPermission>
+      <div className="mb-2 flex gap-2 justify-between sm:flex-row flex-col">
+        <ButtonWPermission
+          codename="add_order"
+          type="primary"
+          ghost
+          onClick={() => {
+            navigate("/orders/create-order");
+          }}
+        >
+          Create New Order
+        </ButtonWPermission>
 
-          <Input.Search
-            className={`${isMobileView && "!w-full"}`}
-            placeholder="Search user, contact, shop"
-            onChange={(e) => {
-              searchInput.current = e.target.value;
-              if (timeout) clearTimeout(timeout);
-              timeout = setTimeout(() => {
-                setPage(1);
-                refetchOrders();
-              }, 400);
-            }}
-          />
-        </div>
+        <Input.Search
+          placeholder="Search user, contact, shop"
+          onChange={(e) => {
+            searchInput.current = e.target.value;
+            if (timeout) clearTimeout(timeout);
+            timeout = setTimeout(() => {
+              setPage(1);
+              refetchOrders();
+            }, 400);
+          }}
+        />
+
+        <Dropdown overlay={addressMenu}>
+          <Button className="bg-white" type="default">
+            {selectedArea.city ?? "Select city"}
+            <DownOutlined />
+          </Button>
+        </Dropdown>
+
+        <Select
+          className="!w-96"
+          disabled={!selectedArea.city}
+          filterOption={(input, option) =>
+            (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+          }
+          mode="multiple"
+          optionFilterProp="children"
+          options={addressList
+            ?.find((province) => province.name === selectedArea.province)
+            ?.cities?.find((city) => city.name === selectedArea.city)
+            ?.areas?.map((area) => ({ value: area.name, label: area.name }))}
+          placeholder="Search to Select Area"
+          style={{ width: 200 }}
+          value={selectedArea.area}
+          showSearch
+          onChange={(val) =>
+            setSelectedArea((prev) => ({
+              ...prev,
+              area: val,
+              isAreaChanged: true,
+            }))
+          }
+        />
+
+        <Button
+          className="bg-white"
+          disabled={!selectedArea.city}
+          type="default"
+          onClick={() =>
+            setSelectedArea({
+              city: null,
+              province: null,
+              area: [],
+              isAreaChanged: true,
+            })
+          }
+        >
+          Clear
+        </Button>
 
         <Space className="justify-end">
           <Dropdown overlay={bulkMenu}>

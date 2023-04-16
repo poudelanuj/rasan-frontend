@@ -2,9 +2,12 @@ import { Table } from "antd";
 import { useNavigate } from "react-router-dom";
 import React, { useState, useEffect, useRef } from "react";
 import { useQuery } from "react-query";
-import { Input, Spin } from "antd";
+import { Input, Spin, Menu, Select, Dropdown, Button } from "antd";
+import { DownOutlined } from "@ant-design/icons";
 import { isEmpty, uniqBy } from "lodash";
 import { getUsers } from "../../../api/users";
+import { getAddresses } from "../../../api/userAddresses";
+import { GET_ADDRESSES } from "../../../constants/queryKeys";
 import ButtonWPermission from "../../../shared/ButtonWPermission";
 import CreateUserModal from "./CreateUserModal";
 const { Search } = Input;
@@ -16,6 +19,13 @@ const UserList = () => {
   const [pageSize, setPageSize] = useState(20);
   const [page, setPage] = useState(1);
   const [users, setUsers] = useState([]);
+
+  const [selectedArea, setSelectedArea] = useState({
+    province: null,
+    city: null,
+    area: [],
+    isAreaChanged: false,
+  });
 
   const [isCreateUserOpen, setIsCreateUserOpen] = useState(false);
 
@@ -35,7 +45,17 @@ const UserList = () => {
       page.toString() + pageSize.toString(),
       sortObj.sort,
     ],
-    queryFn: () => getUsers(page, searchText.current, pageSize, sortObj.sort),
+    queryFn: () =>
+      getUsers(page, searchText.current, pageSize, sortObj.sort, {
+        province: selectedArea.province,
+        city: selectedArea.city,
+        area: selectedArea.area,
+      }),
+  });
+
+  const { data: addressList } = useQuery({
+    queryFn: getAddresses,
+    queryKey: [GET_ADDRESSES],
   });
 
   useEffect(() => {
@@ -48,7 +68,7 @@ const UserList = () => {
   useEffect(() => {
     refetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, sortObj, pageSize]);
+  }, [page, sortObj, pageSize, selectedArea]);
 
   const userColumns = users.map((user) => {
     return {
@@ -161,29 +181,108 @@ const UserList = () => {
       dataIndex: "loyalty_points",
     },
   ];
+
+  const addressMenu = (
+    <Menu
+      items={addressList?.map((address) => ({
+        key: address.id,
+        label: address.name,
+        children: address.cities?.map((city) => ({
+          key: city.id,
+          label: city.name,
+        })),
+      }))}
+      onClick={(e) => {
+        setSelectedArea(() => ({
+          province: addressList?.find(
+            (province) => province.id === Number(e.keyPath[1])
+          )?.name,
+          city: addressList
+            ?.find((province) => province.id === Number(e.keyPath[1]))
+            ?.cities?.find((city) => city.id === Number(e.key))?.name,
+          area: [],
+          isAreaChanged: false,
+        }));
+      }}
+    />
+  );
+
   return (
     <>
-      <span className="flex mb-4 gap-2">
-        <Search
-          placeholder="Search User"
-          onChange={(e) => {
-            searchText.current = e.target.value;
-            if (timeout) clearTimeout(timeout);
-            timeout = setTimeout(() => {
-              setPage(1);
-              refetch();
-            }, 400);
-          }}
-        />
+      <div className="flex sm:flex-row flex-col mb-4 gap-2">
+        <div className="flex gap-2 w-full">
+          <ButtonWPermission
+            codename="add_user"
+            type="primary"
+            ghost
+            onClick={() => setIsCreateUserOpen(true)}
+          >
+            Add User
+          </ButtonWPermission>
 
-        <ButtonWPermission
-          codename="add_user"
-          type="primary"
-          onClick={() => setIsCreateUserOpen(true)}
-        >
-          Add User
-        </ButtonWPermission>
-      </span>
+          <Search
+            placeholder="Search User"
+            onChange={(e) => {
+              searchText.current = e.target.value;
+              if (timeout) clearTimeout(timeout);
+              timeout = setTimeout(() => {
+                setPage(1);
+                refetch();
+              }, 400);
+            }}
+          />
+        </div>
+
+        <div className="flex gap-2">
+          <Dropdown overlay={addressMenu}>
+            <Button className="bg-white" type="default">
+              {selectedArea.city ?? "Select city"}
+              <DownOutlined />
+            </Button>
+          </Dropdown>
+
+          <Select
+            className="sm:!w-96 sm:flex-none flex-1"
+            disabled={!selectedArea.city}
+            filterOption={(input, option) =>
+              (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+            }
+            mode="multiple"
+            optionFilterProp="children"
+            options={addressList
+              ?.find((province) => province.name === selectedArea.province)
+              ?.cities?.find((city) => city.name === selectedArea.city)
+              ?.areas?.map((area) => ({ value: area.name, label: area.name }))}
+            placeholder="Search to Select Area"
+            style={{ width: 200 }}
+            value={selectedArea.area}
+            showSearch
+            onChange={(val) =>
+              setSelectedArea((prev) => ({
+                ...prev,
+                area: val,
+                isAreaChanged: true,
+              }))
+            }
+          />
+
+          <Button
+            className="bg-white"
+            disabled={!selectedArea.city}
+            type="default"
+            onClick={() =>
+              setSelectedArea({
+                city: null,
+                province: null,
+                area: [],
+                isAreaChanged: true,
+              })
+            }
+          >
+            Clear
+          </Button>
+        </div>
+      </div>
 
       {(status === "loading" || isRefetching) && <Spin />}
 
