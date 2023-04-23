@@ -78,6 +78,7 @@ export default function AddressRoute() {
                   <Button
                     className="!bg-inherit !shadow-none !border-none"
                     icon={<EditOutlined />}
+                    size="small"
                     onClick={(event) => {
                       event.stopPropagation();
                       setIsCreate({
@@ -90,6 +91,7 @@ export default function AddressRoute() {
                   <Button
                     className="!bg-inherit !shadow-none !border-none"
                     icon={<CloseCircleOutlined />}
+                    size="small"
                     onClick={(event) => {
                       event.stopPropagation();
                       setIsDelete({
