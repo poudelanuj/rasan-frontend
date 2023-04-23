@@ -34,6 +34,7 @@ import Users from "./pages/Users/UserList";
 import User from "./pages/Users/UserDetails/User";
 import OTPRequests from "./pages/Users/OTPRequests";
 import Address from "./pages/Users/Address";
+import AddressRoute from "./pages/Users/AddressRoute";
 
 // *User Groups
 import UserGroups from "./pages/UserGroups";
@@ -201,6 +202,7 @@ root.render(
               <Route element={<User />} path="user/:user_id" />
               <Route element={<OTPRequests />} path="otp-requests" />
               <Route element={<Address />} path="address" />
+              <Route element={<AddressRoute />} path="address-route" />
 
               <Route path="user-groups">
                 <Route element={<UserGroups />} index />

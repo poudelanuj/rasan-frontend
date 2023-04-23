@@ -1,4 +1,4 @@
-import { Form, Select } from "antd";
+import { Form, Input, Select } from "antd";
 import { capitalize, uniqBy } from "lodash";
 import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation } from "react-query";
@@ -75,6 +75,7 @@ const CreateOrder = () => {
       payment_amount,
       user,
       total_cashback_earned,
+      comment,
     }) =>
       createOrder({
         status: orderStatus,
@@ -86,6 +87,7 @@ const CreateOrder = () => {
         user,
         shipping_address,
         total_cashback_earned,
+        comment,
       }),
     {
       onSuccess: (data) => {
@@ -349,7 +351,11 @@ const CreateOrder = () => {
               />
             ))}
 
-          <div className="w-full flex justify-end mt-4">
+          <div className="w-full flex items-center justify-between mt-4">
+            <Form.Item className="!m-0" name="comment">
+              <Input.TextArea className="!w-80" placeholder="Enter a comment" />
+            </Form.Item>
+
             <ButtonWPermission
               className={`p-0 m-0 ${
                 onFinish.status !== "loading" && "!bg-[#00B0C2] !border-none"

@@ -5,7 +5,7 @@ export const getUsers = async (
   search,
   pageSize,
   sort,
-  { province, city, area }
+  { province, city, area } = {}
 ) => {
   const res = await axios.get(
     `/api/profile/admin/user-list/?page=${page || 1}&search=${

@@ -4,14 +4,13 @@ import { useMutation } from "react-query";
 import moment from "moment";
 import { useNavigate } from "react-router-dom";
 import { FaRegFileArchive } from "react-icons/fa";
-import { DownOutlined } from "@ant-design/icons";
 import getOrderStatusColor from "../../shared/tagColor";
 import DeleteOrder from "./components/DeleteOrder";
 import ButtonWPermission from "../../shared/ButtonWPermission";
 import { isEmpty, capitalize } from "lodash";
-import { IN_PROCESS } from "../../constants";
+import { DELIVERY_STATUS, IN_PROCESS } from "../../constants";
 import { archiveBulkOrders } from "../../api/orders";
-import { updateOrderStatus } from "../../context/OrdersContext";
+import { updateOrderStatus } from "../../api/orders";
 import { OrderContext } from ".";
 import { useAuth } from "../../AuthProvider";
 import { openErrorNotification, openSuccessNotification } from "../../utils";
@@ -29,9 +28,8 @@ const OrdersList = () => {
     sortObj,
     setSortObj,
     searchInput,
-    addressList,
-    selectedArea,
-    setSelectedArea,
+    addressRoutes,
+    setAddressRoute,
   } = useContext(OrderContext);
 
   const { isMobileView } = useAuth();
@@ -219,7 +217,7 @@ const OrdersList = () => {
     }
   );
 
-  const handleArchiveBukhOrders = useMutation((ids) => archiveBulkOrders(ids), {
+  const handleArchiveBulkOrders = useMutation((ids) => archiveBulkOrders(ids), {
     onSuccess: (res) => {
       openSuccessNotification(res.message);
       refetchOrders();
@@ -229,124 +227,93 @@ const OrdersList = () => {
     onError: (err) => openErrorNotification(err),
   });
 
-  const addressMenu = (
-    <Menu
-      items={addressList?.map((address) => ({
-        key: address.id,
-        label: address.name,
-        children: address.cities?.map((city) => ({
-          key: city.id,
-          label: city.name,
-        })),
-      }))}
-      onClick={(e) => {
-        setSelectedArea(() => ({
-          province: addressList?.find(
-            (province) => province.id === Number(e.keyPath[1])
-          )?.name,
-          city: addressList
-            ?.find((province) => province.id === Number(e.keyPath[1]))
-            ?.cities?.find((city) => city.id === Number(e.key))?.name,
-          area: [],
-          isAreaChanged: false,
-        }));
-      }}
-    />
+  const handleUpdateOrderStatus = useMutation(
+    ({ ids, action_type }) => updateOrderStatus({ ids, action_type }),
+    {
+      onSuccess: (res) => {
+        openSuccessNotification(res.message);
+        refetchOrders();
+        setCheckedRows([]);
+      },
+      onError: (err) => openErrorNotification(err),
+    }
   );
 
-  const bulkMenu = (
-    <Menu
-      items={[
-        {
-          key: "1",
-          label: (
-            <ButtonWPermission
-              className="!border-none !bg-inherit !text-current"
-              codename="delete_order"
-              disabled={isEmpty(checkedRows)}
-              onClick={() => setIsBulkArchiveOrderOpen(true)}
-            >
-              Archive
-            </ButtonWPermission>
-          ),
-        },
-      ]}
-    />
-  );
+  const orderStatusMenu = DELIVERY_STATUS.map(({ id, name }) => ({
+    key: id,
+    label:
+      id === "archived" ? (
+        <ButtonWPermission
+          className="!border-none !bg-inherit !text-current"
+          codename="delete_order"
+          disabled={isEmpty(checkedRows)}
+          onClick={() => setIsBulkArchiveOrderOpen(true)}
+        >
+          Archive
+        </ButtonWPermission>
+      ) : (
+        <Button
+          className="!border-none !bg-inherit !text-current"
+          disabled={isEmpty(checkedRows)}
+          onClick={() =>
+            handleUpdateOrderStatus.mutate({
+              ids: checkedRows,
+              action_type: id,
+            })
+          }
+        >
+          {name}
+        </Button>
+      ),
+  }));
+
+  const bulkMenu = <Menu items={orderStatusMenu} />;
 
   return (
     <div className="hidden sm:block">
       <div className="mb-2 flex gap-2 justify-between sm:flex-row flex-col">
-        <ButtonWPermission
-          codename="add_order"
-          type="primary"
-          ghost
-          onClick={() => {
-            navigate("/orders/create-order");
-          }}
-        >
-          Create New Order
-        </ButtonWPermission>
+        <div className="flex gap-2">
+          <ButtonWPermission
+            codename="add_order"
+            type="primary"
+            ghost
+            onClick={() => {
+              navigate("/orders/create-order");
+            }}
+          >
+            Create New Order
+          </ButtonWPermission>
 
-        <Input.Search
-          placeholder="Search user, contact, shop"
-          onChange={(e) => {
-            searchInput.current = e.target.value;
-            if (timeout) clearTimeout(timeout);
-            timeout = setTimeout(() => {
-              setPage(1);
-              refetchOrders();
-            }, 400);
-          }}
-        />
+          <Input
+            className="!w-80"
+            placeholder="Search user, contact, shop"
+            onChange={(e) => {
+              searchInput.current = e.target.value;
+              if (timeout) clearTimeout(timeout);
+              timeout = setTimeout(() => {
+                setPage(1);
+                refetchOrders();
+              }, 400);
+            }}
+          />
 
-        <Dropdown overlay={addressMenu}>
-          <Button className="bg-white" type="default">
-            {selectedArea.city ?? "Select city"}
-            <DownOutlined />
-          </Button>
-        </Dropdown>
-
-        <Select
-          className="!w-96"
-          disabled={!selectedArea.city}
-          filterOption={(input, option) =>
-            (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
-          }
-          mode="multiple"
-          optionFilterProp="children"
-          options={addressList
-            ?.find((province) => province.name === selectedArea.province)
-            ?.cities?.find((city) => city.name === selectedArea.city)
-            ?.areas?.map((area) => ({ value: area.name, label: area.name }))}
-          placeholder="Search to Select Area"
-          style={{ width: 200 }}
-          value={selectedArea.area}
-          showSearch
-          onChange={(val) =>
-            setSelectedArea((prev) => ({
-              ...prev,
-              area: val,
-              isAreaChanged: true,
-            }))
-          }
-        />
-
-        <Button
-          className="bg-white"
-          disabled={!selectedArea.city}
-          type="default"
-          onClick={() =>
-            setSelectedArea({
-              city: null,
-              province: null,
-              area: [],
-              isAreaChanged: true,
-            })
-          }
-        >
-          Clear
-        </Button>
+          <Select
+            className="!w-72"
+            filterOption={(input, option) =>
+              (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+            }
+            mode="multiple"
+            optionFilterProp="children"
+            options={addressRoutes?.results?.map((area) => ({
+              value: area.id,
+              label: area.name,
+            }))}
+            placeholder="Search to select address"
+            style={{ width: 200 }}
+            showSearch
+            onChange={(val) => setAddressRoute(val)}
+          />
+        </div>
 
         <Space className="justify-end">
           <Dropdown overlay={bulkMenu}>
@@ -392,9 +359,9 @@ const OrdersList = () => {
 
       <DeleteOrder
         closeModal={() => setIsBulkArchiveOrderOpen(false)}
-        deleteMutation={() => handleArchiveBukhOrders.mutate(checkedRows)}
+        deleteMutation={() => handleArchiveBulkOrders.mutate(checkedRows)}
         isOpen={isBulkArchiveOrderOpen}
-        status={handleArchiveBukhOrders.status}
+        status={handleArchiveBulkOrders.status}
         title="Archive Selected Order?"
       />
     </div>

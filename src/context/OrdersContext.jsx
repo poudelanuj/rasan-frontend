@@ -10,6 +10,11 @@ export const getOrder = async (orderId) => {
   return res.data.data;
 };
 
+export const updateOrder = async (orderId, data) => {
+  const res = await axios.put(`/api/order/admin/order/${orderId}`, data);
+  return res.data.data;
+};
+
 export const updateOrderStatus = async ({ orderId, status }) => {
   const res = await axios.put(`/api/order/admin/order/${orderId || []}/`, {
     status,

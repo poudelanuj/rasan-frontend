@@ -59,6 +59,7 @@ import { getAllProductSkus } from "../../../api/products/productSku";
 import MobileViewOrderPage from "./MobileViewOrderPage";
 import ViewOrderShipping from "./shared/ViewOrderShipping";
 import AssignUser from "./shared/AssignUser";
+import { updateOrder } from "../../../api/orders";
 
 const ViewOrderPage = () => {
   const { isMobileView } = useAuth();
@@ -82,6 +83,8 @@ const ViewOrderPage = () => {
     useState(false);
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  const [comment, setComment] = useState("");
 
   const [maxCount, setMaxCount] = useState(1);
 
@@ -112,6 +115,9 @@ const ViewOrderPage = () => {
     queryKey: ["getOrder", orderId],
     enabled: !!orderId,
     retry: false,
+    onSuccess: (res) => {
+      setComment(res.comment);
+    },
     onError: () => {
       if (pageDirectionStatus === "decrementing" && Number(orderId) !== 1) {
         setOrderId((prev) => Number(prev - 1));
@@ -153,6 +159,8 @@ const ViewOrderPage = () => {
     queryKey: ["get-user", data && data.user_profile_id],
     enabled: !!data,
   });
+
+  const addComment = useMutation(() => updateOrder(orderId, { comment }));
 
   const handleAddItem = useMutation(
     () =>
@@ -1339,6 +1347,22 @@ const ViewOrderPage = () => {
               )}
           </>
         )}
+
+        <div className="flex sm:flex-row flex-col gap-4 mt-5 sm:items-end">
+          <Input.TextArea
+            className="!w-72"
+            placeholder="Enter a comment"
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+          />
+          <Button
+            className="!bg-[#00A0B0] !border-none w-fit"
+            type="primary"
+            onClick={addComment.mutate}
+          >
+            Add Comment
+          </Button>
+        </div>
       </div>
     </>
   );

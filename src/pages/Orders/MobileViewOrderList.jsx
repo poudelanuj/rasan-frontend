@@ -10,14 +10,12 @@ import {
   Radio,
   Space,
   Spin,
-  Menu,
   Select,
 } from "antd";
 import {
   RightOutlined,
   SearchOutlined,
   LoadingOutlined,
-  DownOutlined,
 } from "@ant-design/icons";
 import moment from "moment";
 import { capitalize } from "lodash";
@@ -41,9 +39,8 @@ const MobileViewOrderList = () => {
     setSortObj,
     status,
     searchInput,
-    selectedArea,
-    setSelectedArea,
-    addressList,
+    addressRoutes,
+    setAddressRoute,
   } = useContext(OrderContext);
 
   const navigate = useNavigate();
@@ -119,31 +116,6 @@ const MobileViewOrderList = () => {
     </span>
   );
 
-  const addressMenu = (
-    <Menu
-      items={addressList?.map((address) => ({
-        key: address.id,
-        label: address.name,
-        children: address.cities?.map((city) => ({
-          key: city.id,
-          label: city.name,
-        })),
-      }))}
-      onClick={(e) => {
-        setSelectedArea(() => ({
-          province: addressList?.find(
-            (province) => province.id === Number(e.keyPath[1])
-          )?.name,
-          city: addressList
-            ?.find((province) => province.id === Number(e.keyPath[1]))
-            ?.cities?.find((city) => city.id === Number(e.key))?.name,
-          area: [],
-          isAreaChanged: false,
-        }));
-      }}
-    />
-  );
-
   return (
     <div className="sm:hidden">
       <div className="flex items-center gap-2 mb-2">
@@ -192,54 +164,24 @@ const MobileViewOrderList = () => {
         )}
       </div>
 
-      <div className="flex justify-between gap-2 mb-4">
-        <Dropdown overlay={addressMenu}>
-          <Button className="bg-white !rounded-lg" type="default">
-            {selectedArea.city ?? "Select city"}
-            <DownOutlined />
-          </Button>
-        </Dropdown>
-
+      <div className="rounded-lg !mb-4 border-[#D9D9D9] border">
         <Select
-          className="!rounded-lg flex-1"
-          disabled={!selectedArea.city}
+          bordered={false}
+          className="!w-full"
           filterOption={(input, option) =>
             (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
           }
           mode="multiple"
           optionFilterProp="children"
-          options={addressList
-            ?.find((province) => province.name === selectedArea.province)
-            ?.cities?.find((city) => city.name === selectedArea.city)
-            ?.areas?.map((area) => ({ value: area.name, label: area.name }))}
+          options={addressRoutes?.results?.map((area) => ({
+            value: area.id,
+            label: area.name,
+          }))}
           placeholder="Search to Select Area"
           style={{ width: 200 }}
-          value={selectedArea.area}
           showSearch
-          onChange={(val) =>
-            setSelectedArea((prev) => ({
-              ...prev,
-              area: val,
-              isAreaChanged: true,
-            }))
-          }
+          onChange={(val) => setAddressRoute(val)}
         />
-
-        <Button
-          className="bg-white !rounded-lg"
-          disabled={!selectedArea.city}
-          type="default"
-          onClick={() =>
-            setSelectedArea({
-              city: null,
-              province: null,
-              area: [],
-              isAreaChanged: true,
-            })
-          }
-        >
-          Clear
-        </Button>
       </div>
 
       {dataSource.map((order) => (

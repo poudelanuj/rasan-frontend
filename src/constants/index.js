@@ -49,7 +49,7 @@ export const DELIVERY_STATUS = [
   { name: "Delivery Returned", id: DELIVERY_RETURNED },
   { name: "Cancelled by CSR", id: CANCELLED_BY_CSR },
   { name: "Cancel Requested", id: CANCEL_REQUESTED },
-  { name: "Archived", id: "archived" },
+  { name: "Archived", id: ARCHIVED },
 ];
 
 export const ORDER_STATUS_ENUMS = [

@@ -51,9 +51,7 @@ export const getPaginatedOrders = async ({
   size,
   sort,
   search,
-  province,
-  city,
-  area,
+  address_route,
 }) => {
   const status =
     orderStatus === "all"
@@ -66,9 +64,9 @@ export const getPaginatedOrders = async ({
   const res = await axios.get(
     `/api/order/admin/orders/?status=${status}&page=${page || 1}&size=${
       size || 20
-    }&sort=${sort || []}&search=${search || ""}&province=${
-      province || ""
-    }&area=${area || ""}&city=${city || ""}`
+    }&sort=${sort || []}&search=${search || ""}&address_route=${
+      address_route || ""
+    }`
   );
 
   return res.data.data;
@@ -76,6 +74,11 @@ export const getPaginatedOrders = async ({
 
 export const updateOrder = async (orderId, data) => {
   const res = await axios.put(`/api/order/admin/order/${orderId}/`, data);
+  return res.data;
+};
+
+export const updateOrderStatus = async (data) => {
+  const res = await axios.post(`/api/order/admin/order/bulk-action/`, data);
   return res.data;
 };
 

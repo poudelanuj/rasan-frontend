@@ -97,3 +97,29 @@ export const updateArea = async ({ id, name, city }) => {
 
   return res.data;
 };
+
+export const getAddressRoute = async ({ page = 1, size = 100 }) => {
+  const res = await axios.get(
+    `/api/profile/admin/address-route/?page=${page}&size=${size}`
+  );
+
+  return res.data;
+};
+
+export const createAddressRoute = async (data) => {
+  const res = await axios.post(`/api/profile/admin/address-route/`, data);
+
+  return res.data;
+};
+
+export const updateAddressRoute = async (id, data) => {
+  const res = await axios.put(`/api/profile/admin/address-route/${id}`, data);
+
+  return res.data;
+};
+
+export const deleteAddressRoute = async (id) => {
+  const res = await axios.delete(`/api/profile/admin/address-route/${id}`);
+
+  return res.data;
+};
