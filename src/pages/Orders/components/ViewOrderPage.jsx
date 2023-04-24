@@ -611,9 +611,15 @@ const ViewOrderPage = () => {
             <span>Rs.</span>
             <Input
               className={`!bg-inherit !text-black !w-20 !pl-0 ${
-                isProductEditableId !== id && "!border-none"
+                (JSON.parse(localStorage.getItem("groups") || "[]")?.[0]
+                  ?.name !== "superadmin" ||
+                  isProductEditableId !== id) &&
+                "!border-none"
               }`}
-              disabled={isProductEditableId !== id}
+              disabled={
+                JSON.parse(localStorage.getItem("groups") || "[]")?.[0]
+                  ?.name !== "superadmin" || isProductEditableId !== id
+              }
               id={id}
               name="price"
               type="number"
@@ -760,10 +766,6 @@ const ViewOrderPage = () => {
             ) : (
               <Button
                 className="!border-none !p-0 !bg-inherit !m-0"
-                disabled={
-                  JSON.parse(localStorage.getItem("groups") || "[]")?.[0]
-                    ?.name !== "superadmin"
-                }
                 onClick={() => setIsProductEditableId(id)}
               >
                 <EditOutlined />

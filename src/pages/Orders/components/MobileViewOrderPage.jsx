@@ -110,11 +110,19 @@ const MobileViewOrderPage = ({
                       <>
                         <Input
                           className={`!bg-inherit !text-black text-left !p-0 !w-fit font-semibold ${
+                            JSON.parse(
+                              localStorage.getItem("groups") || "[]"
+                            )?.[0]?.name !== "superadmin" ||
                             isProductEditableId !== orderItem.id
                               ? "!border-none"
                               : "!border-blue-400"
                           }`}
-                          disabled={isProductEditableId !== orderItem.id}
+                          disabled={
+                            JSON.parse(
+                              localStorage.getItem("groups") || "[]"
+                            )?.[0]?.name !== "superadmin" ||
+                            isProductEditableId !== orderItem.id
+                          }
                           id={orderItem.id}
                           name="price"
                           type="number"
@@ -287,10 +295,6 @@ const MobileViewOrderPage = ({
                   ) : (
                     <Button
                       className="!border-none !p-0 !bg-inherit !m-0"
-                      disabled={
-                        JSON.parse(localStorage.getItem("groups") || "[]")?.[0]
-                          ?.name !== "superadmin"
-                      }
                       onClick={() => setIsProductEditableId(orderItem.id)}
                     >
                       <EditOutlined className="text-xl" />
