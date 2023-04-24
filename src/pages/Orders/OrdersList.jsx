@@ -308,7 +308,7 @@ const OrdersList = () => {
               value: area.id,
               label: area.name,
             }))}
-            placeholder="Search to select address"
+            placeholder="Search with Route"
             style={{ width: 200 }}
             showSearch
             onChange={(val) => setAddressRoute(val)}

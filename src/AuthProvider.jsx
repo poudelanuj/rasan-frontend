@@ -20,6 +20,8 @@ export default function AuthProvider({ children }) {
   };
   const logout = () => {
     localStorage.removeItem("auth_token");
+    localStorage.removeItem("profile");
+    localStorage.removeItem("groups");
     setUser(isLoggedIn());
   };
   const { data: userGroup } = useQuery({

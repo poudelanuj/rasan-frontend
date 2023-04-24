@@ -85,7 +85,7 @@ export const updateOrderStatus = async (data) => {
 export const archiveBulkOrders = async (ids) => {
   const res = await axios.post("/api/order/admin/order/bulk-action/", {
     ids,
-    action_type: "archive",
+    action_type: "archived",
   });
   return res.data;
 };

@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useState } from "react";
 import { useMutation } from "react-query";
-import { Input, message, Tooltip } from "antd";
+import { Input, message, Tooltip, Button } from "antd";
 import {
   EditOutlined,
   DeleteOutlined,
@@ -285,10 +285,16 @@ const MobileViewOrderPage = ({
                       />
                     </span>
                   ) : (
-                    <EditOutlined
-                      className="cursor-pointer text-xl"
+                    <Button
+                      className="!border-none !p-0 !bg-inherit !m-0"
+                      disabled={
+                        JSON.parse(localStorage.getItem("groups") || "[]")?.[0]
+                          ?.name !== "superadmin"
+                      }
                       onClick={() => setIsProductEditableId(orderItem.id)}
-                    />
+                    >
+                      <EditOutlined className="text-xl" />
+                    </Button>
                   ))}
               </div>
             </div>

@@ -669,7 +669,6 @@ const ViewOrderPage = () => {
           </span>
         ),
     },
-
     {
       title: <span className="px-3">Action</span>,
       dataIndex: "action",
@@ -677,10 +676,13 @@ const ViewOrderPage = () => {
       render: (text, { id }) =>
         text !== "isForm" && (
           <div className="inline-flex items-center gap-3 px-3">
-            <DeleteOutlined
-              className="cursor-pointer"
+            <Button
+              className="!border-none !p-0 !bg-inherit"
+              danger
               onClick={() => handleItemDelete.mutate(id)}
-            />
+            >
+              <DeleteOutlined />
+            </Button>
 
             {isProductEditableId === id ? (
               <span className="inline-flex items-center gap-3">
@@ -756,10 +758,16 @@ const ViewOrderPage = () => {
                 />
               </span>
             ) : (
-              <EditOutlined
-                className="cursor-pointer"
+              <Button
+                className="!border-none !p-0 !bg-inherit !m-0"
+                disabled={
+                  JSON.parse(localStorage.getItem("groups") || "[]")?.[0]
+                    ?.name !== "superadmin"
+                }
                 onClick={() => setIsProductEditableId(id)}
-              />
+              >
+                <EditOutlined />
+              </Button>
             )}
           </div>
         ),
