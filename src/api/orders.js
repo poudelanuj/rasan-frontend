@@ -109,3 +109,11 @@ export const updateOrderItem = async ({ orderId, itemId, data }) => {
   );
   return res.data;
 };
+
+export const getProduckSkuItems = async ({ ids }) => {
+  const res = await axios.get(
+    `/api/order/admin/order/product-sku-quantity?ids=${ids}`
+  );
+
+  return res.data;
+};

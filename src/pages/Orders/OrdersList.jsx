@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { FaRegFileArchive } from "react-icons/fa";
 import getOrderStatusColor from "../../shared/tagColor";
 import DeleteOrder from "./components/DeleteOrder";
+import ProductSKUModal from "./components/ProductSKUModal";
 import ButtonWPermission from "../../shared/ButtonWPermission";
 import { isEmpty, capitalize } from "lodash";
 import { DELIVERY_STATUS, IN_PROCESS } from "../../constants";
@@ -44,6 +45,10 @@ const OrdersList = () => {
   const [isBulkArchiveOrderOpen, setIsBulkArchiveOrderOpen] = useState(false);
 
   const [checkedRows, setCheckedRows] = useState([]);
+
+  const [productSkuPopup, setProductSkuPopup] = useState(false);
+
+  const [selectedOrders, setSelectedOrders] = useState([]);
 
   const navigate = useNavigate();
 
@@ -193,6 +198,7 @@ const OrdersList = () => {
 
     onChange: (selectedRowKeys, selectedRows) => {
       setCheckedRows(selectedRows.map((item) => item.id));
+      setSelectedOrders(selectedRows);
     },
     onSelect: (record, selected, selectedRows) => {},
     onSelectAll: (selected, selectedRows, changeRows) => {},
@@ -308,7 +314,7 @@ const OrdersList = () => {
               value: area.id,
               label: area.name,
             }))}
-            placeholder="Search with Route"
+            placeholder="Search with route"
             style={{ width: 200 }}
             showSearch
             onChange={(val) => setAddressRoute(val)}
@@ -316,6 +322,16 @@ const OrdersList = () => {
         </div>
 
         <Space className="justify-end">
+          {!isEmpty(checkedRows) && (
+            <Button
+              className="bg-cyan-500 text-white"
+              type="default"
+              onClick={() => setProductSkuPopup(true)}
+            >
+              Export Product SKU
+            </Button>
+          )}
+
           <Dropdown overlay={bulkMenu}>
             <Button className="bg-white" type="default">
               <Space>Bulk Actions</Space>
@@ -327,6 +343,15 @@ const OrdersList = () => {
           </Button>
         </Space>
       </div>
+
+      {!isEmpty(checkedRows) && (
+        <ProductSKUModal
+          closeModal={() => setProductSkuPopup(false)}
+          ids={checkedRows}
+          isOpen={productSkuPopup}
+          orders={selectedOrders}
+        />
+      )}
 
       <Table
         columns={columns}

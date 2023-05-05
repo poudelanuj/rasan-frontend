@@ -1,4 +1,4 @@
-import { Table } from "antd";
+import { Form, Table } from "antd";
 import { useNavigate } from "react-router-dom";
 import React, { useState, useEffect, useRef } from "react";
 import { useQuery } from "react-query";
@@ -10,6 +10,7 @@ import { getAddresses } from "../../../api/userAddresses";
 import { GET_ADDRESSES } from "../../../constants/queryKeys";
 import ButtonWPermission from "../../../shared/ButtonWPermission";
 import CreateUserModal from "./CreateUserModal";
+import AdvanceFilter from "./AdvanceFilter";
 const { Search } = Input;
 
 const UserList = () => {
@@ -19,6 +20,10 @@ const UserList = () => {
   const [pageSize, setPageSize] = useState(20);
   const [page, setPage] = useState(1);
   const [users, setUsers] = useState([]);
+
+  const [isAdvanceFilterOpen, setIsAdvanceFilterOpen] = useState(false);
+
+  const [advanceFilter] = Form.useForm();
 
   const [selectedArea, setSelectedArea] = useState({
     province: null,
@@ -50,6 +55,7 @@ const UserList = () => {
         province: selectedArea.province,
         city: selectedArea.city,
         area: selectedArea.area,
+        ...advanceFilter.getFieldValue(),
       }),
   });
 
@@ -282,7 +288,18 @@ const UserList = () => {
             Clear
           </Button>
         </div>
+
+        <Button onClick={() => setIsAdvanceFilterOpen(true)}>
+          Advance Filter
+        </Button>
       </div>
+
+      <AdvanceFilter
+        closeModal={() => setIsAdvanceFilterOpen(false)}
+        form={advanceFilter}
+        isOpen={isAdvanceFilterOpen}
+        refetch={refetch}
+      />
 
       {(status === "loading" || isRefetching) && <Spin />}
 

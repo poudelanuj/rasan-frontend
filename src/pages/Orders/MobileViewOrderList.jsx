@@ -177,7 +177,7 @@ const MobileViewOrderList = () => {
             value: area.id,
             label: area.name,
           }))}
-          placeholder="Search with Route"
+          placeholder="Search with route"
           style={{ width: 200 }}
           showSearch
           onChange={(val) => setAddressRoute(val)}

@@ -5,14 +5,26 @@ export const getUsers = async (
   search,
   pageSize,
   sort,
-  { province, city, area } = {}
+  {
+    province,
+    city,
+    area,
+    max_order_amount,
+    min_order_amount,
+    order_date,
+    order_number,
+  } = {}
 ) => {
   const res = await axios.get(
     `/api/profile/admin/user-list/?page=${page || 1}&search=${
       search || ""
     }&size=${pageSize || 20}&sort=${sort || []}&province=${
       province || ""
-    }&area=${area || ""}&city=${city || ""}`
+    }&area=${area || ""}&city=${city || ""}&max_order_amount=${
+      max_order_amount || ""
+    }&min_order_amount=${min_order_amount || ""}&order_date=${
+      order_date || ""
+    }&order_number=${order_number || ""}`
   );
 
   return res.data.data;
