@@ -38,7 +38,7 @@ const CategoryAnalytics = ({ user_id, address, isAdmin, analytics_type }) => {
   }));
 
   return (
-    <CustomCard className="col-span-1">
+    <CustomCard className="col-span-1 h-[32rem] sm:h-full">
       <span className="flex justify-between mb-10">
         <h2 className="text-xl text-gray-700 mb-0">Categories</h2>
 

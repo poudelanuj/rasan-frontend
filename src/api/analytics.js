@@ -3,7 +3,7 @@ import axios from "../axios";
 export const getUserOrderAnalytics = async ({
   analytics_type = "",
   date = "",
-  user_id,
+  user_id = "",
 }) => {
   const res = await axios.get(
     `/api/analytics/order/?user_id=${user_id}&anaytics_type=${analytics_type}&date=${date}`
@@ -14,7 +14,7 @@ export const getUserOrderAnalytics = async ({
 export const getUserCategoryAnalytics = async ({
   analytics_type = "",
   date = "",
-  user_id,
+  user_id = "",
 }) => {
   const res = await axios.get(
     `/api/analytics/category/?user_id=${user_id}&anaytics_type=${analytics_type}&date=${date}`
@@ -90,7 +90,7 @@ export const getProductSkuAnalytics = async ({
   const res = await axios.get(
     `/api/analytics/admin/product-sku/?user_id=${user_id || ""}&brand_id=${
       brand_id || ""
-    }&category_id=${category_id || ""}&addres${address || ""}&date=${
+    }&category_id=${category_id || ""}&addres=${address || ""}&date=${
       date || "today"
     }`
   );

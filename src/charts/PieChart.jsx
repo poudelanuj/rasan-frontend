@@ -21,6 +21,8 @@ const PieChart = ({ data }) => {
         return `${d.data.value}`;
       }}
       arcLinkLabelsColor={{ theme: "grid.line.stroke" }}
+      arcLinkLabelsDiagonalLength={32}
+      arcLinkLabelsStraightLength={0}
       arcLinkLabelsThickness={2}
       cornerRadius={4}
       data={data}

@@ -28,7 +28,7 @@ const BrandAnalytics = ({ user_id, address }) => {
   }));
 
   return (
-    <CustomCard className="col-span-1">
+    <CustomCard className="col-span-1 h-[32rem] sm:h-full">
       <div className="flex items-center justify-between mb-10">
         <h2 className="text-lg mb-0">Brands</h2>
 

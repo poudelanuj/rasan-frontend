@@ -12,4 +12,6 @@ axios.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+axios.defaults.baseURL = process.env.REACT_APP_BASE_URL;
+
 export default axios;

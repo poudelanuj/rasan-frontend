@@ -8,7 +8,7 @@ import getOrderStatusColor from "../../shared/tagColor";
 import DeleteOrder from "./components/DeleteOrder";
 import ProductSKUModal from "./components/ProductSKUModal";
 import ButtonWPermission from "../../shared/ButtonWPermission";
-import { isEmpty, capitalize } from "lodash";
+import { isEmpty, capitalize, uniqBy } from "lodash";
 import { DELIVERY_STATUS, IN_PROCESS } from "../../constants";
 import { archiveBulkOrders } from "../../api/orders";
 import { updateOrderStatus } from "../../api/orders";
@@ -197,8 +197,10 @@ const OrdersList = () => {
     ],
 
     onChange: (selectedRowKeys, selectedRows) => {
-      setCheckedRows(selectedRows.map((item) => item.id));
-      setSelectedOrders(selectedRows);
+      setCheckedRows((prev) =>
+        uniqBy([...selectedRows.map((item) => item.id), ...prev])
+      );
+      setSelectedOrders((prev) => uniqBy([...selectedRows, ...prev], "id"));
     },
     onSelect: (record, selected, selectedRows) => {},
     onSelectAll: (selected, selectedRows, changeRows) => {},

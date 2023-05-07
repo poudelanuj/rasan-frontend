@@ -2,15 +2,28 @@ import { useRef } from "react";
 import { Modal, Button, Table } from "antd";
 import { useQuery } from "react-query";
 import { capitalize } from "lodash";
-import { useReactToPrint } from "react-to-print";
 import { getProduckSkuItems } from "../../../api/orders";
+
+import { savePDF } from "@progress/kendo-react-pdf";
+
+class DocService {
+  createPdf = (html) => {
+    savePDF(html, {
+      paperSize: "Letter",
+      fileName: "donwload.pdf",
+      margin: 40,
+    });
+  };
+}
+
+const Doc = new DocService();
+
+const createPdf = (html) => Doc.createPdf(html);
 
 export default function ProductSKUModal({ isOpen, closeModal, ids, orders }) {
   const printRef = useRef();
 
-  const handlePrint = useReactToPrint({
-    content: () => printRef.current,
-  });
+  const handleDownloadPdf = () => createPdf(printRef.current);
 
   const { data: productSkuItems, isLoading } = useQuery({
     queryFn: () => getProduckSkuItems({ ids }),
@@ -22,21 +35,19 @@ export default function ProductSKUModal({ isOpen, closeModal, ids, orders }) {
       key: "sn",
       title: "S.N.",
       dataIndex: "sn",
-    },
-    {
-      key: "id",
-      title: "SKU ID",
-      dataIndex: "id",
+      width: "8%",
     },
     {
       key: "name",
       title: "SKU Name",
       dataIndex: "name",
+      width: "50%",
     },
     {
       key: "quantity",
       title: "Quantity",
       dataIndex: "quantity",
+      width: "15%",
     },
   ];
 
@@ -45,11 +56,7 @@ export default function ProductSKUModal({ isOpen, closeModal, ids, orders }) {
       key: "sn",
       title: "S.N.",
       dataIndex: "sn",
-    },
-    {
-      key: "id",
-      title: "Order ID",
-      dataIndex: "id",
+      width: "8%",
     },
     {
       title: "Customer",
@@ -58,6 +65,7 @@ export default function ProductSKUModal({ isOpen, closeModal, ids, orders }) {
       render: (_, { phone, customer_name }) => {
         return <>{customer_name ? `${customer_name} (${phone})` : phone}</>;
       },
+      width: "50%",
     },
     {
       title: "Total Paid Amount",
@@ -82,14 +90,7 @@ export default function ProductSKUModal({ isOpen, closeModal, ids, orders }) {
   return (
     <Modal
       footer={
-        <Button
-          type="primary"
-          onClick={() => {
-            printRef.current.style.padding = "50px";
-            handlePrint();
-            printRef.current.style.padding = "0";
-          }}
-        >
+        <Button type="primary" onClick={handleDownloadPdf}>
           Download
         </Button>
       }
@@ -98,9 +99,9 @@ export default function ProductSKUModal({ isOpen, closeModal, ids, orders }) {
       width="50vw"
       onCancel={closeModal}
     >
-      <div ref={printRef} className="flex flex-col gap-8">
+      <div ref={printRef} className="flex flex-col gap-8 px-[15px]" id="pdf">
         <div className="flex flex-col">
-          <p className="text-lg">Product SKU Details</p>
+          <p>Product SKU Details</p>
           <Table
             columns={productSkuItemsColumn}
             dataSource={productSkuItems?.results?.map((data, index) => ({
@@ -110,11 +111,12 @@ export default function ProductSKUModal({ isOpen, closeModal, ids, orders }) {
             }))}
             loading={isLoading}
             pagination={false}
+            size="small"
           />
         </div>
 
         <div className="flex flex-col">
-          <p className="text-lg">Order Details</p>
+          <p>Order Details</p>
           <Table
             columns={ordersColumn}
             dataSource={orders?.map((data, index) => ({
@@ -123,8 +125,16 @@ export default function ProductSKUModal({ isOpen, closeModal, ids, orders }) {
             }))}
             loading={isLoading}
             pagination={false}
+            size="small"
           />
         </div>
+
+        <p className="text-right">
+          Total Amount: Rs.{" "}
+          {orders
+            ?.map((data) => data.total_paid_amount)
+            ?.reduce((current, next) => Number(current) + Number(next), 0)}
+        </p>
       </div>
     </Modal>
   );

@@ -1,17 +1,17 @@
-import { Column } from "@ant-design/plots";
+import { Bar } from "@ant-design/plots";
 
-const ColumnPlot = ({ data }) => {
+const BarPlot = ({ data }) => {
   const config = {
     data,
-    xField: "type",
-    yField: "sales",
-    label: {
-      position: "middle",
-      style: {
-        fill: "#FFFFFF",
-        opacity: 0.6,
-      },
-    },
+    xField: "sales",
+    yField: "type",
+    // label: {
+    //   position: "middle",
+    //   style: {
+    //     fill: "#FFFFFF",
+    //     opacity: 0.6,
+    //   },
+    // },
     xAxis: {
       label: {
         autoHide: true,
@@ -38,8 +38,11 @@ const ColumnPlot = ({ data }) => {
         alias: "Count",
       },
     },
+    scrollbar: {
+      type: "vertical",
+    },
   };
-  return <Column {...config} />;
+  return <Bar {...config} />;
 };
 
-export default ColumnPlot;
+export default BarPlot;
