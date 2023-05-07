@@ -28,7 +28,7 @@ const BasketModal = ({ isModalOpen, onClose, basket }) => {
   const {
     data: basketData,
     refetch: refetchBasketItems,
-    isRefetching: isBasketItemsRefetching,
+    isLoading: isBasketItemsLoading,
   } = useQuery({
     queryFn: () => getBasketInfo(basket_id),
     queryKey: ["getBasketInfo", basket_id],
@@ -190,11 +190,11 @@ const BasketModal = ({ isModalOpen, onClose, basket }) => {
       centered
       onCancel={onClose}
     >
-      {isBasketItemsRefetching && <Spin className="mb-8 flex justify-center" />}
-
-      {!isBasketItemsRefetching && (
-        <Table columns={columns} dataSource={dataSource || []} />
-      )}
+      <Table
+        columns={columns}
+        dataSource={dataSource}
+        loading={isBasketItemsLoading}
+      />
 
       <hr className="my-5" />
       <h2 className="font-medium text-base mb-5">Add Item</h2>

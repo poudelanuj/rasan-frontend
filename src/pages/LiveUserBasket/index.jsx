@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Table, Dropdown, Button, Space, Menu, Input, Spin } from "antd";
+import { Table, Dropdown, Button, Space, Menu, Input } from "antd";
 import { useQuery, useMutation } from "react-query";
 import { uniqBy, isEmpty } from "lodash";
 import moment from "moment";
@@ -189,7 +189,6 @@ const LiveUserBasket = () => {
           }}
         />
 
-        {(status === "loading" || isRefetching) && <Spin />}
         <Table
           columns={columns}
           dataSource={basketList?.map((item) => ({

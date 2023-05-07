@@ -144,12 +144,19 @@ const Dashboard = () => {
               <div className="col-span-2 flex flex-col">
                 <OrderAnalytics
                   ExtraFilter={() => (
-                    <Dropdown overlay={items} placement="bottomLeft">
-                      <Button>
-                        {address?.name || "Address"}{" "}
-                        <DownOutlined className="!text-[rgba(0,0,0,0.3)]" />
+                    <>
+                      <Button
+                        onClick={() => setAddress({ id: null, name: "" })}
+                      >
+                        Clear
                       </Button>
-                    </Dropdown>
+                      <Dropdown overlay={items} placement="bottomLeft">
+                        <Button>
+                          {address?.name || "Address"}{" "}
+                          <DownOutlined className="!text-[rgba(0,0,0,0.3)]" />
+                        </Button>
+                      </Dropdown>
+                    </>
                   )}
                   address={address?.id}
                   isAdmin
